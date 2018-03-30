@@ -1,0 +1,103 @@
+$$$ 2018-02-08 $$$
+
+$$$ References on Algorithms $$$
+
+$= AES/Rijndael =$
+
+:: Normative References ::
+
+Title:    FIPS-197 Announcing the Advanced Encryption Standard (AES)
+Date:     2001-11-26
+URL:      http://doi.org/10.6028/NIST.FIPS.197
+
+:: Informative References ::
+
+Title:    AES Proposal: Rijndael
+Authors:  Joan Daemen, Vincent Rijmen. 
+URL:      https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/aes-development/Rijndael-ammended.pdf
+
+$= SHA-1, SHA-256, etc. =$
+
+:: Normative References ::
+
+Title:    FIPS-180-4 Secure Hash Standard (SHS)
+Date:     2015-08
+URL:      http://doi.org/10.6028/NIST.FIPS.180-4
+
+$= SHA3/Keccak =$
+
+:: Normative References ::
+
+Title:    SHA-3 Standard: Permutation-Based Hash
+          and Extendable-Output Functions
+Date:     2015-08
+URL:      http://doi.org/10.6028/NIST.FIPS.202
+
+:: Informative References ::
+
+Title:    The Keccak Reference
+Date:     2011-01-14
+Authors:  Guido Bertoni, Joan Daemen, Michael Peeters, Gilles Van Assche.
+URL:      https://keccak.team/files/Keccak-reference-3.0.pdf
+
+$= GCM - Galois Counter Mode =$
+
+:: Normative References ::
+
+Title:    Recommendation for Block Cipher Modes of Operation:
+          Galois/Counter Mode (GCM) and GMAC
+Date:     2007-11
+URL:      http://doi.org/10.6028/NIST.SP.800-38D
+
+:: Informative References ::
+
+Title:    The Galois/Counter Mode of Operation (GCM)
+Authors:  David A. McGrew, John Viega.
+URL:      http://www.csrc.nist.gov/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-revised-spec.pdf (dead link 2018-02-11)
+
+$= ChaCha20-Poly1305 =$
+
+:: Normative References ::
+
+Title:    ChaCha20 and Poly1305 for IETF Protocols
+Date:     2015-05
+URL:      https://datatracker.ietf.org/doc/rfc7539/
+
+:: Informative References ::
+
+Title:    ChaCha, a variant of Salsa20
+Authors:  Daniel J. Bernstein
+Date:     2008-01
+URL:      http://cr.yp.to/chacha/chacha-20080128.pdf
+
+Title:    The Poly1305-AES message-authentication code
+Authors:  Daniel J. Bernstein
+Date:     2005-03
+URL:      http://cr.yp.to/mac/poly1305-20050329.pdf
+
+
+
+$$$ 2018-02-08 $$$
+
+Markups used in note:
+
+o. `$$$/$$$'
+
+Usage: 1. Date the subarticle added. Three preceeding blank lines or a
+          <form feed> would be required except for the first subarticle. 
+       2. Subarticle top-level heading.
+
+o. `$=/=$'
+
+Usage: 1. Unnumbered item list item heading.
+
+o. `::/::'
+
+Usage: 1. Unlevelled inter-paragraph heading. 
+
+
+
+$$$ 2018-02-24 $$$
+
+In designing the API, it was decided that there will be no destructors for
+primitives with no explicit `finalization' function. This is arbitrary.
