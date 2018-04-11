@@ -13,10 +13,7 @@
         bn##bits##_t  yyy_data[4];              \
     } egcd##bits##_t;
 
-define_egcd_t(640)
-define_egcd_t(1280)
-define_egcd_t(6400)
-define_egcd_t(12800)
+inst_type_bits(define_egcd_t)
 
 #define EGCD_SETUP(egcd) (                              \
         (egcd)->ijr[0] = (bn_t *)&(egcd)->ijr_data[0],  \
@@ -31,10 +28,7 @@ define_egcd_t(12800)
 
 typedef union {
     // see also notes in bn_t. 
-    egcd640_t     egcd640;
-    egcd1280_t    egcd1280;
-    egcd6400_t    egcd6400;
-    egcd12800_t   egcd12800;
+    decl_union_members(egcd)
     struct {
         bn_t      *ijr[4];
         bn_t      *yyy[4];
@@ -50,10 +44,7 @@ void bn_egcd(long n, egcd_t *restrict egcd, bn_t *out, const bn_t *a, const bn_t
         bn##bits##_t data[5];                   \
     } mont##bits##_t;
 
-define_mont_t(640)
-define_mont_t(1280)
-define_mont_t(6400)
-define_mont_t(12800)
+inst_type_bits(define_mont_t)
 
 #define MONT_SETUP(mont) (                              \
         (mont)->R_inv  = (bn_t *)&(mont)->data[0],      \
@@ -65,10 +56,7 @@ define_mont_t(12800)
 
 typedef union {
     // see also notes in bn_t.
-    mont640_t     mont640;
-    mont1280_t    mont1280;
-    mont6400_t    mont6400;
-    mont12800_t   mont12800;
+    decl_union_members(mont)
     struct {
         long      logR_base32;
         bn_t      *R_inv, *N_apos, *N, *m, *t;

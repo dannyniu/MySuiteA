@@ -5,23 +5,37 @@
 
 #include "../mysuitea-common.h"
 
+// The following two macros are the configuration for
+// default big integer sizes for number-theory working types.
+// Since they're common alone side bn_t, it's defined along side it. 
+
+#define inst_type_bits(definer)                 \
+    definer(640)                                \
+    definer(1280)                               \
+    definer(6400)                               \
+    definer(12800)
+
+#define decl_union_members(prefix)              \
+    prefix##640##_t     prefix##640;            \
+    prefix##1280##_t    prefix##1280;           \
+    prefix##6400##_t    prefix##6400;           \
+    prefix##12800##_t   prefix##12800;
+
+// Defines bn_t template. 
+
 #define define_bn_t(bits)                       \
     typedef struct {                            \
         uint32_t w[bits/32];                    \
     } bn##bits##_t;
 
-define_bn_t(640)
-define_bn_t(1280)
-define_bn_t(6400)
-define_bn_t(12800)
+// Defines bn*_t instances. 
+
+inst_type_bits(define_bn_t)
 
 typedef union {
     // this type is only used for casting pointers,
     // no actual data should be held in this union type. 
-    bn640_t     bn640;
-    bn1280_t    bn1280;
-    bn6400_t    bn6400;
-    bn12800_t   bn12800;
+    decl_union_members(bn)
     uint32_t    w[0+1]; // just to be standard-conformant. 
 } bn_t;
 
