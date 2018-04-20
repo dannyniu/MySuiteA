@@ -75,6 +75,18 @@ Authors:  Daniel J. Bernstein
 Date:     2005-03
 URL:      http://cr.yp.to/mac/poly1305-20050329.pdf
 
+$= Gimli =$
+
+:: Normative Reference ::
+
+Title:    Gimli: a cross-platform permutation
+Authors:  Daniel J. Bernstein, Stefan Kolbl, Stefan Lucks,
+          Pedro Maat Costa Massolino, Florian Mendel, Kashif Nawaz,
+          Tobias Schneider, Peter Schwabe, Francois-Xavier Standaert,
+          Yosuke Todo, Benoit Viguier.
+Date:     2017-06-27
+URL:      https://eprint.iacr.org/2017/630.pdf
+
 
 
 $$$ 2018-02-08 $$$
@@ -101,3 +113,22 @@ $$$ 2018-02-24 $$$
 
 In designing the API, it was decided that there will be no destructors for
 primitives with no explicit `finalization' function. This is arbitrary.
+
+
+
+$$$ 2018-04-20 $$$
+
+$$$ Focus of the suite / why isn't there public-key algorithms $$$
+
+I want to demonstrate the layering of cryptographic primitives and constructs.
+
+Symmetric-key cryptography is the easiest to work on because they are defined
+to operate on and as operation of data directly;
+
+Whereas public-key cryptography algorithms each have their own primitives that
+aren't necessarily interoperable, work on abstract types that aren't directly
+represented as octet string data (requires ASN.1 often), and often require
+paying special attention to implementation pitfalls.
+
+Anyway, this suite isn't supposed to replace existing mature products such as
+LibreSSL, GnuTLS, etc. 

@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2018-02-06. Public Domain. */
 
 #ifndef MySuiteA_keccak_h
-#define MySuiteA_keccak_h
+#define MySuiteA_keccak_h 1
 
 // References: src/notes.txt: "SHA3/Keccak". 
 

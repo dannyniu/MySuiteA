@@ -1,8 +1,7 @@
 /* DannyNiu/NJF, 2018-02-08. Public Domain. */
 
-#include "../1-symm/sponge.h"
-#include "../1-symm/keccak.h"
 #include "shake.h"
+#include "../1-symm/keccak.h"
 
 void SHAKE128_Init(shake_t *restrict x)
 {

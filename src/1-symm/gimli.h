@@ -1,0 +1,19 @@
+/* DannyNiu/NJF, 2018-04-20. Public Domain. */
+
+#ifndef MySuiteA_gimli_h
+#define MySuiteA_gimli_h 1
+
+// References: src/notes.txt: "Gimli".
+
+#include "../mysuitea-common.h"
+
+void Gimli_Permute(const void *in, void *out);
+
+#define _iGimli(q) (                                    \
+        q==blockBytes ? 48 :                            \
+        q==PermuteFunc ? (intptr_t)Gimli_Permute :       \
+        -1 )
+
+intptr_t iGimli(int q);
+
+#endif /* MySuiteA_gimli_h */

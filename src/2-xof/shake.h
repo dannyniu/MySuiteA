@@ -6,6 +6,7 @@
 // References: src/notes.txt: "SHA3/Keccak". 
 
 #include "../mysuitea-common.h"
+#include "../1-symm/sponge.h"
 
 typedef struct shake_context {
     sponge_t    sponge;
