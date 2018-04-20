@@ -10,16 +10,14 @@
 // Since they're common alone side bn_t, it's defined along side it. 
 
 #define inst_type_bits(definer)                 \
-    definer(640)                                \
-    definer(1280)                               \
+    definer(1600)                               \
     definer(6400)                               \
-    definer(12800)
+    definer(16000)
 
 #define decl_union_members(prefix)              \
-    prefix##640##_t     prefix##640;            \
-    prefix##1280##_t    prefix##1280;           \
+    prefix##1600##_t    prefix##1600;           \
     prefix##6400##_t    prefix##6400;           \
-    prefix##12800##_t   prefix##12800;
+    prefix##16000##_t   prefix##16000;
 
 // Defines bn_t template. 
 
