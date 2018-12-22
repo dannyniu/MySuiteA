@@ -40,6 +40,22 @@ Date:     2011-01-14
 Authors:  Guido Bertoni, Joan Daemen, Michael Peeters, Gilles Van Assche.
 URL:      https://keccak.team/files/Keccak-reference-3.0.pdf
 
+$= BLAKE2 =$
+
+:: Normative References ::
+
+Title:    The BLAKE2 Cryptographic Hash and Message Authentication Code
+Date:     2015-11
+URL:      https://datatracker.ietf.org/doc/rfc7693/
+
+:: Informative Reference ::
+
+Title:    BLAKE2: simpler, smaller, fast as MD5
+Date:     2013-01-29
+Authors:  Jean-Phillppe Aumasson, Samuel Neves,
+          Zooko Wilcox-O'Hearn, Christian Winnerlein.
+URL:      http://blake2.net/blake2.pdf
+
 $= GCM - Galois Counter Mode =$
 
 :: Normative References ::

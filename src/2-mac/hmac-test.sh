@@ -19,19 +19,23 @@ testfunc() {
             mlen=0
             while [ $mlen -lt 1000000 ] ; do
                 echo $algo $klen $mlen
-                mlen=$((mlen*2+100))
+                mlen=$((mlen*3+251))
             done
-            klen=$((klen*2+8))
+            klen=$((klen*3+61))
         done 
     done | while read algo klen mlen ; do
         
-        dd if=/dev/urandom bs=4 count=$((klen/4)) \
+        dd if=/dev/urandom bs=1 count=$klen \
            of=hmac-test-key 2>/dev/null
 
-        dd if=/dev/urandom bs=100 count=$((mlen/100)) \
+        dd if=/dev/urandom bs=1 count=$mlen \
            of=hmac-test-data 2>/dev/null
 
-        if [ $(../src/2-util/hmac-test.php $algo) = $($exec $algo) ] ; then
+        ../src/2-mac/hmac-test.php $algo > hmac-test-ref &
+        $exec $algo > hmac-test-result &
+        wait
+        
+        if [ $(cat hmac-test-ref) = $(cat hmac-test-result) ] ; then
             echo Test succeeded for $algo klen=$klen mlen=$mlen >&2
         else
             echo Test failed for $algo klen=$klen mlen=$mlen!
@@ -42,9 +46,9 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-../src/2-util/hmac-test.c
-../src/2-util/hmac-sha.c
-../src/2-util/hmac.c
+hmac-test.c
+hmac-sha.c
+hmac.c
 ../src/2-hash/sha.c
 ../src/2-hash/sha3.c
 ../src/1-symm/fips-180.c

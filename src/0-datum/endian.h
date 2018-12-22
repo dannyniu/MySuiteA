@@ -1,9 +1,10 @@
 /* DannyNiu/NJF, 2018-01-30. Public Domain. */
 
-#include <endian.h>
+#undef MySuiteA_endian_h
 
 #ifndef __APPLE__ // who as of macOS 10.14 Mojave don't have <endian.h>
-#define MySuiteA_endian_h 0
+#define MySuiteA_endian_h 1
+#include <endian.h>
 #endif /* __APPLE__ */
 
 #ifndef MySuiteA_endian_h

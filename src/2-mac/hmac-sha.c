@@ -4,12 +4,12 @@
 
 #define Define_HMAC_SHA(inst)                                   \
     void HMAC_SHA##inst##_Init(HMAC_SHA##inst##_t *restrict x,  \
-                                   const void *restrict key,    \
-                                   size_t keylen)               \
+                               const void *restrict key,        \
+                               size_t keylen)                   \
     {                                                           \
-     x->hmac = HMAC_INIT(_iSHA##inst);                          \
-     HMAC_SetKey(&x->hmac, key, keylen);                        \
-     }
+        x->hmac = HMAC_INIT(_iSHA##inst);                       \
+        HMAC_SetKey(&x->hmac, key, keylen);                     \
+    }
 
 Define_HMAC_SHA(1)
 
