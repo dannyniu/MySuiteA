@@ -2,7 +2,7 @@
 
 #include <stdalign.h>
 #include <stdio.h>
-#include "chacha20.h"
+#include "chacha.h"
 
 int main()
 {
@@ -15,8 +15,8 @@ int main()
     puts("Check output against test vectors in RFC7539 section 2.3.2.");
     for(i=0; i<32; i++) key[i] = i;
 
-    chacha20_set_state(state, key, nonce);
-    chacha20_block(state, 1, 64, NULL, out);
+    chacha_word_set_state(state, key, nonce);
+    chacha_word_block(state, 1, 64, NULL, out);
 
     for(i=0; i<64; i++) {
         printf("%02x ", out[i]);

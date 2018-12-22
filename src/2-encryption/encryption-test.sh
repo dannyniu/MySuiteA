@@ -27,7 +27,7 @@ src_common="
 2-encryption/chacha20-poly1305.c
 2-encryption/gcm-aes.c
 2-encryption/gcm.c
-1-symm/chacha20.c
+1-symm/chacha.c
 1-symm/poly1305.c
 0-datum/endian.c
 "

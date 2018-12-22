@@ -2,7 +2,10 @@
 
 #include <endian.h>
 
+#ifndef __APPLE__ // who as of macOS 10.14 Mojave don't have <endian.h>
 #define MySuiteA_endian_h 0
+#endif /* __APPLE__ */
+
 #ifndef MySuiteA_endian_h
 #define MySuiteA_endian_h 1
 

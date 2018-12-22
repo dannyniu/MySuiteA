@@ -7,11 +7,11 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-chacha20-test.c
-chacha20.c
+chacha-test.c
+chacha.c
 0-datum/endian.c
 "
-bin=aes-test
+bin=chacha-test
 
 echo ================================================================
 echo C language code. [x86_64]

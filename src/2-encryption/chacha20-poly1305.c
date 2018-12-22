@@ -5,7 +5,7 @@
 
 void ChaCha_AEAD_Init(chacha_aead_t *restrict x, const void *restrict K)
 {
-    chacha20_set_state(x->state, K, NULL);
+    chacha_word_set_state(x->state, K, NULL);
 }
 
 static inline size_t min(size_t a, size_t b) { return a<b ? a : b; }
@@ -20,12 +20,12 @@ void ChaCha_AEAD_Encrypt(chacha_aead_t *restrict x,
     const uint8_t *iptr=in; uint8_t *optr=out;
     size_t i, j;
     
-    chacha20_set_state(x->state, NULL, iv);
-    chacha20_block(x->state, 0, 32, NULL, words);
+    chacha_word_set_state(x->state, NULL, iv);
+    chacha_word_block(x->state, 0, 32, NULL, words);
     poly1305_init(&x->poly1305, words);
 
     for(i=0; i<len; i+=64) {
-        chacha20_block(x->state, i/64+1, min(64,len-i), iptr+i, optr+i);
+        chacha_word_block(x->state, i/64+1, min(64,len-i), iptr+i, optr+i);
     }
 
     for(i=0; i<alen; i+=16) {
@@ -60,8 +60,8 @@ void *ChaCha_AEAD_Decrypt(chacha_aead_t *restrict x,
     const uint8_t *iptr=in; uint8_t *optr=out;
     size_t i, j;
 
-    chacha20_set_state(x->state, NULL, iv);
-    chacha20_block(x->state, 0, 32, NULL, words);
+    chacha_word_set_state(x->state, NULL, iv);
+    chacha_word_block(x->state, 0, 32, NULL, words);
     poly1305_init(&x->poly1305, words);
 
     for(i=0; i<alen; i+=16) {
@@ -88,7 +88,7 @@ void *ChaCha_AEAD_Decrypt(chacha_aead_t *restrict x,
     if( !out ) return NULL;
 
     for(i=0; i<len; i+=64) {
-        chacha20_block(x->state, i/64+1, min(64,len-i), iptr+i, optr+i);
+        chacha_word_block(x->state, i/64+1, min(64,len-i), iptr+i, optr+i);
     }
 
     return out;

@@ -4,7 +4,7 @@
 #define MySuiteA_chacha20_poly1305_h 1
 
 #include "../mysuitea-common.h"
-#include "../1-symm/chacha20.h"
+#include "../1-symm/chacha.h"
 #include "../1-symm/poly1305.h"
 
 // Fixed-size in all environments. 

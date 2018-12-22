@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2018-02-16. Public Domain. */
 
 #include "../0-datum/endian.h"
-#include "chacha20.h"
+#include "chacha.h"
 
 #define qround(a, b, c, d)                      \
     {                                           \
@@ -23,9 +23,9 @@ static inline void inner_block(uint32_t state[16])
     qround(state[ 3], state[ 4], state[ 9], state[14]);
 }
 
-void chacha20_set_state(void *restrict state,
-                               const void *restrict key,
-                               const void *restrict nonce)
+void chacha_word_set_state(void *restrict state,
+                           const void *restrict key,
+                           const void *restrict nonce)
 {
     uint32_t *s = state;
     int i;
@@ -46,8 +46,8 @@ void chacha20_set_state(void *restrict state,
     }
 }
 
-void chacha20_block(uint32_t *restrict state, uint32_t counter, 
-                           size_t len, const void *in, void *out)
+void chacha_word_block(uint32_t *restrict state, uint32_t counter, 
+                       size_t len, const void *in, void *out)
 {
     uint32_t *s = state, ws[16];
     uint8_t *ptr = (void *)ws;

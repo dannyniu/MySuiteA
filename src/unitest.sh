@@ -29,9 +29,11 @@ if [ $sysarch = $arch ] ; then
     export exec=./$bin
 
 else
+    last(){ shift $(( $# - 1 )) ; echo $1 ; }
     UsrArchIncPath=/usr/$arch-$systarget/include
     UsrArchLibPath=/usr/$arch-$systarget/lib
-    UsrArchGccLibPath=/usr/lib/gcc-cross/$arch-$systarget/7
+    UsrArchGccLibPath=`last /usr/lib/gcc-cross/$arch-$systarget/*`
+    
     cflags1="-target $arch-$systarget -I$UsrArchIncPath"
     ld="
       $arch-$systarget-ld
@@ -44,6 +46,7 @@ else
       -L$UsrArchGccLibPath
       -lc -lgcc -lgcc_s
     "
+    
     export exec="qemu_exec $arch ./$bin"
     export LD_LIBRARY_PATH=$UsrArchLibPath:$LD_LIBRARY_PATH
 fi
