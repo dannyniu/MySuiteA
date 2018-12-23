@@ -179,14 +179,7 @@ void blake2b_compress(uint64_t *restrict h, const void *m, uint64_t t, int f)
     if( f ) v[14] = ~v[14];
 
     for(i=0; i<12; i++)
-        inner_block_long(v, m, sigma[i%10])/*, //;
-                                             printf("i=%i\n", i),
-                                             printf("%016llx %016llx %016llx\n", v[0], v[1], v[2]), 
-                                             printf("%016llx %016llx %016llx\n", v[3], v[4], v[5]), 
-                                             printf("%016llx %016llx %016llx\n", v[6], v[7], v[8]), 
-                                             printf("%016llx %016llx %016llx\n", v[9], v[10], v[11]), 
-                                             printf("%016llx %016llx %016llx\n", v[12], v[13], v[14]), 
-                                             printf("%016llx\n", v[15])*/;
+        inner_block_long(v, m, sigma[i%10]);
 
     for(i=0; i<8; i++)
         h[i] ^= v[i] ^ v[i+8];
