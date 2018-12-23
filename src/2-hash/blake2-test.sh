@@ -1,13 +1,9 @@
 #!/bin/sh
 
-if ! command -v shasum ; then
-    echo "Cannot invoke shasum. (Not installed?)"
-    exit 1;
-fi
-
-if ! command -v sha3sum ; then
-    echo "Cannot invoke sha3sum. (Not installed?)"
-    exit 1;
+if ! command -v b2sum ; then
+    echo "Cannot invoke b2sum. Try installing from: "
+    echo "https://github.com/BLAKE2/BLAKE2"
+    exit 1
 fi
 
 testfunc() {
@@ -18,24 +14,23 @@ testfunc() {
     while [ $mlen -lt 1000000 ] ; do
         dd if=/dev/urandom bs=32 count=$((mlen/32)) of=$testvec 2>/dev/null
         
-        for b in 1 224 256 384 512 ; do
-            ref="$(shasum -b -a $b < $testvec)"
-            res="$($exec $b < $testvec)"
+        for b in 160 256 384 512 ; do
+            ref="$(b2sum -a blake2b -l $b < $testvec)"
+            res="$($exec blake2b$b < $testvec)"
             if ! [ "${ref%%[!a-zA-Z0-9]*}" = $res ] ; then
-                echo sha${b} failed with "$ref" != $res
+                echo BLAKE2b${b} failed with "$ref" != $res
                 n=$((n+1))
-                datetime=$(date +%Y-%m-%d-%H%M%S)
-                cp $testvec failed-sha${b}-$mlen.$datetime.$arch.dat
+                cp $testvec failed-blake2b${b}-$mlen.$arch.dat
             fi
         done
         
-        for b in 224 256 384 512 128000 256000 ; do
-            ref="$(sha3sum -b -a $b < $testvec)"
-            res="$($exec 3$b < $testvec)"
+        for b in 128 160 224 256 ; do
+            ref="$(b2sum -a blake2s -l $b < $testvec)"
+            res="$($exec blake2s$b < $testvec)"
             if ! [ "${ref%%[!a-zA-Z0-9]*}" = $res ] ; then
-                echo sha3-${b} failed with "$ref" != $res
+                echo BLAKE2s${b} failed with "$ref" != $res
                 n=$((n+1))
-                cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
+                cp $testvec failed-blake2s${b}-$mlen.$arch.dat
             fi
         done
 
@@ -48,16 +43,12 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-sha-test.c
-sha.c
-sha3.c
-2-xof/shake.c
-1-symm/fips-180.c
-1-symm/sponge.c
-1-symm/keccak-f-1600.c
+blake2-test.c
+blake2.c
+1-symm/chacha.c
 0-datum/endian.c
 "
-bin=sha-test
+bin=blake2-test
 
 echo ================================================================
 echo C language code. [x86_64]

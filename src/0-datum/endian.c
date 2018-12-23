@@ -4,6 +4,8 @@
 
 #if MySuiteA_endian_h
 
+#include <stdint.h>
+
 // Byte-Swapping Macros. 
 
 #ifdef __ARM_ACLE

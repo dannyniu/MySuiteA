@@ -21,51 +21,77 @@ static const uint8_t sigma[10][16] = {
 // word:    32-bit,
 // long;    64-bit. 
 
-#define qround_word(a, b, c, d, x, y)                   \
+#define qround(a, b, c, d)                              \
     {                                                   \
-        a += b + x; d ^= a; d = (d<<16)|(d>>16);        \
-        c += d    ; b ^= c; b = (b<<12)|(b>>20);        \
-        a += b + y; d ^= a; d = (d<< 8)|(d>>24);        \
-        c += d    ; b ^= c; b = (b<< 7)|(b>>25);        \
+        a += b; d ^= a; d = (d<<16)|(d>>16);            \
+        c += d; b ^= c; b = (b<<12)|(b>>20);            \
+        a += b; d ^= a; d = (d<< 8)|(d>>24);            \
+        c += d; b ^= c; b = (b<< 7)|(b>>25);            \
     }
 
-#define qround_long(a, b, c, d, x, y)                   \
-    {                                                   \
-        a += b + x; d ^= a; d = (d<<32)|(d>>32);        \
-        c += d    ; b ^= c; b = (b<<24)|(b>>40);        \
-        a += b + y; d ^= a; d = (d<<16)|(d>>48);        \
-        c += d    ; b ^= c; b = (b<<63)|(b>> 1);        \
+#define qround_word(a, b, c, d, x, y)                           \
+    {                                                           \
+        a += b + le32toh(x); d ^= a; d = (d>>16)|(d<<16);       \
+        c += d             ; b ^= c; b = (b>>12)|(b<<20);       \
+        a += b + le32toh(y); d ^= a; d = (d>> 8)|(d<<24);       \
+        c += d             ; b ^= c; b = (b>> 7)|(b<<25);       \
+    }
+
+#define qround_long(a, b, c, d, x, y)                           \
+    {                                                           \
+        a += b + le64toh(x); d ^= a; d = (d>>32)|(d<<32);       \
+        c += d             ; b ^= c; b = (b>>24)|(b<<40);       \
+        a += b + le64toh(y); d ^= a; d = (d>>16)|(d<<48);       \
+        c += d             ; b ^= c; b = (b>>63)|(b<< 1);       \
     }
 
 #define msg(i) ( m ? m[s[i]] : 0 )
 
-static inline void inner_block_word(uint32_t state[16], uint32_t m[16], uint8_t s[16])
+static inline void
+inner_block(uint32_t state[16])
 {
-    qround_word(state[ 0], state[ 4], state[ 8], state[12], le32toh(msg( 0)), le32toh(msg( 1)) );
-    qround_word(state[ 1], state[ 5], state[ 9], state[13], le32toh(msg( 2)), le32toh(msg( 3)) );
-    qround_word(state[ 2], state[ 6], state[10], state[14], le32toh(msg( 4)), le32toh(msg( 5)) );
-    qround_word(state[ 3], state[ 7], state[11], state[15], le32toh(msg( 6)), le32toh(msg( 7)) );
-    qround_word(state[ 0], state[ 5], state[10], state[15], le32toh(msg( 8)), le32toh(msg( 9)) );
-    qround_word(state[ 1], state[ 6], state[11], state[12], le32toh(msg(10)), le32toh(msg(11)) );
-    qround_word(state[ 2], state[ 7], state[ 8], state[13], le32toh(msg(12)), le32toh(msg(13)) );
-    qround_word(state[ 3], state[ 4], state[ 9], state[14], le32toh(msg(14)), le32toh(msg(15)) );
+    qround(state[ 0], state[ 4], state[ 8], state[12]);
+    qround(state[ 1], state[ 5], state[ 9], state[13]);
+    qround(state[ 2], state[ 6], state[10], state[14]);
+    qround(state[ 3], state[ 7], state[11], state[15]);
+    
+    qround(state[ 0], state[ 5], state[10], state[15]);
+    qround(state[ 1], state[ 6], state[11], state[12]);
+    qround(state[ 2], state[ 7], state[ 8], state[13]);
+    qround(state[ 3], state[ 4], state[ 9], state[14]);
 }
 
-static inline void inner_block_long(uint64_t state[16], uint64_t m[16], uint8_t s[16])
+static inline void
+inner_block_word(uint32_t state[16], const uint32_t m[16], const uint8_t s[16])
 {
-    qround_long(state[ 0], state[ 4], state[ 8], state[12], le32toh(msg( 0)), le32toh(msg( 1)) );
-    qround_long(state[ 1], state[ 5], state[ 9], state[13], le32toh(msg( 2)), le32toh(msg( 3)) );
-    qround_long(state[ 2], state[ 6], state[10], state[14], le32toh(msg( 4)), le32toh(msg( 5)) );
-    qround_long(state[ 3], state[ 7], state[11], state[15], le32toh(msg( 6)), le32toh(msg( 7)) );
-    qround_long(state[ 0], state[ 5], state[10], state[15], le32toh(msg( 8)), le32toh(msg( 9)) );
-    qround_long(state[ 1], state[ 6], state[11], state[12], le32toh(msg(10)), le32toh(msg(11)) );
-    qround_long(state[ 2], state[ 7], state[ 8], state[13], le32toh(msg(12)), le32toh(msg(13)) );
-    qround_long(state[ 3], state[ 4], state[ 9], state[14], le32toh(msg(14)), le32toh(msg(15)) );
+    qround_word(state[ 0], state[ 4], state[ 8], state[12], msg( 0), msg( 1));
+    qround_word(state[ 1], state[ 5], state[ 9], state[13], msg( 2), msg( 3));
+    qround_word(state[ 2], state[ 6], state[10], state[14], msg( 4), msg( 5));
+    qround_word(state[ 3], state[ 7], state[11], state[15], msg( 6), msg( 7));
+    
+    qround_word(state[ 0], state[ 5], state[10], state[15], msg( 8), msg( 9));
+    qround_word(state[ 1], state[ 6], state[11], state[12], msg(10), msg(11));
+    qround_word(state[ 2], state[ 7], state[ 8], state[13], msg(12), msg(13));
+    qround_word(state[ 3], state[ 4], state[ 9], state[14], msg(14), msg(15));
+}
+
+static inline void
+inner_block_long(uint64_t state[16], const uint64_t m[16], const uint8_t s[16])
+{
+    qround_long(state[ 0], state[ 4], state[ 8], state[12], msg( 0), msg( 1));
+    qround_long(state[ 1], state[ 5], state[ 9], state[13], msg( 2), msg( 3));
+    qround_long(state[ 2], state[ 6], state[10], state[14], msg( 4), msg( 5));
+    qround_long(state[ 3], state[ 7], state[11], state[15], msg( 6), msg( 7));
+    
+    qround_long(state[ 0], state[ 5], state[10], state[15], msg( 8), msg( 9));
+    qround_long(state[ 1], state[ 6], state[11], state[12], msg(10), msg(11));
+    qround_long(state[ 2], state[ 7], state[ 8], state[13], msg(12), msg(13));
+    qround_long(state[ 3], state[ 4], state[ 9], state[14], msg(14), msg(15));
 }
 
 void chacha20_set_state(void *restrict state,
-                           const void *restrict key,
-                           const void *restrict nonce)
+                        const void *restrict key,
+                        const void *restrict nonce)
 {
     uint32_t *s = state;
     int i;
@@ -87,7 +113,7 @@ void chacha20_set_state(void *restrict state,
 }
 
 void chacha20_block(uint32_t *restrict state, uint32_t counter, 
-                       size_t len, const void *in, void *out)
+                    size_t len, const void *in, void *out)
 {
     uint32_t *s = state, ws[16];
     uint8_t *ptr = (void *)ws;
@@ -95,7 +121,7 @@ void chacha20_block(uint32_t *restrict state, uint32_t counter,
 
     s[12] = counter; for(i=0; i<16; i++) { ws[i] = s[i]; }
 
-    for(i=0; i<10; i++) { inner_block_word(ws, NULL, NULL); }
+    for(i=0; i<10; i++) { inner_block(ws); }
 
     for(i=0; i<16; i++) { ws[i] = htole32( ws[i] + s[i] ); }
 
@@ -126,34 +152,7 @@ void blake2s_compress(uint32_t *restrict h, const void *m, uint64_t t, int f)
     if( f ) v[14] = ~v[14];
 
     for(i=0; i<10; i++)
-        inner_block_word(v, m, s[i%10]);
-
-    for(i=0; i<8; i++)
-        h[i] ^= v[i] ^ v[i+8];
-}
-
-void blake2s_compress(uint32_t *restrict h, const void *m, uint64_t t, int f)
-{
-    int i;
-    uint32_t v[16];
-    
-    for(i=0; i<8; i++) v[i] = h[i];
-    v[ 8] = 0x6a09e667;
-    v[ 9] = 0xbb67ae85;
-    v[10] = 0x3c6ef372;
-    v[11] = 0xa54ff53a;
-    v[12] = 0x510e527f;
-    v[13] = 0x9b05688c;
-    v[14] = 0x1f83d9ab;
-    v[15] = 0x5be0cd19;
-
-    v[12] ^= t;
-    v[13] ^= t>>32;
-
-    if( f ) v[14] = ~v[14];
-
-    for(i=0; i<10; i++)
-        inner_block_word(v, m, s[i%10]);
+        inner_block_word(v, m, sigma[i%10]);
 
     for(i=0; i<8; i++)
         h[i] ^= v[i] ^ v[i+8];
@@ -162,17 +161,17 @@ void blake2s_compress(uint32_t *restrict h, const void *m, uint64_t t, int f)
 void blake2b_compress(uint64_t *restrict h, const void *m, uint64_t t, int f)
 {
     int i;
-    uint32_t v[16];
+    uint64_t v[16];
     
     for(i=0; i<8; i++) v[i] = h[i];
-    v[0] = 0x6a09e667f3bcc908;
-    v[1] = 0xbb67ae8584caa73b;
-    v[2] = 0x3c6ef372fe94f82b;
-    v[3] = 0xa54ff53a5f1d36f1;
-    v[4] = 0x510e527fade682d1;
-    v[5] = 0x9b05688c2b3e6c1f;
-    v[6] = 0x1f83d9abfb41bd6b;
-    v[7] = 0x5be0cd19137e2179;
+    v[ 8] = 0x6a09e667f3bcc908;
+    v[ 9] = 0xbb67ae8584caa73b;
+    v[10] = 0x3c6ef372fe94f82b;
+    v[11] = 0xa54ff53a5f1d36f1;
+    v[12] = 0x510e527fade682d1;
+    v[13] = 0x9b05688c2b3e6c1f;
+    v[14] = 0x1f83d9abfb41bd6b;
+    v[15] = 0x5be0cd19137e2179;
 
     v[12] ^= t;
     // Not implemented for msglen > 2^64. 
@@ -180,7 +179,14 @@ void blake2b_compress(uint64_t *restrict h, const void *m, uint64_t t, int f)
     if( f ) v[14] = ~v[14];
 
     for(i=0; i<12; i++)
-        inner_block_long(v, m, s[i%10]);
+        inner_block_long(v, m, sigma[i%10])/*, //;
+                                             printf("i=%i\n", i),
+                                             printf("%016llx %016llx %016llx\n", v[0], v[1], v[2]), 
+                                             printf("%016llx %016llx %016llx\n", v[3], v[4], v[5]), 
+                                             printf("%016llx %016llx %016llx\n", v[6], v[7], v[8]), 
+                                             printf("%016llx %016llx %016llx\n", v[9], v[10], v[11]), 
+                                             printf("%016llx %016llx %016llx\n", v[12], v[13], v[14]), 
+                                             printf("%016llx\n", v[15])*/;
 
     for(i=0; i<8; i++)
         h[i] ^= v[i] ^ v[i+8];

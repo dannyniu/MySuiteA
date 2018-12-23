@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if ! command -v php ; then
+    echo "Cannot invoke php. (Not installed?)"
+    exit 1
+fi
+
 hash_algos="
 sha1
 sha224
@@ -13,6 +18,7 @@ sha3-512
 "
 
 testfunc() {
+    failcount=0
     for algo in $hash_algos ; do
         klen=0
         while [ $klen -lt 1024 ] ; do
@@ -23,8 +29,12 @@ testfunc() {
             done
             klen=$((klen*3+61))
         done 
-    done | while read algo klen mlen ; do
-        
+    done | while
+        if ! read algo klen mlen ; then
+            echo $failcount tests failed.
+            false
+        fi
+    do
         dd if=/dev/urandom bs=1 count=$klen \
            of=hmac-test-key 2>/dev/null
 
@@ -36,11 +46,15 @@ testfunc() {
         wait
         
         if [ $(cat hmac-test-ref) = $(cat hmac-test-result) ] ; then
-            echo Test succeeded for $algo klen=$klen mlen=$mlen >&2
+            echo Test succeeded for $algo klen=$klen mlen=$mlen
         else
             echo Test failed for $algo klen=$klen mlen=$mlen!
+            failcount=$((failcount+1))
+            suffix=$(date +%Y-%m-%d-%H%M%S)-$failcount
+            mv hmac-test-key hmac-test-key-$suffix
+            mv hmac-test-data hmac-test-data-$suffix
         fi
-    done | echo $(awk 'END { print NR; }') tests failed.
+    done
 }
 
 cd "$(dirname "$0")"
@@ -49,12 +63,12 @@ src="
 hmac-test.c
 hmac-sha.c
 hmac.c
-../src/2-hash/sha.c
-../src/2-hash/sha3.c
-../src/1-symm/fips-180.c
-../src/1-symm/sponge.c
-../src/1-symm/keccak-f-1600.c
-../src/0-datum/endian.c
+2-hash/sha.c
+2-hash/sha3.c
+1-symm/fips-180.c
+1-symm/sponge.c
+1-symm/keccak-f-1600.c
+0-datum/endian.c
 "
 bin=hmac-test
 
