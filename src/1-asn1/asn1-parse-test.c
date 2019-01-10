@@ -29,6 +29,19 @@ static asn1_term_t at_x509[] = {
     /*1*/{ 0, 0, 0,  3,  NULL, { NULL }, 0, { NULL }, 0,  0,  0, }, //106: signatureValue
 };
 
+static uint8_t danglings[] = {
+    0x30, 0x10,
+    /**/  0x02, 0x01, 0x90, 
+    /**/  0x02, 0x01, 0x90,
+    /**/  0,0,  0,0,0,0, 0,0,0,0,
+};
+
+static asn1_term_t dangles[] = {
+    { 0, 1, 0, 16, NULL, { NULL }, 0, { NULL }, 0, 0, 1, }, 
+    { 0, 0, 0,  2, NULL, { NULL }, 0, { NULL }, 0, 1, 0, }, 
+    { 0, 0, 0,  2, NULL, { NULL }, 0, { NULL }, 0, 0, 0, },
+};
+
 void printhex(const uint8_t *data, size_t len)
 {
     size_t i;
@@ -72,7 +85,9 @@ int main()
     fread(buf, 1, len, stdin);
 
     len = asn1_der_parse(at_x509, buf, len);
-    printf("terms parsed: %ld\n", len);
+    // len = asn1_der_parse(dangles, danglings, 18);
+    printf("return code: %ld\n", len);
     printterm(at_x509, 0);
+    // printterm(dangles, 0);
     free(buf);
 }

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 testfunc() {
-    $exec < ../../tests/asn1/noise.der #cloudflare.der
+    $exec < ../../tests/asn1/cloudfnare.der
 }
 
 cd "$(dirname "$0")"

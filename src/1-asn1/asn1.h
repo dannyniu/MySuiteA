@@ -46,6 +46,9 @@ struct asn1_term {
 };
 
 // Currently parsing of SET type (not SET OF type) is unsupported. 
-long asn1_der_parse(asn1_term_t *restrict t, const void *restrict der, size_t len);
+int asn1_der_parse(
+    asn1_term_t *restrict t,
+    void const *restrict der,
+    size_t len);
 
 #endif /* MySuiteA_asn1_h */
