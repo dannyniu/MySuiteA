@@ -2,7 +2,7 @@
 
 #include "asn1.h"
 
-#define READC(label)    fsm_core = label; goto input; case label:
+#define READC(label)    fsm = label; goto input; case label:
 #define YIELD           goto core
 
 int asn1_der_parse(asn1_term_t *restrict t, const void *restrict buf, size_t len)
@@ -11,7 +11,7 @@ int asn1_der_parse(asn1_term_t *restrict t, const void *restrict buf, size_t len
     size_t left = len;
     int c;
 
-    int fsm_core = 0; // finite state machines. 
+    int fsm = 0; // finite state machines. 
     
     short t_class, t_pc; int tag_value;
     
@@ -22,7 +22,7 @@ core:
     // length longer than buffer,
     // dangling bytes.
     
-    switch( fsm_core )
+    switch( fsm )
     {
     case 0:
         hdrlen = 0;
@@ -119,7 +119,7 @@ core:
         left -= t_length;
         if( !t && !left ) return 0;
     }
-    fsm_core = 0;
+    fsm = 0;
     goto core;
 
 input:
