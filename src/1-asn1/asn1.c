@@ -125,7 +125,7 @@ core:
 input:
     // This clause automatically eats up
     // any erroneous dangling bytes
-    // and ??reports to caller??. 
+    // and reports to caller. 
     if( left > 0 )
     {
         c = *data++, left--, hdrlen++;
