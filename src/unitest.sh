@@ -16,8 +16,9 @@ cflags0="-Wall -Wextra -g -O0"
 
 sysarch=$(uname -m)
 sysname=$(uname -s)
+hostname=$(uname -n)
 
-if [ $sysarch != $arch ] && [ $sysname != Linux ] ; then
+if [ $sysarch != $arch ] && [ $hostname != uniarch ] ; then
     echo Skipping 1 non-native architecture test.
     exit
 fi
