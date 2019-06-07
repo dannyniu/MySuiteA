@@ -7,7 +7,9 @@ qemu_exec() {
 }
 
 systarget=linux-gnu
-cc="scan-build clang"
+scan_build=~/Applications/checker-279/bin/scan-build
+scan_build_opt="--use-cc /usr/bin/clang --use-analyzer Xcode"
+cc="$scan_build $scan_build_opt clang"
 cflags0="-Wall -Wextra -g -O0"
 : ${src:?Variable unspecified: src}
 : ${bin:?Variable unspecified: bin}

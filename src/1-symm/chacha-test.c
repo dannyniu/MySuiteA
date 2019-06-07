@@ -12,7 +12,7 @@ int main()
     static uint32_t state[16];
     int i;
 
-    puts("Check output against test vectors in RFC7539 section 2.3.2.");
+    puts("Check output against test vectors in RFC8439 section 2.3.2.");
     for(i=0; i<32; i++) key[i] = i;
 
     chacha_word_set_state(state, key, nonce);

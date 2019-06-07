@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=utf-8>
+    <title>MySuiteA Algorithms</title>
+
+    <style>
+     body > * {
+       width:       calc(720px + 10vw);
+       margin:  1em calc(45vw - 360px);
+     }
+
+     table {
+       border-collapse: collapse;
+     }
+     
+     th, td {
+       padding: 3pt;
+     }
+
+     th {
+       border:  thin solid black;
+     }
+
+     td {
+       border:  thin solid silver;
+     }
+    </style>
+
+  </head>
+  <body>
+
+    <h1>Algorithms</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Name (/ Academic Name)</th>
+          <th>Function</th>
+          <th>Construction</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>AES / Rijndael</td>
+          <td>Block Cipher</td>
+          <td>Substitution-Permutation Network</td>
+        </tr>
+
+        <tr>
+          <td>SHA-1, SHA-256, etc.</td>
+          <td>Hash Function</td>
+          <td>Merkle-Damgaard</td>
+        </tr>
+
+        <tr>
+          <td>SHA3 / Keccak</td>
+          <td>Hash Function</td>
+          <td>Sponge</td>
+        </tr>
+
+        <tr>
+          <td>BLAKE2</td>
+          <td>Hash Function</td>
+          <td>HAIFA</td>
+        </tr>
+
+        <tr>
+          <td>GCM - Galois Counter Mode</td>
+          <td>AEAD</td>
+          <td>Block Cipher Mode</td>
+        </tr>
+
+        <tr>
+          <td>ChaCha20-Poly1305</td>
+          <td>AEAD</td>
+          <td>Stream Cipher</td>
+        </tr>
+
+        <tr>
+          <td>Gimli</td>
+          <td>Permutation</td>
+          <td>ARX</td>
+        </tr>
+        
+      </tbody>
+    </table>
+
+    <h1>References</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>Normativeness</th>
+          <th>Title</th>
+          <th>Authors</th>
+          <th>Date</th>
+          <th>URL</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>AES / Rijndael</td>
+          <td>Normative</td>
+          <td>FIPS-197 Announcing the Advanced Encryption Standard (AES)</td>
+          <td></td>
+          <td>2001-11-26</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.FIPS.197">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>AES / Rijndael</td>
+          <td>Informative</td>
+          <td>AES Proposal: Rijndael</td>
+          <td>Joan Daemen, Vincent Rijmen</td>
+          <td></td>
+          <td>
+            <a href="https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/aes-development/Rijndael-ammended.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>SHA-1, SHA-256, etc.</td>
+          <td>Normative</td>
+          <td>FIPS-180-4 Secure Hash Standard (SHS)</td>
+          <td></td>
+          <td>2015-08</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.FIPS.180-4">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>SHA3 / Keccak</td>
+          <td>Normative</td>
+          <td>SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions</td>
+          <td></td>
+          <td>2015-08</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.FIPS.202">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>SHA3 / Keccak</td>
+          <td>Informative</td>
+          <td>The Keccak Reference</td>
+          <td>Guido Bertoni, Joan Daemen, Michael Peeters, Gilles Van Assche</td>
+          <td>2011-01-14</td>
+          <td>
+            <a href="https://keccak.team/files/Keccak-reference-3.0.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>BLAKE2</td>
+          <td>Normative</td>
+          <td>The BLAKE2 Cryptographic Hash and Message Authentication Code (MAC)</td>
+          <td></td>
+          <td>2015-11</td>
+          <td>
+            <a href="https://tools.ietf.org/html/rfc7693">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>BLAKE2</td>
+          <td>Informative</td>
+          <td>BLAKE2: simpler, smaller, fast as MD5</td>
+          <td>Jean-Phillppe Aumasson, Samuel Neves, Zooko Wilcox-O'Hearn, Christian Winnerlein</td>
+          <td>2013-01-29</td>
+          <td>
+            <a href="http://blake2.net/blake2.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>GCM - Galois Counter Mode</td>
+          <td>Normative</td>
+          <td>Recommendation for Block Cipher Modes of Operation:
+            Galois/Counter Mode (GCM) and GMAC</td>
+          <td></td>
+          <td>2007-11</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.SP.800-38D">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>GCM - Galois Counter Mode</td>
+          <td>Informative</td>
+          <td>The Galois/Counter Mode of Operation (GCM)</td>
+          <td>David A. McGrew, John Viega</td>
+          <td></td>
+          <td>
+            <a href="http://www.csrc.nist.gov/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-revised-spec.pdf">[dead]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>ChaCha20-Poly1305</td>
+          <td>Normative</td>
+          <td>ChaCha20 and Poly1305 for IETF Protocols</td>
+          <td></td>
+          <td>2015-05</td>
+          <td>
+            <a href="https://tools.ietf.org/html/rfc8439">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>ChaCha20-Poly1305</td>
+          <td>Informative</td>
+          <td>ChaCha, a variant of Salsa20</td>
+          <td>Daniel J. Bernstein</td>
+          <td>2008-01</td>
+          <td>
+            <a href="http://cr.yp.to/chacha/chacha-20080128.pdf">[1]</a>,
+          </td>
+        </tr>
+        
+        <tr>
+          <td>ChaCha20-Poly1305</td>
+          <td>Informative</td>
+          <td>The Poly1305-AES message-authentication code</td>
+          <td>Daniel J. Bernstein</td>
+          <td>2005-03</td>
+          <td>
+            <a href="http://cr.yp.to/mac/poly1305-20050329.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>Gimli</td>
+          <td>Informative</td>
+          <td>Gimli: a cross-platform permutation</td>
+          <td>Daniel J. Bernstein, Stefan Kolbl, Stefan Lucks,
+            Pedro Maat Costa Massolino, Florian Mendel, Kashif Nawaz,
+            Tobias Schneider, Peter Schwabe, Francois-Xavier Standaert,
+            Yosuke Todo, Benoit Viguier</td>
+          <td>2017-06-27</td>
+          <td>
+            <a href="https://eprint.iacr.org/2017/630.pdf">[1]</a>,
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+    
+  </body>
+</html>

@@ -26,7 +26,6 @@ void Gimli_Hash_Read(gimli_hash_t *restrict x, void *restrict data, size_t len);
 #endif /* foo */
 
 #define _iGimli_Hash(q) (                                       \
-        q==outBytes ? 0 :                                       \
         q==blockBytes ? 16 :                                    \
         q==contextBytes ? sizeof(struct gimli_hash_context) :   \
         q==InitFunc ? (intptr_t)Gimli_Hash_Init :               \

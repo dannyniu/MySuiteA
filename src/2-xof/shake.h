@@ -27,7 +27,6 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len);
 #endif /* foo */
 
 #define _iSHAKE(bits,q) (                                       \
-        q==outBytes ? 0 :                                       \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct shake_context) :        \
         q==InitFunc ? (intptr_t)SHAKE##bits##_Init :            \

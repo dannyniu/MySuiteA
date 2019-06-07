@@ -1,19 +1,17 @@
 #!/bin/sh
 
 testfunc() {
-    $exec
+    $exec < /dev/urandom
 }
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-../src/2-xof/gimli-hash-test.c
-../src/2-xof/gimli-hash.c
-../src/1-symm/gimli.c
-../src/1-symm/sponge.c
-../src/0-datum/endian.c
+largeint-test.c
+largeint.c
+0-datum/endian.c
 "
-bin=gimli-hash-test
+bin=largeint-test
 
 echo ================================================================
 echo C language code. [x86_64]

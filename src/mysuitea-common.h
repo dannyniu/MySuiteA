@@ -3,6 +3,7 @@
 #ifndef MySuiteA_mysuitea_common_h
 #define MySuiteA_mysuitea_common_h 1
 
+#include <limits.h>
 #include <stdalign.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -26,17 +27,15 @@
 
 enum {
     // Applicable to
-    // 1.) Primitives whose output length are
-    //     independent of its input length.
+    // 1.) Primitives whose output length are fixed and constant. 
     //
     // For hash functions, this is the length of the digest in bytes.
-    // The value is set to 0 for XOFs. 
     //
     outBytes,
 
     // Applicable to
-    // 1.) Fixed-length permutations (including block ciphers).
-    // 2.) Iterated processing primitives. 
+    // 1.) Fixed-length keyed or unkeyed permutations.
+    // 2.) Iterated bufferred processing primitives. 
     //
     blockBytes,
 
@@ -46,12 +45,13 @@ enum {
     keyBytes,
 
     // Applicable to
-    // 1.) All iterated keyed primitives with at least 1 iteration.
+    // 1.) All iterated keyed permutation with at least 1 iteration.
     //
     keyschedBytes,
 
     // Applicable to
-    // 1.) Primitives supporting resumable partial computation.
+    // 1.) Primitives reusing working variables for invocations.
+    // 2.) Primitives saving working varibles for later resumption. 
     //
     contextBytes,
 

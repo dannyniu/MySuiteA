@@ -1,0 +1,38 @@
+ibase=A
+p = 2^256 - 2^224 + 2^192 + 2^96 - 1 /* secp256r1 */
+obase=16
+ibase=16
+define m(b,e,p) { /* efficient modular exponentiation b^e % p */
+    auto i, r, s;
+    r=1;
+    for(i=length(e); i-->0; ) {
+        f = e / A^i;
+        r = r * b^f % p;
+        if( i>0 ) r = r^A % p;
+        e -= f * A^i;
+    }
+    return(r);
+}
+define g(a,p){
+    auto i, j, q, r, u, v, y;
+
+    i = p
+    j = a
+    u = 0
+    v = 1
+
+    while( j > 0 ) {
+        q = i/j
+        r = i-j*q
+        y = u-v*q
+
+        i=j
+        j=r
+        u=v
+        v=y
+    }
+
+    if( i != 1 ) return(0)
+    if( u < 0 ) return(u+p)
+    return(u)
+}
