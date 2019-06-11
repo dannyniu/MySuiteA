@@ -10,7 +10,7 @@ void GCM_Encrypt(gcm_t *restrict gcm,
                  size_t len, const void *in, void *out,
                  size_t tlen, void *T)
 {
-    unsigned i, j;
+    size_t i, j;
     
     alignas(16) uint32_t
         J0[4], 
@@ -65,7 +65,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
                   size_t len, const void *in, void *out,
                   size_t tlen, const void *T)
 {
-    unsigned i, j;
+    size_t i, j;
     
     alignas(16) uint32_t
         J0[4], 
