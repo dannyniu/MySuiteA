@@ -140,6 +140,6 @@ Define_AES_KeyExpansion(AES128_KeyExpansion,4,10)
 Define_AES_KeyExpansion(AES192_KeyExpansion,6,12)
 Define_AES_KeyExpansion(AES256_KeyExpansion,8,14)
 
-intptr_t iAES128(int q) { return _iAES128(q); }
-intptr_t iAES192(int q) { return _iAES192(q); }
-intptr_t iAES256(int q) { return _iAES256(q); }
+uintptr_t iAES128(int q) { return _iAES128(q); }
+uintptr_t iAES192(int q) { return _iAES192(q); }
+uintptr_t iAES256(int q) { return _iAES256(q); }

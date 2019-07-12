@@ -17,6 +17,6 @@ Define_GCM_AES_Init(128)
 Define_GCM_AES_Init(192)
 Define_GCM_AES_Init(256)
 
-intptr_t iGCM_AES128(int q){ return _iGCM_AES128(q); }
-intptr_t iGCM_AES192(int q){ return _iGCM_AES192(q); }
-intptr_t iGCM_AES256(int q){ return _iGCM_AES256(q); }
+uintptr_t iGCM_AES128(int q){ return _iGCM_AES128(q); }
+uintptr_t iGCM_AES192(int q){ return _iGCM_AES192(q); }
+uintptr_t iGCM_AES256(int q){ return _iGCM_AES256(q); }

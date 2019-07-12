@@ -34,17 +34,17 @@ void GCM_AES256_Init(void *restrict x, const void *restrict K);
         q==keyBytes ? bits/8 :                                          \
         q==contextBytes ? sizeof(gcm_t) + _iAES(bits,keyschedBytes) :   \
         q==ivBytes ? 12 : q==tagBytes ? 16 :                            \
-        q==KInitFunc ? (intptr_t)GCM_AES##bits##_Init :                 \
-        q==AEncFunc ? (intptr_t)GCM_Encrypt :                           \
-        q==ADecFunc ? (intptr_t)GCM_Decrypt :                           \
-        -1)
+        q==KInitFunc ? (uintptr_t)GCM_AES##bits##_Init :                \
+        q==AEncFunc ? (uintptr_t)GCM_Encrypt :                          \
+        q==ADecFunc ? (uintptr_t)GCM_Decrypt :                          \
+        0)
 
 #define _iGCM_AES128(q) _iGCM_AES(128,q)
 #define _iGCM_AES192(q) _iGCM_AES(192,q)
 #define _iGCM_AES256(q) _iGCM_AES(256,q)
 
-intptr_t iGCM_AES128(int q);
-intptr_t iGCM_AES192(int q);
-intptr_t iGCM_AES256(int q);
+uintptr_t iGCM_AES128(int q);
+uintptr_t iGCM_AES192(int q);
+uintptr_t iGCM_AES256(int q);
 
 #endif /* MySuiteA_gcm_aes_h */

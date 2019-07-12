@@ -21,16 +21,16 @@ void AES256_KeyExpansion(const void *restrict key, void *restrict w);
         q==blockBytes ? 16 :                                    \
         q==keyBytes ? (bits)/8 :                                \
         q==keyschedBytes ? ((bits)/32+6+1)*16 :                 \
-        q==EncFunc ? (intptr_t)AES##bits##_Cipher :             \
-        q==DecFunc ? (intptr_t)AES##bits##_InvCipher :          \
-        q==KschdFunc ? (intptr_t)AES##bits##_KeyExpansion :     \
-        -1)
+        q==EncFunc ? (uintptr_t)AES##bits##_Cipher :            \
+        q==DecFunc ? (uintptr_t)AES##bits##_InvCipher :         \
+        q==KschdFunc ? (uintptr_t)AES##bits##_KeyExpansion :    \
+        0)
 #define _iAES128(q) _iAES(128,q)
 #define _iAES192(q) _iAES(192,q)
 #define _iAES256(q) _iAES(256,q)
 
-intptr_t iAES128(int q);
-intptr_t iAES192(int q);
-intptr_t iAES256(int q);
+uintptr_t iAES128(int q);
+uintptr_t iAES192(int q);
+uintptr_t iAES256(int q);
 
 #endif /* MySuiteA_rijndael_h */

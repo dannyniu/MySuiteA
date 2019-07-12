@@ -12,8 +12,8 @@
 #define glue(a,b) xglue(a,b)
 
 // Each primitive instance shall define
-// 1. a function compatible with the type (intptr_t(*)(int)),
-// 2. a function-like macro that evaluates to integer types -
+// 1. a function compatible with the type (uintptr_t(*)(int)),
+// 2. a function-like macro that evaluates tox integer types -
 //    sometimes large enough to hold pointers,
 // that when evaluated in run-time or compile time,
 // yields relevant information associated with particular primitive.
@@ -22,8 +22,8 @@
 // argument `q' that is one of the constants enumerated below.
 //
 // The name of the function shall be the name of the primitive
-// prefixed with a single `i'; the name of the macro shall be
-// that of the function prefixed with a single <underscore> (`_'). 
+// prefixed with a single "i"; the name of the macro shall be
+// that of the function prefixed with a single <underscore> ("_"). 
 
 enum {
     // Applicable to

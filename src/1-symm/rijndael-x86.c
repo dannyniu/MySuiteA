@@ -259,6 +259,6 @@ void AES256_KeyExpansion (const void *restrict k, void *restrict w)
     Key_Schedule[14]=temp1;
 }
 
-intptr_t iAES128(int q) { return _iAES128(q); }
-intptr_t iAES192(int q) { return _iAES192(q); }
-intptr_t iAES256(int q) { return _iAES256(q); }
+uintptr_t iAES128(int q) { return _iAES128(q); }
+uintptr_t iAES192(int q) { return _iAES192(q); }
+uintptr_t iAES256(int q) { return _iAES256(q); }

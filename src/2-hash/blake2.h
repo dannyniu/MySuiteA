@@ -63,19 +63,19 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out);
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? 128 :                                   \
         q==contextBytes ? sizeof(struct blake2b_context) :      \
-        q==InitFunc   ? (intptr_t)BLAKE2b##bits##_Init :        \
-        q==UpdateFunc ? (intptr_t)BLAKE2b##bits##_Update :      \
-        q==FinalFunc  ? (intptr_t)BLAKE2b##bits##_Final :       \
-        -1)
+        q==InitFunc   ? (uintptr_t)BLAKE2b##bits##_Init :       \
+        q==UpdateFunc ? (uintptr_t)BLAKE2b##bits##_Update :     \
+        q==FinalFunc  ? (uintptr_t)BLAKE2b##bits##_Final :      \
+        0)
 
 #define _iBLAKE2s(bits,q) (                                     \
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? 64 :                                    \
         q==contextBytes ? sizeof(struct blake2s_context) :      \
-        q==InitFunc   ? (intptr_t)BLAKE2s##bits##_Init :        \
-        q==UpdateFunc ? (intptr_t)BLAKE2s##bits##_Update :      \
-        q==FinalFunc  ? (intptr_t)BLAKE2s##bits##_Final :       \
-        -1)
+        q==InitFunc   ? (uintptr_t)BLAKE2s##bits##_Init :       \
+        q==UpdateFunc ? (uintptr_t)BLAKE2s##bits##_Update :     \
+        q==FinalFunc  ? (uintptr_t)BLAKE2s##bits##_Final :      \
+        0)
 
 #define _iBLAKE2b160(q) _iBLAKE2b(160,q)
 #define _iBLAKE2b256(q) _iBLAKE2b(256,q)
@@ -87,14 +87,14 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out);
 #define _iBLAKE2s224(q) _iBLAKE2s(224,q)
 #define _iBLAKE2s256(q) _iBLAKE2s(256,q)
 
-intptr_t iBLAKE2b160(int q);
-intptr_t iBLAKE2b256(int q);
-intptr_t iBLAKE2b384(int q);
-intptr_t iBLAKE2b512(int q);
+uintptr_t iBLAKE2b160(int q);
+uintptr_t iBLAKE2b256(int q);
+uintptr_t iBLAKE2b384(int q);
+uintptr_t iBLAKE2b512(int q);
 
-intptr_t iBLAKE2s128(int q);
-intptr_t iBLAKE2s160(int q);
-intptr_t iBLAKE2s224(int q);
-intptr_t iBLAKE2s256(int q);
+uintptr_t iBLAKE2s128(int q);
+uintptr_t iBLAKE2s160(int q);
+uintptr_t iBLAKE2s224(int q);
+uintptr_t iBLAKE2s256(int q);
 
 #endif /* MySuiteA_blake2_h */

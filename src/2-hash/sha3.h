@@ -37,18 +37,18 @@ void SHA3_512_Final(sha3_t *restrict x, void *restrict out);
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct sha3_context) :         \
-        q==InitFunc   ? (intptr_t)SHA3_##bits##_Init :          \
-        q==UpdateFunc ? (intptr_t)SHA3_##bits##_Update :        \
-        q==FinalFunc  ? (intptr_t)SHA3_##bits##_Final :         \
-        -1)
+        q==InitFunc   ? (uintptr_t)SHA3_##bits##_Init :         \
+        q==UpdateFunc ? (uintptr_t)SHA3_##bits##_Update :       \
+        q==FinalFunc  ? (uintptr_t)SHA3_##bits##_Final :        \
+        0)
 #define _iSHA3_224(q) _iSHA3(224,q)
 #define _iSHA3_256(q) _iSHA3(256,q)
 #define _iSHA3_384(q) _iSHA3(384,q)
 #define _iSHA3_512(q) _iSHA3(512,q)
 
-intptr_t iSHA3_224(int q);
-intptr_t iSHA3_256(int q);
-intptr_t iSHA3_384(int q);
-intptr_t iSHA3_512(int q);
+uintptr_t iSHA3_224(int q);
+uintptr_t iSHA3_256(int q);
+uintptr_t iSHA3_384(int q);
+uintptr_t iSHA3_512(int q);
 
 #endif /* MySuiteA_sha3_h */

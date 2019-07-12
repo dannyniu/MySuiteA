@@ -15,26 +15,26 @@ void SHA3_128000_Final(void *restrict x, void *restrict out)
 void SHA3_256000_Final(void *restrict x, void *restrict out)
 { SHAKE_Final(x), SHAKE_Read(x, out, 136); }
 
-intptr_t iSHA3_128000(int q){
+uintptr_t iSHA3_128000(int q){
     return (
         q==outBytes ? 168 :
         q==blockBytes ? 168 :
         q==contextBytes ? sizeof(struct shake_context) :
-        q==InitFunc   ? (intptr_t)SHAKE128_Init :
-        q==UpdateFunc ? (intptr_t)SHAKE_Write :
-        q==FinalFunc  ? (intptr_t)SHA3_128000_Final :
-        -1);
+        q==InitFunc   ? (uintptr_t)SHAKE128_Init :
+        q==UpdateFunc ? (uintptr_t)SHAKE_Write :
+        q==FinalFunc  ? (uintptr_t)SHA3_128000_Final :
+        0);
 }
 
-intptr_t iSHA3_256000(int q){
+uintptr_t iSHA3_256000(int q){
     return (
         q==outBytes ? 136 :
         q==blockBytes ? 136 :
         q==contextBytes ? sizeof(struct shake_context) :
-        q==InitFunc   ? (intptr_t)SHAKE256_Init :
-        q==UpdateFunc ? (intptr_t)SHAKE_Write :
-        q==FinalFunc  ? (intptr_t)SHA3_256000_Final :
-        -1);
+        q==InitFunc   ? (uintptr_t)SHAKE256_Init :
+        q==UpdateFunc ? (uintptr_t)SHAKE_Write :
+        q==FinalFunc  ? (uintptr_t)SHA3_256000_Final :
+        0);
 }
 
 static unsigned long a, b;
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     ssize_t in_len = -1;
     void *x = NULL;
     
-    intptr_t (*h)(int) = iSHA1;
+    uintptr_t (*h)(int) = iSHA1;
 
     mysrand(time(NULL));
     

@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     int i;
     uint8_t *ptr = NULL, *tmp;
     size_t *acc = NULL;
-    intptr_t (*aead)(int) = iGCM_AES128;
+    uintptr_t (*aead)(int) = iGCM_AES128;
 
     if( argc < 3 ) return 1;
     if( !strcmp(argv[1], "128") ) aead = iGCM_AES128;

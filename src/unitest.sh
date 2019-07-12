@@ -9,8 +9,13 @@ qemu_exec() {
 # -- Begin: The following block may be customized. --
 
 systarget=linux-gnu
-scan_build=~/Applications/checker-279/bin/scan-build
-scan_build_opt="--use-cc /usr/bin/clang --use-analyzer Xcode"
+if command -v scan-build ; then
+    scan_build=scan-build
+    scan_build_opt=""
+else
+    scan_build=~/Applications/checker-279/bin/scan-build
+    scan_build_opt="--use-cc /usr/bin/clang --use-analyzer Xcode"
+fi
 cc="$scan_build $scan_build_opt clang"
 cflags0="-Wall -Wextra -g -O0"
 
