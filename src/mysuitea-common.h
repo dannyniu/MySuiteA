@@ -102,12 +102,12 @@ typedef void (*ReadFunc_t)(void *restrict x,
 
 typedef void (*KInitFunc_t)(void *restrict x, const void *restrict k);
 typedef void (*AEncFunc_t)(void *restrict x,
-                           void *restrict iv,
+                           const void *restrict iv,
                            size_t alen, const void *aad,
                            size_t len, const void *in, void *out,
                            size_t tlen, void *T);
 typedef void *(*ADecFunc_t)(void *restrict x,
-                            void *restrict iv,
+                            const void *restrict iv,
                             size_t alen, const void *aad,
                             size_t len, const void *in, void *out,
                             size_t tlen, const void *T);
@@ -117,13 +117,13 @@ typedef void *(*ADecFunc_t)(void *restrict x,
 // make sure that `obj' is not parenthesized so that
 // macro expansion won't be suppressed.
 
-#define OUT_BYTES(obj)      ((int)(obj(outBytes)))
-#define BLOCK_BYTES(obj)    ((int)(obj(blockBytes)))
-#define KEY_BYTES(obj)      ((int)(obj(keyBytes)))
-#define KSCHD_BYTES(obj)    ((int)(obj(keyschedBytes)))
-#define CTX_BYTES(obj)      ((int)(obj(contextBytes)))
-#define IV_BYTES(obj)       ((int)(obj(ivBytes)))
-#define TAG_BYTES(obj)      ((int)(obj(tagBytes)))
+#define OUT_BYTES(obj)      ((unsigned)(obj(outBytes)))
+#define BLOCK_BYTES(obj)    ((unsigned)(obj(blockBytes)))
+#define KEY_BYTES(obj)      ((unsigned)(obj(keyBytes)))
+#define KSCHD_BYTES(obj)    ((unsigned)(obj(keyschedBytes)))
+#define CTX_BYTES(obj)      ((unsigned)(obj(contextBytes)))
+#define IV_BYTES(obj)       ((unsigned)(obj(ivBytes)))
+#define TAG_BYTES(obj)      ((unsigned)(obj(tagBytes)))
 
 #define ENC_FUNC(obj)       ((EncFunc_t)(obj(EncFunc)))
 #define DEC_FUNC(obj)       ((DecFunc_t)(obj(DecFunc)))

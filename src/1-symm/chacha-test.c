@@ -13,10 +13,10 @@ int main()
     int i;
 
     puts("Check output against test vectors in RFC8439 section 2.3.2.");
-    for(i=0; i<32; i++) key[i] = i;
+    for(i=0; i<32; i++) key[i] = (uint8_t)i;
 
-    chacha_word_set_state(state, key, nonce);
-    chacha_word_block(state, 1, 64, NULL, out);
+    chacha20_set_state(state, key, nonce);
+    chacha20_block(state, 1, 64, NULL, out);
 
     for(i=0; i<64; i++) {
         printf("%02x ", out[i]);

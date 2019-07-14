@@ -4,19 +4,23 @@
 #include "../0-datum/endian.h"
 #include <stdio.h>
 
-__uint128_t a, b, c, d;
-struct intdesc w, x, y, z, nid;
-int failed = 0;
+static __uint128_t a, b, c, d;
+static struct intdesc w, x, y, z, nid;
+static int failed = 0;
 
-void pu32(uint32_t x){ printf(" %08x", x); }
+void pu32(uint32_t arg);
+void pu128(__uint128_t x);
+void wrong(const char *s, __uint128_t u, __uint128_t v);
 
-void pu128(__uint128_t x)
+void pu32(uint32_t arg){ printf(" %08x", arg); }
+
+void pu128(__uint128_t arg)
 {
     putchar('\n');
-    pu32(x>>96);
-    pu32(x>>64);
-    pu32(x>>32);
-    pu32(x>> 0);
+    pu32((uint32_t)(arg>>96));
+    pu32((uint32_t)(arg>>64));
+    pu32((uint32_t)(arg>>32));
+    pu32((uint32_t)(arg>> 0));
 }
 
 void wrong(const char *s, __uint128_t u, __uint128_t v)
@@ -31,7 +35,7 @@ void wrong(const char *s, __uint128_t u, __uint128_t v)
 
 int main()
 {
-    int msb = BYTE_ORDER == BIG_ENDIAN;
+    unsigned short msb = __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__;
     w = x = y = z = nid = (struct intdesc){
         .len = 4,
         .msb = msb,

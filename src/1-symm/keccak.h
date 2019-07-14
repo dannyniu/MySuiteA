@@ -15,6 +15,6 @@ void KeccakF1600_Permute(const void *in, void *out);
         0 )
 #define _iKeccakF1600(q) _iKeccakF(1600,q)
 
-intptr_t iKeccakF1600(int q);
+uintptr_t iKeccakF1600(int q);
 
 #endif /* MySuiteA_keccak_h */

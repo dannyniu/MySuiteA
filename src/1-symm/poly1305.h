@@ -14,7 +14,12 @@ typedef struct
 }
 poly1305_t;
 
-void poly1305_init(poly1305_t *restrict poly1305, uint8_t key[32]);
+// A bit of note here.
+// poly1305_init is known to be used by ChaCha_AEAD_*
+// with key set to a blob aligned to 64-bit boundary.
+// So accordingly, the prototype is changed in order to silce a warning. 
+void poly1305_init(poly1305_t *restrict poly1305, const void *restrict key);
+
 void poly1305_1block(poly1305_t *restrict poly1305, const void *restrict data);
 void poly1305_final(poly1305_t *restrict poly1305);
 

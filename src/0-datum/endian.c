@@ -2,40 +2,63 @@
 
 #include "endian.h"
 
-#if MySuiteA_endian_h
+#ifndef MySuiteA_UsePlatformEndianFuncs
 
-#include <stdint.h>
+#define htobe(b)                                        \
+    uint##b##_t htobe##b(uint##b##_t x) {               \
+        union { uint8_t o[b/8]; uint##b##_t h; } v;     \
+        uint##b##_t ret = 0;                            \
+        v.h = x;                                        \
+        for(int i=0; i<b/8; i++) {                      \
+            ret <<= 8;                                  \
+            ret |= v.o[i];                              \
+        }                                               \
+        return ret;                                     \
+    }
 
-// Byte-Swapping Macros. 
+#define betoh(b)                                        \
+    uint##b##_t be##b##toh(uint##b##_t x) {             \
+        union { uint8_t o[b/8]; uint##b##_t h; } v;     \
+        for(int i=0; i<b/8; i++) {                      \
+            v.o[i] = (uint8_t)(x >> (b-i*8-8));         \
+        }                                               \
+        return v.h;                                     \
+    }
 
-#ifdef __ARM_ACLE
+#define htole(b)                                        \
+    uint##b##_t htole##b(uint##b##_t x) {               \
+        union { uint8_t o[b/8]; uint##b##_t h; } v;     \
+        uint##b##_t ret = 0;                            \
+        v.h = x;                                        \
+        for(int i=0; i<b/8; i++) {                      \
+            ret |= (uint##b##_t)v.o[i] << i*8;          \
+        }                                               \
+        return ret;                                     \
+    }
 
-#else
+#define letoh(b)                                        \
+    uint##b##_t le##b##toh(uint##b##_t x) {             \
+        union { uint8_t o[b/8]; uint##b##_t h; } v;     \
+        for(int i=0; i<b/8; i++) {                      \
+            v.o[i] = (uint8_t)(x >> (i*8));             \
+        }                                               \
+        return v.h;                                     \
+    }
 
-uint16_t __bswap16(uint16_t x)
-{
-    return x >> 8 | x << 8;
-}
+htobe(16)
+htobe(32)
+htobe(64)
 
-uint32_t __bswap32(uint32_t x)
-{
-    static const uint32_t mask = UINT32_C(0xff00ff00);
+betoh(16)
+betoh(32)
+betoh(64)
 
-    x = (x&mask) >> 8 | (x&~mask) << 8;
-    return x >> 16 | x << 16;
-}
+htole(16)
+htole(32)
+htole(64)
 
-uint64_t __bswap64(uint64_t x)
-{
-    static const uint64_t
-        mask1 = UINT64_C(0xff00ff00ff00ff00), 
-        mask2 = UINT64_C(0xffff0000ffff0000);
+letoh(16)
+letoh(32)
+letoh(64)
 
-    x = (x&mask1) >>  8 | (x&~mask1) <<  8;
-    x = (x&mask2) >> 16 | (x&~mask2) << 16;
-    return x >> 32 | x << 32;
-}
-
-#endif
-
-#endif /* MySuiteA_endian_h */
+#endif /* MySuiteA_UsePlatformEndianFuncs */

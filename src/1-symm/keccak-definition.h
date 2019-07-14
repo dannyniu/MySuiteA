@@ -70,7 +70,8 @@ static inline void rho(keccak_state_t A_out, keccak_state_t A)
         A_out[y][x] = rot( A[y][x] , ((t+1)*(t+2))>>1 );
 
         int x2 = y, y2 = mod5( 2*x+3*y );
-        x = x2, y = y2;
+        x = x2;
+        y = y2;
     }
 }
 

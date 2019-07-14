@@ -16,13 +16,13 @@ typedef struct {
 void ChaCha_AEAD_Init(chacha_aead_t *restrict x, const void *restrict K);
 
 void ChaCha_AEAD_Encrypt(chacha_aead_t *restrict x,
-                         void *restrict iv,
+                         const void *restrict iv,
                          size_t alen, const void *aad,
                          size_t len, const void *in, void *out,
                          size_t tlen, void *T);
 
 void *ChaCha_AEAD_Decrypt(chacha_aead_t *restrict x,
-                          void *restrict iv,
+                          const void *restrict iv,
                           size_t alen, const void *aad,
                           size_t len, const void *in, void *out,
                           size_t tlen, const void *T);
@@ -36,6 +36,6 @@ void *ChaCha_AEAD_Decrypt(chacha_aead_t *restrict x,
         q==ADecFunc ? (uintptr_t)ChaCha_AEAD_Decrypt :  \
         0)
 
-intptr_t iChaCha_AEAD(int q);
+uintptr_t iChaCha_AEAD(int q);
 
 #endif

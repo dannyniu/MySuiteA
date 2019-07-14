@@ -14,8 +14,8 @@ static inline uint32_t rotate(uint32_t x, int bits)
 
 static void gimli(uint32_t *state)
 {
-    int round;
-    int column;
+    unsigned round;
+    unsigned column;
     uint32_t x;
     uint32_t y;
     uint32_t z;
@@ -61,11 +61,11 @@ void Gimli_Permute(const void *in, void *out)
     int i;
 
     for(i=0; i<12; i++) {
-        ((uint32_t *)out)[i] = le32toh( ((uint32_t *)in)[i] );
+        ((uint32_t *)out)[i] = le32toh( ((const uint32_t *)in)[i] );
     }
     gimli(out);
     for(i=0; i<12; i++) {
-        ((uint32_t *)out)[i] = htole32( ((uint32_t *)out)[i] );
+        ((uint32_t *)out)[i] = htole32( ((const uint32_t *)out)[i] );
     }
 }
 

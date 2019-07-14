@@ -6,7 +6,7 @@
 static void blake2b_init(blake2b_t *restrict x, int outlen)
 {
     size_t i;
-    x->outlen = outlen;
+    x->outlen = (uint8_t)outlen;
     
     x->h[0] = 0x6a09e667f3bcc908;
     x->h[1] = 0xbb67ae8584caa73b;
@@ -24,10 +24,10 @@ static void blake2b_init(blake2b_t *restrict x, int outlen)
     for(i=0; i<sizeof(x->b); i++) x->b[i] = 0;
 }
 
-void BLAKE2b160_Init(blake2b_t *restrict x){ return blake2b_init(x, 20); }
-void BLAKE2b256_Init(blake2b_t *restrict x){ return blake2b_init(x, 32); }
-void BLAKE2b384_Init(blake2b_t *restrict x){ return blake2b_init(x, 48); }
-void BLAKE2b512_Init(blake2b_t *restrict x){ return blake2b_init(x, 64); }
+void BLAKE2b160_Init(blake2b_t *restrict x){ blake2b_init(x, 20); }
+void BLAKE2b256_Init(blake2b_t *restrict x){ blake2b_init(x, 32); }
+void BLAKE2b384_Init(blake2b_t *restrict x){ blake2b_init(x, 48); }
+void BLAKE2b512_Init(blake2b_t *restrict x){ blake2b_init(x, 64); }
 
 void blake2b_update(blake2b_t *restrict x, const void *restrict data, size_t len)
 {
@@ -56,14 +56,15 @@ void blake2b_final(blake2b_t *restrict x, void *restrict out)
 
     blake2b_compress(x->h, x->b, x->t, 1);
     for(i=0; i<x->outlen; i++)
-        ((uint8_t *)out)[i] =
-            x->h[i/sizeof(*x->h)] >> (8 * (i % sizeof(*x->h)));
+        ((uint8_t *)out)[i] = (uint8_t)(
+            x->h[i/sizeof(*x->h)] >> ((i % sizeof(*x->h)) * 8)
+            );
 }
 
 static void blake2s_init(blake2s_t *restrict x, int outlen)
 {
     size_t i;
-    x->outlen = outlen;
+    x->outlen = (uint8_t)outlen;
     
     x->h[0] = 0x6a09e667;
     x->h[1] = 0xbb67ae85;
@@ -81,10 +82,10 @@ static void blake2s_init(blake2s_t *restrict x, int outlen)
     for(i=0; i<sizeof(x->b); i++) x->b[i] = 0;
 }
 
-void BLAKE2s128_Init(blake2s_t *restrict x){ return blake2s_init(x, 16); }
-void BLAKE2s160_Init(blake2s_t *restrict x){ return blake2s_init(x, 20); }
-void BLAKE2s224_Init(blake2s_t *restrict x){ return blake2s_init(x, 28); }
-void BLAKE2s256_Init(blake2s_t *restrict x){ return blake2s_init(x, 32); }
+void BLAKE2s128_Init(blake2s_t *restrict x){ blake2s_init(x, 16); }
+void BLAKE2s160_Init(blake2s_t *restrict x){ blake2s_init(x, 20); }
+void BLAKE2s224_Init(blake2s_t *restrict x){ blake2s_init(x, 28); }
+void BLAKE2s256_Init(blake2s_t *restrict x){ blake2s_init(x, 32); }
 
 void blake2s_update(blake2s_t *restrict x, const void *restrict data, size_t len)
 {
@@ -113,16 +114,17 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out)
 
     blake2s_compress(x->h, x->b, x->t, 1);
     for(i=0; i<x->outlen; i++)
-        ((uint8_t *)out)[i] =
-            x->h[i/sizeof(*x->h)] >> (8 * (i % sizeof(*x->h)));
+        ((uint8_t *)out)[i] = (uint8_t)(
+            x->h[i/sizeof(*x->h)] >> ((i % sizeof(*x->h)) * 8)
+            );
 }
 
-intptr_t iBLAKE2b160(int q){ return _iBLAKE2b160(q); }
-intptr_t iBLAKE2b256(int q){ return _iBLAKE2b256(q); }
-intptr_t iBLAKE2b384(int q){ return _iBLAKE2b384(q); }
-intptr_t iBLAKE2b512(int q){ return _iBLAKE2b512(q); }
+uintptr_t iBLAKE2b160(int q){ return _iBLAKE2b160(q); }
+uintptr_t iBLAKE2b256(int q){ return _iBLAKE2b256(q); }
+uintptr_t iBLAKE2b384(int q){ return _iBLAKE2b384(q); }
+uintptr_t iBLAKE2b512(int q){ return _iBLAKE2b512(q); }
 
-intptr_t iBLAKE2s128(int q){ return _iBLAKE2s128(q); }
-intptr_t iBLAKE2s160(int q){ return _iBLAKE2s160(q); }
-intptr_t iBLAKE2s224(int q){ return _iBLAKE2s224(q); }
-intptr_t iBLAKE2s256(int q){ return _iBLAKE2s256(q); }
+uintptr_t iBLAKE2s128(int q){ return _iBLAKE2s128(q); }
+uintptr_t iBLAKE2s160(int q){ return _iBLAKE2s160(q); }
+uintptr_t iBLAKE2s224(int q){ return _iBLAKE2s224(q); }
+uintptr_t iBLAKE2s256(int q){ return _iBLAKE2s256(q); }

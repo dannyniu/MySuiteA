@@ -15,16 +15,16 @@ typedef struct gcm_context {
 } gcm_t;
 
 #define GCM_INIT(bc)                                                    \
-    ((gcm_t){ .H = {}, .offset = sizeof(gcm_t), .enc = ENC_FUNC(bc), })
+    ((gcm_t){ .H = {0}, .offset = sizeof(gcm_t), .enc = ENC_FUNC(bc), })
 
 void GCM_Encrypt(gcm_t *restrict gcm,
-                 void *restrict iv, // fixed, 12 bytes. 
+                 const void *restrict iv, // fixed, 12 bytes. 
                  size_t alen, const void *aad,
                  size_t len, const void *in, void *out,
                  size_t tlen, void *T); // zeros tail if tlen>16. 
 
 void *GCM_Decrypt(gcm_t *restrict gcm,
-                  void *restrict iv,
+                  const void *restrict iv,
                   size_t alen, const void *aad,
                   size_t len, const void *in, void *out,
                   size_t tlen, const void *T);

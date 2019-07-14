@@ -9,12 +9,15 @@
 
 // Call-once-wrong-ever-since. 
 
+void SHA3_128000_Final(void *restrict x, void *restrict out);
 void SHA3_128000_Final(void *restrict x, void *restrict out)
-{ SHAKE_Final(x), SHAKE_Read(x, out, 168); }
+{ SHAKE_Final(x); SHAKE_Read(x, out, 168); }
 
+void SHA3_256000_Final(void *restrict x, void *restrict out);
 void SHA3_256000_Final(void *restrict x, void *restrict out)
-{ SHAKE_Final(x), SHAKE_Read(x, out, 136); }
+{ SHAKE_Final(x); SHAKE_Read(x, out, 136); }
 
+uintptr_t iSHA3_128000(int q);
 uintptr_t iSHA3_128000(int q){
     return (
         q==outBytes ? 168 :
@@ -26,6 +29,7 @@ uintptr_t iSHA3_128000(int q){
         0);
 }
 
+uintptr_t iSHA3_256000(int q);
 uintptr_t iSHA3_256000(int q){
     return (
         q==outBytes ? 136 :
@@ -38,16 +42,20 @@ uintptr_t iSHA3_256000(int q){
 }
 
 static unsigned long a, b;
-static const unsigned long p = 65521;
+#define p 65521UL
 
-void mysrand(long x) { a = b = x % p; }
-long myrand() {
-    int x, y;
+void mysrand(unsigned long);
+unsigned long myrand(void);
+
+void mysrand(unsigned long x) { a = b = x % p; }
+unsigned long myrand(void) {
+    unsigned long x, y;
     x = a*a + p*p - b*b;
     x %= p;
     y = 2 * a * b;
     y %= p;
-    a = x, b = y;
+    a = x;
+    b = y;
     return x;
 }
 
@@ -55,12 +63,12 @@ static unsigned char buf[256*(p/256+1)];
 
 int main(int argc, char *argv[])
 {
-    ssize_t in_len = -1;
+    size_t in_len = 0;
     void *x = NULL;
     
     uintptr_t (*h)(int) = iSHA1;
 
-    mysrand(time(NULL));
+    mysrand((unsigned long)time(NULL));
     
     if( argc < 2 ) h = iSHA1;
     else
@@ -89,8 +97,9 @@ int main(int argc, char *argv[])
         UPDATE_FUNC(h)(x, buf, in_len);
     }
     FINAL_FUNC(h)(x, buf);
-    free(x), x=NULL;
+    free(x);
+    x=NULL;
 
-    for(int i=0; i<OUT_BYTES(h); i++) { printf("%02x", buf[i]); } printf("\n");
+    for(unsigned i=0; i<OUT_BYTES(h); i++) { printf("%02x", buf[i]); } printf("\n");
     return 0;
 }

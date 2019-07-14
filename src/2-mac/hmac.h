@@ -22,7 +22,7 @@ typedef struct hmac_context {
 
 #define HMAC_INIT(hash)                         \
     ((hmac_t){                                  \
-        .K0 = {}, .tag = {},                    \
+        .K0 = {0}, .tag = {0},                  \
             .B = BLOCK_BYTES(hash),             \
             .L = OUT_BYTES(hash),               \
             .finalized = 0,                     \

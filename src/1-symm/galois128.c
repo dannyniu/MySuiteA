@@ -35,7 +35,7 @@ static galois128_t galois128_x(galois128_t Y)
 
 static galois128_t galois128_mul(galois128_t X, galois128_t Y)
 {
-    galois128_t Z = {};
+    galois128_t Z = {0};
 
     for(int i=0; i<128; i++)
     {
@@ -54,7 +54,7 @@ void galois128_hash1block(void *restrict Y,
                           const void *restrict H,
                           const void *restrict X)
 {
-    galois128_t y={}, h={}, x={};
+    galois128_t y={0}, h={0}, x={0};
 
     if( Y ) y = galois128_load(Y);
     if( H ) h = galois128_load(H);

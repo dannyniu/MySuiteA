@@ -5,7 +5,7 @@
 #include "../0-datum/endian.h"
 
 void GCM_Encrypt(gcm_t *restrict gcm,
-                 void *restrict iv,
+                 const void *restrict iv,
                  size_t alen, const void *aad,
                  size_t len, const void *in, void *out,
                  size_t tlen, void *T)
@@ -15,20 +15,20 @@ void GCM_Encrypt(gcm_t *restrict gcm,
     alignas(16) uint32_t
         J0[4], 
         CB[4],
-        S[4] = {};
+        S[4] = {0};
     alignas(16) uint8_t X[16];
     const uint8_t *iptr = in; uint8_t *optr = out;
 
     void *kschd = (uint8_t *)gcm + gcm->offset;
 
     // Prepare J0. 
-    for(i=0; i<3; i++){ J0[i] = ((uint32_t *)iv)[i]; } J0[3] = htobe32(1);
+    for(i=0; i<3; i++){ J0[i] = ((const uint32_t *)iv)[i]; } J0[3] = htobe32(1);
 
     // The A part of S. 
     for(j=0; j<alen; j+=16)
     {
         for(i=0; i<16; i++)
-            X[i] = i+j < alen ? ((uint8_t *)aad)[i+j] : 0;
+            X[i] = i+j < alen ? ((const uint8_t *)aad)[i+j] : 0;
         
         galois128_hash1block(S, gcm->H, X);
     }
@@ -60,7 +60,7 @@ void GCM_Encrypt(gcm_t *restrict gcm,
 }
 
 void *GCM_Decrypt(gcm_t *restrict gcm,
-                  void *restrict iv,
+                  const void *restrict iv,
                   size_t alen, const void *aad,
                   size_t len, const void *in, void *out,
                   size_t tlen, const void *T)
@@ -70,20 +70,20 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     alignas(16) uint32_t
         J0[4], 
         CB[4],
-        S[4] = {};
+        S[4] = {0};
     alignas(16) uint8_t X[16];
     const uint8_t *iptr = in; uint8_t *optr = out;
 
     void *kschd = (uint8_t *)gcm + gcm->offset;
 
     // Prepare J0. 
-    for(i=0; i<3; i++){ J0[i] = ((uint32_t *)iv)[i]; } J0[3] = htobe32(1);
+    for(i=0; i<3; i++){ J0[i] = ((const uint32_t *)iv)[i]; } J0[3] = htobe32(1);
 
     // The A part of S. 
     for(j=0; j<alen; j+=16)
     {
         for(i=0; i<16; i++)
-            X[i] = i+j < alen ? ((uint8_t *)aad)[i+j] : 0;
+            X[i] = i+j < alen ? ((const uint8_t *)aad)[i+j] : 0;
             
         galois128_hash1block(S, gcm->H, X);
     }
@@ -106,7 +106,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     gcm->enc(J0, X, kschd);
     for(i=0; i<4; i++) ((uint32_t *)X)[i] ^= S[i];
     for(i=0; i<tlen; i++) {
-        if( ((uint8_t *)T)[i] != (i<16 ? X[i] : 0) )
+        if( ((const uint8_t *)T)[i] != (i<16 ? X[i] : 0) )
             out = NULL;
     }
 

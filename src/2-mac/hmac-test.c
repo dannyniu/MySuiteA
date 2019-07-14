@@ -5,36 +5,45 @@
 #include <string.h>
 
 static unsigned long a, b;
-static const unsigned long p = 65521;
+#define p 65521UL
 
-void mysrand(long x) { a = b = x % p; }
-long myrand() {
-    int x, y;
+void mysrand(unsigned long);
+unsigned long myrand(void);
+
+void mysrand(unsigned long x) { a = b = x % p; }
+unsigned long myrand(void) {
+    unsigned long x, y;
     x = a*a + p*p - b*b;
     x %= p;
     y = 2 * a * b;
     y %= p;
-    a = x, b = y;
+    a = x;
+    b = y;
     return x;
 }
 
 static unsigned char buf[256*(p/256+1)];
 
+typedef void (*Hmac_Init_Func)(
+    void *restrict,
+    const void *restrict,
+    size_t);
+
 const static struct {
     const char *name;
-    void (*func)(void *restrict, const void *restrict, size_t);
-    int taglen;
+    Hmac_Init_Func func;
+    size_t taglen;
 } hashlist[] =
 {
-    { "sha1", (void (*)())HMAC_SHA1_Init, 20, }, 
-    { "sha224", (void (*)())HMAC_SHA224_Init, 28, }, 
-    { "sha256", (void (*)())HMAC_SHA256_Init, 32, }, 
-    { "sha384", (void (*)())HMAC_SHA384_Init, 48, }, 
-    { "sha512", (void (*)())HMAC_SHA512_Init, 64, }, 
-    { "sha3-224", (void (*)())HMAC_SHA3_224_Init, 28, }, 
-    { "sha3-256", (void (*)())HMAC_SHA3_256_Init, 32, }, 
-    { "sha3-384", (void (*)())HMAC_SHA3_384_Init, 48, }, 
-    { "sha3-512", (void (*)())HMAC_SHA3_512_Init, 64, }, 
+    { "sha1", (Hmac_Init_Func)HMAC_SHA1_Init, 20, }, 
+    { "sha224", (Hmac_Init_Func)HMAC_SHA224_Init, 28, }, 
+    { "sha256", (Hmac_Init_Func)HMAC_SHA256_Init, 32, }, 
+    { "sha384", (Hmac_Init_Func)HMAC_SHA384_Init, 48, }, 
+    { "sha512", (Hmac_Init_Func)HMAC_SHA512_Init, 64, }, 
+    { "sha3-224", (Hmac_Init_Func)HMAC_SHA3_224_Init, 28, }, 
+    { "sha3-256", (Hmac_Init_Func)HMAC_SHA3_256_Init, 32, }, 
+    { "sha3-384", (Hmac_Init_Func)HMAC_SHA3_384_Init, 48, }, 
+    { "sha3-512", (Hmac_Init_Func)HMAC_SHA3_512_Init, 64, }, 
     { NULL, NULL, 0, }, 
 }, *hashinfo = hashlist + 0;
 
@@ -53,7 +62,7 @@ int main(int argc, char *argv[])
     } hmac;
     
     FILE *kfp, *mfp;
-    int i; size_t l;
+    unsigned i; size_t l;
 
     if( argc < 2 ) return 1;
     

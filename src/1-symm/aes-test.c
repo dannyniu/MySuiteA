@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
+void scanhex(char *restrict out, size_t len, const char *restrict in);
 void scanhex(char *restrict out, size_t len, const char *restrict in)
 {
     int n;
@@ -58,4 +59,6 @@ int main(int argc, char *argv[])
             scanhex(pt, bc(blockBytes), line+i);
         }
     }
+
+    return 0;
 }

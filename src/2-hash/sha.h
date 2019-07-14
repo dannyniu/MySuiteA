@@ -12,6 +12,7 @@ typedef struct sha1_context {
     unsigned    filled;
     uint64_t    len;
     uint32_t    H[5];
+    uint32_t    pad_H6; // to silence a warning. 
     union {
         uint32_t    Msg32[16];
         uint8_t     Msg8[64];

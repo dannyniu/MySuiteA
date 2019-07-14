@@ -7,7 +7,7 @@ void Gimli_Hash_Init(gimli_hash_t *restrict x)
 {
     *x = (gimli_hash_t){
         .sponge = SPONGE_INIT(16, 0x1f, _iGimli),
-        .state.u32 = {}, 
+        .state.u32 = {0}, 
     };
 }
 

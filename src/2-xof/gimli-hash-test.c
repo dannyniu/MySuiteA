@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 
-const char *test = "There's plenty for the both of us, may the best Dwarf win.";
+static const char *test = "There's plenty for the both of us, may the best Dwarf win.";
 
 int main()
 {

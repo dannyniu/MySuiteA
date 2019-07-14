@@ -34,7 +34,7 @@ void SHA1_Update(sha1_t *restrict sha, const void *restrict data, size_t len)
         }
     }
 
-    sha->len += (ptr - (const uint8_t *)data) * 8;
+    sha->len += (uint64_t)(ptr - (const uint8_t *)data) * 8;
 }
 
 void SHA1_Final(sha1_t *restrict sha, void *restrict out)
@@ -65,8 +65,8 @@ void SHA1_Final(sha1_t *restrict sha, void *restrict out)
         sha->filled = 0;
     }
 
-    sha->Msg32[14] = htobe32(sha->len >> 32);
-    sha->Msg32[15] = htobe32(sha->len);
+    sha->Msg32[14] = htobe32((uint32_t)(sha->len >> 32));
+    sha->Msg32[15] = htobe32((uint32_t)(sha->len));
     compressfunc_sha1(sha->H, sha->Msg32);
     for(i=0; i<5; i++)
         sha->Msg32[i] = htobe32(sha->H[i]);
@@ -94,7 +94,7 @@ void sha256_update(sha256_t *restrict sha, const void *restrict data, size_t len
         }
     }
 
-    sha->len += (ptr - (const uint8_t *)data) * 8;
+    sha->len += (uint64_t)(ptr - (const uint8_t *)data) * 8;
 }
 
 static void sha256_final(sha256_t *restrict sha)
@@ -122,8 +122,8 @@ static void sha256_final(sha256_t *restrict sha)
         sha->filled = 0;
     }
 
-    sha->Msg32[14] = htobe32(sha->len >> 32);
-    sha->Msg32[15] = htobe32(sha->len);
+    sha->Msg32[14] = htobe32((uint32_t)(sha->len >> 32));
+    sha->Msg32[15] = htobe32((uint32_t)(sha->len));
     compressfunc_sha256(sha->H, sha->Msg32);
     for(int i=0; i<8; i++)
         sha->Msg32[i] = htobe32(sha->H[i]);
@@ -196,7 +196,7 @@ void sha512_update(sha512_t *restrict sha, const void *restrict data, size_t len
         }
     }
 
-    sha->len += (ptr - (const uint8_t *)data) * 8;
+    sha->len += (uint64_t)(ptr - (const uint8_t *)data) * 8;
 }
 
 static void sha512_final(sha512_t *restrict sha)

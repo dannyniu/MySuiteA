@@ -136,7 +136,8 @@ void compressfunc_sha256(uint32_t H[8], const uint32_t *restrict M)
 
 #undef ROTL
 #undef ROTR
-#define ROTL(x,n) (( (x)<<(n) )|( (x)>>(64-(n)) ))
+// to silence unused macro warning. 
+// #define ROTL(x,n) (( (x)<<(n) )|( (x)>>(64-(n)) )) 
 #define ROTR(x,n) (( (x)>>(n) )|( (x)<<(64-(n)) ))
 
 static const uint64_t K_sha512[] = {

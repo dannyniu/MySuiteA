@@ -10,14 +10,16 @@ qemu_exec() {
 
 systarget=linux-gnu
 if command -v scan-build ; then
+    # scan-build installed. 
     scan_build=scan-build
     scan_build_opt=""
 else
+    # Assume it's my Mac Mini. 
     scan_build=~/Applications/checker-279/bin/scan-build
     scan_build_opt="--use-cc /usr/bin/clang --use-analyzer Xcode"
 fi
 cc="$scan_build $scan_build_opt clang"
-cflags0="-Wall -Wextra -g -O0"
+cflags0="-Wall -Wextra -Weverything -g -O0"
 
 # -- End; --
 
@@ -42,12 +44,12 @@ if [ $sysarch = $arch ] ; then
     export exec=./$bin
 
 else
-    last(){ shift $(( $# - 1 )) ; echo $1 ; }
+    last(){ shift $(( $# - 1 )) ; echo "$1" ; }
     UsrArchIncPath=/usr/$arch-$systarget/include
     UsrArchLibPath=/usr/$arch-$systarget/lib
     UsrArchGccLibPath=`last /usr/lib/gcc-cross/$arch-$systarget/*`
     
-    cflags1="-target $arch-$systarget -I$UsrArchIncPath"
+    cflags1="-target $arch-$systarget -isystem $UsrArchIncPath"
     ld="
       $arch-$systarget-ld
       -dynamic-linker
@@ -83,7 +85,7 @@ done
 cd "$(dirname $unitest_sh)"/../bin
 rm -f *.o
 set -e
-$cc -c $cflags0 $cflags1 $cflags $srcfiles
+$cc -c -ffreestanding $cflags0 $cflags1 $cflags $srcfiles
 $ld $objfiles -o $bin
 set +e
 

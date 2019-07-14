@@ -22,6 +22,8 @@ static const alignas(256) uint8_t sbox[256] = {
     0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16,
 };
 
+#ifndef Define_AES_Cipher
+
 static const alignas(256) uint8_t invsbox[256] = {
     0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
     0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB,
@@ -41,10 +43,15 @@ static const alignas(256) uint8_t invsbox[256] = {
     0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D,
 };
 
+#endif /* Define_AES_Cipher */
+
 static inline uint8_t xtime(uint16_t x)
 {
-    return (x <<= 1) & 0400 ? (x ^= 0x1b) : x;
+    uint16_t ret = (x <<= 1) & 0400 ? (x ^= 0x1b) : x;
+    return (uint8_t)ret;
 }
+
+#ifndef Define_AES_Cipher
 
 static inline uint8_t gmul(uint8_t a, uint8_t b)
 {
@@ -68,24 +75,24 @@ static void ShiftRows(uint8_t state[16])
 {
     uint8_t x;
 
-    x = s(1,0),
-	s(1,0) = s(1,1),
-	s(1,1) = s(1,2),
-	s(1,2) = s(1,3),
-	s(1,3) = x;
+    x = s(1,0);
+    s(1,0) = s(1,1);
+    s(1,1) = s(1,2);
+    s(1,2) = s(1,3);
+    s(1,3) = x;
 
-    x = s(2,0),
-	s(2,0) = s(2,2),
-	s(2,2) = x;
-    x = s(2,1),
-	s(2,1) = s(2,3),
-	s(2,3) = x;
+    x = s(2,0);
+    s(2,0) = s(2,2);
+    s(2,2) = x;
+    x = s(2,1);
+    s(2,1) = s(2,3);
+    s(2,3) = x;
 
-    x = s(3,3),
-	s(3,3) = s(3,2),
-	s(3,2) = s(3,1),
-	s(3,1) = s(3,0),
-	s(3,0) = x;
+    x = s(3,3);
+    s(3,3) = s(3,2);
+    s(3,2) = s(3,1);
+    s(3,1) = s(3,0);
+    s(3,0) = x;
 }
 
 static void MixColumns(uint8_t state[16])
@@ -112,24 +119,24 @@ static void InvShiftRows(uint8_t state[16])
 {
     uint8_t x;
 
-    x = s(1,3),
-	s(1,3) = s(1,2),
-	s(1,2) = s(1,1),
-	s(1,1) = s(1,0),
-	s(1,0) = x;
+    x = s(1,3);
+    s(1,3) = s(1,2);
+    s(1,2) = s(1,1);
+    s(1,1) = s(1,0);
+    s(1,0) = x;
 
-    x = s(2,3),
-	s(2,3) = s(2,1),
-	s(2,1) = x;
-    x = s(2,2),
-	s(2,2) = s(2,0),
-	s(2,0) = x;
+    x = s(2,3);
+    s(2,3) = s(2,1);
+    s(2,1) = x;
+    x = s(2,2);
+    s(2,2) = s(2,0);
+    s(2,0) = x;
 
-    x = s(3,0),
-	s(3,0) = s(3,1),
-	s(3,1) = s(3,2),
-	s(3,2) = s(3,3),
-	s(3,3) = x;
+    x = s(3,0);
+    s(3,0) = s(3,1);
+    s(3,1) = s(3,2);
+    s(3,2) = s(3,3);
+    s(3,3) = x;
 }
 
 static void InvSubBytes(uint8_t state[16])
@@ -182,11 +189,11 @@ static void Rijndael_Nb4_Cipher(
     AddRoundKey(out, w + Nr*16);
 }
 
-#define Define_AES_InvCipher(name,Nr)               \
-    void name(const void *in, void *out,            \
-              const void *restrict w)               \
-    {                                               \
-        Rijndael_Nb4_InvCipher(in, out, w, Nr);     \
+#define Define_AES_InvCipher(name,Nr)           \
+    void name(const void *in, void *out,        \
+              const void *restrict w)           \
+    {                                           \
+        Rijndael_Nb4_InvCipher(in, out, w, Nr); \
     }
 static void Rijndael_Nb4_InvCipher(
     const uint8_t in[16], uint8_t out[16],
@@ -210,6 +217,8 @@ static void Rijndael_Nb4_InvCipher(
     AddRoundKey(out, w);
 }
 
+#endif /* Define_AES_Cipher */
+
 #define Define_AES_KeyExpansion(name,Nk,Nr)             \
     void name(const void *restrict key,                 \
               void *restrict w)                         \
@@ -220,7 +229,8 @@ static void Rijndael_Nb4_KeyExpansion(
     const uint8_t *restrict key_in, uint8_t *restrict w_out, 
     int Nk, int Nr)
 {
-    uint32_t temp, Rcon = 0x01;
+    uint8_t Rcon = 0x01;
+    uint32_t temp;
     uint32_t const *key = (const void *)key_in;
     uint32_t *w = (void *)w_out;
     int i;
@@ -232,20 +242,23 @@ static void Rijndael_Nb4_KeyExpansion(
         temp = le32toh( w[i-1] );
 
         if( i % Nk == 0 )
+        {
             temp = (
-                sbox[(temp >> 24) & 255] << 16 |
-                sbox[(temp >> 16) & 255] <<  8 |
-                sbox[(temp >>  8) & 255] <<  0 |
-                sbox[(temp >>  0) & 255] << 24 ) ^ Rcon,
-                Rcon = xtime(Rcon);
-
+                (uint32_t)sbox[(temp >> 24) & 255] << 16 |
+                (uint32_t)sbox[(temp >> 16) & 255] <<  8 |
+                (uint32_t)sbox[(temp >>  8) & 255] <<  0 |
+                (uint32_t)sbox[(temp >>  0) & 255] << 24 ) ^ Rcon;
+            Rcon = xtime(Rcon);
+        }
         else if( Nk > 6 && i % Nk == 4 )
+        {
             temp =
-                sbox[(temp >> 24) & 255] << 24 |
-                sbox[(temp >> 16) & 255] << 16 |
-                sbox[(temp >>  8) & 255] <<  8 |
-                sbox[(temp >>  0) & 255] <<  0 ;
-
+                (uint32_t)sbox[(temp >> 24) & 255] << 24 |
+                (uint32_t)sbox[(temp >> 16) & 255] << 16 |
+                (uint32_t)sbox[(temp >>  8) & 255] <<  8 |
+                (uint32_t)sbox[(temp >>  0) & 255] <<  0 ;
+        }
+        
         w[i] = w[i - Nk] ^ htole32(temp);
     }
 }

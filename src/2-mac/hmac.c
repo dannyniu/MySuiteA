@@ -16,7 +16,7 @@ void HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen)
     if( keylen <= hmac->B )
     {
         for(i=0; i<(keylen); i++)
-            hmac->K0[i] = ((uint8_t *)key)[i];
+            hmac->K0[i] = ((const uint8_t *)key)[i];
     }
     else
     {

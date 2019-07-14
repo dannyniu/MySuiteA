@@ -14,7 +14,7 @@ bin=galois128-test
 testnum="01 02 03 04 05 06"
 for n in $testnum
 do dd if=/dev/urandom bs=16 count=3 of=../../bin/testblob-$n.dat
-done
+done 2>/dev/null
 
 srctype=c
 

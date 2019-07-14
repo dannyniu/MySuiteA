@@ -103,12 +103,12 @@ void chacha20_set_state(void *restrict state,
 
     if( key ) {
         for(i=0; i<8; i++)
-            s[i+4] = le32toh( ((uint32_t *)key)[i] );
+            s[i+4] = le32toh( ((const uint32_t *)key)[i] );
     }
 
     if( nonce ) {
-        for(int i=0; i<3; i++)
-            s[i+13] = le32toh( ((uint32_t *)nonce)[i] );
+        for(i=0; i<3; i++)
+            s[i+13] = le32toh( ((const uint32_t *)nonce)[i] );
     }
 }
 
@@ -127,7 +127,7 @@ void chacha20_block(uint32_t *restrict state, uint32_t counter,
 
     for(i=0; i<len; i++) {
         ((uint8_t *)out)[i] = ptr[i] ^
-            (in ? ((uint8_t *)in)[i] : 0);
+            (in ? ((const uint8_t *)in)[i] : 0);
     }
 }
 

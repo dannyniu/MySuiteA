@@ -12,21 +12,27 @@ static char line[128], word[128];
 static uint8_t k[32], iv[12], a[32], p[1024], c[1024], s[16], t[16], x[1024];
 static size_t len, alen;
 
-gcm_aes256_t gcm;
+static gcm_aes256_t gcm;
 
-void *scanhex(uint8_t *restrict out, size_t len, const char *restrict in)
+void *scanhex(uint8_t *restrict out, size_t length, const char *restrict in);
+void *scanhex(uint8_t *restrict out, size_t length, const char *restrict in)
 {
     int n;
-    while( isxdigit((int)*in) && len-- &&
+    while( isxdigit((int)*in) && length-- &&
            sscanf(in, " %2"SCNx8" %n", out, &n) )
-        in += n, out++;
+    {
+        in += n;
+        out++;
+    }
     return out;
 }
 
-void dumphex(uint8_t *x, size_t len) {
-    for(size_t i=0; i<len; i+=16) {
+void dumphex(uint8_t *data, size_t length);
+void dumphex(uint8_t *data, size_t length)
+{
+    for(size_t i=0; i<length; i+=16) {
         for(size_t j=0; j<16; j++)
-            if( i+j < len ) printf("%02x ", x[i+j]);
+            if( i+j < len ) printf("%02x ", data[i+j]);
 
         printf("\n");
     }
@@ -54,7 +60,7 @@ int main(int argc, char *argv[])
         {
         doscan:
             tmp = scanhex(ptr, 16, line+i);
-            if( acc ) *acc += tmp-ptr;
+            if( acc ) *acc += (size_t)(tmp-ptr);
             ptr = tmp;
             continue;
         }
@@ -95,7 +101,7 @@ int main(int argc, char *argv[])
                 acc = NULL;
                 goto doscan;
             }
-            else ptr=NULL, acc=NULL;
+            else { ptr=NULL; acc=NULL; }
         }
     }
 

@@ -6,16 +6,20 @@
 #include "blake2.h"
 
 static unsigned long a, b;
-static const unsigned long p = 65521;
+#define p 65521UL
 
-void mysrand(long x) { a = b = x % p; }
-long myrand() {
-    int x, y;
+void mysrand(unsigned long);
+unsigned long myrand(void);
+
+void mysrand(unsigned long x) { a = b = x % p; }
+unsigned long myrand(void) {
+    unsigned long x, y;
     x = a*a + p*p - b*b;
     x %= p;
     y = 2 * a * b;
     y %= p;
-    a = x, b = y;
+    a = x;
+    b = y;
     return x;
 }
 
@@ -23,12 +27,12 @@ static unsigned char buf[256*(p/256+1)];
 
 int main(int argc, char *argv[])
 {
-    ssize_t in_len = -1;
+    size_t in_len = 0;
     void *x = NULL;
     
-    intptr_t (*h)(int) = iBLAKE2b256;
+    uintptr_t (*h)(int) = iBLAKE2b256;
 
-    mysrand(time(NULL));
+    mysrand((unsigned long)time(NULL));
     
     if( argc < 2 ) h = iBLAKE2b256;
     else
@@ -55,8 +59,9 @@ int main(int argc, char *argv[])
         UPDATE_FUNC(h)(x, buf, in_len);
     }
     FINAL_FUNC(h)(x, buf);
-    free(x), x=NULL;
+    free(x);
+    x=NULL;
 
-    for(int i=0; i<OUT_BYTES(h); i++) { printf("%02x", buf[i]); } printf("\n");
+    for(unsigned i=0; i<OUT_BYTES(h); i++) { printf("%02x", buf[i]); } printf("\n");
     return 0;
 }
