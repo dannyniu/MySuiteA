@@ -27,7 +27,6 @@ void Sponge_Update(sponge_t *restrict s, const void *restrict data, size_t len)
             s->permute(state, state);
             s->filled = 0;
         }
-
     }
 }
 
