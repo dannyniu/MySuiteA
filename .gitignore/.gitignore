@@ -42,6 +42,10 @@
 *.idb
 *.pdb
 
+# Private keys
+id_*
+*.key
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd
