@@ -33,8 +33,8 @@ gcm.c
 "
 bin=encryption-test
 
-testdir1=../../tests/gcm-test-vectors
-testdir2=../../tests/chacha20-poly1305
+testdir1=../tests/gcm-test-vectors
+testdir2=../tests/chacha20-poly1305
 
 vsrc(){ src="$src_common 1-symm/rijndael${1}.c 1-symm/galois128${1}.c" ; }
 

@@ -13,7 +13,7 @@ static inline uint32_t htow32(const uint32_t p, unsigned msb)
     return msb ? htobe32(p) : htole32(p);
 }
 
-uint64_t intdesc_getword32(const struct intdesc intd, unsigned i)
+uint32_t intdesc_getword32(const struct intdesc intd, unsigned i)
 {
     if( i >= intd.len ) return 0;
     if( intd.msw )
@@ -29,7 +29,7 @@ void intdesc_setword32(const struct intdesc intd, unsigned i, uint32_t x)
     else intd.p[i] = htow32(x, intd.msb);
 }
 
-uint64_t intview_getword32(const struct intview intv, unsigned i)
+uint32_t intview_getword32(const struct intview intv, unsigned i)
 {
     if( i >= intv.len ) return 0;
     return intdesc_getword32(intv.intd, i+intv.base);
@@ -60,7 +60,8 @@ void li_add(
     unsigned i;
     for(i=0; i<out.len || i<a.len || i<b.len; i++)
     {
-        x += getword32(a, i) + getword32(b, i);
+        x += getword32(a, i);
+        x += getword32(b, i);
         setword32(out, i, (uint32_t)x);
         x >>= 32;
     }
@@ -75,7 +76,8 @@ void li_sub(
     unsigned i;
     for(i=0; i<out.len || i<a.len || i<b.len; i++)
     {
-        x += getword32(a, i) - getword32(b, i);
+        x += getword32(a, i);
+        x -= getword32(b, i);
         setword32(out, i, (uint32_t)x);
         x = (uint64_t)(int64_t)(int32_t)(x>>32); // sign-extending. 
     }
@@ -86,7 +88,7 @@ void li_mul(
     const struct intdesc a,
     const struct intdesc b)
 {
-    uint64_t x;
+    uint64_t x, y;
     unsigned i, j;
 
     for(i=0; i<out.len; i++) setword32(out, i, 0);
@@ -97,8 +99,10 @@ void li_mul(
         for(j=0; j<b.len; j++)
         {
             if( i+j >= out.len ) break;
+            y  = getword32(a, i);
+            y *= getword32(b, j);
             x >>= 32;
-            x += getword32(a, i) * getword32(b, j);
+            x += y;
             x += getword32(out, i+j);
             setword32(out, i+j, (uint32_t)x);
         }
@@ -119,12 +123,12 @@ static inline uint32_t getword32s(const struct intview intv, unsigned t)
         unsigned s = t & 31;
         unsigned r = 32 - s;
         return
-            (uint32_t)getword32(intv, i+0) >> s |
-            (uint32_t)getword32(intv, i+1) << r ;
+            getword32(intv, i+0) >> s |
+            getword32(intv, i+1) << r ;
     }
     else
     {
-        return (uint32_t)getword32(intv, i);
+        return getword32(intv, i);
     }
 }
 
@@ -137,8 +141,8 @@ static int shifted_ge(const struct intview a, const struct intview b, unsigned t
     for(unsigned i = m>n?m:n; i--; )
     {
         uint32_t
-            u = (uint32_t)getword32(a, i),
-            v = (uint32_t)getword32s(b, i*32-t);
+            u = getword32(a, i),
+            v = getword32s(b, i*32-t);
         
         if( u < v ) return 0; else if( u > v ) break;
     }
@@ -156,7 +160,8 @@ static void shifted_sub(
     unsigned i;
     for(i=0; i<out.len || i<a.len || i<b.len; i++)
     {
-        x += getword32(a, i) - getword32s(b, i*32-t);
+        x += getword32(a, i);
+        x -= getword32s(b, i*32-t);
         setword32(out, i, (uint32_t)x);
         x = (uint64_t)(int64_t)(int32_t)(x>>32); // sign-extending. 
     }
@@ -197,7 +202,7 @@ void li_div(
     d.base = 0; d.len = n;
     
     for(i=0; i<n; i++)
-        setword32(r, i, (uint32_t)getword32(a, i));
+        setword32(r, i, getword32(a, i));
     
     h = g = 0;
     
@@ -227,7 +232,7 @@ void li_div(
     if( rem.p )
     {
         for(i=0; i<r.len; i++) // must not erase quotient yet. 
-            setword32(rem, i, (uint32_t)getword32(r, i));
+            setword32(rem, i, getword32(r, i));
     }
 
     if( quo.p )
@@ -235,7 +240,7 @@ void li_div(
         // must not modify r.len here. because --
 
         for(i=0; i<n && i<q.len; i++)
-            setword32(quo, i, (uint32_t)getword32(q, i));
+            setword32(quo, i, getword32(q, i));
 
         setword32(quo, i++, g);
 

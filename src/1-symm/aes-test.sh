@@ -2,7 +2,7 @@
 
 testfunc() {
     for b in 128 192 256 ; do
-        for f in ../../tests/KAT_AES/ECB*${b}.rsp ; do
+        for f in ../tests/KAT_AES/ECB*${b}.rsp ; do
             $exec $b < $f
             echo "${bin##*/} $b < ${f##*/}: Exited: $?"
         done

@@ -78,7 +78,7 @@ enum {
     // AEAD Functions //
     AEncFunc, ADecFunc, 
     
-    // Information macros evaluates to -1
+    // Information macros evaluates to 0
     // for queries not applicable to them. 
 };
 

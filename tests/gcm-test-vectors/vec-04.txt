@@ -1,0 +1,35 @@
+GCM Test Case #04 (AES-128)
+Variable          Value
+-------------------------------------------------
+K               : feffe9928665731c6d6a8f9467308308
+P               : d9313225f88406e5a55909c5aff5269a
+                : 86a7a9531534f7da2e4c303d8a318a72
+                : 1c3c0c95956809532fcf0e2449a6b525
+                : b16aedf5aa0de657ba637b39
+A               : feedfacedeadbeeffeedfacedeadbeef
+                : abaddad2
+IV              : cafebabefacedbaddecaf888
+H               : b83b533708bf535d0aa6e52980d53b78
+Y_0             : cafebabefacedbaddecaf88800000001
+E(K,Y_0)        : 3247184b3c4f69a44dbcd22887bbb418
+X_1             : ed56aaf8a72d67049fdb9228edba1322
+X_2             : cd47221ccef0554ee4bb044c88150352
+Y_1             : cafebabefacedbaddecaf88800000002
+E(K,Y_1)        : 9bb22ce7d9f372c1ee2b28722b25f206
+Y_2             : cafebabefacedbaddecaf88800000003
+E(K,Y_2)        : 650d887c3936533a1b8d4e1ea39d2b5c
+Y_3             : cafebabefacedbaddecaf88800000004
+E(K,Y_3)        : 3de91827c10e9a4f5240647ee5221f20
+Y_4             : cafebabefacedbaddecaf88800000005
+E(K,Y_4)        : aac9e6ccc0074ac0873b9ba85d908bd0
+X_3             : 54f5e1b2b5a8f9525c23924751a3ca51
+X_4             : 324f585c6ffc1359ab371565d6c45f93
+X_5             : ca7dd446af4aa70cc3c0cd5abba6aa1c
+X_6             : 1590df9b2eb6768289e57d56274c8570
+len(A)||len(C)  : 00000000000000a000000000000001e0
+GHASH(H,A,C)    : 698e57f70e6ecc7fd9463b7260a9ae5f
+C               : 42831ec2217774244b7221b784d0d49c
+                : e3aa212f2c02a4e035c17e2329aca12e
+                : 21d514b25466931c7d8f6a5aac84aa05
+                : 1ba30b396a0aac973d58e091
+T               : 5bc94fbc3221a5db94fae95ae7121a47

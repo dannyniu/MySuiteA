@@ -1,0 +1,31 @@
+GCM Test Case #03 (AES-128)
+Variable          Value
+-------------------------------------------------
+K               : feffe9928665731c6d6a8f9467308308
+P               : d9313225f88406e5a55909c5aff5269a
+                : 86a7a9531534f7da2e4c303d8a318a72
+                : 1c3c0c95956809532fcf0e2449a6b525
+                : b16aedf5aa0de657ba637b391aafd255
+IV              : cafebabefacedbaddecaf888
+H               : b83b533708bf535d0aa6e52980d53b78
+Y_0             : cafebabefacedbaddecaf88800000001
+E(K,Y_0)        : 3247184b3c4f69a44dbcd22887bbb418
+Y_1             : cafebabefacedbaddecaf88800000002
+E(K,Y_1)        : 9bb22ce7d9f372c1ee2b28722b25f206
+Y_2             : cafebabefacedbaddecaf88800000003
+E(K,Y_2)        : 650d887c3936533a1b8d4e1ea39d2b5c
+Y_3             : cafebabefacedbaddecaf88800000004
+E(K,Y_3)        : 3de91827c10e9a4f5240647ee5221f20
+Y_4             : cafebabefacedbaddecaf88800000005
+E(K,Y_4)        : aac9e6ccc0074ac0873b9ba85d908bd0
+X_1             : 59ed3f2bb1a0aaa07c9f56c6a504647b
+X_2             : b714c9048389afd9f9bc5c1d4378e052
+X_3             : 47400c6577b1ee8d8f40b2721e86ff10
+X_4             : 4796cf49464704b5dd91f159bb1b7f95
+len(A)||len(C)  : 00000000000000000000000000000200
+GHASH(H,A,C)    : 7f1b32b81b820d02614f8895ac1d4eac
+C               : 42831ec2217774244b7221b784d0d49c
+                : e3aa212f2c02a4e035c17e2329aca12e
+                : 21d514b25466931c7d8f6a5aac84aa05
+                : 1ba30b396a0aac973d58e091473f5985
+T               : 4d5c2af327cd64a62cf35abd2ba6fab4

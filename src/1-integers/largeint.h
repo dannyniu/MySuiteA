@@ -26,9 +26,9 @@ struct intview
     struct intdesc intd;
 };
 
-uint64_t intdesc_getword32(const struct intdesc intd, unsigned i);
+uint32_t intdesc_getword32(const struct intdesc intd, unsigned i);
 void     intdesc_setword32(const struct intdesc intd, unsigned i, uint32_t x);
-uint64_t intview_getword32(const struct intview intv, unsigned i);
+uint32_t intview_getword32(const struct intview intv, unsigned i);
 void     intview_setword32(const struct intview intv, unsigned i, uint32_t x);
 
 #define getword32(s, i)                                 \
