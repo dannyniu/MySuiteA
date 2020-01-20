@@ -9,7 +9,7 @@
 
 void Gimli_Permute(const void *in, void *out);
 
-#define _iGimli(q) (                                    \
+#define cGimli(q) (                                     \
         q==blockBytes ? 48 :                            \
         q==PermuteFunc ? (uintptr_t)Gimli_Permute :     \
         0 )

@@ -33,7 +33,7 @@ void SHA3_256_Final(sha3_t *restrict x, void *restrict out);
 void SHA3_384_Final(sha3_t *restrict x, void *restrict out);
 void SHA3_512_Final(sha3_t *restrict x, void *restrict out);
 
-#define _iSHA3(bits,q) (                                        \
+#define cSHA3(bits,q) (                                         \
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct sha3_context) :         \
@@ -41,10 +41,10 @@ void SHA3_512_Final(sha3_t *restrict x, void *restrict out);
         q==UpdateFunc ? (uintptr_t)SHA3_##bits##_Update :       \
         q==FinalFunc  ? (uintptr_t)SHA3_##bits##_Final :        \
         0)
-#define _iSHA3_224(q) _iSHA3(224,q)
-#define _iSHA3_256(q) _iSHA3(256,q)
-#define _iSHA3_384(q) _iSHA3(384,q)
-#define _iSHA3_512(q) _iSHA3(512,q)
+#define cSHA3_224(q) cSHA3(224,q)
+#define cSHA3_256(q) cSHA3(256,q)
+#define cSHA3_384(q) cSHA3(384,q)
+#define cSHA3_512(q) cSHA3(512,q)
 
 uintptr_t iSHA3_224(int q);
 uintptr_t iSHA3_256(int q);

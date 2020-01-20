@@ -26,7 +26,7 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len);
 # // Emacs seems to have difficulty indent correctly if nothing's here. 
 #endif /* foo */
 
-#define _iSHAKE(bits,q) (                                       \
+#define cSHAKE(bits,q) (                                        \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct shake_context) :        \
         q==InitFunc ? (uintptr_t)SHAKE##bits##_Init :           \
@@ -34,8 +34,8 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len);
         q==XofFinalFunc ? (uintptr_t)SHAKE_Final :              \
         q==ReadFunc ? (uintptr_t)SHAKE_Read :                   \
         0)
-#define _iSHAKE128(q) _iSHAKE(128,q)
-#define _iSHAKE256(q) _iSHAKE(256,q)
+#define cSHAKE128(q) cSHAKE(128,q)
+#define cSHAKE256(q) cSHAKE(256,q)
 
 uintptr_t iSHAKE128(int q);
 uintptr_t iSHAKE256(int q);

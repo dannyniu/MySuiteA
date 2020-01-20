@@ -9,11 +9,11 @@
 
 void KeccakF1600_Permute(const void *in, void *out);
 
-#define _iKeccakF(b,q) (                                        \
+#define cKeccakF(b,q) (                                         \
         q==blockBytes ? b/8 :                                   \
         q==PermuteFunc ? (uintptr_t)KeccakF##b##_Permute :      \
         0 )
-#define _iKeccakF1600(q) _iKeccakF(1600,q)
+#define cKeccakF1600(q) cKeccakF(1600,q)
 
 uintptr_t iKeccakF1600(int q);
 

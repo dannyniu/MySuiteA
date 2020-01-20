@@ -1,0 +1,19 @@
+The following is a list of DRBG features mentioned in NIST-SP-800-90A-rev1.
+"T" indicates that the feature is supported and implemented.
+"F" indicates that the feature is unsupported and not implemented.
+"Y" indicates that the feature is subsumed elsewhere. 
+Mandatory features such as "entropy input" are omitted for brevity. 
+
+## DRBG algorithms ##
+
+T: Instantiation
+T: Reseeding
+T: Generate
+Y: Uninstantiate # the ERASE_STATES(buf,len) macro. 
+
+## DRBG inputs ##
+
+T: nonce
+T: personalization string (instantiate)
+F: additional input (reseed, generate)
+

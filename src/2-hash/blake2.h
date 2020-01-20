@@ -59,7 +59,7 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out);
 #define BLAKE2s224_Final blake2s_final
 #define BLAKE2s256_Final blake2s_final
 
-#define _iBLAKE2b(bits,q) (                                     \
+#define cBLAKE2b(bits,q) (                                      \
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? 128 :                                   \
         q==contextBytes ? sizeof(struct blake2b_context) :      \
@@ -68,7 +68,7 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out);
         q==FinalFunc  ? (uintptr_t)BLAKE2b##bits##_Final :      \
         0)
 
-#define _iBLAKE2s(bits,q) (                                     \
+#define cBLAKE2s(bits,q) (                                      \
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? 64 :                                    \
         q==contextBytes ? sizeof(struct blake2s_context) :      \
@@ -77,15 +77,15 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out);
         q==FinalFunc  ? (uintptr_t)BLAKE2s##bits##_Final :      \
         0)
 
-#define _iBLAKE2b160(q) _iBLAKE2b(160,q)
-#define _iBLAKE2b256(q) _iBLAKE2b(256,q)
-#define _iBLAKE2b384(q) _iBLAKE2b(384,q)
-#define _iBLAKE2b512(q) _iBLAKE2b(512,q)
+#define cBLAKE2b160(q) cBLAKE2b(160,q)
+#define cBLAKE2b256(q) cBLAKE2b(256,q)
+#define cBLAKE2b384(q) cBLAKE2b(384,q)
+#define cBLAKE2b512(q) cBLAKE2b(512,q)
 
-#define _iBLAKE2s128(q) _iBLAKE2s(128,q)
-#define _iBLAKE2s160(q) _iBLAKE2s(160,q)
-#define _iBLAKE2s224(q) _iBLAKE2s(224,q)
-#define _iBLAKE2s256(q) _iBLAKE2s(256,q)
+#define cBLAKE2s128(q) cBLAKE2s(128,q)
+#define cBLAKE2s160(q) cBLAKE2s(160,q)
+#define cBLAKE2s224(q) cBLAKE2s(224,q)
+#define cBLAKE2s256(q) cBLAKE2s(256,q)
 
 uintptr_t iBLAKE2b160(int q);
 uintptr_t iBLAKE2b256(int q);

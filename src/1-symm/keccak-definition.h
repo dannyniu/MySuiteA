@@ -139,7 +139,7 @@ void glue(Keccak_InstName,_Permute)(const void *in, void *out)
             ptr[y*5+x] = htole(A[y][x]);
 }
 
-uintptr_t glue(i,Keccak_InstName)(int q){ return glue(_i,Keccak_InstName)(q); }
+uintptr_t glue(i,Keccak_InstName)(int q){ return glue(c,Keccak_InstName)(q); }
 
 #undef Keccak_InstName
 #undef keccak_word_t

@@ -25,7 +25,7 @@ void Gimli_Hash_Read(gimli_hash_t *restrict x, void *restrict data, size_t len);
 # // Emacs seems to have difficulty indent correctly if nothing's here. 
 #endif /* foo */
 
-#define _iGimli_Hash(q) (                                       \
+#define cGimli_Hash(q) (                                        \
         q==blockBytes ? 16 :                                    \
         q==contextBytes ? sizeof(struct gimli_hash_context) :   \
         q==InitFunc ? (intptr_t)Gimli_Hash_Init :               \

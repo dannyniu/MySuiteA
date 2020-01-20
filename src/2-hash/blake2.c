@@ -119,12 +119,12 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out)
             );
 }
 
-uintptr_t iBLAKE2b160(int q){ return _iBLAKE2b160(q); }
-uintptr_t iBLAKE2b256(int q){ return _iBLAKE2b256(q); }
-uintptr_t iBLAKE2b384(int q){ return _iBLAKE2b384(q); }
-uintptr_t iBLAKE2b512(int q){ return _iBLAKE2b512(q); }
+uintptr_t iBLAKE2b160(int q){ return cBLAKE2b160(q); }
+uintptr_t iBLAKE2b256(int q){ return cBLAKE2b256(q); }
+uintptr_t iBLAKE2b384(int q){ return cBLAKE2b384(q); }
+uintptr_t iBLAKE2b512(int q){ return cBLAKE2b512(q); }
 
-uintptr_t iBLAKE2s128(int q){ return _iBLAKE2s128(q); }
-uintptr_t iBLAKE2s160(int q){ return _iBLAKE2s160(q); }
-uintptr_t iBLAKE2s224(int q){ return _iBLAKE2s224(q); }
-uintptr_t iBLAKE2s256(int q){ return _iBLAKE2s256(q); }
+uintptr_t iBLAKE2s128(int q){ return cBLAKE2s128(q); }
+uintptr_t iBLAKE2s160(int q){ return cBLAKE2s160(q); }
+uintptr_t iBLAKE2s224(int q){ return cBLAKE2s224(q); }
+uintptr_t iBLAKE2s256(int q){ return cBLAKE2s256(q); }

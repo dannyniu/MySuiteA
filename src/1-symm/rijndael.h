@@ -17,7 +17,7 @@ void AES128_KeyExpansion(const void *restrict key, void *restrict w);
 void AES192_KeyExpansion(const void *restrict key, void *restrict w);
 void AES256_KeyExpansion(const void *restrict key, void *restrict w);
 
-#define _iAES(bits,q) (                                         \
+#define cAES(bits,q) (                                          \
         q==blockBytes ? 16 :                                    \
         q==keyBytes ? (bits)/8 :                                \
         q==keyschedBytes ? ((bits)/32+6+1)*16 :                 \
@@ -25,9 +25,9 @@ void AES256_KeyExpansion(const void *restrict key, void *restrict w);
         q==DecFunc ? (uintptr_t)AES##bits##_InvCipher :         \
         q==KschdFunc ? (uintptr_t)AES##bits##_KeyExpansion :    \
         0)
-#define _iAES128(q) _iAES(128,q)
-#define _iAES192(q) _iAES(192,q)
-#define _iAES256(q) _iAES(256,q)
+#define cAES128(q) cAES(128,q)
+#define cAES192(q) cAES(192,q)
+#define cAES256(q) cAES(256,q)
 
 uintptr_t iAES128(int q);
 uintptr_t iAES192(int q);

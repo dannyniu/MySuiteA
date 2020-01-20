@@ -1,12 +1,10 @@
 #!/bin/sh
 
-if ! command -v shasum ; then
-    echo "Cannot invoke shasum. (Not installed?)"
+if ! command -v python3 >/dev/null ; then
+    echo "Cannot invoke python3. (Not installed?)"
     exit 1;
-fi
-
-if ! command -v sha3sum ; then
-    echo "Cannot invoke sha3sum. (Not installed?)"
+elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
+    echo "Python version too old, (3.6 or newer required)" # Assumes CPython. 
     exit 1;
 fi
 
@@ -19,9 +17,9 @@ testfunc() {
         dd if=/dev/urandom bs=32 count=$((mlen/32)) of=$testvec 2>/dev/null
         
         for b in 1 224 256 384 512 ; do
-            ref="$(shasum -b -a $b < $testvec)"
-            res="$($exec $b < $testvec)"
-            if ! [ "${ref%%[!a-zA-Z0-9]*}" = $res ] ; then
+            ref=$(../src/2-hash/shasum.py sha$b < $testvec)
+            res=$($exec $b < $testvec)
+            if ! [ $ref = $res ] ; then
                 echo sha${b} failed with "$ref" != $res
                 n=$((n+1))
                 datetime=$(date +%Y-%m-%d-%H%M%S)
@@ -29,11 +27,21 @@ testfunc() {
             fi
         done
         
-        for b in 224 256 384 512 128000 256000 ; do
-            ref="$(sha3sum -b -a $b < $testvec)"
-            res="$($exec 3$b < $testvec)"
-            if ! [ "${ref%%[!a-zA-Z0-9]*}" = $res ] ; then
+        for b in 224 256 384 512; do
+            ref=$(../src/2-hash/shasum.py sha3-$b < $testvec)
+            res=$($exec 3$b < $testvec)
+            if ! [ $ref = $res ] ; then
                 echo sha3-${b} failed with "$ref" != $res
+                n=$((n+1))
+                cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
+            fi
+        done
+        
+        for b in 128 256; do
+            ref=$(../src/2-hash/shakesum.py shake_$b < $testvec)
+            res=$($exec 3${b}000 < $testvec)
+            if ! [ $ref = $res ] ; then
+                echo shake${b} failed with "$ref" != $res
                 n=$((n+1))
                 cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
             fi
@@ -57,24 +65,24 @@ sha3.c
 1-symm/keccak-f-1600.c
 0-datum/endian.c
 "
-bin=sha-test
+bin=$(basename "$0" .sh)
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [x86_64]
 arch=x86_64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [aarch64]
 arch=aarch64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [powerpc64]
 arch=powerpc64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [sparc64]
 arch=sparc64 cflags=""
 ( . $unitest_sh )

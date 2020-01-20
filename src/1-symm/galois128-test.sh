@@ -9,7 +9,7 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src_common="galois128-test.c 0-datum/endian.c"
-bin=galois128-test
+bin=$(basename "$0" .sh)
 
 testnum="01 02 03 04 05 06"
 for n in $testnum
@@ -18,25 +18,25 @@ done 2>/dev/null
 
 srctype=c
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [x86_64]
 arch=x86_64 cflags=""
 src="$src_common galois128.c"
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [aarch64]
 arch=aarch64 cflags=""
 src="$src_common galois128.c"
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [powerpc64]
 arch=powerpc64 cflags=""
 src="$src_common galois128.c"
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [sparc64]
 arch=sparc64 cflags=""
 src="$src_common galois128.c"
@@ -44,13 +44,13 @@ src="$src_common galois128.c"
 
 srctype=x
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo x86 PCLMUL intrinsics.
 arch=x86_64 cflags="-mpclmul"
 src="$src_common galois128-x86.c"
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo ARM NEON Crypto intrinsics.
 arch=aarch64 cflags="-march=armv8-a+crypto"
 src="$src_common galois128-arm.c"

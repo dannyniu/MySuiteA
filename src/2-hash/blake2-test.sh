@@ -1,9 +1,11 @@
 #!/bin/sh
 
-if ! command -v b2sum ; then
-    echo "Cannot invoke b2sum. Try installing from: "
-    echo "https://github.com/BLAKE2/BLAKE2"
-    exit 1
+if ! command -v python3 >/dev/null ; then
+    echo "Cannot invoke python3. (Not installed?)"
+    exit 1;
+elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
+    echo "Python version too old, (3.6 or newer required)" # Assumes CPython. 
+    exit 1;
 fi
 
 testfunc() {
@@ -15,8 +17,8 @@ testfunc() {
         dd if=/dev/urandom bs=32 count=$((mlen/32)) of=$testvec 2>/dev/null
         
         for b in 160 256 384 512 ; do
-            ref="$(b2sum -a blake2b -l $b < $testvec)"
-            res="$($exec blake2b$b < $testvec)"
+            ref=$(../src/2-hash/b2sum.py blake2b $b < $testvec)
+            res=$($exec blake2b$b < $testvec)
             if ! [ "${ref%%[!a-zA-Z0-9]*}" = $res ] ; then
                 echo BLAKE2b${b} failed with "$ref" != $res
                 n=$((n+1))
@@ -25,8 +27,8 @@ testfunc() {
         done
         
         for b in 128 160 224 256 ; do
-            ref="$(b2sum -a blake2s -l $b < $testvec)"
-            res="$($exec blake2s$b < $testvec)"
+            ref=$(../src/2-hash/b2sum.py blake2s $b < $testvec)
+            res=$($exec blake2s$b < $testvec)
             if ! [ "${ref%%[!a-zA-Z0-9]*}" = $res ] ; then
                 echo BLAKE2s${b} failed with "$ref" != $res
                 n=$((n+1))
@@ -48,24 +50,24 @@ blake2.c
 1-symm/chacha.c
 0-datum/endian.c
 "
-bin=blake2-test
+bin=$(basename "$0" .sh)
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [x86_64]
 arch=x86_64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [aarch64]
 arch=aarch64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [powerpc64]
 arch=powerpc64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [sparc64]
 arch=sparc64 cflags=""
 ( . $unitest_sh )

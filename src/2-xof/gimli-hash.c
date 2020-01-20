@@ -6,7 +6,7 @@
 void Gimli_Hash_Init(gimli_hash_t *restrict x)
 {
     *x = (gimli_hash_t){
-        .sponge = SPONGE_INIT(16, 0x1f, _iGimli),
+        .sponge = SPONGE_INIT(16, 0x1f, cGimli),
         .state.u32 = {0}, 
     };
 }
@@ -26,4 +26,4 @@ void Gimli_Hash_Read(gimli_hash_t *restrict x, void *restrict data, size_t len)
     Sponge_Read(&x->sponge, data, len);
 }
 
-intptr_t iGimli_Hash(int q){ return _iGimli_Hash(q); }
+intptr_t iGimli_Hash(int q){ return cGimli_Hash(q); }

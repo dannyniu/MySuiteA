@@ -31,44 +31,44 @@ gcm.c
 1-symm/poly1305.c
 0-datum/endian.c
 "
-bin=encryption-test
+bin=$(basename "$0" .sh)
 
 testdir1=../tests/gcm-test-vectors
 testdir2=../tests/chacha20-poly1305
 
 vsrc(){ src="$src_common 1-symm/rijndael${1}.c 1-symm/galois128${1}.c" ; }
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [x86_64]
 arch=x86_64 cflags=""
 vsrc ""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [aarch64]
 arch=aarch64 cflags=""
 vsrc ""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [powerpc64]
 arch=powerpc64 cflags=""
 vsrc ""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [sparc64]
 arch=sparc64 cflags=""
 vsrc ""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo x86 AESNI + PCLMUL intrinsics.
 arch=x86_64 cflags="-maes -mpclmul"
 vsrc "-x86"
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo ARM NEON Crypto intrinsics.
 arch=aarch64 cflags="-march=armv8-a+crypto"
 vsrc "-arm"

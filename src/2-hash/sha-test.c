@@ -11,16 +11,16 @@
 
 void SHA3_128000_Final(void *restrict x, void *restrict out);
 void SHA3_128000_Final(void *restrict x, void *restrict out)
-{ SHAKE_Final(x); SHAKE_Read(x, out, 168); }
+{ SHAKE_Final(x); SHAKE_Read(x, out, 256); }
 
 void SHA3_256000_Final(void *restrict x, void *restrict out);
 void SHA3_256000_Final(void *restrict x, void *restrict out)
-{ SHAKE_Final(x); SHAKE_Read(x, out, 136); }
+{ SHAKE_Final(x); SHAKE_Read(x, out, 256); }
 
 uintptr_t iSHA3_128000(int q);
 uintptr_t iSHA3_128000(int q){
     return (
-        q==outBytes ? 168 :
+        q==outBytes ? 256 :
         q==blockBytes ? 168 :
         q==contextBytes ? sizeof(struct shake_context) :
         q==InitFunc   ? (uintptr_t)SHAKE128_Init :
@@ -32,7 +32,7 @@ uintptr_t iSHA3_128000(int q){
 uintptr_t iSHA3_256000(int q);
 uintptr_t iSHA3_256000(int q){
     return (
-        q==outBytes ? 136 :
+        q==outBytes ? 256 :
         q==blockBytes ? 136 :
         q==contextBytes ? sizeof(struct shake_context) :
         q==InitFunc   ? (uintptr_t)SHAKE256_Init :

@@ -94,4 +94,4 @@ void *ChaCha_AEAD_Decrypt(chacha_aead_t *restrict x,
     return out;
 }
 
-uintptr_t iChaCha_AEAD(int q) { return _iChaCha_AEAD(q); }
+uintptr_t iChaCha_AEAD(int q) { return cChaCha_AEAD(q); }

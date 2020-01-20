@@ -7,7 +7,7 @@
                                const void *restrict key,        \
                                size_t keylen)                   \
     {                                                           \
-        x->hmac = HMAC_INIT(_iSHA##inst);                       \
+        x->hmac = HMAC_INIT(cSHA##inst);                        \
         HMAC_SetKey(&x->hmac, key, keylen);                     \
     }
 

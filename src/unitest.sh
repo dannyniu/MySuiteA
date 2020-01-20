@@ -9,14 +9,18 @@ qemu_exec() {
 # -- Begin: The following block may be customized. --
 
 systarget=linux-gnu
-if command -v scan-build ; then
+if command -v scan-build >/dev/null ; then
     # scan-build installed. 
     scan_build=scan-build
-    scan_build_opt=""
+    regex='^[^[:alnum:].]*\([[:alnum:].]*\)[^[:alnum:].].*$'
+    checkers="$(
+        $scan_build --help-checkers-verbose |
+            sed -n "s/$regex/--enable-checker \1/p" |
+            fgrep . )"
+    scan_build_opt="$checkers"
 else
-    # Assume it's my Mac Mini. 
-    scan_build=~/Applications/checker-279/bin/scan-build
-    scan_build_opt="--use-cc /usr/bin/clang --use-analyzer Xcode"
+    echo Try installing the \"scan-build\" pip package.
+    exit 1
 fi
 cc="$scan_build $scan_build_opt clang"
 cflags0="-Wall -Wextra -Weverything -g -O0"

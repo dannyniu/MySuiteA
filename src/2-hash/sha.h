@@ -61,7 +61,7 @@ void SHA512_Init(sha512_t *restrict sha);
 void SHA384_Final(sha384_t *restrict sha, void *restrict out);
 void SHA512_Final(sha512_t *restrict sha, void *restrict out);
 
-#define _iSHA1(q) (                                     \
+#define cSHA1(q) (                                      \
         q==outBytes ? 20 :                              \
         q==blockBytes ? 64 :                            \
         q==contextBytes ? sizeof(struct sha1_context) : \
@@ -69,7 +69,7 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out);
         q==UpdateFunc ? (uintptr_t)SHA1_Update :        \
         q==FinalFunc  ? (uintptr_t)SHA1_Final :         \
         0)
-#define _iSHA224(q) (                                           \
+#define cSHA224(q) (                                            \
         q==outBytes ? 28 :                                      \
         q==blockBytes ? 64 :                                    \
         q==contextBytes ? sizeof(struct sha256_context) :       \
@@ -77,7 +77,7 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out);
         q==UpdateFunc ? (uintptr_t)SHA224_Update :              \
         q==FinalFunc  ? (uintptr_t)SHA224_Final :               \
         0)
-#define _iSHA256(q) (                                           \
+#define cSHA256(q) (                                            \
         q==outBytes ? 32 :                                      \
         q==blockBytes ? 64 :                                    \
         q==contextBytes ? sizeof(struct sha256_context) :       \
@@ -85,7 +85,7 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out);
         q==UpdateFunc ? (uintptr_t)SHA256_Update :              \
         q==FinalFunc  ? (uintptr_t)SHA256_Final :               \
         0)
-#define _iSHA384(q) (                                           \
+#define cSHA384(q) (                                            \
         q==outBytes ? 48 :                                      \
         q==blockBytes ? 128 :                                   \
         q==contextBytes ? sizeof(struct sha512_context) :       \
@@ -93,7 +93,7 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out);
         q==UpdateFunc ? (uintptr_t)SHA384_Update :              \
         q==FinalFunc  ? (uintptr_t)SHA384_Final :               \
         0)
-#define _iSHA512(q) (                                           \
+#define cSHA512(q) (                                            \
         q==outBytes ? 64 :                                      \
         q==blockBytes ? 128 :                                   \
         q==contextBytes ? sizeof(struct sha512_context) :       \

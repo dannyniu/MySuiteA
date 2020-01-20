@@ -281,8 +281,8 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out)
     for(i=0; i<64; i++) ptr[i] = sha->Msg8[i];
 }
 
-uintptr_t iSHA1(int q){ return _iSHA1(q); }
-uintptr_t iSHA224(int q){ return _iSHA224(q); }
-uintptr_t iSHA256(int q){ return _iSHA256(q); }
-uintptr_t iSHA384(int q){ return _iSHA384(q); }
-uintptr_t iSHA512(int q){ return _iSHA512(q); }
+uintptr_t iSHA1(int q){ return cSHA1(q); }
+uintptr_t iSHA224(int q){ return cSHA224(q); }
+uintptr_t iSHA256(int q){ return cSHA256(q); }
+uintptr_t iSHA384(int q){ return cSHA384(q); }
+uintptr_t iSHA512(int q){ return cSHA512(q); }

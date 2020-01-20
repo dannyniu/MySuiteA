@@ -1,8 +1,11 @@
 #!/bin/sh
 
-if ! command -v php ; then
-    echo "Cannot invoke php. (Not installed?)"
+if ! command -v python3 >/dev/null ; then
+    echo "Cannot invoke python3. (Not installed?)"
     exit 1
+elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
+    echo "Python version too old, (3.6 or newer required)" # Assumes CPython. 
+    exit 1;
 fi
 
 hash_algos="
@@ -70,24 +73,24 @@ hmac.c
 1-symm/keccak-f-1600.c
 0-datum/endian.c
 "
-bin=hmac-test
+bin=$(basename "$0" .sh)
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [x86_64]
 arch=x86_64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [aarch64]
 arch=aarch64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [powerpc64]
 arch=powerpc64 cflags=""
 ( . $unitest_sh )
 
-echo ================================================================
+echo ======== Test Name: $bin ========
 echo C language code. [sparc64]
 arch=sparc64 cflags=""
 ( . $unitest_sh )

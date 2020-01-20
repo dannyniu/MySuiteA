@@ -41,3 +41,10 @@ paying special attention to implementation pitfalls.
 
 Anyway, this suite isn't supposed to replace existing mature products such as
 LibreSSL, GnuTLS, etc. 
+
+
+
+$$$ 2020-01-20 $$$
+
+Infomation macros' prefix are changed from ''_i'' to ''c'' to avoid namespace
+pollution with operating system implementations. ''c'' stands for "constants". 

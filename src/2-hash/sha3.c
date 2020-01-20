@@ -8,7 +8,7 @@
     void name(sha3_t *restrict x)                                       \
     {                                                                   \
         *x = (sha3_t){                                                  \
-            .sponge = SPONGE_INIT(rate, 0x06, _iKeccakF1600),           \
+            .sponge = SPONGE_INIT(rate, 0x06, cKeccakF1600),            \
             .state.u64 = {0},                                           \
         };                                                              \
     }
@@ -34,7 +34,7 @@ Define_SHA3_Final(SHA3_256_Final, 32)
 Define_SHA3_Final(SHA3_384_Final, 48)
 Define_SHA3_Final(SHA3_512_Final, 64)
 
-uintptr_t iSHA3_224(int q){ return _iSHA3(224,q); }
-uintptr_t iSHA3_256(int q){ return _iSHA3(256,q); }
-uintptr_t iSHA3_384(int q){ return _iSHA3(384,q); }
-uintptr_t iSHA3_512(int q){ return _iSHA3(512,q); }
+uintptr_t iSHA3_224(int q){ return cSHA3(224,q); }
+uintptr_t iSHA3_256(int q){ return cSHA3(256,q); }
+uintptr_t iSHA3_384(int q){ return cSHA3(384,q); }
+uintptr_t iSHA3_512(int q){ return cSHA3(512,q); }

@@ -23,4 +23,6 @@ int main()
         if( i%16 == 15 ) printf("\n");
     }
     printf("\n");
+
+    return 0;
 }
