@@ -23,7 +23,21 @@ else
     exit 1
 fi
 cc="$scan_build $scan_build_opt clang"
-cflags0="-Wall -Wextra -Weverything -g -O0"
+cflags0="-Wall -Wextra -g -O0"
+
+# Note 2020-02-18 regarding removal of "-Weverything" option:
+# refer to the following excerpt from the Clang Compiler User's Manual:
+#
+# > Since -Weverything enables every diagnostic, we generally
+# > don't recommend using it. -Wall -Wextra are a better choice for
+# > most projects. Using -Weverything means that updating your compiler
+# > is more difficult because you're exposed to experimental diagnostics
+# > which might be of lower quality than the default ones. If you do
+# > use -Weverything then we advise that you address all new compiler
+# > diagnostics as they get added to Clang, either by fixing everything
+# > they find or explicitly disabling that diagnostic with its
+# > corresponding Wno- option.
+#
 
 # -- End; --
 
