@@ -13,8 +13,8 @@
 
 // Each primitive instance shall define
 // 1. a function compatible with the type (uintptr_t(*)(int)),
-// 2. a function-like macro that evaluates tox integer types -
-//    sometimes large enough to hold pointers,
+// 2. a function-like macro that evaluates to some integer types that's
+//    large enough to hold pointers,
 // that when evaluated in run-time or compile time,
 // yields relevant information associated with particular primitive.
 //
@@ -23,7 +23,7 @@
 //
 // The name of the function shall be the name of the primitive
 // prefixed with a single "i"; the name of the macro shall be
-// that of the function prefixed with a single <underscore> ("_"). 
+// the name of the primitive prefixed with a single "c".
 
 enum {
     // Applicable to
@@ -42,7 +42,12 @@ enum {
     // Applicable to
     // 1.) All keyed primitives.
     //
-    keyBytes,
+    // If keyBytes == 0, then keyBytesMax specifies the
+    // maximum acceptable key length, and ((uintptr_t)-1)
+    // specifies that such limit doesn't exist for that
+    // particular instance.
+    //
+    keyBytes, keyBytesMax,
 
     // Applicable to
     // 1.) All iterated keyed permutation with at least 1 iteration.
@@ -66,15 +71,15 @@ enum {
     // Permutation Interfaces //
     PermuteFunc,
 
-    // Hash & XOF Functions //
-    InitFunc,
-    UpdateFunc, WriteFunc=UpdateFunc,
-    FinalFunc, XofFinalFunc,
-    ReadFunc,
-
     // Keyed Context Initialization Function (AEAD, HMAC, etc.) //
     KInitFunc,
     
+    // Hash & XOF Functions //
+    InitFunc,
+    UpdateFunc, WriteFunc=UpdateFunc,
+    FinalFunc, MacFinalFunc, XofFinalFunc,
+    ReadFunc,
+
     // AEAD Functions //
     AEncFunc, ADecFunc, 
     
@@ -82,35 +87,42 @@ enum {
     // for queries not applicable to them. 
 };
 
-typedef void (*EncFunc_t)(const void *in, void *out, void *restrict w);
-typedef void (*DecFunc_t)(const void *in, void *out, void *restrict w);
-typedef void (*KschdFunc_t)(const void *restrict key, void *restrict w);
+typedef void (*EncFunc_t)(void const *in, void *out, void *restrict w);
+typedef void (*DecFunc_t)(void const *in, void *out, void *restrict w);
+typedef void (*KschdFunc_t)(void const *restrict key, void *restrict w);
 
-typedef void (*PermuteFunc_t)(const void *in, void *out);
+typedef void (*PermuteFunc_t)(void const *in, void *out);
 
+// Returns ``x'' on success, or ``NULL'' with invalid ``klen''.
+typedef void *(*KInitFunc_t)(void *restrict x,
+                             void const *restrict k,
+                             size_t klen);
 typedef void (*InitFunc_t)(void *restrict x);
+
 typedef void (*UpdateFunc_t)(void *restrict x,
-                             const void *restrict data, 
+                             void const *restrict data, 
                              size_t len);
 typedef UpdateFunc_t WriteFunc_t;
 
 typedef void (*FinalFunc_t)(void *restrict x, void *restrict out);
+typedef void (*TFinalFunc_t)(void *restrict x, void *restrict out, size_t t);
 typedef void (*XFinalFunc_t)(void *restrict x);
 typedef void (*ReadFunc_t)(void *restrict x,
                            void *restrict data,
                            size_t len);
 
-typedef void (*KInitFunc_t)(void *restrict x, const void *restrict k);
+// AEAD cipher taking data all-at-once.
 typedef void (*AEncFunc_t)(void *restrict x,
-                           const void *restrict iv,
-                           size_t alen, const void *aad,
-                           size_t len, const void *in, void *out,
+                           void const *restrict iv,
+                           size_t alen, void const *aad,
+                           size_t len, void const *in, void *out,
                            size_t tlen, void *T);
+// returns ``out'' on success and ``NULL'' on decryption failure.
 typedef void *(*ADecFunc_t)(void *restrict x,
-                            const void *restrict iv,
-                            size_t alen, const void *aad,
-                            size_t len, const void *in, void *out,
-                            size_t tlen, const void *T);
+                            void const *restrict iv,
+                            size_t alen, void const *aad,
+                            size_t len, void const *in, void *out,
+                            size_t tlen, void const *T);
 
 // Because `obj' can be an identifier naming a macro
 // as well as a pointer to a function , we have to
@@ -120,6 +132,7 @@ typedef void *(*ADecFunc_t)(void *restrict x,
 #define OUT_BYTES(obj)      ((unsigned)(obj(outBytes)))
 #define BLOCK_BYTES(obj)    ((unsigned)(obj(blockBytes)))
 #define KEY_BYTES(obj)      ((unsigned)(obj(keyBytes)))
+#define KEY_BYTES_MAX(obj)  ((unsigned)(obj(keyBytesMax)))
 #define KSCHD_BYTES(obj)    ((unsigned)(obj(keyschedBytes)))
 #define CTX_BYTES(obj)      ((unsigned)(obj(contextBytes)))
 #define IV_BYTES(obj)       ((unsigned)(obj(ivBytes)))
@@ -143,12 +156,12 @@ typedef void *(*ADecFunc_t)(void *restrict x,
 #define AENC_FUNC(obj)      ((AEncFunc_t)(obj(AEncFunc)))
 #define ADEC_FUNC(obj)      ((ADecFunc_t)(obj(ADecFunc)))
 
-#define ERASE_STATES(buf, len)          \
-    do {                                \
-        char *ba = (void *)(buf);       \
-        size_t l = (size_t)(len);       \
-        for(size_t i=0; i<l; i++)       \
-            ba[i] = 0;                  \
+#define ERASE_STATES(buf, len)                  \
+    do {                                        \
+        char *ba = (void volatile *)(buf);      \
+        size_t l = (size_t)(len);               \
+        for(size_t i=0; i<l; i++)               \
+            ba[i] = 0;                          \
     } while(0)
     
 #endif /* MySuiteA_mysuitea_common_h */

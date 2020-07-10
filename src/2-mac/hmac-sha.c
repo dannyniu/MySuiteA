@@ -1,24 +1,14 @@
 /* DannyNiu/NJF, 2018-02-19. Public Domain. */
 
 #include "hmac-sha.h"
+#include "hmac.c.h"
 
-#define Define_HMAC_SHA(inst)                                   \
-    void HMAC_SHA##inst##_Init(HMAC_SHA##inst##_t *restrict x,  \
-                               const void *restrict key,        \
-                               size_t keylen)                   \
-    {                                                           \
-        x->hmac = HMAC_INIT(cSHA##inst);                        \
-        HMAC_SetKey(&x->hmac, key, keylen);                     \
-    }
-
-Define_HMAC_SHA(1)
-
-Define_HMAC_SHA(224)
-Define_HMAC_SHA(256)
-Define_HMAC_SHA(384)
-Define_HMAC_SHA(512)
-
-Define_HMAC_SHA(3_224)
-Define_HMAC_SHA(3_256)
-Define_HMAC_SHA(3_384)
-Define_HMAC_SHA(3_512)
+Define_HMAC_Hash(SHA1, sha1_t);
+Define_HMAC_Hash(SHA224, sha224_t);
+Define_HMAC_Hash(SHA256, sha256_t);
+Define_HMAC_Hash(SHA384, sha384_t);
+Define_HMAC_Hash(SHA512, sha512_t);
+Define_HMAC_Hash(SHA3_224, sha3_224_t);
+Define_HMAC_Hash(SHA3_256, sha3_256_t);
+Define_HMAC_Hash(SHA3_384, sha3_384_t);
+Define_HMAC_Hash(SHA3_512, sha3_512_t);

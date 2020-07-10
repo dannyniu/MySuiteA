@@ -39,9 +39,10 @@ static __m128i galois128_mul_x86(__m128i x, __m128i y)
     return bytes_mirror(a);
 }
 
-void galois128_hash1block(void *restrict Y,
-                  const void *restrict H,
-                  const void *restrict X)
+void galois128_hash1block(
+    void *restrict Y,
+    void const *restrict H,
+    void const *restrict X)
 {
     register __m128i y, h;
     y = _mm_loadu_si128(Y); if( X ) y ^= _mm_loadu_si128(X);

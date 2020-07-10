@@ -13,19 +13,24 @@ typedef struct {
     poly1305_t  poly1305;
 } chacha_aead_t;
 
-void ChaCha_AEAD_Init(chacha_aead_t *restrict x, const void *restrict K);
+void *ChaCha_AEAD_Init(
+    chacha_aead_t *restrict x,
+    void const *restrict K,
+    size_t klen);
 
-void ChaCha_AEAD_Encrypt(chacha_aead_t *restrict x,
-                         const void *restrict iv,
-                         size_t alen, const void *aad,
-                         size_t len, const void *in, void *out,
-                         size_t tlen, void *T);
+void ChaCha_AEAD_Encrypt(
+    chacha_aead_t *restrict x,
+    void const *restrict iv,
+    size_t alen, void const *aad,
+    size_t len, void const *in, void *out,
+    size_t tlen, void *T);
 
-void *ChaCha_AEAD_Decrypt(chacha_aead_t *restrict x,
-                          const void *restrict iv,
-                          size_t alen, const void *aad,
-                          size_t len, const void *in, void *out,
-                          size_t tlen, const void *T);
+void *ChaCha_AEAD_Decrypt(
+    chacha_aead_t *restrict x,
+    void const *restrict iv,
+    size_t alen, void const *aad,
+    size_t len, void const *in, void *out,
+    size_t tlen, void const *T);
 
 #define cChaCha_AEAD(q) (                               \
         q==keyBytes ? 32 :                              \

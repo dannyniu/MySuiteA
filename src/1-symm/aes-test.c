@@ -6,8 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void scanhex(char *restrict out, size_t len, const char *restrict in);
-void scanhex(char *restrict out, size_t len, const char *restrict in)
+void scanhex(char *restrict out, size_t len, char const *restrict in)
 {
     int n;
     while( sscanf(in, " %2"SCNx8"%n", (out++), &n) && len-- ) in += n;

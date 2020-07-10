@@ -30,7 +30,7 @@ static inline poly128_t bytes_mirror(poly128_t x)
     return x;
 }
 
-static poly128_t galois128_mul_x86(poly128_t x, poly128_t y)
+static poly128_t galois128_mul_arm(poly128_t x, poly128_t y)
 {
     register poly128_t a, b, c;
     register poly64_t p = 0x0087;
@@ -58,8 +58,8 @@ static poly128_t galois128_mul_x86(poly128_t x, poly128_t y)
 }
 
 void galois128_hash1block(void *restrict Y,
-                          const void *restrict H,
-                          const void *restrict X)
+                          void const *restrict H,
+                          void const *restrict X)
 {
     register poly128_t y=0, h=0, x=0;
 
@@ -75,7 +75,7 @@ void galois128_hash1block(void *restrict Y,
     h ^= le64toh(((const uint64_t *)H)[1]); h <<= 64;
     h ^= le64toh(((const uint64_t *)H)[0]);
 
-    y = galois128_mul_x86(y, h);
+    y = galois128_mul_arm(y, h);
     ((uint64_t *)Y)[0] = htole64((uint64_t)(y));
     ((uint64_t *)Y)[1] = htole64((uint64_t)(y>>64));
 }

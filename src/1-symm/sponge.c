@@ -2,7 +2,7 @@
 
 #include "sponge.h"
 
-void Sponge_Update(sponge_t *restrict s, const void *restrict data, size_t len)
+void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
 {
     const uint8_t *restrict buffer = data;
     uint8_t *state = ((uint8_t *)s + s->offset);
@@ -34,13 +34,12 @@ void Sponge_Final(sponge_t *restrict s)
 {
     uint8_t *state = ((uint8_t *)s + s->offset);
     
-    // See [note:hash_h:1]. 
     if( s->finalized ) return;
 
     /* Padding the Message. */
 
-    state[s->filled] ^= s->pad;
-    state[s->rate-1] ^= 0x80; /* ...01 */
+    state[s->filled] ^= s->lopad;
+    state[s->rate-1] ^= s->hipad;
 
     s->permute(state, state);
     s->filled = 0;

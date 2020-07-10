@@ -6,6 +6,10 @@ Mandatory features such as "entropy input" are omitted for brevity.
 
 ## DRBG algorithms ##
 
+F: Hash_DRBG
+T: HMAC_DRBG # along with other possibly KMAC and/or keyed BLAKE2.
+T: CTR_DRBG # instantiated with AES, without 'df'.
+
 T: Instantiation
 T: Reseeding
 T: Generate
@@ -13,7 +17,12 @@ Y: Uninstantiate # the ERASE_STATES(buf,len) macro.
 
 ## DRBG inputs ##
 
-T: nonce
-T: personalization string (instantiate)
-F: additional input (reseed, generate)
+-: nonce
+-: personalization string (instantiate)
+-: additional input (reseed, generate)
++: All those separate inputs are consolidated into
+   a single "fresh_input" argument/parameter.
 
+## Misc ##
+
+F: {Hash,Block_Cipher}_df # derivation functions.

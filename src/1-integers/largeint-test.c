@@ -8,10 +8,6 @@ static __uint128_t a, b, c, d;
 static struct intdesc w, x, y, z, nid;
 static int failed = 0;
 
-void pu32(uint32_t arg);
-void pu128(__uint128_t x);
-void wrong(const char *s, __uint128_t u, __uint128_t v);
-
 void pu32(uint32_t arg){ printf(" %08x", arg); }
 
 void pu128(__uint128_t arg)
@@ -23,7 +19,7 @@ void pu128(__uint128_t arg)
     pu32((uint32_t)(arg>> 0));
 }
 
-void wrong(const char *s, __uint128_t u, __uint128_t v)
+void wrong(char const *s, __uint128_t u, __uint128_t v)
 {
     printf("%s wrong: ", s);
     pu128(a);

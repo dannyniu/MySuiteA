@@ -7,7 +7,7 @@
 
 #include "../mysuitea-common.h"
 
-void KeccakF1600_Permute(const void *in, void *out);
+void KeccakF1600_Permute(void const *in, void *out);
 
 #define cKeccakF(b,q) (                                         \
         q==blockBytes ? b/8 :                                   \

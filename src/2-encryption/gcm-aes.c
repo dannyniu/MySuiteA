@@ -1,22 +1,8 @@
 /* DannyNiu/NJF, 2018-02-14. Public Domain */
 
 #include "gcm-aes.h"
+#include "gcm.c.h"
 
-#define Define_GCM_AES_Init(bits)                               \
-    void GCM_AES##bits##_Init(void *restrict x,                 \
-                              const void *restrict k){          \
-        gcm_aes##bits##_t *ctx = x;                             \
-        *ctx = (gcm_aes##bits##_t){                             \
-            .gcm = GCM_INIT(cAES##bits),                        \
-        };                                                      \
-        KSCHD_FUNC(cAES##bits)(k, ctx->kschd);                  \
-        ctx->gcm.enc(ctx->gcm.H, ctx->gcm.H, ctx->kschd);       \
-    }
-
-Define_GCM_AES_Init(128)
-Define_GCM_AES_Init(192)
-Define_GCM_AES_Init(256)
-
-uintptr_t iGCM_AES128(int q){ return cGCM_AES128(q); }
-uintptr_t iGCM_AES192(int q){ return cGCM_AES192(q); }
-uintptr_t iGCM_AES256(int q){ return cGCM_AES256(q); }
+Define_GCM_Blockcipher(AES128, aes128_t)
+Define_GCM_Blockcipher(AES192, aes192_t)
+Define_GCM_Blockcipher(AES256, aes256_t)

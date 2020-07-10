@@ -5,17 +5,17 @@
 
 #include "../mysuitea-common.h"
 
-void AES128_Cipher(const void *in, void *out, const void *restrict w);
-void AES192_Cipher(const void *in, void *out, const void *restrict w);
-void AES256_Cipher(const void *in, void *out, const void *restrict w);
+void AES128_Cipher(void const *in, void *out, void const *restrict w);
+void AES192_Cipher(void const *in, void *out, void const *restrict w);
+void AES256_Cipher(void const *in, void *out, void const *restrict w);
 
-void AES128_InvCipher(const void *in, void *out, const void *restrict w);
-void AES192_InvCipher(const void *in, void *out, const void *restrict w);
-void AES256_InvCipher(const void *in, void *out, const void *restrict w);
+void AES128_InvCipher(void const *in, void *out, void const *restrict w);
+void AES192_InvCipher(void const *in, void *out, void const *restrict w);
+void AES256_InvCipher(void const *in, void *out, void const *restrict w);
 
-void AES128_KeyExpansion(const void *restrict key, void *restrict w);
-void AES192_KeyExpansion(const void *restrict key, void *restrict w);
-void AES256_KeyExpansion(const void *restrict key, void *restrict w);
+void AES128_KeyExpansion(void const *restrict key, void *restrict w);
+void AES192_KeyExpansion(void const *restrict key, void *restrict w);
+void AES256_KeyExpansion(void const *restrict key, void *restrict w);
 
 #define cAES(bits,q) (                                          \
         q==blockBytes ? 16 :                                    \

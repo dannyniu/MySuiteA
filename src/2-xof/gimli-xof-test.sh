@@ -7,8 +7,8 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-../src/2-xof/gimli-hash-test.c
-../src/2-xof/gimli-hash.c
+../src/2-xof/gimli-xof-test.c
+../src/2-xof/gimli-xof.c
 ../src/1-symm/gimli.c
 ../src/1-symm/sponge.c
 ../src/0-datum/endian.c

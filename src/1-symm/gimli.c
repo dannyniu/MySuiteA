@@ -56,7 +56,7 @@ static void gimli(uint32_t *state)
     }
 }
 
-void Gimli_Permute(const void *in, void *out)
+void Gimli_Permute(void const *in, void *out)
 {
     int i;
 

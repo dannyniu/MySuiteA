@@ -3,7 +3,8 @@
 #include "../0-datum/endian.h"
 #include "poly1305.h"
 
-static void p1305bn_add(p1305bn_t a, const p1305bn_t b) // intentionally not restrict qualified. 
+// intentionally not restrict qualified.
+static void p1305bn_add(p1305bn_t a, p1305bn_t const b)
 {
     register uint32_t u = 0, v;
     for(int i=0; i<5; i++)
@@ -60,7 +61,7 @@ static void p1305bn_mul(p1305bn_t a, p1305bn_t b)
     for(i=0; i<5; i++) a[i] = n[i];
 }
 
-void poly1305_init(poly1305_t *restrict poly1305, const void *restrict key)
+void poly1305_init(poly1305_t *restrict poly1305, void const *restrict key)
 {
     int i;
     const uint32_t *k = key;
@@ -85,7 +86,7 @@ static inline void p1305bn_addto(p1305bn_t a, uint32_t x, int i)
     }
 }
 
-void poly1305_1block(poly1305_t *restrict poly1305, const void *restrict data)
+void poly1305_1block(poly1305_t *restrict poly1305, void const *restrict data)
 {
     if( data )
     {

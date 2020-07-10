@@ -18,7 +18,7 @@ void SHA1_Init(sha1_t *restrict sha)
     sha->filled = 0;
 }
 
-void SHA1_Update(sha1_t *restrict sha, const void *restrict data, size_t len)
+void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
     
@@ -42,7 +42,6 @@ void SHA1_Final(sha1_t *restrict sha, void *restrict out)
     uint8_t *ptr = out;
     int i;
 
-    // See [note:hash_h:1]. 
     if( sha->finalized ) goto finalized;
     
     if( sha->filled / sizeof(uint32_t) >= 14 )
@@ -78,7 +77,7 @@ finalized:
 
 // SHA224, SHA256 Definitions. 
 
-void sha256_update(sha256_t *restrict sha, const void *restrict data, size_t len)
+void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
     
@@ -99,7 +98,6 @@ void sha256_update(sha256_t *restrict sha, const void *restrict data, size_t len
 
 static void sha256_final(sha256_t *restrict sha)
 {
-    // See [note:hash_h:1]. 
     if( sha->finalized ) return;
     
     if( sha->filled / sizeof(uint32_t) >= 14 )
@@ -180,7 +178,7 @@ void SHA256_Final(sha256_t *restrict sha, void *restrict out)
 
 // SHA384, SHA512 Definitions. 
 
-void sha512_update(sha512_t *restrict sha, const void *restrict data, size_t len)
+void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
     
@@ -201,7 +199,6 @@ void sha512_update(sha512_t *restrict sha, const void *restrict data, size_t len
 
 static void sha512_final(sha512_t *restrict sha)
 {
-    // See [note:hash_h:1]. 
     if( sha->finalized ) return;
     
     if( sha->filled / sizeof(uint64_t) >= 14 )

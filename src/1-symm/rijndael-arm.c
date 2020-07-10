@@ -6,14 +6,14 @@
 #include <arm_neon.h>
 
 #define Define_AES_Cipher(name,Nr)              \
-    void name(const void *in, void *out,        \
-              const void *restrict w)           \
+    void name(void const *in, void *out,        \
+              void const *restrict w)           \
     {                                           \
         Rijndael_Nb4_Cipher(in, out, w, Nr);    \
     }
 static void Rijndael_Nb4_Cipher(
-    const uint8_t in[16], uint8_t out[16],
-    const uint8_t *restrict w, int Nr)
+    uint8_t const in[16], uint8_t out[16],
+    uint8_t const *restrict w, int Nr)
 {
     register uint8x16_t state = vld1q_u8((const void*)in), rk;
     register int i;
@@ -35,14 +35,14 @@ static void Rijndael_Nb4_Cipher(
 }
 
 #define Define_AES_InvCipher(name,Nr)           \
-    void name(const void *in, void *out,        \
-              const void *restrict w)           \
+    void name(void const *in, void *out,        \
+              void const *restrict w)           \
     {                                           \
         Rijndael_Nb4_InvCipher(in, out, w, Nr); \
     }
 static void Rijndael_Nb4_InvCipher(
-    const uint8_t in[16], uint8_t out[16],
-    const uint8_t *restrict w, int Nr)
+    uint8_t const in[16], uint8_t out[16],
+    uint8_t const *restrict w, int Nr)
 {
     register uint8x16_t state = vld1q_u8((const void*)in), rk;
     register int i;

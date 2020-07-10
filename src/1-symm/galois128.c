@@ -7,7 +7,7 @@ typedef struct {
     uint64_t    w[2];
 } galois128_t;
 
-static galois128_t galois128_load(const void *ptr)
+static galois128_t galois128_load(void const *ptr)
 {
     galois128_t ret = (galois128_t){
         .w[0] = be64toh( ((const uint64_t *)ptr)[0] ), 
@@ -25,7 +25,10 @@ static void galois128_store(void *ptr, galois128_t v)
 
 static galois128_t galois128_x(galois128_t Y)
 {
-    uint64_t x = UINT64_C(0xE100000000000000) * (Y.w[1] & 1);
+    register uint64_t mask;
+    mask = Y.w[1] & 1;
+    mask = ~(mask - 1);
+    uint64_t x = UINT64_C(0xE100000000000000) & mask;
 
     Y.w[1] = Y.w[1]>>1 | Y.w[0]<<63;
     Y.w[0] = Y.w[0]>>1 ^ x;
@@ -39,10 +42,12 @@ static galois128_t galois128_mul(galois128_t X, galois128_t Y)
 
     for(int i=0; i<128; i++)
     {
+        register uint64_t mask;
+        mask = X.w[i/64] >> (63 - (i & 63));
+        mask &= 1;
+        mask = ~(mask - 1);
         for(int j=0; j<2; j++)
-            Z.w[j] ^=
-                Y.w[j] *
-                ( X.w[i/64]>>(63-i%64) & 1 );
+            Z.w[j] ^= Y.w[j] & mask;
 
         Y = galois128_x(Y);
     }
@@ -51,8 +56,8 @@ static galois128_t galois128_mul(galois128_t X, galois128_t Y)
 }
 
 void galois128_hash1block(void *restrict Y,
-                          const void *restrict H,
-                          const void *restrict X)
+                          void const *restrict H,
+                          void const *restrict X)
 {
     galois128_t y={0}, h={0}, x={0};
 

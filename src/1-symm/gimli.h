@@ -7,7 +7,7 @@
 
 #include "../mysuitea-common.h"
 
-void Gimli_Permute(const void *in, void *out);
+void Gimli_Permute(void const *in, void *out);
 
 #define cGimli(q) (                                     \
         q==blockBytes ? 48 :                            \

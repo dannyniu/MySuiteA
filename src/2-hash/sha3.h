@@ -22,7 +22,7 @@ void SHA3_256_Init(sha3_t *restrict x);
 void SHA3_384_Init(sha3_t *restrict x);
 void SHA3_512_Init(sha3_t *restrict x);
 
-void SHA3_Update(sha3_t *restrict x, const void *restrict data, size_t len);
+void SHA3_Update(sha3_t *restrict x, void const *restrict data, size_t len);
 #define SHA3_224_Update SHA3_Update
 #define SHA3_256_Update SHA3_Update
 #define SHA3_384_Update SHA3_Update

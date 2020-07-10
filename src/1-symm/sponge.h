@@ -6,10 +6,10 @@
 #include "../mysuitea-common.h"
 
 // The structure size is a multiply of 8
-// under ILP32 and I32LP64 environments. 
+// under S16ILP32 and S16I32LP64 environments. 
 typedef struct sponge {
     unsigned        rate;
-    int             pad;
+    short           lopad, hipad;
     int             finalized;
     unsigned        filled;
 
@@ -28,15 +28,15 @@ typedef struct sponge {
     PermuteFunc_t   permute;
 } sponge_t;
 
-#define SPONGE_INIT(_rate_,_pad_,_permutation_) \
-    ((sponge_t){                                                        \
-        .rate = _rate_, .pad = _pad_,                                   \
-            .finalized = 0, .filled = 0,                                \
-            .offset = sizeof(sponge_t),                                 \
-            .permute = PERMUTE_FUNC(_permutation_),                     \
+#define SPONGE_INIT(r,lo,hi,p)                  \
+    ((sponge_t){                                \
+        .rate = r, .lopad = lo, .hipad = hi,    \
+            .finalized = 0, .filled = 0,        \
+            .offset = sizeof(sponge_t),         \
+            .permute = PERMUTE_FUNC(p),         \
             })
 
-void Sponge_Update(sponge_t *restrict s, const void *restrict data, size_t len);
+void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len);
 void Sponge_Final(sponge_t *restrict s);
 void Sponge_Read(sponge_t *restrict s, void *restrict data, size_t len);
 

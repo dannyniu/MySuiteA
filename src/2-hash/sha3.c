@@ -8,7 +8,7 @@
     void name(sha3_t *restrict x)                                       \
     {                                                                   \
         *x = (sha3_t){                                                  \
-            .sponge = SPONGE_INIT(rate, 0x06, cKeccakF1600),            \
+            .sponge = SPONGE_INIT(rate, 0x06, 0x80, cKeccakF1600),      \
             .state.u64 = {0},                                           \
         };                                                              \
     }
@@ -17,7 +17,7 @@ Define_SHA3_Init(SHA3_256_Init, 200-32*2)
 Define_SHA3_Init(SHA3_384_Init, 200-48*2)
 Define_SHA3_Init(SHA3_512_Init, 200-64*2)
 
-void SHA3_Update(sha3_t *restrict x, const void *restrict data, size_t len)
+void SHA3_Update(sha3_t *restrict x, void const *restrict data, size_t len)
 {
     Sponge_Update(&x->sponge, data, len);
 }

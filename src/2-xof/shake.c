@@ -6,7 +6,7 @@
 void SHAKE128_Init(shake_t *restrict x)
 {
     *x = (shake_t){
-        .sponge = SPONGE_INIT(200-16*2, 0x1f, cKeccakF1600),
+        .sponge = SPONGE_INIT(200-16*2, 0x1f, 0x80, cKeccakF1600),
         .state.u64 = {0}, 
     };
 }
@@ -14,7 +14,7 @@ void SHAKE128_Init(shake_t *restrict x)
 void SHAKE256_Init(shake_t *restrict x)
 {
     *x = (shake_t){
-        .sponge = SPONGE_INIT(200-32*2, 0x1f, cKeccakF1600),
+        .sponge = SPONGE_INIT(200-32*2, 0x1f, 0x80, cKeccakF1600),
         .state.u64 = {0}, 
     };
 }

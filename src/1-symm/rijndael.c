@@ -47,8 +47,8 @@ static const alignas(256) uint8_t invsbox[256] = {
 
 static inline uint8_t xtime(uint16_t x)
 {
-    uint16_t ret = (x <<= 1) & 0400 ? (x ^= 0x1b) : x;
-    return (uint8_t)ret;
+    x = ((x << 1) & 0x00ff) - ((x << 1) & 0x0100);
+    return (uint8_t)(x ^ ((x >> 8) & 0x1b));
 }
 
 #ifndef Define_AES_Cipher
@@ -57,7 +57,8 @@ static inline uint8_t gmul(uint8_t a, uint8_t b)
 {
     register uint8_t x = 0;
 
-    for(int i=0; i<8; a=xtime(a),i++) x ^= (1<<i) & b ? a : 0;
+    for(int i=0; i<8; a=xtime(a),i++)
+        x ^= ~((1 & (b >> i)) - 1) & a;
 
     return x;
 }
@@ -109,7 +110,7 @@ static void MixColumns(uint8_t state[16])
         state[i] = s2[i];
 }
 
-static void AddRoundKey(uint8_t state[16], const uint8_t w[16])
+static void AddRoundKey(uint8_t state[16], uint8_t const w[16])
 {
     for(int i=0; i<16; i++)
         state[i] ^= w[i];
@@ -162,14 +163,14 @@ static void InvMixColumns(uint8_t state[16])
 // not restrict-qualified. 
 
 #define Define_AES_Cipher(name,Nr)              \
-    void name(const void *in, void *out,        \
-              const void *restrict w)           \
+    void name(void const *in, void *out,        \
+              void const *restrict w)           \
     {                                           \
         Rijndael_Nb4_Cipher(in, out, w, Nr);    \
     }
 static void Rijndael_Nb4_Cipher(
-    const uint8_t in[16], uint8_t out[16],
-    const uint8_t *restrict w, int Nr)
+    uint8_t const in[16], uint8_t out[16],
+    uint8_t const *restrict w, int Nr)
 {
     register int i;
 
@@ -190,14 +191,14 @@ static void Rijndael_Nb4_Cipher(
 }
 
 #define Define_AES_InvCipher(name,Nr)           \
-    void name(const void *in, void *out,        \
-              const void *restrict w)           \
+    void name(void const *in, void *out,        \
+              void const *restrict w)           \
     {                                           \
         Rijndael_Nb4_InvCipher(in, out, w, Nr); \
     }
 static void Rijndael_Nb4_InvCipher(
-    const uint8_t in[16], uint8_t out[16],
-    const uint8_t *restrict w, int Nr)
+    uint8_t const in[16], uint8_t out[16],
+    uint8_t const *restrict w, int Nr)
 {
     register int i;
 
@@ -220,13 +221,13 @@ static void Rijndael_Nb4_InvCipher(
 #endif /* Define_AES_Cipher */
 
 #define Define_AES_KeyExpansion(name,Nk,Nr)             \
-    void name(const void *restrict key,                 \
+    void name(void const *restrict key,                 \
               void *restrict w)                         \
     {                                                   \
         Rijndael_Nb4_KeyExpansion(key, w, Nk, Nr);      \
     }
 static void Rijndael_Nb4_KeyExpansion(
-    const uint8_t *restrict key_in, uint8_t *restrict w_out, 
+    uint8_t const *restrict key_in, uint8_t *restrict w_out, 
     int Nk, int Nr)
 {
     uint8_t Rcon = 0x01;

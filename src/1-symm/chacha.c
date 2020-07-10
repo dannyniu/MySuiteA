@@ -21,12 +21,12 @@ static const uint8_t sigma[10][16] = {
 // word:    32-bit,
 // long;    64-bit. 
 
-#define qround(a, b, c, d)                              \
-    {                                                   \
-        a += b; d ^= a; d = (d<<16)|(d>>16);            \
-        c += d; b ^= c; b = (b<<12)|(b>>20);            \
-        a += b; d ^= a; d = (d<< 8)|(d>>24);            \
-        c += d; b ^= c; b = (b<< 7)|(b>>25);            \
+#define qround(a, b, c, d)                      \
+    {                                           \
+        a += b; d ^= a; d = (d<<16)|(d>>16);    \
+        c += d; b ^= c; b = (b<<12)|(b>>20);    \
+        a += b; d ^= a; d = (d<< 8)|(d>>24);    \
+        c += d; b ^= c; b = (b<< 7)|(b>>25);    \
     }
 
 #define qround_word(a, b, c, d, x, y)                           \
@@ -62,7 +62,7 @@ inner_block(uint32_t state[16])
 }
 
 static inline void
-inner_block_word(uint32_t state[16], const uint32_t m[16], const uint8_t s[16])
+inner_block_word(uint32_t state[16], uint32_t const m[16], uint8_t const s[16])
 {
     qround_word(state[ 0], state[ 4], state[ 8], state[12], msg( 0), msg( 1));
     qround_word(state[ 1], state[ 5], state[ 9], state[13], msg( 2), msg( 3));
@@ -76,7 +76,7 @@ inner_block_word(uint32_t state[16], const uint32_t m[16], const uint8_t s[16])
 }
 
 static inline void
-inner_block_long(uint64_t state[16], const uint64_t m[16], const uint8_t s[16])
+inner_block_long(uint64_t state[16], uint64_t const m[16], uint8_t const s[16])
 {
     qround_long(state[ 0], state[ 4], state[ 8], state[12], msg( 0), msg( 1));
     qround_long(state[ 1], state[ 5], state[ 9], state[13], msg( 2), msg( 3));
@@ -89,9 +89,10 @@ inner_block_long(uint64_t state[16], const uint64_t m[16], const uint8_t s[16])
     qround_long(state[ 3], state[ 4], state[ 9], state[14], msg(14), msg(15));
 }
 
-void chacha20_set_state(void *restrict state,
-                        const void *restrict key,
-                        const void *restrict nonce)
+void chacha20_set_state(
+    void *restrict state,
+    void const *restrict key,
+    void const *restrict nonce)
 {
     uint32_t *s = state;
     int i;
@@ -112,8 +113,10 @@ void chacha20_set_state(void *restrict state,
     }
 }
 
-void chacha20_block(uint32_t *restrict state, uint32_t counter, 
-                    size_t len, const void *in, void *out)
+void chacha20_block(
+    uint32_t *restrict state,
+    uint32_t counter, 
+    size_t len, void const *in, void *out)
 {
     uint32_t *s = state, ws[16];
     uint8_t *ptr = (void *)ws;
@@ -125,13 +128,17 @@ void chacha20_block(uint32_t *restrict state, uint32_t counter,
 
     for(i=0; i<16; i++) { ws[i] = htole32( ws[i] + s[i] ); }
 
-    for(i=0; i<len; i++) {
-        ((uint8_t *)out)[i] = ptr[i] ^
-            (in ? ((const uint8_t *)in)[i] : 0);
+    if( out )
+    {
+        for(i=0; i<len; i++)
+        {
+            ((uint8_t *)out)[i] = ptr[i] ^
+                (in ? ((const uint8_t *)in)[i] : 0);
+        }
     }
 }
 
-void blake2s_compress(uint32_t *restrict h, const void *m, uint64_t t, int f)
+void blake2s_compress(uint32_t *restrict h, void const *m, uint64_t t, int f)
 {
     int i;
     uint32_t v[16];
@@ -158,7 +165,7 @@ void blake2s_compress(uint32_t *restrict h, const void *m, uint64_t t, int f)
         h[i] ^= v[i] ^ v[i+8];
 }
 
-void blake2b_compress(uint64_t *restrict h, const void *m, uint64_t t, int f)
+void blake2b_compress(uint64_t *restrict h, void const *m, uint64_t t, int f)
 {
     int i;
     uint64_t v[16];

@@ -50,15 +50,15 @@ const static struct {
 int main(int argc, char *argv[])
 {
     union {
-        HMAC_SHA1_t hmac_sha1;
-        HMAC_SHA224_t hmac_sha224;
-        HMAC_SHA256_t hmac_sha256;
-        HMAC_SHA384_t hmac_sha384;
-        HMAC_SHA512_t hmac_sha512;
-        HMAC_SHA3_224_t hmac_sha3_224;
-        HMAC_SHA3_256_t hmac_sha3_256;
-        HMAC_SHA3_384_t hmac_sha3_384;
-        HMAC_SHA3_512_t hmac_sha3_512;
+        hmac_sha1_t hmac_sha1;
+        hmac_sha224_t hmac_sha224;
+        hmac_sha256_t hmac_sha256;
+        hmac_sha384_t hmac_sha384;
+        hmac_sha512_t hmac_sha512;
+        hmac_sha3_224_t hmac_sha3_224;
+        hmac_sha3_256_t hmac_sha3_256;
+        hmac_sha3_384_t hmac_sha3_384;
+        hmac_sha3_512_t hmac_sha3_512;
     } hmac;
     
     FILE *kfp, *mfp;

@@ -20,6 +20,14 @@ typedef struct hmac_context {
     FinalFunc_t     hFinal;
 } hmac_t;
 
+// [keyed-interfaces]
+// interface type / initializer type | key-dependent | key-independent
+// ----------------------------------+---------------+----------------
+// uninstantiated constructs         | *_SetKey (f)  | *_INIT (m)
+// keyed instances                   | *_Init (f)    | N/A
+// keyless/unkeyed instances         | N/A           | *_Init (f)
+// Note: (f) = function, (m) = macro evaluating to a compound literal.
+
 #define HMAC_INIT(hash)                         \
     ((hmac_t){                                  \
         .K0 = {0}, .tag = {0},                  \
@@ -33,14 +41,31 @@ typedef struct hmac_context {
             .hFinal = FINAL_FUNC(hash),         \
     })
 
-// interface type / initializer type | key-dependent | key-independent
-// ----------------------------------+---------------+----------------
-// uninstantiated constructs         | *_SetKey (f)  | *_INIT (m)
-// keyed instances                   | *_Init (f)    | N/A
-// keyless/unkeyed instances         | N/A           | *_Init (f)
-
 void HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen);
 void HMAC_Update(hmac_t *restrict hmac, const void *restrict data, size_t len);
 void HMAC_Final(hmac_t *restrict hmac, void *restrict out, size_t t);
+
+#define Declare_HMAC_Hash(algo,name)            \
+    typedef struct {                            \
+        hmac_t hmac;                            \
+        name hash;                              \
+    } hmac_##name;                              \
+                                                \
+    void *HMAC_##algo##_Init(                   \
+        hmac_##name *restrict x,                \
+        void const *restrict key,               \
+        size_t keylen);                         \
+                                                \
+    uintptr_t iHMAC_##algo(int q);
+    
+
+#define cHMAC(hash,q) (                                         \
+        q==outBytes || q==blockBytes ? c##hash(q) :             \
+        q==keyBytesMax ? ((uintptr_t)-1) :                      \
+        q==contextBytes ? sizeof(hmac_t) + CTX_BYTES(c##hash) : \
+        q==KInitFunc ? (uintptr_t)HMAC_##hash##_Init :          \
+        q==UpdateFunc ? (uintptr_t)HMAC_Update :                \
+        q==MacFinalFunc ? (uintptr_t)HMAC_Final :               \
+        0)
 
 #endif /* MySuiteA_hmac_h */

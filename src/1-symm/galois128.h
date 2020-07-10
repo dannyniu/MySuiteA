@@ -5,5 +5,5 @@
 // References: src/notes.txt: "GCM - Galois Counter Mode". 
 
 void galois128_hash1block(void *restrict Y, // Accumulator. 
-                          const void *restrict H, // Hashing Key. 
-                          const void *restrict X); // message block. 
+                          void const *restrict H, // Hashing Key. 
+                          void const *restrict X); // message block. 

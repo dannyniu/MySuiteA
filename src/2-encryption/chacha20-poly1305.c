@@ -3,18 +3,24 @@
 #include "../0-datum/endian.h"
 #include "chacha20-poly1305.h"
 
-void ChaCha_AEAD_Init(chacha_aead_t *restrict x, const void *restrict K)
+void *ChaCha_AEAD_Init(
+    chacha_aead_t *restrict x,
+    void const *restrict K,
+    size_t klen)
 {
+    if( klen != 32 ) return NULL;
     chacha20_set_state(x->state, K, NULL);
+    return x;
 }
 
 static inline size_t min(size_t a, size_t b) { return a<b ? a : b; }
 
-void ChaCha_AEAD_Encrypt(chacha_aead_t *restrict x,
-                         const void *restrict iv,
-                         size_t alen, const void *aad,
-                         size_t len, const void *in, void *out,
-                         size_t tlen, void *T)
+void ChaCha_AEAD_Encrypt(
+    chacha_aead_t *restrict x,
+    void const *restrict iv,
+    size_t alen, void const *aad,
+    size_t len, void const *in, void *out,
+    size_t tlen, void *T)
 {
     alignas(uint64_t) uint8_t words[32];
     const uint8_t *iptr=in; uint8_t *optr=out;
@@ -50,11 +56,12 @@ void ChaCha_AEAD_Encrypt(chacha_aead_t *restrict x,
     }
 }
 
-void *ChaCha_AEAD_Decrypt(chacha_aead_t *restrict x,
-                          const void *restrict iv,
-                          size_t alen, const void *aad,
-                          size_t len, const void *in, void *out,
-                          size_t tlen, const void *T)
+void *ChaCha_AEAD_Decrypt(
+    chacha_aead_t *restrict x,
+    void const *restrict iv,
+    size_t alen, void const *aad,
+    size_t len, void const *in, void *out,
+    size_t tlen, void const *T)
 {
     alignas(uint64_t) uint8_t words[32];
     const uint8_t *iptr=in; uint8_t *optr=out;

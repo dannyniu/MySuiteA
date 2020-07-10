@@ -20,7 +20,7 @@ typedef struct sha1_context {
 } sha1_t; // only included for completeness, deprecated. 
 
 void SHA1_Init(sha1_t *restrict sha);
-void SHA1_Update(sha1_t *restrict sha, const void *restrict data, size_t len);
+void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len);
 void SHA1_Final(sha1_t *restrict sha, void *restrict out);
 
 typedef struct sha256_context {
@@ -34,7 +34,7 @@ typedef struct sha256_context {
     };
 } sha224_t, sha256_t;
 
-void sha256_update(sha256_t *restrict sha, const void *restrict data, size_t len);
+void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len);
 #define SHA224_Update sha256_update
 #define SHA256_Update sha256_update
 void SHA224_Init(sha224_t *restrict sha);
@@ -53,7 +53,7 @@ typedef struct sha512_context {
     };
 } sha384_t, sha512_t;
 
-void sha512_update(sha512_t *restrict sha, const void *restrict data, size_t len);
+void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len);
 #define SHA384_Update sha512_update
 #define SHA512_Update sha512_update
 void SHA384_Init(sha384_t *restrict sha);

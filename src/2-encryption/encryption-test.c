@@ -14,8 +14,7 @@ static size_t len, alen;
 
 static gcm_aes256_t gcm;
 
-void *scanhex(uint8_t *restrict out, size_t length, const char *restrict in);
-void *scanhex(uint8_t *restrict out, size_t length, const char *restrict in)
+void *scanhex(uint8_t *restrict out, size_t length, char const *restrict in)
 {
     int n;
     while( isxdigit((int)*in) && length-- &&
@@ -27,7 +26,6 @@ void *scanhex(uint8_t *restrict out, size_t length, const char *restrict in)
     return out;
 }
 
-void dumphex(uint8_t *data, size_t length);
 void dumphex(uint8_t *data, size_t length)
 {
     for(size_t i=0; i<length; i+=16) {
@@ -107,7 +105,7 @@ int main(int argc, char *argv[])
 
     printf("%s\n", argv[2]);
 
-    KINIT_FUNC(aead)(&gcm, k);
+    KINIT_FUNC(aead)(&gcm, k, KEY_BYTES(aead));
     AENC_FUNC(aead)((void *)&gcm, iv, alen, a, len, p, x, 16, s);
     if( memcmp(s, t, 16) ) printf("Encryption Failed: Tag Wrong!\n");
     if( memcmp(c, x, len) ) printf("Encryption Failed: Ciphertext Wrong!\n");

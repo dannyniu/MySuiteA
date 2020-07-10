@@ -25,6 +25,10 @@ static inline int mod5(int x)
 
 #include "../0-datum/endian.h"
 
+// 2020-07-09:
+// This isn't the correct way to use ``_Generic'',
+// but exception is allowed here for the ``uint8_t'' case.
+
 #define letoh(x)                                \
     _Generic(x,                                 \
              uint8_t:(x),                       \
@@ -39,7 +43,6 @@ static inline int mod5(int x)
              uint32_t:htole32(x),               \
              uint64_t:htole64(x)                \
         )
-
 
 static inline void theta(keccak_state_t A_out, keccak_state_t A)
 {
@@ -111,7 +114,7 @@ static inline int iota(keccak_state_t A_out, keccak_state_t A, int lfsr)
 }
 
 // Intentionally not restrict-qualified. 
-void glue(Keccak_InstName,_Permute)(const void *in, void *out)
+void glue(Keccak_InstName,_Permute)(void const *in, void *out)
 {
     keccak_state_t A;
     const keccak_word_t *cptr;

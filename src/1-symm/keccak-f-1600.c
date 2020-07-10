@@ -4,4 +4,5 @@
 
 #define Keccak_InstName KeccakF1600
 #define keccak_word_t uint64_t
-#include "keccak-definition.h"
+#define keccak_state_t keccak_state1600_t
+#include "keccak.c.h"
