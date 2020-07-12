@@ -28,7 +28,7 @@ testfunc() {
         done
         
         for b in 224 256 384 512; do
-            ref=$(../src/2-hash/shasum.py sha3-$b < $testvec)
+            ref=$(../src/2-hash/shasum.py sha3_$b < $testvec)
             res=$($exec 3$b < $testvec)
             if ! [ $ref = $res ] ; then
                 echo sha3-${b} failed with "$ref" != $res

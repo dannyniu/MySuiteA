@@ -35,13 +35,19 @@ void BLAKE2s160_Init(blake2s_t *restrict x);
 void BLAKE2s224_Init(blake2s_t *restrict x);
 void BLAKE2s256_Init(blake2s_t *restrict x);
 
-void blake2b_update(blake2b_t *restrict x, const void *restrict data, size_t len);
+void blake2b_update(
+    blake2b_t *restrict x,
+    void const *restrict data,
+    size_t len);
 #define BLAKE2b160_Update blake2b_update
 #define BLAKE2b256_Update blake2b_update
 #define BLAKE2b384_Update blake2b_update
 #define BLAKE2b512_Update blake2b_update
 
-void blake2s_update(blake2s_t *restrict x, const void *restrict data, size_t len);
+void blake2s_update(
+    blake2s_t *restrict x,
+    void const *restrict data,
+    size_t len);
 #define BLAKE2s128_Update blake2s_update
 #define BLAKE2s160_Update blake2s_update
 #define BLAKE2s224_Update blake2s_update
