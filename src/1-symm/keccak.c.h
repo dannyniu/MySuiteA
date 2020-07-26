@@ -15,7 +15,7 @@ static inline keccak_word_t rot(keccak_word_t x, int s) // rotate-left.
     return u ? ( x << u ) | ( x >> (w-u) ) : x;
 }
 
-static inline int mod5(int x)
+static inline int mod5(int x) // x shall always be data-independent.
 {
     // ad-hoc, but efficient here.
     while( x >= 5 ) x -= 10;
