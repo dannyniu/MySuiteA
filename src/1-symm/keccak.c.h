@@ -117,7 +117,7 @@ static inline int iota(keccak_state_t A_out, keccak_state_t A, int lfsr)
 void glue(Keccak_InstName,_Permute)(void const *in, void *out)
 {
     keccak_state_t A;
-    const keccak_word_t *cptr;
+    keccak_word_t const *cptr;
     keccak_word_t *ptr;
     int lfsr = 1;
 
@@ -126,8 +126,8 @@ void glue(Keccak_InstName,_Permute)(void const *in, void *out)
         for(int x=0; x<5; x++)
             A[y][x] = letoh(cptr[y*5+x]);
 
-    // Keccak-f instance.
-    // This version of MySuiteA does not implement Keccak-p. 
+    // This version of MySuiteA implements Keccak-f,
+    // and the generalized Keccak-p is omitted.
     for(int ir = 0; ir < 12+2*l; ir++) {
         theta(A, A);
         rho(out, A);
