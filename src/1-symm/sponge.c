@@ -4,7 +4,7 @@
 
 void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
 {
-    const uint8_t *restrict buffer = data;
+    uint8_t const *restrict buffer = data;
     uint8_t *state = ((uint8_t *)s + s->offset);
 
     if( !data && len )
