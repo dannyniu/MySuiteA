@@ -9,53 +9,61 @@ elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
 fi
 
 hash_algos="
-sha1
-sha224
-sha256
-sha384
-sha512
-sha3_224
-sha3_256
-sha3_384
-sha3_512
+blake2b-160
+blake2b-256
+blake2b-384
+blake2b-512
+blake2s-128
+blake2s-160
+blake2s-224
+blake2s-256
 "
 
 testfunc() {
     failcount=0
     for algo in $hash_algos ; do
         klen=0
-        while [ $klen -lt 288 ] ; do
+        variant=${algo%-*}
+        outlen=${algo#*-}
+        while
+            if [ $variant = blake2b ]
+            then [ $klen -lt 64 ]
+            else [ $klen -lt 32 ]
+            fi
+        do
             mlen=0
             while [ $mlen -lt 32768 ] ; do
-                echo $algo $klen $mlen
+                echo $variant $outlen $klen $mlen
                 mlen=$((mlen*3+251))
             done
-            klen=$((klen*3+7))
+            klen=$((klen*2+3))
         done 
     done | while
-        if ! read algo klen mlen ; then
+        if ! read variant outlen klen mlen ; then
             echo $failcount tests failed.
             false
         fi
     do
+        algo=${variant}${outlen}
+        
         dd if=/dev/urandom bs=1 count=$klen \
            of=mac-test-key 2>/dev/null
 
         dd if=/dev/urandom bs=1 count=$mlen \
            of=mac-test-data 2>/dev/null
 
-        ../src/2-mac/hmac-test.py $algo < mac-test-data > hmac-test-ref &
-        $exec $algo < mac-test-data > hmac-test-result &
+        ../src/2-mac/kblake2-test.py $algo < mac-test-data > kblake2-test-ref &
+        $exec $algo < mac-test-data > kblake2-test-result &
         wait
         
-        if [ "$(cat hmac-test-ref)" = "$(cat hmac-test-result)" ] ; then
+        if [ "$(cat kblake2-test-ref)" = "$(cat kblake2-test-result)" ] ; then
             echo Test succeeded for $algo klen=$klen mlen=$mlen
         else
             echo Test failed for $algo klen=$klen mlen=$mlen!
             failcount=$((failcount+1))
             suffix=$(date +%Y-%m-%d-%H%M%S)-$failcount
-            mv mac-test-key hmac-test-key-$suffix
-            mv mac-test-data hmac-test-data-$suffix
+            mv kblake2-test-key kblake2-test-key-$suffix
+            mv kblake2-test-data kblake2-test-data-$suffix
         fi
     done
 }
@@ -63,14 +71,9 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-hmac-test.c
-hmac-sha.c
-hmac.c
-2-hash/sha.c
-2-hash/sha3.c
-1-symm/fips-180.c
-1-symm/sponge.c
-1-symm/keccak-f-1600.c
+kblake2-test.c
+2-hash/blake2.c
+1-symm/chacha.c
 0-datum/endian.c
 "
 bin=$(basename "$0" .sh)

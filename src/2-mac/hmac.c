@@ -22,7 +22,7 @@ void HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen)
     {
         hmac->hInit(aux);
         hmac->hUpdate(aux, key, keylen);
-        hmac->hFinal(aux, hmac->K0);
+        hmac->hFinal(aux, hmac->K0, hmac->L);
     }
         
     hmac->hInit(aux);
@@ -38,12 +38,12 @@ void HMAC_Update(hmac_t *restrict hmac, const void *restrict data, size_t len)
 
 void HMAC_Final(hmac_t *restrict hmac, void *restrict out, size_t t)
 {
+    void *aux = (uint8_t *)hmac + hmac->offset;
+    size_t i;
+
     if( hmac->finalized ) goto finalized;
 
-    size_t i;
-    void *aux = (uint8_t *)hmac + hmac->offset;
-
-    hmac->hFinal(aux, hmac->tag);
+    hmac->hFinal(aux, hmac->tag, hmac->L);
 
     hmac->hInit(aux);
     for(i=0; i<hmac->B; i++) hmac->K0[i] ^= opad;
@@ -51,13 +51,11 @@ void HMAC_Final(hmac_t *restrict hmac, void *restrict out, size_t t)
     for(i=0; i<hmac->B; i++) hmac->K0[i] = 0; // clears key.
 
     hmac->hUpdate(aux, hmac->tag, hmac->L);
-    hmac->hFinal(aux, hmac->tag);
+    hmac->hFinal(aux, NULL, 0);
     hmac->finalized = 1;
 
 finalized:
-    if( out ) {
-        // zero-extends if t>L. 
-        for(i=0; i<t; i++)
-            ((uint8_t *)out)[i] = i<hmac->L ? hmac->tag[i] : 0;
-    }
+    // After aligning the interface of hash and mac (by adding outlen param)
+    // the code is slightly simpler.
+    hmac->hFinal(aux, out, t);
 }

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "hmac-sha.h"
+#include "../2-hash/blake2.h"
 
 #include "../test-utils.c.h"
 
@@ -13,26 +13,23 @@ int main(int argc, char *argv[])
 {
     size_t in_len = 0;
     void *x = NULL;
-    
+
     uintptr_t (*h)() = NULL;
     FILE *kfp;
 
-    mysrand((unsigned long)time(NULL));
-    
     if( argc < 2 ) return 1;
     else
     {
-        switch( u8cc(argv[1]) )
+        switch( u4cc(argv[1]+6) )
         {
-        case u8cc("sha1"): h = iHMAC_SHA1; break;
-        case u8cc("sha224"): h = iHMAC_SHA224; break;
-        case u8cc("sha256"): h = iHMAC_SHA256; break;
-        case u8cc("sha384"): h = iHMAC_SHA384; break;
-        case u8cc("sha512"): h = iHMAC_SHA512; break;
-        case u8cc("sha3_224"): h = iHMAC_SHA3_224; break;
-        case u8cc("sha3_256"): h = iHMAC_SHA3_256; break;
-        case u8cc("sha3_384"): h = iHMAC_SHA3_384; break;
-        case u8cc("sha3_512"): h = iHMAC_SHA3_512; break;
+        case u4cc("b160"): h = ikBLAKE2b160; break;
+        case u4cc("b256"): h = ikBLAKE2b256; break;
+        case u4cc("b384"): h = ikBLAKE2b384; break;
+        case u4cc("b512"): h = ikBLAKE2b512; break;
+        case u4cc("s128"): h = ikBLAKE2s128; break;
+        case u4cc("s160"): h = ikBLAKE2s160; break;
+        case u4cc("s224"): h = ikBLAKE2s224; break;
+        case u4cc("s256"): h = ikBLAKE2s256; break;
         
         default: return 1; break;
         }

@@ -21,7 +21,7 @@ typedef struct sha1_context {
 
 void SHA1_Init(sha1_t *restrict sha);
 void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len);
-void SHA1_Final(sha1_t *restrict sha, void *restrict out);
+void SHA1_Final(sha1_t *restrict sha, void *restrict out, size_t t);
 
 typedef struct sha256_context {
     int         finalized;
@@ -39,8 +39,8 @@ void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len
 #define SHA256_Update sha256_update
 void SHA224_Init(sha224_t *restrict sha);
 void SHA256_Init(sha256_t *restrict sha);
-void SHA224_Final(sha224_t *restrict sha, void *restrict out);
-void SHA256_Final(sha256_t *restrict sha, void *restrict out);
+void SHA224_Final(sha224_t *restrict sha, void *restrict out, size_t t);
+void SHA256_Final(sha256_t *restrict sha, void *restrict out, size_t t);
 
 typedef struct sha512_context {
     int         finalized;
@@ -58,8 +58,8 @@ void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len
 #define SHA512_Update sha512_update
 void SHA384_Init(sha384_t *restrict sha);
 void SHA512_Init(sha512_t *restrict sha);
-void SHA384_Final(sha384_t *restrict sha, void *restrict out);
-void SHA512_Final(sha512_t *restrict sha, void *restrict out);
+void SHA384_Final(sha384_t *restrict sha, void *restrict out, size_t t);
+void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t);
 
 #define cSHA1(q) (                                      \
         q==outBytes ? 20 :                              \

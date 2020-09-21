@@ -12,27 +12,34 @@
             .state.u64 = {0},                                           \
         };                                                              \
     }
-Define_SHA3_Init(SHA3_224_Init, 200-28*2)
-Define_SHA3_Init(SHA3_256_Init, 200-32*2)
-Define_SHA3_Init(SHA3_384_Init, 200-48*2)
-Define_SHA3_Init(SHA3_512_Init, 200-64*2)
+
+Define_SHA3_Init(SHA3_224_Init, 200-28*2);
+Define_SHA3_Init(SHA3_256_Init, 200-32*2);
+Define_SHA3_Init(SHA3_384_Init, 200-48*2);
+Define_SHA3_Init(SHA3_512_Init, 200-64*2);
 
 void SHA3_Update(sha3_t *restrict x, void const *restrict data, size_t len)
 {
     Sponge_Update(&x->sponge, data, len);
 }
 
-#define Define_SHA3_Final(name,out_len)                     \
-    void name(sha3_t *restrict x, void *restrict out)       \
-    {                                                       \
-        Sponge_Final(&x->sponge);                           \
-        for(int i=0; i<out_len; i++)                        \
-            ((uint8_t *)out)[i] = x->state.u8[i];           \
+#define Define_SHA3_Final(name,out_len)                         \
+    void name(sha3_t *restrict x, void *restrict out, size_t t) \
+    {                                                           \
+        uint8_t *ptr = out;                                     \
+        size_t i;                                               \
+        Sponge_Final(&x->sponge);                               \
+        if( out )                                               \
+        {                                                       \
+            for(i=0; i<t; i++)                                  \
+                ptr[i] = i<out_len ? x->state.u8[i] : 0;        \
+        }                                                       \
     }
-Define_SHA3_Final(SHA3_224_Final, 28)
-Define_SHA3_Final(SHA3_256_Final, 32)
-Define_SHA3_Final(SHA3_384_Final, 48)
-Define_SHA3_Final(SHA3_512_Final, 64)
+
+Define_SHA3_Final(SHA3_224_Final, 28);
+Define_SHA3_Final(SHA3_256_Final, 32);
+Define_SHA3_Final(SHA3_384_Final, 48);
+Define_SHA3_Final(SHA3_512_Final, 64);
 
 uintptr_t iSHA3_224(int q){ return cSHA3(224,q); }
 uintptr_t iSHA3_256(int q){ return cSHA3(256,q); }

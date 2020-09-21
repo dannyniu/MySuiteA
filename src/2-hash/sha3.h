@@ -28,10 +28,10 @@ void SHA3_Update(sha3_t *restrict x, void const *restrict data, size_t len);
 #define SHA3_384_Update SHA3_Update
 #define SHA3_512_Update SHA3_Update
 
-void SHA3_224_Final(sha3_t *restrict x, void *restrict out);
-void SHA3_256_Final(sha3_t *restrict x, void *restrict out);
-void SHA3_384_Final(sha3_t *restrict x, void *restrict out);
-void SHA3_512_Final(sha3_t *restrict x, void *restrict out);
+void SHA3_224_Final(sha3_t *restrict x, void *restrict out, size_t t);
+void SHA3_256_Final(sha3_t *restrict x, void *restrict out, size_t t);
+void SHA3_384_Final(sha3_t *restrict x, void *restrict out, size_t t);
+void SHA3_512_Final(sha3_t *restrict x, void *restrict out, size_t t);
 
 #define cSHA3(bits,q) (                                         \
         q==outBytes ? bits/8 :                                  \
@@ -41,6 +41,7 @@ void SHA3_512_Final(sha3_t *restrict x, void *restrict out);
         q==UpdateFunc ? (uintptr_t)SHA3_##bits##_Update :       \
         q==FinalFunc  ? (uintptr_t)SHA3_##bits##_Final :        \
         0)
+
 #define cSHA3_224(q) cSHA3(224,q)
 #define cSHA3_256(q) cSHA3(256,q)
 #define cSHA3_384(q) cSHA3(384,q)

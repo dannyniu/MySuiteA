@@ -2,13 +2,16 @@
 
 import sys, hmac
 
-fp = open("hmac-test-data", "rb")
-data = fp.read()
-fp.close()
-
-fp = open("hmac-test-key", "rb")
+fp = open("mac-test-key", "rb")
 key = fp.read()
 fp.close()
 
-x = hmac.new(key, data, digestmod=sys.argv[1]);
+x = hmac.new(key, digestmod=sys.argv[1]);
+fd0 = sys.stdin.buffer
+
+while True:
+    s = fd0.read(512)
+    if len(s): x.update(s)
+    else: break
+
 print(x.hexdigest())

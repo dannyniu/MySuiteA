@@ -43,9 +43,10 @@ enum {
     // 1.) All keyed primitives.
     //
     // If keyBytes == 0, then keyBytesMax specifies the
-    // maximum acceptable key length, and ((uintptr_t)-1)
-    // specifies that such limit doesn't exist for that
-    // particular instance.
+    // maximum acceptable key length:
+    // - a value of 0 specifies that the primitive is unkeyed,
+    // - a value of ((size_t)-1) specifies that such limit
+    //   doesn't exist for that particular instance.
     //
     keyBytes, keyBytesMax,
 
@@ -77,7 +78,7 @@ enum {
     // Hash & XOF Functions //
     InitFunc,
     UpdateFunc, WriteFunc=UpdateFunc,
-    FinalFunc, MacFinalFunc, XofFinalFunc,
+    FinalFunc, XofFinalFunc,
     ReadFunc,
 
     // AEAD Functions //
@@ -104,8 +105,7 @@ typedef void (*UpdateFunc_t)(void *restrict x,
                              size_t len);
 typedef UpdateFunc_t WriteFunc_t;
 
-typedef void (*FinalFunc_t)(void *restrict x, void *restrict out);
-typedef void (*TFinalFunc_t)(void *restrict x, void *restrict out, size_t t);
+typedef void (*FinalFunc_t)(void *restrict x, void *restrict out, size_t t);
 typedef void (*XFinalFunc_t)(void *restrict x);
 typedef void (*ReadFunc_t)(void *restrict x,
                            void *restrict data,
@@ -129,14 +129,14 @@ typedef void *(*ADecFunc_t)(void *restrict x,
 // make sure that `obj' is not parenthesized so that
 // macro expansion won't be suppressed.
 
-#define OUT_BYTES(obj)      ((unsigned)(obj(outBytes)))
-#define BLOCK_BYTES(obj)    ((unsigned)(obj(blockBytes)))
-#define KEY_BYTES(obj)      ((unsigned)(obj(keyBytes)))
-#define KEY_BYTES_MAX(obj)  ((unsigned)(obj(keyBytesMax)))
-#define KSCHD_BYTES(obj)    ((unsigned)(obj(keyschedBytes)))
-#define CTX_BYTES(obj)      ((unsigned)(obj(contextBytes)))
-#define IV_BYTES(obj)       ((unsigned)(obj(ivBytes)))
-#define TAG_BYTES(obj)      ((unsigned)(obj(tagBytes)))
+#define OUT_BYTES(obj)      ((size_t)(obj(outBytes)))
+#define BLOCK_BYTES(obj)    ((size_t)(obj(blockBytes)))
+#define KEY_BYTES(obj)      ((size_t)(obj(keyBytes)))
+#define KEY_BYTES_MAX(obj)  ((size_t)(obj(keyBytesMax)))
+#define KSCHD_BYTES(obj)    ((size_t)(obj(keyschedBytes)))
+#define CTX_BYTES(obj)      ((size_t)(obj(contextBytes)))
+#define IV_BYTES(obj)       ((size_t)(obj(ivBytes)))
+#define TAG_BYTES(obj)      ((size_t)(obj(tagBytes)))
 
 #define ENC_FUNC(obj)       ((EncFunc_t)(obj(EncFunc)))
 #define DEC_FUNC(obj)       ((DecFunc_t)(obj(DecFunc)))

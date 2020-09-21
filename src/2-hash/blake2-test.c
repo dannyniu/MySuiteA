@@ -5,63 +5,49 @@
 #include <time.h>
 #include "blake2.h"
 
-static unsigned long a, b;
-#define p 65521UL
+#include "../test-utils.c.h"
 
-void mysrand(unsigned long);
-unsigned long myrand(void);
-
-void mysrand(unsigned long x) { a = b = x % p; }
-unsigned long myrand(void) {
-    unsigned long x, y;
-    x = a*a + p*p - b*b;
-    x %= p;
-    y = 2 * a * b;
-    y %= p;
-    a = x;
-    b = y;
-    return x;
-}
-
-static unsigned char buf[256*(p/256+1)];
+static unsigned char buf[4096];
 
 int main(int argc, char *argv[])
 {
     size_t in_len = 0;
     void *x = NULL;
     
-    uintptr_t (*h)(int) = iBLAKE2b256;
+    uintptr_t (*h)() = iBLAKE2b256;
 
     mysrand((unsigned long)time(NULL));
     
-    if( argc < 2 ) h = iBLAKE2b256;
+    if( argc < 2 ) return 1;
     else
     {
-        switch( argv[1][6]<<24 | argv[1][7]<<16 | argv[1][8]<<8 | argv[1][9] )
+        switch( u4cc(argv[1]+6) )
         {
-        case 0x62313630: h = iBLAKE2b160; break;
-        case 0x62323536: h = iBLAKE2b256; break;
-        case 0x62333834: h = iBLAKE2b384; break;
-        case 0x62353132: h = iBLAKE2b512; break;
-        case 0x73313238: h = iBLAKE2s128; break;
-        case 0x73313630: h = iBLAKE2s160; break;
-        case 0x73323234: h = iBLAKE2s224; break;
-        case 0x73323536: h = iBLAKE2s256; break;
+        case u4cc("b160"): h = iBLAKE2b160; break;
+        case u4cc("b256"): h = iBLAKE2b256; break;
+        case u4cc("b384"): h = iBLAKE2b384; break;
+        case u4cc("b512"): h = iBLAKE2b512; break;
+        case u4cc("s128"): h = iBLAKE2s128; break;
+        case u4cc("s160"): h = iBLAKE2s160; break;
+        case u4cc("s224"): h = iBLAKE2s224; break;
+        case u4cc("s256"): h = iBLAKE2s256; break;
         
-        default: h = iBLAKE2b256; break;
+        default: return 1; break;
         }
     }
 
     x = malloc(CTX_BYTES(h));
     INIT_FUNC(h)(x);
+    
     while( (in_len = fread(buf, 1, myrand()+1, stdin)) > 0 )
     {
         UPDATE_FUNC(h)(x, buf, in_len);
     }
-    FINAL_FUNC(h)(x, buf);
+    
+    FINAL_FUNC(h)(x, buf, OUT_BYTES(h));
     free(x);
     x=NULL;
 
-    for(unsigned i=0; i<OUT_BYTES(h); i++) { printf("%02x", buf[i]); } printf("\n");
+    for(int i=0; i<OUT_BYTES(h); i++) { printf("%02x", buf[i]); } printf("\n");
     return 0;
 }

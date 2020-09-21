@@ -37,10 +37,10 @@ void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len)
     sha->len += (uint64_t)(ptr - (const uint8_t *)data) * 8;
 }
 
-void SHA1_Final(sha1_t *restrict sha, void *restrict out)
+void SHA1_Final(sha1_t *restrict sha, void *restrict out, size_t t)
 {
     uint8_t *ptr = out;
-    int i;
+    size_t i;
 
     if( sha->finalized ) goto finalized;
     
@@ -72,7 +72,11 @@ void SHA1_Final(sha1_t *restrict sha, void *restrict out)
     sha->finalized = 1;
 
 finalized:
-    for(i=0; i<20; i++) ptr[i] = sha->Msg8[i];
+    if( out )
+    {
+        for(i=0; i<t; i++)
+            ptr[i] = i<20 ? sha->Msg8[i] : 0;
+    }
 }
 
 // SHA224, SHA256 Definitions. 
@@ -143,13 +147,18 @@ void SHA224_Init(sha224_t *restrict sha)
     sha->filled = 0;
 }
 
-void SHA224_Final(sha224_t *restrict sha, void *restrict out)
+void SHA224_Final(sha224_t *restrict sha, void *restrict out, size_t t)
 {
     uint8_t *ptr = out;
-    int i;
+    size_t i;
 
     sha256_final(sha);
-    for(i=0; i<28; i++) ptr[i] = sha->Msg8[i];
+
+    if( out )
+    {
+        for(i=0; i<t; i++)
+            ptr[i] = i<28 ? sha->Msg8[i] : 0;
+    }
 }
 
 void SHA256_Init(sha256_t *restrict sha)
@@ -167,13 +176,18 @@ void SHA256_Init(sha256_t *restrict sha)
     sha->filled = 0;
 }
 
-void SHA256_Final(sha256_t *restrict sha, void *restrict out)
+void SHA256_Final(sha256_t *restrict sha, void *restrict out, size_t t)
 {
     uint8_t *ptr = out;
-    int i;
+    size_t i;
 
     sha256_final(sha);
-    for(i=0; i<32; i++) ptr[i] = sha->Msg8[i];
+    
+    if( out )
+    {
+        for(i=0; i<t; i++)
+            ptr[i] = i<32 ? sha->Msg8[i] : 0;
+    }
 }
 
 // SHA384, SHA512 Definitions. 
@@ -245,13 +259,18 @@ void SHA384_Init(sha384_t *restrict sha)
     sha->filled = 0;
 }
 
-void SHA384_Final(sha384_t *restrict sha, void *restrict out)
+void SHA384_Final(sha384_t *restrict sha, void *restrict out, size_t t)
 {
     uint8_t *ptr = out;
-    int i;
+    size_t i;
 
     sha512_final(sha);
-    for(i=0; i<48; i++) ptr[i] = sha->Msg8[i];
+    
+    if( out )
+    {
+        for(i=0; i<t; i++)
+            ptr[i] = i<48 ? sha->Msg8[i] : 0;
+    }
 }
 
 void SHA512_Init(sha512_t *restrict sha)
@@ -269,13 +288,18 @@ void SHA512_Init(sha512_t *restrict sha)
     sha->filled = 0;
 }
 
-void SHA512_Final(sha512_t *restrict sha, void *restrict out)
+void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t)
 {
     uint8_t *ptr = out;
-    int i;
+    size_t i;
 
     sha512_final(sha);
-    for(i=0; i<64; i++) ptr[i] = sha->Msg8[i];
+    
+    if( out )
+    {
+        for(i=0; i<t; i++)
+            ptr[i] = i<64 ? sha->Msg8[i] : 0;
+    }
 }
 
 uintptr_t iSHA1(int q){ return cSHA1(q); }

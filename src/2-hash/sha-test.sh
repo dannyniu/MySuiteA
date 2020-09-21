@@ -18,7 +18,7 @@ testfunc() {
         
         for b in 1 224 256 384 512 ; do
             ref=$(../src/2-hash/shasum.py sha$b < $testvec)
-            res=$($exec $b < $testvec)
+            res=$($exec sha$b < $testvec)
             if ! [ $ref = $res ] ; then
                 echo sha${b} failed with "$ref" != $res
                 n=$((n+1))
@@ -28,9 +28,9 @@ testfunc() {
         done
         
         for b in 224 256 384 512; do
-            ref=$(../src/2-hash/shasum.py sha3_$b < $testvec)
-            res=$($exec 3$b < $testvec)
-            if ! [ $ref = $res ] ; then
+            ref="$(../src/2-hash/shasum.py sha3_$b < $testvec)"
+            res="$($exec sha3-$b < $testvec)"
+            if ! [ "$ref" = "$res" ] ; then
                 echo sha3-${b} failed with "$ref" != $res
                 n=$((n+1))
                 cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
@@ -38,9 +38,9 @@ testfunc() {
         done
         
         for b in 128 256; do
-            ref=$(../src/2-hash/shakesum.py shake_$b < $testvec)
-            res=$($exec 3${b}000 < $testvec)
-            if ! [ $ref = $res ] ; then
+            ref="$(../src/2-hash/shakesum.py shake_$b < $testvec)"
+            res="$($exec shake${b} < $testvec)"
+            if ! [ "$ref" = "$res" ] ; then
                 echo shake${b} failed with "$ref" != $res
                 n=$((n+1))
                 cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat

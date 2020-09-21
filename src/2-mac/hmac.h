@@ -61,11 +61,12 @@ void HMAC_Final(hmac_t *restrict hmac, void *restrict out, size_t t);
 
 #define cHMAC(hash,q) (                                         \
         q==outBytes || q==blockBytes ? c##hash(q) :             \
+        q==keyBytes ? 0 :                                       \
         q==keyBytesMax ? ((uintptr_t)-1) :                      \
         q==contextBytes ? sizeof(hmac_t) + CTX_BYTES(c##hash) : \
         q==KInitFunc ? (uintptr_t)HMAC_##hash##_Init :          \
         q==UpdateFunc ? (uintptr_t)HMAC_Update :                \
-        q==MacFinalFunc ? (uintptr_t)HMAC_Final :               \
+        q==FinalFunc ? (uintptr_t)HMAC_Final :                  \
         0)
 
 #endif /* MySuiteA_hmac_h */
