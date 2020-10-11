@@ -52,7 +52,9 @@ testfunc() {
         dd if=/dev/urandom bs=1 count=$mlen \
            of=mac-test-data 2>/dev/null
 
-        ../src/2-mac/kblake2-test.py $algo < mac-test-data > kblake2-test-ref &
+        ../src/2-mac/kblake2-test.py \
+            $variant $outlen \
+            < mac-test-data > kblake2-test-ref &
         $exec $algo < mac-test-data > kblake2-test-result &
         wait
         
