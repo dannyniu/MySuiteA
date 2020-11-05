@@ -156,12 +156,11 @@ typedef void *(*ADecFunc_t)(void *restrict x,
 #define AENC_FUNC(obj)      ((AEncFunc_t)(obj(AEncFunc)))
 #define ADEC_FUNC(obj)      ((ADecFunc_t)(obj(ADecFunc)))
 
-#define ERASE_STATES(buf, len)                  \
-    do {                                        \
-        char *ba = (void volatile *)(buf);      \
-        size_t l = (size_t)(len);               \
-        for(size_t i=0; i<l; i++)               \
-            ba[i] = 0;                          \
+#define ERASE_STATES(buf, len)                          \
+    do {                                                \
+        char volatile *ba = (void volatile *)(buf);     \
+        size_t l = (size_t)(len);                       \
+        for(size_t i=0; i<l; i++) ba[i] = 0;            \
     } while(0)
     
 #endif /* MySuiteA_mysuitea_common_h */

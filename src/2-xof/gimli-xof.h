@@ -3,8 +3,6 @@
 #ifndef MySuiteA_gimli_hash_h
 #define MySuiteA_gimli_hash_h 1
 
-// References: src/notes.txt: "Gimli". 
-
 #include "../mysuitea-common.h"
 #include "../1-symm/sponge.h"
 
@@ -31,12 +29,12 @@ void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len);
 #define cGimli_XOF(q) (                                         \
         q==blockBytes ? 16 :                                    \
         q==contextBytes ? sizeof(struct gimli_xof_context) :    \
-        q==InitFunc ? (intptr_t)Gimli_XOF_Init :                \
-        q==WriteFunc ? (intptr_t)Gimli_XOF_Write :              \
-        q==XofFinalFunc ? (intptr_t)Gimli_XOF_Final :           \
-        q==ReadFunc ? (intptr_t)Gimli_XOF_Read :                \
+        q==InitFunc ? (uintptr_t)Gimli_XOF_Init :               \
+        q==WriteFunc ? (uintptr_t)Gimli_XOF_Write :             \
+        q==XofFinalFunc ? (uintptr_t)Gimli_XOF_Final :          \
+        q==ReadFunc ? (uintptr_t)Gimli_XOF_Read :               \
         0)
 
-intptr_t iGimli_XOF(int q);
+uintptr_t iGimli_XOF(int q);
 
 #endif /* MySuiteA_gimli_hash_h */
