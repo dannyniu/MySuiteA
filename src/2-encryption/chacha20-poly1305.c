@@ -101,4 +101,4 @@ void *ChaCha_AEAD_Decrypt(
     return out;
 }
 
-uintptr_t iChaCha_AEAD(int q) { return cChaCha_AEAD(q); }
+uintmax_t iChaCha_AEAD(int q) { return cChaCha_AEAD(q); }

@@ -5,7 +5,7 @@
 
 // References: src/notes.txt: "SHA-1, SHA-256, etc.". 
 
-#include <stdint.h>
+#include "../mysuitea-common.h"
 
 // Words in M are in big-endian.
 // To be converted inside compression functions. 

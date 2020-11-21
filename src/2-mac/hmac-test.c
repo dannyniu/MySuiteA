@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     size_t in_len = 0;
     void *x = NULL;
     
-    uintptr_t (*h)() = NULL;
+    uintmax_t (*h)() = NULL;
     FILE *kfp;
 
     mysrand((unsigned long)time(NULL));

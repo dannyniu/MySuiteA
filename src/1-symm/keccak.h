@@ -11,10 +11,10 @@ void KeccakF1600_Permute(void const *in, void *out);
 
 #define cKeccakF(b,q) (                                         \
         q==blockBytes ? b/8 :                                   \
-        q==PermuteFunc ? (uintptr_t)KeccakF##b##_Permute :      \
+        q==PermuteFunc ? (uintmax_t)KeccakF##b##_Permute :      \
         0 )
 #define cKeccakF1600(q) cKeccakF(1600,q)
 
-uintptr_t iKeccakF1600(int q);
+uintmax_t iKeccakF1600(int q);
 
 #endif /* MySuiteA_keccak_h */

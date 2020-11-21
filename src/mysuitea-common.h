@@ -12,7 +12,7 @@
 #define glue(a,b) xglue(a,b)
 
 // Each primitive instance shall define
-// 1. a function compatible with the type (uintptr_t(*)(int)),
+// 1. a function compatible with the type (uintmax_t(*)(int)),
 // 2. a function-like macro that evaluates to some integer types that's
 //    large enough to hold pointers,
 // that when evaluated in run-time or compile time,
@@ -24,6 +24,15 @@
 // The name of the function shall be the name of the primitive
 // prefixed with a single "i"; the name of the macro shall be
 // the name of the primitive prefixed with a single "c".
+
+// 2020-11-21:
+// Per https://stackoverflow.com/q/64894785
+// ``uintptr_t'' is changed to ``uintmax_t'', and the
+// following static assert is added. 
+
+_Static_assert(
+    sizeof(uintmax_t) >= sizeof(void (*)(void)),
+    "Expectation on the compilation environment didn't hold!");
 
 enum {
     // Applicable to

@@ -11,9 +11,9 @@ void Gimli_Permute(void const *in, void *out);
 
 #define cGimli(q) (                                     \
         q==blockBytes ? 48 :                            \
-        q==PermuteFunc ? (uintptr_t)Gimli_Permute :     \
+        q==PermuteFunc ? (uintmax_t)Gimli_Permute :     \
         0 )
 
-uintptr_t iGimli(int q);
+uintmax_t iGimli(int q);
 
 #endif /* MySuiteA_gimli_h */

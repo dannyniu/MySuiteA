@@ -69,7 +69,7 @@ void Gimli_Permute(void const *in, void *out)
     }
 }
 
-uintptr_t iGimli(int q)
+uintmax_t iGimli(int q)
 {
     return cGimli(q);
 }

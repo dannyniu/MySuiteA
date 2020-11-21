@@ -1,3 +1,4 @@
+/* DannyNiu/NJF, 2020-07-10. Public Domain. */
 
 #define Define_HMAC_Hash(algo,name)                             \
     void *HMAC_##algo##_Init(                                   \
@@ -10,4 +11,4 @@
         return x;                                               \
     }                                                           \
                                                                 \
-    uintptr_t iHMAC_##algo(int q){ return cHMAC_##algo(q); }
+    uintmax_t iHMAC_##algo(int q){ return cHMAC_##algo(q); }

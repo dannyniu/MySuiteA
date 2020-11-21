@@ -1,3 +1,4 @@
+/* DannyNiu/NJF, 2020-07-10. Public Domain. */
 
 #define Define_GCM_Blockcipher(algo,name)                       \
     void *GCM_##algo##_Init(                                    \
@@ -16,4 +17,4 @@
         return x;                                               \
     }                                                           \
                                                                 \
-    uintptr_t iGCM_##algo(int q){ return cGCM_##algo(q); }
+    uintmax_t iGCM_##algo(int q){ return cGCM_##algo(q); }

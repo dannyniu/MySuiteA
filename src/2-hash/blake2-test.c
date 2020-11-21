@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     size_t in_len = 0;
     void *x = NULL;
     
-    uintptr_t (*h)() = iBLAKE2b256;
+    uintmax_t (*h)() = iBLAKE2b256;
 
     mysrand((unsigned long)time(NULL));
     

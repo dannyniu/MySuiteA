@@ -29,12 +29,12 @@ void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len);
 #define cGimli_XOF(q) (                                         \
         q==blockBytes ? 16 :                                    \
         q==contextBytes ? sizeof(struct gimli_xof_context) :    \
-        q==InitFunc ? (uintptr_t)Gimli_XOF_Init :               \
-        q==WriteFunc ? (uintptr_t)Gimli_XOF_Write :             \
-        q==XofFinalFunc ? (uintptr_t)Gimli_XOF_Final :          \
-        q==ReadFunc ? (uintptr_t)Gimli_XOF_Read :               \
+        q==InitFunc ? (uintmax_t)Gimli_XOF_Init :               \
+        q==WriteFunc ? (uintmax_t)Gimli_XOF_Write :             \
+        q==XofFinalFunc ? (uintmax_t)Gimli_XOF_Final :          \
+        q==ReadFunc ? (uintmax_t)Gimli_XOF_Read :               \
         0)
 
-uintptr_t iGimli_XOF(int q);
+uintmax_t iGimli_XOF(int q);
 
 #endif /* MySuiteA_gimli_hash_h */

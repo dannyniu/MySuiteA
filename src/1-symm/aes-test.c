@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 {
     static char line[256], word[256];
     static char k[32], w[240], ct[16], pt[16], xt[16];
-    uintptr_t (*bc)(int) = iAES128;
+    uintmax_t (*bc)(int) = iAES128;
     int i, l=-1;
 
     if( argc < 2 ) return 1;
