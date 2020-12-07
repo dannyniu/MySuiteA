@@ -13,14 +13,14 @@ union {
 
 uintmax_t (*drbg)(int);
 
-typedef uint8_t buffer512_t[128];
-buffer512_t seed1, seed2, out, ref;
+typedef uint8_t buffer1024_t[128];
+buffer1024_t seed1, seed2, out, ref;
 
 void seeds_init(
     size_t nonce_offset, size_t nonce_len,
     size_t prsnl_offset, size_t prsnl_len)
 {
-    for(size_t i=0; i<sizeof(buffer512_t); i++)
+    for(size_t i=0; i<sizeof(buffer1024_t); i++)
     {
         seed1[i] = i;
         seed2[i] = i + 0x80;
