@@ -3,8 +3,6 @@
 #ifndef MySuiteA_sha3_h
 #define MySuiteA_sha3_h 1
 
-// References: src/notes.txt: "SHA3/Keccak". 
-
 #include "../mysuitea-common.h"
 #include "../1-symm/keccak.h"
 #include "../1-symm/sponge.h"

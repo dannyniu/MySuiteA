@@ -31,14 +31,14 @@ typedef struct hmac_context {
 #define HMAC_INIT(hash)                         \
     ((hmac_t){                                  \
         .K0 = {0}, .tag = {0},                  \
-            .B = BLOCK_BYTES(hash),             \
-            .L = OUT_BYTES(hash),               \
-            .finalized = 0,                     \
-            .pad1 = 0,                          \
-            .offset = sizeof(hmac_t),           \
-            .hInit = INIT_FUNC(hash),           \
-            .hUpdate = UPDATE_FUNC(hash),       \
-            .hFinal = FINAL_FUNC(hash),         \
+        .B = BLOCK_BYTES(hash),                 \
+        .L = OUT_BYTES(hash),                   \
+        .finalized = 0,                         \
+        .pad1 = 0,                              \
+        .offset = sizeof(hmac_t),               \
+        .hInit = INIT_FUNC(hash),               \
+        .hUpdate = UPDATE_FUNC(hash),           \
+        .hFinal = FINAL_FUNC(hash),             \
     })
 
 void HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen);

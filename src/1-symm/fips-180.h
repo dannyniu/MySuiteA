@@ -3,8 +3,6 @@
 #ifndef MySuiteA_fips_180_h
 #define MySuiteA_fips_180_h 1
 
-// References: src/notes.txt: "SHA-1, SHA-256, etc.". 
-
 #include "../mysuitea-common.h"
 
 // Words in M are in big-endian.

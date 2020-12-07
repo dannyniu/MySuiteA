@@ -28,7 +28,7 @@
 // 2020-11-21:
 // Per https://stackoverflow.com/q/64894785
 // ``uintptr_t'' is changed to ``uintmax_t'', and the
-// following static assert is added. 
+// following static assertion is added. 
 
 _Static_assert(
     sizeof(uintmax_t) >= sizeof(void (*)(void)),
@@ -97,8 +97,17 @@ enum {
     // for queries not applicable to them. 
 };
 
-typedef void (*EncFunc_t)(void const *in, void *out, void *restrict w);
-typedef void (*DecFunc_t)(void const *in, void *out, void *restrict w);
+// Aliases additions for PRNG/DRBG.
+enum {
+    seedBytes     = keyBytes,
+    seedBytesMax  = keyBytesMax,
+    InstInitFunc  = KInitFunc,
+    ReseedFunc    = WriteFunc,
+    GenFunc       = ReadFunc,
+};
+
+typedef void (*EncFunc_t)(void const *in, void *out, void const *restrict w);
+typedef void (*DecFunc_t)(void const *in, void *out, void const *restrict w);
 typedef void (*KschdFunc_t)(void const *restrict key, void *restrict w);
 
 typedef void (*PermuteFunc_t)(void const *in, void *out);
@@ -133,6 +142,11 @@ typedef void *(*ADecFunc_t)(void *restrict x,
                             size_t len, void const *in, void *out,
                             size_t tlen, void const *T);
 
+// Alias additions for PRNG/DRBG.
+typedef KInitFunc_t     InstInitFunc_t;
+typedef WriteFunc_t     ReseedFunc_t;
+typedef ReadFunc_t      GenFunc_t;
+
 // Because `obj' can be an identifier naming a macro
 // as well as a pointer to a function , we have to
 // make sure that `obj' is not parenthesized so that
@@ -146,6 +160,17 @@ typedef void *(*ADecFunc_t)(void *restrict x,
 #define CTX_BYTES(obj)      ((size_t)(obj(contextBytes)))
 #define IV_BYTES(obj)       ((size_t)(obj(ivBytes)))
 #define TAG_BYTES(obj)      ((size_t)(obj(tagBytes)))
+
+// In case C doesn't expand nested macro.
+#define CTX_BYTES_1(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_2(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_3(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_4(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_5(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_6(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_7(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_8(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_9(obj)    ((size_t)(obj(contextBytes)))
 
 #define ENC_FUNC(obj)       ((EncFunc_t)(obj(EncFunc)))
 #define DEC_FUNC(obj)       ((DecFunc_t)(obj(DecFunc)))
@@ -164,6 +189,13 @@ typedef void *(*ADecFunc_t)(void *restrict x,
 
 #define AENC_FUNC(obj)      ((AEncFunc_t)(obj(AEncFunc)))
 #define ADEC_FUNC(obj)      ((ADecFunc_t)(obj(ADecFunc)))
+
+// Aliases additions for PRNG/DRBG.
+#define SEED_BYTES(obj)     ((size_t)(obj(seedBytes)))
+#define SEED_BYTES_MAX(obj) ((size_t)(obj(seedBytesMax)))
+#define INST_INIT_FUNC(obj) ((InstInitFunc_t)(obj(InstInitFunc)))
+#define RESEED_FUNC(obj)    ((ReseedFunc_t)(obj(ReseedFunc)))
+#define GEN_FUNC(obj)       ((GenFunc_t)(obj(GenFunc)))
 
 #define ERASE_STATES(buf, len)                          \
     do {                                                \

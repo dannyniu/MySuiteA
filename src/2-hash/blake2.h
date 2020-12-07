@@ -3,8 +3,6 @@
 #ifndef MySuiteA_blake2_h
 #define MySuiteA_blake2_h 1
 
-// References: src/notes: "BLAKE2". 
-
 #include "../mysuitea-common.h"
 
 typedef struct blake2b_context {

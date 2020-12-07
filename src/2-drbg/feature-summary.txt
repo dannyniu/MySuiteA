@@ -2,13 +2,12 @@ The following is a list of DRBG features mentioned in NIST-SP-800-90A-rev1.
 "T" indicates that the feature is supported and implemented.
 "F" indicates that the feature is unsupported and not implemented.
 "Y" indicates that the feature is subsumed elsewhere. 
-Mandatory features such as "entropy input" are omitted for brevity. 
 
 ## DRBG algorithms ##
 
 F: Hash_DRBG
 T: HMAC_DRBG # along with other possibly KMAC and/or keyed BLAKE2.
-T: CTR_DRBG # instantiated with AES, without 'df'.
+T: CTR_DRBG # instantiated with AES, with & without 'df'.
 
 T: Instantiation
 T: Reseeding
@@ -17,12 +16,14 @@ Y: Uninstantiate # the ERASE_STATES(buf,len) macro.
 
 ## DRBG inputs ##
 
--: nonce
--: personalization string (instantiate)
--: additional input (reseed, generate)
+- entropy input
+- nonce
+- personalization string (instantiate)
+- additional input (reseed, generate)
 +: All those separate inputs are consolidated into
-   a single "fresh_input" argument/parameter.
+   a single "seedstr" argument/parameter.
 
 ## Misc ##
 
-F: {Hash,Block_Cipher}_df # derivation functions.
+F: Hash_df
+T: Block_Cipher_df

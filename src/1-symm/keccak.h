@@ -3,8 +3,6 @@
 #ifndef MySuiteA_keccak_h
 #define MySuiteA_keccak_h 1
 
-// References: src/notes.txt: "SHA3/Keccak". 
-
 #include "../mysuitea-common.h"
 
 void KeccakF1600_Permute(void const *in, void *out);

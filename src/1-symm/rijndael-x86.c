@@ -63,7 +63,10 @@ static void Rijndael_Nb4_InvCipher(
 }
 
 /* Even though "Intel(R) Advanced Encryption Standard (AES) New Instruction Set"
- * by Shay Gueron, Intel Architecture Group, Isreal Development Center, Intel Corporation.
+ * by Shay Gueron, 
+ * - Intel Architecture Group, 
+ * - Isreal Development Center, 
+ * - Intel Corporation.
  * had sample key expansion code, it causes alignment warnings during compilation, 
  * so I dropped it in favor of C-based version. 
  */

@@ -2,40 +2,13 @@
 
 #include "chacha20-poly1305.h"
 #include "gcm-aes.h"
-#include <ctype.h>
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
+#include "../test-utils.c.h"
 
 static char line[128], word[128];
 static uint8_t k[32], iv[12], a[32], p[1024], c[1024], s[16], t[16], x[1024];
 static size_t len, alen;
 
 static gcm_aes256_t gcm;
-
-void *scanhex(uint8_t *restrict out, size_t length, char const *restrict in)
-{
-    int n;
-    while( isxdigit((int)*in) && length-- &&
-           sscanf(in, " %2"SCNx8" %n", out, &n) )
-    {
-        in += n;
-        out++;
-    }
-    return out;
-}
-
-void dumphex(uint8_t *data, size_t length)
-{
-    for(size_t i=0; i<length; i+=16) {
-        for(size_t j=0; j<16; j++)
-            if( i+j < len ) printf("%02x ", data[i+j]);
-
-        printf("\n");
-    }
-    printf("\n");
-}
 
 int main(int argc, char *argv[])
 {

@@ -1,9 +1,46 @@
 /* DannyNiu/NJF, 2020-09-20. Public Domain. */
 
+#include <ctype.h>
+#include <inttypes.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
+
+void *scanhex(uint8_t *restrict out, size_t len, char const *restrict in)
+{
+    int n;
+    while( isxdigit((int)*in) && len-- &&
+           sscanf(in, " %2"SCNx8" %n", out, &n) )
+    {
+        in += n;
+        out++;
+    }
+    return out;
+}
+
+void dumphex(uint8_t const *data, size_t len)
+{
+    for(size_t i=0; i<len; i+=16)
+    {
+        for(size_t j=0; j<16; j++)
+            if( i+j < len ) printf("%02x ", data[i+j]);
+
+        printf("\n");
+    }
+    printf("\n");
+}
+
+void *frealloc(void *old, size_t len)
+{
+    free(old);
+    return malloc(len);
+}
+
+#define a myrand_a
+#define b myrand_b
 
 static unsigned long a, b;
 #define p 521UL
@@ -19,6 +56,10 @@ unsigned long myrand(void) {
     b = y;
     return x;
 }
+
+#undef a
+#undef b
+#undef p
 
 #define u8cc(s) ( (s)[0] ? (uint64_t)(s)[0] << 56 | u7cc((s)+1) : 0)
 #define u7cc(s) ( (s)[0] ? (uint64_t)(s)[0] << 48 | u6cc((s)+1) : 0)

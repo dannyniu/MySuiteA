@@ -1,21 +1,12 @@
 /* DannyNiu/NJF, 2018-01-31. Public Domain. */
 
 #include "rijndael.h"
-#include "../0-datum/endian.h"
-#include <inttypes.h>
-#include <stdio.h>
-#include <string.h>
-
-void scanhex(char *restrict out, size_t len, char const *restrict in)
-{
-    int n;
-    while( sscanf(in, " %2"SCNx8"%n", (out++), &n) && len-- ) in += n;
-}
+#include "../test-utils.c.h"
 
 int main(int argc, char *argv[])
 {
     static char line[256], word[256];
-    static char k[32], w[240], ct[16], pt[16], xt[16];
+    static uint8_t k[32], w[240], ct[16], pt[16], xt[16];
     uintmax_t (*bc)(int) = iAES128;
     int i, l=-1;
 

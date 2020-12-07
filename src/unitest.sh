@@ -46,7 +46,7 @@ cflags0="-Wall -Wextra -g -O0"
 : ${arch:?Variable unspecified: arch}
 : ${cflags:=""}
 
-sysarch=$(uname -m)
+sysarch=$(uname -m | sed s/arm64/aarch64/g)
 sysname=$(uname -s)
 hostname=$(uname -n)
 
@@ -101,7 +101,7 @@ for s in $src ; do
 done
 
 cd "$(dirname $unitest_sh)"/../bin
-rm -f *.o
+rm -f *.o *-test
 set -e
 $cc -c -ffreestanding $cflags0 $cflags1 $cflags $srcfiles
 $ld $objfiles -o $bin

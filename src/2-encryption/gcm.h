@@ -16,8 +16,12 @@ typedef struct gcm_context {
 
 // see [keyed-interfaces] (in "2-mac/hmac.h" as of 2020-07-10).
 
-#define GCM_INIT(bc)                                                    \
-    ((gcm_t){ .H = {0}, .offset = sizeof(gcm_t), .enc = ENC_FUNC(bc), })
+#define GCM_INIT(bc)                            \
+    ((gcm_t){                                   \
+        .H = {0},                               \
+        .offset = sizeof(gcm_t),                \
+        .enc = ENC_FUNC(bc),                    \
+    })
 
 void GCM_Encrypt(gcm_t *restrict gcm,
                  const void *restrict iv, // fixed, 12 bytes. 

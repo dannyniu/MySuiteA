@@ -31,10 +31,10 @@ typedef struct sponge {
 #define SPONGE_INIT(r,lo,hi,p)                  \
     ((sponge_t){                                \
         .rate = r, .lopad = lo, .hipad = hi,    \
-            .finalized = 0, .filled = 0,        \
-            .offset = sizeof(sponge_t),         \
-            .permute = PERMUTE_FUNC(p),         \
-            })
+        .finalized = 0, .filled = 0,            \
+        .offset = sizeof(sponge_t),             \
+        .permute = PERMUTE_FUNC(p),             \
+    })
 
 void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len);
 void Sponge_Final(sponge_t *restrict s);

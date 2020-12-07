@@ -3,8 +3,6 @@
 #ifndef MySuiteA_gimli_h
 #define MySuiteA_gimli_h 1
 
-// References: src/notes.txt: "Gimli".
-
 #include "../mysuitea-common.h"
 
 void Gimli_Permute(void const *in, void *out);

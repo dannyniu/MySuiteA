@@ -48,3 +48,10 @@ $$$ 2020-01-20 $$$
 
 Infomation macros' prefix are changed from ''_i'' to ''c'' to avoid namespace
 pollution with operating system implementations. ''c'' stands for "constants". 
+
+
+
+$$$ 2020-11-28 $$$
+
+Arbitrary engineering decisions are explained in comments in code
+with the tag: [!A-E-D!]
