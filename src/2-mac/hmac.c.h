@@ -11,4 +11,4 @@
         return x;                                               \
     }                                                           \
                                                                 \
-    uintmax_t iHMAC_##algo(int q){ return cHMAC_##algo(q); }
+    uparam_t iHMAC_##algo(int q){ return cHMAC_##algo(q); }

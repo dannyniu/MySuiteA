@@ -70,7 +70,7 @@ void CTR_DRBG_Generate(
         void const *restrict seedstr,                   \
         size_t len);                                    \
                                                         \
-    uintmax_t iCTR_DRBG_##algo(int q);
+    uparam_t iCTR_DRBG_##algo(int q);
 
 /* Notes on derivation function:
  *
@@ -96,10 +96,10 @@ void CTR_DRBG_Reseed_WithDF(
 #define cCTR_DRBG(bc,q) (                                       \
         q==contextBytes ? CTR_DRBG_CTX_LEN(c##bc) :             \
         q==seedBytes ? 0 :                                      \
-        q==seedBytesMax ? ((uintmax_t)-1) :                     \
-        q==InstInitFunc ? (uintmax_t)CTR_DRBG_##bc##_InstInit : \
-        q==ReseedFunc ? (uintmax_t)CTR_DRBG_Reseed_WithDF :     \
-        q==GenFunc ? (uintmax_t)CTR_DRBG_Generate :             \
+        q==seedBytesMax ? ((uparam_t)-1) :                      \
+        q==InstInitFunc ? (uparam_t)CTR_DRBG_##bc##_InstInit :  \
+        q==ReseedFunc ? (uparam_t)CTR_DRBG_Reseed_WithDF :      \
+        q==GenFunc ? (uparam_t)CTR_DRBG_Generate :              \
         0)
 
 #else
@@ -107,9 +107,9 @@ void CTR_DRBG_Reseed_WithDF(
 #define cCTR_DRBG(bc,q) (                                       \
         q==contextBytes ? CTR_DRBG_CTX_LEN(c##bc) :             \
         q==seedBytes ? BLOCK_BYTES(c##bc) + KEY_BYTES(c##bc) :  \
-        q==InstInitFunc ? (uintmax_t)CTR_DRBG_##bc##_InstInit : \
-        q==ReseedFunc ? (uintmax_t)CTR_DRBG_Reseed :            \
-        q==GenFunc ? (uintmax_t)CTR_DRBG_Generate :             \
+        q==InstInitFunc ? (uparam_t)CTR_DRBG_##bc##_InstInit :  \
+        q==ReseedFunc ? (uparam_t)CTR_DRBG_Reseed :             \
+        q==GenFunc ? (uparam_t)CTR_DRBG_Generate :              \
         0)
 
 #endif /* ! CTR_DRBG_OMIT_DF */

@@ -65,6 +65,7 @@ unitest_sh=../unitest.sh
 src="
 hmac-test.c
 hmac-sha.c
+hmac-sha3.c
 hmac.c
 2-hash/sha.c
 2-hash/sha3.c

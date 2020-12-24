@@ -11,7 +11,7 @@ union {
     hmac_drbg_hmac_sha384_t   x_hmac_sha384;
 } ctx;
 
-uintmax_t (*drbg)(int);
+uparam_t (*drbg)(int);
 
 typedef uint8_t buffer2048_t[256];
 buffer2048_t seed1, seed2, out, ref;

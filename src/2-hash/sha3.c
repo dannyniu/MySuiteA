@@ -41,7 +41,7 @@ Define_SHA3_Final(SHA3_256_Final, 32);
 Define_SHA3_Final(SHA3_384_Final, 48);
 Define_SHA3_Final(SHA3_512_Final, 64);
 
-uintmax_t iSHA3_224(int q){ return cSHA3(224,q); }
-uintmax_t iSHA3_256(int q){ return cSHA3(256,q); }
-uintmax_t iSHA3_384(int q){ return cSHA3(384,q); }
-uintmax_t iSHA3_512(int q){ return cSHA3(512,q); }
+uparam_t iSHA3_224(int q){ return cSHA3(224,q); }
+uparam_t iSHA3_256(int q){ return cSHA3(256,q); }
+uparam_t iSHA3_384(int q){ return cSHA3(384,q); }
+uparam_t iSHA3_512(int q){ return cSHA3(512,q); }

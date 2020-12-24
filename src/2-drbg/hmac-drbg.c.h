@@ -11,5 +11,5 @@
         return x;                                       \
     }                                                   \
                                                         \
-    uintmax_t iHMAC_DRBG_##algo(int q)                  \
+    uparam_t iHMAC_DRBG_##algo(int q)                   \
     { return cHMAC_DRBG_##algo(q); }

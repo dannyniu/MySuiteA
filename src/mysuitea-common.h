@@ -25,13 +25,31 @@
 // prefixed with a single "i"; the name of the macro shall be
 // the name of the primitive prefixed with a single "c".
 
-// 2020-11-21:
+// <s>2020-11-21</s>:
 // Per https://stackoverflow.com/q/64894785
 // ``uintptr_t'' is changed to ``uintmax_t'', and the
-// following static assertion is added. 
+// following static assertion is added.
+//
+//
+// 2020-12-24:
+// ``uintmax_t'' is, on my second thought, an overkill.
+//
+// What I really need, is a type to represent the byte addresses and ranges
+// of the working memory space. Under mainstream memory models such as
+// ILP32 and LP64, ``size_t'', ``uintptr_t'' would both work for me; and
+// even with unconventional memory models, where function and objects
+// doesn't share address space, it's exceptionally rare for code to exceed
+// sizes as big as 2^32 bytes. (It's so much so that x86-64 and its ABI
+// don't extend the "immediate" operand for CALL instruction to 64-bits for
+// relatively positioned codes.)
+
+// Users of this library may change this type definition
+// should their memory model require special treatment.
+typedef size_t uparam_t;
 
 _Static_assert(
-    sizeof(uintmax_t) >= sizeof(void (*)(void)),
+    sizeof(uparam_t) >= sizeof(size_t) &&
+    sizeof(uparam_t) >= sizeof(void (*)(void)),
     "Expectation on the compilation environment didn't hold!");
 
 enum {

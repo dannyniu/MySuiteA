@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     size_t in_len = 0;
     void *x = NULL;
 
-    uintmax_t (*h)() = NULL;
+    uparam_t (*h)() = NULL;
     FILE *kfp;
 
     if( argc < 2 ) return 1;

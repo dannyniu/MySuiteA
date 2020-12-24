@@ -20,5 +20,5 @@
         return x;                                               \
     }                                                           \
                                                                 \
-    uintmax_t iCTR_DRBG_##algo(int q)                           \
+    uparam_t iCTR_DRBG_##algo(int q)                            \
     { return cCTR_DRBG_##algo(q); }

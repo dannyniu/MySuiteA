@@ -85,18 +85,18 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out, size_t t);
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? 128 :                                   \
         q==contextBytes ? sizeof(struct blake2b_context) :      \
-        q==InitFunc   ? (uintmax_t)BLAKE2b##bits##_Init :       \
-        q==UpdateFunc ? (uintmax_t)BLAKE2b##bits##_Update :     \
-        q==FinalFunc  ? (uintmax_t)BLAKE2b##bits##_Final :      \
+        q==InitFunc   ? (uparam_t)BLAKE2b##bits##_Init :        \
+        q==UpdateFunc ? (uparam_t)BLAKE2b##bits##_Update :      \
+        q==FinalFunc  ? (uparam_t)BLAKE2b##bits##_Final :       \
         0)
 
 #define cBLAKE2s(bits,q) (                                      \
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? 64 :                                    \
         q==contextBytes ? sizeof(struct blake2s_context) :      \
-        q==InitFunc   ? (uintmax_t)BLAKE2s##bits##_Init :       \
-        q==UpdateFunc ? (uintmax_t)BLAKE2s##bits##_Update :     \
-        q==FinalFunc  ? (uintmax_t)BLAKE2s##bits##_Final :      \
+        q==InitFunc   ? (uparam_t)BLAKE2s##bits##_Init :        \
+        q==UpdateFunc ? (uparam_t)BLAKE2s##bits##_Update :      \
+        q==FinalFunc  ? (uparam_t)BLAKE2s##bits##_Final :       \
         0)
 
 #define cBLAKE2b160(q) cBLAKE2b(160,q)
@@ -113,13 +113,13 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out, size_t t);
 // Haven't found motivation to override the unkeyed ``InitFunc'' yet.
 
 #define ckBLAKE2b(bits,q) (                                     \
-        q==KInitFunc ? (uintmax_t)kBLAKE2b##bits##_Init :       \
+        q==KInitFunc ? (uparam_t)kBLAKE2b##bits##_Init :        \
         q==keyBytes ? 0 :                                       \
         q==keyBytesMax ? 64 :                                   \
         cBLAKE2b(bits,q))
 
 #define ckBLAKE2s(bits,q) (                                     \
-        q==KInitFunc ? (uintmax_t)kBLAKE2s##bits##_Init :       \
+        q==KInitFunc ? (uparam_t)kBLAKE2s##bits##_Init :        \
         q==keyBytes ? 0 :                                       \
         q==keyBytesMax ? 32 :                                   \
         cBLAKE2s(bits,q))
@@ -134,24 +134,24 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out, size_t t);
 #define ckBLAKE2s224(q) ckBLAKE2s(224,q)
 #define ckBLAKE2s256(q) ckBLAKE2s(256,q)
 
-uintmax_t iBLAKE2b160(int q);
-uintmax_t iBLAKE2b256(int q);
-uintmax_t iBLAKE2b384(int q);
-uintmax_t iBLAKE2b512(int q);
+uparam_t iBLAKE2b160(int q);
+uparam_t iBLAKE2b256(int q);
+uparam_t iBLAKE2b384(int q);
+uparam_t iBLAKE2b512(int q);
 
-uintmax_t iBLAKE2s128(int q);
-uintmax_t iBLAKE2s160(int q);
-uintmax_t iBLAKE2s224(int q);
-uintmax_t iBLAKE2s256(int q);
+uparam_t iBLAKE2s128(int q);
+uparam_t iBLAKE2s160(int q);
+uparam_t iBLAKE2s224(int q);
+uparam_t iBLAKE2s256(int q);
 
-uintmax_t ikBLAKE2b160(int q);
-uintmax_t ikBLAKE2b256(int q);
-uintmax_t ikBLAKE2b384(int q);
-uintmax_t ikBLAKE2b512(int q);
+uparam_t ikBLAKE2b160(int q);
+uparam_t ikBLAKE2b256(int q);
+uparam_t ikBLAKE2b384(int q);
+uparam_t ikBLAKE2b512(int q);
 
-uintmax_t ikBLAKE2s128(int q);
-uintmax_t ikBLAKE2s160(int q);
-uintmax_t ikBLAKE2s224(int q);
-uintmax_t ikBLAKE2s256(int q);
+uparam_t ikBLAKE2s128(int q);
+uparam_t ikBLAKE2s160(int q);
+uparam_t ikBLAKE2s224(int q);
+uparam_t ikBLAKE2s256(int q);
 
 #endif /* MySuiteA_blake2_h */

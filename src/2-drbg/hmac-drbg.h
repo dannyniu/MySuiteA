@@ -59,15 +59,15 @@ void HMAC_DRBG_Generate(
         void const *restrict seedstr,                   \
         size_t len);                                    \
                                                         \
-    uintmax_t iHMAC_DRBG_##algo(int q);
+    uparam_t iHMAC_DRBG_##algo(int q);
 
 #define cHMAC_DRBG(prf,q) (                                             \
         q==contextBytes ? HMAC_DRBG_CTX_LEN(c##prf) :                   \
         q==seedBytes ? 0 :                                              \
-        q==seedBytesMax ? ((uintmax_t)-1) :                             \
-        q==InstInitFunc ? (uintmax_t)HMAC_DRBG_##prf##_InstInit :       \
-        q==ReseedFunc ? (uintmax_t)HMAC_DRBG_Reseed :                   \
-        q==GenFunc ? (uintmax_t)HMAC_DRBG_Generate :                    \
+        q==seedBytesMax ? ((uparam_t)-1) :                              \
+        q==InstInitFunc ? (uparam_t)HMAC_DRBG_##prf##_InstInit :        \
+        q==ReseedFunc ? (uparam_t)HMAC_DRBG_Reseed :                    \
+        q==GenFunc ? (uparam_t)HMAC_DRBG_Generate :                     \
         0)
 
 #endif /* MySuiteA_hmac_drbg_h */

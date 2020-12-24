@@ -27,15 +27,15 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len);
 #define cSHAKE(bits,q) (                                        \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct shake_context) :        \
-        q==InitFunc ? (uintmax_t)SHAKE##bits##_Init :           \
-        q==WriteFunc ? (uintmax_t)SHAKE_Write :                 \
-        q==XofFinalFunc ? (uintmax_t)SHAKE_Final :              \
-        q==ReadFunc ? (uintmax_t)SHAKE_Read :                   \
+        q==InitFunc ? (uparam_t)SHAKE##bits##_Init :            \
+        q==WriteFunc ? (uparam_t)SHAKE_Write :                  \
+        q==XofFinalFunc ? (uparam_t)SHAKE_Final :               \
+        q==ReadFunc ? (uparam_t)SHAKE_Read :                    \
         0)
 #define cSHAKE128(q) cSHAKE(128,q)
 #define cSHAKE256(q) cSHAKE(256,q)
 
-uintmax_t iSHAKE128(int q);
-uintmax_t iSHAKE256(int q);
+uparam_t iSHAKE128(int q);
+uparam_t iSHAKE256(int q);
 
 #endif /* MySuiteA_shake_h */

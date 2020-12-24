@@ -302,8 +302,8 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t)
     }
 }
 
-uintmax_t iSHA1(int q){ return cSHA1(q); }
-uintmax_t iSHA224(int q){ return cSHA224(q); }
-uintmax_t iSHA256(int q){ return cSHA256(q); }
-uintmax_t iSHA384(int q){ return cSHA384(q); }
-uintmax_t iSHA512(int q){ return cSHA512(q); }
+uparam_t iSHA1(int q){ return cSHA1(q); }
+uparam_t iSHA224(int q){ return cSHA224(q); }
+uparam_t iSHA256(int q){ return cSHA256(q); }
+uparam_t iSHA384(int q){ return cSHA384(q); }
+uparam_t iSHA512(int q){ return cSHA512(q); }

@@ -1,0 +1,20 @@
+2020-12-09:
+
+I do now plan to implement PKCS#1 RSA and SEC#1 ECC public-key cryptography.
+Code quality is as prioritized as the rest of the suite. New features will be
+implemented in stages, (ones that're complete will have its bullet point
+changed from "-" to "+"):
+
+- Memory-compact scalar multiplication-reduction routine(s).
+
+- Somewhat memory-compact modular exponentiation for RSA.
+
+- Finite field implementation for ECC curves secp256r1 and secp384r1.
+
+- Test suites for all finite field arithmetics.
+
+- Formallization of further plans.
+
+Post 2020-12-09, further plans:
+
+-

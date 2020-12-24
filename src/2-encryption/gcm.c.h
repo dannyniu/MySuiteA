@@ -17,4 +17,4 @@
         return x;                                               \
     }                                                           \
                                                                 \
-    uintmax_t iGCM_##algo(int q){ return cGCM_##algo(q); }
+    uparam_t iGCM_##algo(int q){ return cGCM_##algo(q); }

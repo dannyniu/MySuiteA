@@ -29,4 +29,4 @@ void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len)
     Sponge_Read(&x->sponge, data, len);
 }
 
-uintmax_t iGimli_XOF(int q){ return cGimli_XOF(q); }
+uparam_t iGimli_XOF(int q){ return cGimli_XOF(q); }

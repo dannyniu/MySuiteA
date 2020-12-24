@@ -46,15 +46,15 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
         void const *restrict key,               \
         size_t klen);                           \
                                                 \
-    uintmax_t iGCM_##algo(int q);
+    uparam_t iGCM_##algo(int q);
 
 #define cGCM(bc,q) (                                                    \
         q==keyBytes ? c##bc(q) :                                        \
         q==contextBytes ? sizeof(gcm_t) + c##bc(keyschedBytes) :        \
         q==ivBytes ? 12 : q==tagBytes ? 16 :                            \
-        q==KInitFunc ? (uintmax_t)GCM_##bc##_Init :                     \
-        q==AEncFunc ? (uintmax_t)GCM_Encrypt :                          \
-        q==ADecFunc ? (uintmax_t)GCM_Decrypt :                          \
+        q==KInitFunc ? (uparam_t)GCM_##bc##_Init :                      \
+        q==AEncFunc ? (uparam_t)GCM_Encrypt :                           \
+        q==ADecFunc ? (uparam_t)GCM_Decrypt :                           \
         0)
 
 #endif /* MySuiteA_gcm_h */
