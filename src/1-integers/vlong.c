@@ -229,7 +229,7 @@ vlong_t *vlong_mulv(
     vlong_t *restrict out,
     vlong_t const *a,
     vlong_t const *b,
-    void *(*modfunc)(vlong_t *restrict v, void *restrict ctx),
+    vlong_modfunc_t modfunc,
     void *restrict mod_ctx)
 {
     vlong_size_t i;
