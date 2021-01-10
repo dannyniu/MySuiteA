@@ -36,7 +36,7 @@ cflags0="-Wall -Wextra -g -O0"
 # > use -Weverything then we advise that you address all new compiler
 # > diagnostics as they get added to Clang, either by fixing everything
 # > they find or explicitly disabling that diagnostic with its
-# > corresponding Wno- option.
+# > corresponding -Wno- option.
 #
 
 # -- End; --
@@ -50,7 +50,13 @@ sysarch=$(uname -m | sed s/arm64/aarch64/g)
 sysname=$(uname -s)
 hostname=$(uname -n)
 
-if [ $sysarch != $arch ] && [ $hostname != uniarch ] ; then
+if
+    [ $sysarch != $arch ] && ! (
+        . /etc/os-release &&
+            echo $ID $ID_LIKE | fgrep ubuntu &&
+            dpkg -l clang gcc-${arch}-linux-gnu qemu-user
+    ) >/dev/null 2>&1
+then
     echo Skipping 1 non-native architecture test.
     exit
 fi

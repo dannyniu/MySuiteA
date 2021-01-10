@@ -19,7 +19,7 @@ testfunc() {
         for b in 1 224 256 384 512 ; do
             ref=$(../src/2-hash/shasum.py sha$b < $testvec)
             res=$($exec sha$b < $testvec)
-            if ! [ $ref = $res ] ; then
+            if ! [ "$ref" = "$res" ] ; then
                 echo sha${b} failed with "$ref" != $res
                 n=$((n+1))
                 datetime=$(date +%Y-%m-%d-%H%M%S)
@@ -70,17 +70,17 @@ bin=$(basename "$0" .sh)
 echo ======== Test Name: $bin ========
 echo C language code. [x86_64]
 arch=x86_64 cflags=""
-( . $unitest_sh )
+#( . $unitest_sh )
 
 echo ======== Test Name: $bin ========
 echo C language code. [aarch64]
 arch=aarch64 cflags=""
-( . $unitest_sh )
+#( . $unitest_sh )
 
 echo ======== Test Name: $bin ========
 echo C language code. [powerpc64]
 arch=powerpc64 cflags=""
-( . $unitest_sh )
+#( . $unitest_sh )
 
 echo ======== Test Name: $bin ========
 echo C language code. [sparc64]

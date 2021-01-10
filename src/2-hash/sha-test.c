@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
         default: return 1; break;
         }
     }
-
+    
     x = malloc(CTX_BYTES(h));
     INIT_FUNC(h)(x);
     
