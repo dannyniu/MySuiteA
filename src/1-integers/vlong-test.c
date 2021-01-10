@@ -52,6 +52,9 @@ int main()
             v.v[i] = b >> (i * 32);
         }
 
+        // "ts" stands for test suite.
+        // ts1: // normal tests of add, sub, mul.
+        
         vlong_addv((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v);
         vlong_subv((vlong_t *)&x, (vlong_t *)&u, (vlong_t *)&v);
         
@@ -61,13 +64,41 @@ int main()
         if( (d = vlong2huge((vlong_t *)&x)) != a - b )
             wrong("sub", a-b, d), failed++;
 
-        vlong_mulv((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v);
+        vlong_mulv((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v, NULL, NULL);
         
         if( (c = vlong2huge((vlong_t *)&w)) != a * b )
             wrong("mul", a*b, c), failed++;
+
+        
+        // ts2: // modular test of mul.
+
+        for(int i=0; i<2; i++)
+        {
+            if( !(b >> 64) ) goto ts3;
+            u.v[i] = a >> (i * 32);
+            v.v[i] = b >> (i * 32);
+            w.v[i] = b >> (i * 32 + 64);
+            u.v[i+2] = v.v[i+2] = w.v[i+2] = 0;
+        }
+
+        vlong_mulv((vlong_t *)&x, (vlong_t *)&u, (vlong_t *)&v,
+                   vlong_remv_inplace, &w);
+
+        if( (d = vlong2huge((vlong_t *)&x)) !=
+            (a&UINT64_MAX) * (b&UINT64_MAX) % (b >> 64) )
+            wrong("modmul", (a&UINT64_MAX) * (b&UINT64_MAX) % (b >> 64), d),
+                failed++;
+        
+    ts3: // tests of div and rem.
+
+        for(int i=0; i<4; i++)
+        {
+            u.v[i] = a >> (i * 32);
+            v.v[i] = b >> (i * 32);
+        }
         
         b >>= b % 60;
-        if( !b ) continue;
+        if( !b ) goto ts4;
         for(int i=0; i<4; i++)
             v.v[i] = b >> (i * 32);
 
@@ -84,6 +115,8 @@ int main()
         
         if( (c = vlong2huge((vlong_t *)&x)) != a % b )
             wrong("irem", a % b, c), failed++;
+
+    ts4: continue;
     }
     
     printf("%ld failed test(s). \n", failed);

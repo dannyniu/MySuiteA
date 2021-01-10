@@ -55,9 +55,15 @@ vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b);
 
 // MARK: == Multiplicative Expressions ==
 
+typedef void *(*vlong_modfunc_t)(
+    vlong_t *restrict v,
+    void *restrict ctx);
+
 vlong_t *vlong_mulv(
     vlong_t *restrict out,
     vlong_t const *a,
-    vlong_t const *b); // 2020-12-27: prototype not decided yet.
+    vlong_t const *b,
+    vlong_modfunc_t modfunc,
+    void *restrict mod_ctx);
 
 #endif /* MySuiteA_vlong_h */

@@ -228,7 +228,9 @@ vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b)
 vlong_t *vlong_mulv(
     vlong_t *restrict out,
     vlong_t const *a,
-    vlong_t const *b) // 2020-12-27: prototype not decided yet.
+    vlong_t const *b,
+    void *(*modfunc)(vlong_t *restrict v, void *restrict ctx),
+    void *restrict mod_ctx)
 {
     vlong_size_t i;
 
@@ -237,10 +239,12 @@ vlong_t *vlong_mulv(
     for(i=b->c; i--; )
     {
         vlong_muls(out, a, b->v[i], true);
+        if( modfunc && !modfunc(out, mod_ctx) ) return NULL;
         
         if( i )
         {
             vlong_mulx(out, out);
+            if( modfunc && !modfunc(out, mod_ctx) ) return NULL;
         }
     }
 
