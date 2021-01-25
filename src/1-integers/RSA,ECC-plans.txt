@@ -7,7 +7,7 @@ changed from "-" to "+"):
 
 + Memory-compact scalar multiplication-reduction routine(s).
 
-- Somewhat memory-compact modular exponentiation for RSA.
++ Somewhat memory-compact modular exponentiation for RSA.
 
 - Finite field implementation for ECC curves secp256r1 and secp384r1.
 
@@ -16,5 +16,11 @@ changed from "-" to "+"):
 - Formallization of further plans.
 
 Post 2020-12-09, further plans:
+
+2021-01-24:
+
+RSA will come before ECC. The initial effort will focus on designing
+working contexts for RSA decryption and encryption - they'll be slightly
+different to allow encryption contexts to consume less resource; ...
 
 -

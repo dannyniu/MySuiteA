@@ -225,20 +225,26 @@ vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b)
 
 // MARK: == Multiplicative Expressions ==
 
-vlong_t *vlong_mulv(
+vlong_t *vlong_mulv_masked(
     vlong_t *restrict out,
     vlong_t const *a,
     vlong_t const *b,
+    uint32_t mask,
     vlong_modfunc_t modfunc,
     void *restrict mod_ctx)
 {
     vlong_size_t i;
 
+    uint32_t bmask = 0 - mask, umask = ~bmask;
+
     for(i=0; i<out->c; i++) out->v[i] = 0;
 
     for(i=b->c; i--; )
     {
-        vlong_muls(out, a, b->v[i], true);
+        uint32_t bv = i ? 0 : 1;
+        bv = (bv & umask) | (b->v[i] & bmask);
+        
+        vlong_muls(out, a, bv, true);
         if( modfunc && !modfunc(out, mod_ctx) ) return NULL;
         
         if( i )
@@ -248,5 +254,56 @@ vlong_t *vlong_mulv(
         }
     }
 
+    return out;
+}
+
+// MAKR: == Modular Exponentiation ==
+
+vlong_t *vlong_modexpv(
+    vlong_t *restrict out,
+    vlong_t const* base,
+    vlong_t const* e,
+    vlong_t *restrict tmp1, // temporary variables are
+    vlong_t *restrict tmp2, // allocated by the caller
+    vlong_modfunc_t modfunc,
+    void *restrict mod_ctx)
+{
+    vlong_size_t f, i, j, n;
+    
+    if( out->c != tmp1->c || tmp1->c != tmp2->c )
+        return NULL;
+
+    f = e->c * 32;
+    n = out->c;
+
+    for(i=0; i<n; i++)
+    {
+        out->v[i] = i ? 0 : 1;
+        tmp1->v[i] = i < base->c ? base->v[i] : 0;
+    }
+    
+    for(i=0;;)
+    {
+        uint32_t mask = (e->v[i / 32] >> (i % 32)) & 1;
+
+        vlong_mulv_masked(
+            tmp2,
+            out, tmp1,
+            mask, modfunc, mod_ctx);
+
+        for(j=0; j<n; j++) out->v[j] = tmp2->v[j];
+
+        if( ++i >= f ) break;
+        
+        vlong_mulv_masked(
+            tmp2,
+            tmp1, tmp1,
+            1, modfunc, mod_ctx);
+
+        for(j=0; j<n; j++) tmp1->v[j] = tmp2->v[j];
+
+        continue;
+    }
+    
     return out;
 }

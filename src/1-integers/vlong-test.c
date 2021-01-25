@@ -64,25 +64,33 @@ int main()
         if( (d = vlong2huge((vlong_t *)&x)) != a - b )
             wrong("sub", a-b, d), failed++;
 
-        vlong_mulv((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v, NULL, NULL);
+        vlong_mulv_masked((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v,
+                          1, NULL, NULL);
         
         if( (c = vlong2huge((vlong_t *)&w)) != a * b )
             wrong("mul", a*b, c), failed++;
 
+        vlong_mulv_masked((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v,
+                          0, NULL, NULL);
+        
+        if( (c = vlong2huge((vlong_t *)&w)) != a )
+            wrong("maskmul", a, c), failed++;
+
         
         // ts2: // modular test of mul.
 
+        if( !(b >> 64) ) goto ts3;
+        
         for(int i=0; i<2; i++)
         {
-            if( !(b >> 64) ) goto ts3;
             u.v[i] = a >> (i * 32);
             v.v[i] = b >> (i * 32);
             w.v[i] = b >> (i * 32 + 64);
             u.v[i+2] = v.v[i+2] = w.v[i+2] = 0;
         }
 
-        vlong_mulv((vlong_t *)&x, (vlong_t *)&u, (vlong_t *)&v,
-                   vlong_remv_inplace, &w);
+        vlong_mulv_masked((vlong_t *)&x, (vlong_t *)&u, (vlong_t *)&v,
+                          1, (vlong_modfunc_t)vlong_remv_inplace, &w);
 
         if( (d = vlong2huge((vlong_t *)&x)) !=
             (a&UINT64_MAX) * (b&UINT64_MAX) % (b >> 64) )
