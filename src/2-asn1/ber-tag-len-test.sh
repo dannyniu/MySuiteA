@@ -13,7 +13,7 @@ cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
 ber-tag-len-test.c
-der-parse.c
+der-codec.c
 "
 bin=$(basename "$0" .sh)
 

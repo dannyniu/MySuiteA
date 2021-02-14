@@ -1,8 +1,8 @@
 /* DannyNiu/NJF, 2021-02-12. Public Domain. */
 
-#include "der-parse.h"
+#include "der-codec.h"
 
-uint32_t ber_tag(const uint8_t **buf, size_t *len)
+uint32_t ber_get_tag(const uint8_t **buf, size_t *len)
 {
     const uint8_t *p = *buf;
     size_t remain = *len;
@@ -46,7 +46,7 @@ done:
     return tag;
 }
 
-uint32_t ber_len(const uint8_t **buf, size_t *len)
+uint32_t ber_get_len(const uint8_t **buf, size_t *len)
 {
     const uint8_t *p = *buf;
     size_t remain = *len;
@@ -83,10 +83,12 @@ done:
     return ret;
 }
 
-int ber_hdr(const uint8_t **ptr, size_t *remain, uint32_t *tag, uint32_t *len)
+int ber_get_hdr(
+    const uint8_t **ptr, size_t *remain,
+    uint32_t *tag, uint32_t *len)
 {
-    if( !~(*tag = ber_tag(ptr, remain)) ) return -1;
-    if( !~(*len = ber_len(ptr, remain)) ) return -1;
+    if( !~(*tag = ber_get_tag(ptr, remain)) ) return -1;
+    if( !~(*len = ber_get_len(ptr, remain)) ) return -1;
     if( *len > *remain ) return -1;
     return 0;
 }
@@ -97,7 +99,9 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     // Because this function has no failure return values (yet),
     // caller may skip checking error for this function.
     
-    int32_t ret = (srclen + 7) & ~(uint32_t)3;
+    int32_t ret =
+        (srclen + sizeof(uint32_t) * 2 - 1) &
+        (uint32_t)(-sizeof(uint32_t));
     vlong_t *w = dst;
     uint32_t i;
     aux = NULL; // silence the unused parameter warning.

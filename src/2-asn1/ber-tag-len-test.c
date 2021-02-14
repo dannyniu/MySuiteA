@@ -1,6 +1,6 @@
 /* DannyNiu/NJF, 2021-02-12. Public Domain. */
 
-#include "der-parse.h"
+#include "der-codec.h"
 #include <stdio.h>
 
 void test_tag(void)
@@ -9,7 +9,7 @@ void test_tag(void)
     size_t length = 4;
     const uint8_t *ptr = blob;
     size_t len = length;
-    uint32_t t = ber_tag(&ptr, &len);
+    uint32_t t = ber_get_tag(&ptr, &len);
     printf("t:expected: e003c011 4 0\n");
     printf("t:actual:   %08x %ld %zd\n", t, ptr - blob, len);
 }
@@ -20,7 +20,7 @@ void test_len(void)
     size_t length = 4;
     const uint8_t *ptr = blob;
     size_t len = length;
-    uint32_t t = ber_len(&ptr, &len);
+    uint32_t t = ber_get_len(&ptr, &len);
     printf("l:actual:   %08x %ld %zd\n", t, ptr - blob, len);
 }
 

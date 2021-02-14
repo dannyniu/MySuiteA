@@ -4,14 +4,13 @@
 #define MySuiteA_rsa_h 1
 
 #include "../mysuitea-common.h"
-#include "../2-asn1/der-parse.h"
 
 // The structure is intentionally designed not in specification order,
 // this "array order" is intended to enable writing decryption/signing
 // operation in a single loop.
 
 typedef struct {
-    /* --Add working variables here-- */
+    /* --TODO: add working variables here-- */
     uint32_t count_primes_other;
     uint32_t offset_n, offset_e, offset_d;
     uint32_t offset_q, offset_dQ;
@@ -29,10 +28,5 @@ typedef struct {
     }
 
 typedef RSA_PRIVATE_CONTEXT_T() RSA_Private_Context_t;
-
-//
-// ``*aux'' is a ``uint32_t'' holding the number of
-// additional primes.
-int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS);
 
 #endif /* MySuiteA_rsa_h */

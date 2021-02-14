@@ -1,8 +1,8 @@
 /* DannyNiu/NJF, 2021-02-13. Public Domain. */
 
-#include "rsa.h"
+#include "rsa-codec-der.h"
 
-#define BER_HDR ber_hdr(&ptr, &remain, &tag, &len)
+#define BER_HDR ber_get_hdr(&ptr, &remain, &tag, &len)
 
 #define IF_MEMBER(ctx, member)                                  \
     ((void *)(ctx ? (uint8_t *)ctx + ctx->member : NULL))

@@ -13,8 +13,8 @@ cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
 rsa-der-parse-test.c
-rsa.c
-2-asn1/der-parse.c
+rsa-privkey-parser-der.c
+2-asn1/der-codec.c
 "
 bin=$(basename "$0" .sh)
 

@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2021-02-12. Public Domain. */
 
-#ifndef MySuiteA_der_parse_h
-#define MySuiteA_der_parse_h 1
+#ifndef MySuiteA_der_codec_h
+#define MySuiteA_der_codec_h 1
 
 #include "../mysuitea-common.h"
 #include "../1-integers/vlong.h"
@@ -17,23 +17,31 @@
 #define BER_TLV_TAG_PRI(x) (x | UINT32_C(0xB0000000)) // private tag.
 #define BER_TLV_LENGTH(x)  (x & UINT32_C(0x7FFFFFFF))
 
-uint32_t ber_tag(const uint8_t **buf, size_t *len);
-uint32_t ber_len(const uint8_t **buf, size_t *len);
-int ber_hdr(const uint8_t **ptr, size_t *remain, uint32_t *tag, uint32_t *len);
+// 2021-02-14:
+// For terminology consistency, we say:
+// 1. decoding/encoding a BER/DER-encoded object,
+// 2. a function is the parser/writer of some key format.
+
+uint32_t ber_get_tag(const uint8_t **buf, size_t *len);
+uint32_t ber_get_len(const uint8_t **buf, size_t *len);
+int ber_get_hdr(
+    const uint8_t **ptr, size_t *remain,
+    uint32_t *tag, uint32_t *len);
 
 //
-// A ``ber_tlv_decoding_func'' has 2 passes,
+// A ``ber_tlv_{de,en}coding_func'' has 2 passes,
 //
-// - In pass 1, it returns the estimated size of memory
-//   required for holding a working context decoded from
-//   the content octets pointed to by ``src''.
+// - In pass 1, it returns the estimated size of memory required for holding:
+//   * a working context decoded from a DER-encoded object,
+//   * DER-encoding of the working variables.
 //
 //   On error, it returns -1, possibly propagated from
 //   nested calls.
 //
-// - In pass 2, the function decodes the content octets
-//   into a buffer for the working context allocated
-//   using the estimate from pass 1.
+// - In pass 2, the function:
+//   * decodes the DER-encoded object into the working context buffer,
+//   * encodes the DER representation of the working variables into a buffer.
+//   The buffer is allocated using the estimate from pass 1.
 //
 //   the function returns the same value as in pass 1.
 //
@@ -43,11 +51,17 @@ int ber_hdr(const uint8_t **ptr, size_t *remain, uint32_t *tag, uint32_t *len);
 // passed from one pass to the next. The format of this
 // parameter is specific to individual decoders, and should
 // be documented by them.
+
 #define BER_TLV_DECODING_FUNC_PARAMS                    \
     int pass, const uint8_t *src, uint32_t srclen,      \
     void *dst, void *aux
 
+#define BER_TLV_ENCODING_FUNC_PARAMS                    \
+    int pass, uint8_t *src, uint32_t srclen,            \
+    const void *dst, void *aux
+
 typedef int32_t (*ber_tlv_decoding_func)(BER_TLV_DECODING_FUNC_PARAMS);
+typedef int32_t (*ber_tlv_encoding_func)(BER_TLV_ENCODING_FUNC_PARAMS);
 
 // [ber-int-err-chk:2021-02-13].
 int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS);
