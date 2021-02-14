@@ -137,8 +137,9 @@ static int shifted_ge(const struct intview a, const struct intview b, unsigned t
     // evaluates the expression: a >= (b << t)
     
     unsigned m = a.len, n = b.len + (t+31)/32;
+    unsigned i;
 
-    for(unsigned i = m>n?m:n; i--; )
+    for(i = m>n?m:n; i--; )
     {
         uint32_t
             u = getword32(a, i),

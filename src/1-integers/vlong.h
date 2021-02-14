@@ -56,7 +56,12 @@ vlong_t *vlong_divv( // returns ``rem''.
     vlong_t const *a,
     vlong_t const *b);
 
+// calculate rem (mod p) treating both as unsigned integers.
 vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b);
+
+// calculate rem (mod p) treating rem as 2's complement signed integer
+// with the (soft) restriction that rem must be longer than b.
+vlong_t *vlong_imod_inplace(vlong_t *rem, vlong_t const *b);
 
 // MARK: == Multiplicative Expressions ==
 

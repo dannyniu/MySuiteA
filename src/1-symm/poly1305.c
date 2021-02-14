@@ -7,7 +7,8 @@
 static void p1305bn_add(p1305bn_t a, p1305bn_t const b)
 {
     register uint32_t u = 0, v;
-    for(int i=0; i<5; i++)
+    register int i;
+    for(i=0; i<5; i++)
     {
         v = b[i];
         if( (a[i] += u) < u ) u = 1; else u = 0;
@@ -103,7 +104,9 @@ void poly1305_1block(poly1305_t *restrict poly1305, void const *restrict data)
 
 void poly1305_final(poly1305_t *restrict poly1305)
 {
+    register int i;
+    
     p1305bn_add(poly1305->a, poly1305->s);
 
-    for(int i=0; i<5; i++) poly1305->r[i] = poly1305->s[i] = 0;
+    for(i=0; i<5; i++) poly1305->r[i] = poly1305->s[i] = 0;
 }

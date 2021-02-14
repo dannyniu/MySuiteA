@@ -34,8 +34,9 @@ static inline uint8_t xtime(uint16_t x)
 static inline uint8_t gmul(uint8_t a, uint8_t b)
 {
     register uint8_t x = 0;
+    register int i;
 
-    for(int i=0; i<8; a=xtime(a),i++)
+    for(i=0; i<8; a=xtime(a),i++)
         x ^= ~((1 & (b >> i)) - 1) & a;
 
     return x;
@@ -46,7 +47,8 @@ static inline uint8_t gmul(uint8_t a, uint8_t b)
 
 static void SubBytes(uint8_t state[16])
 {
-    for(int i=0; i<16; i++) state[i] = sbox(state[i], sbox_table);
+    int i;
+    for(i=0; i<16; i++) state[i] = sbox(state[i], sbox_table);
 }
 
 static void ShiftRows(uint8_t state[16])
@@ -77,19 +79,21 @@ static void MixColumns(uint8_t state[16])
 {
     const static uint8_t a[4] = {0x03, 0x01, 0x01, 0x02};
     auto uint8_t s2[16] = {0};
+    register int c, r, i;
 
-    for(int c=0; c<4; c++)
-	for(int r=0; r<4; r++)
-            for(int i=0; i<4; i++)
+    for(c=0; c<4; c++)
+	for(r=0; r<4; r++)
+            for(i=0; i<4; i++)
 		s2[r+c*4] ^= gmul(a[(i+7-r)%4], s(i,c));
 
-    for(int i=0; i<16; i++)
+    for(i=0; i<16; i++)
         state[i] = s2[i];
 }
 
 static void AddRoundKey(uint8_t state[16], uint8_t const w[16])
 {
-    for(int i=0; i<16; i++)
+    int i;
+    for(i=0; i<16; i++)
         state[i] ^= w[i];
 }
 
@@ -119,20 +123,22 @@ static void InvShiftRows(uint8_t state[16])
 
 static void InvSubBytes(uint8_t state[16])
 {
-    for(int i=0; i<16; i++) state[i] = invsbox(state[i], sbox_table);
+    int i;
+    for(i=0; i<16; i++) state[i] = invsbox(state[i], sbox_table);
 }
 
 static void InvMixColumns(uint8_t state[16])
 {
     const static uint8_t a[4] = {0x0b, 0x0d, 0x09, 0x0e};
     auto uint8_t s2[16] = {0};
+    register int c, r, i;
 
-    for(int c=0; c<4; c++)
-	for(int r=0; r<4; r++)
-            for(int i=0; i<4; i++)
+    for(c=0; c<4; c++)
+	for(r=0; r<4; r++)
+            for(i=0; i<4; i++)
 		s2[r+c*4] ^= gmul(a[(i+7-r)%4], s(i,c));
 
-    for(int i=0; i<16; i++)
+    for(i=0; i<16; i++)
         state[i] = s2[i];
 }
 

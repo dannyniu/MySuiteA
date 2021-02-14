@@ -172,7 +172,6 @@ static vlong_t *vlong_sub_shifted_masked(
     uint32_t mask) // ``mask'' shall be either 1 or 0.
 {
     VLONG_ADD_KERNEL(x -= (vlong_word_shifted(b, i, s) & (0 - mask)));
-    
 }
 
 vlong_t *vlong_divv(
@@ -220,6 +219,45 @@ vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b)
         vlong_sub_shifted_masked(rem, rem, b, i, cmp);
     }
 
+    return rem;
+}
+
+vlong_t *vlong_imod_inplace(vlong_t *rem, vlong_t const *b)
+{
+    vlong_size_t i;
+    uint32_t neg = -((rem->v[rem->c - 1] >> 31) & 1);
+    uint32_t z = 0;
+    uint64_t x = 0;
+
+    // imod(x,p) := x >= 0 ? x % p : (p - (-x % p));
+    
+    for(i=0; i<rem->c; i++) rem->v[i] ^= neg;
+    vlong_adds(rem, rem, neg&1, 0);
+
+    vlong_remv_inplace(rem, b);
+
+    for(i=0; i<rem->c; i++) z |= rem->v[i];
+    z |= z >> 16;
+    z |= z >> 8;
+    z |= z >> 4;
+    z |= z >> 2;
+    z |= z >> 1;
+    z = -(z & 1);
+
+    neg &= z;
+    for(i=0; i<rem->c; i++)
+    {
+        uint32_t u, v;
+        u = i < rem->c ? rem->v[i] : 0;
+        v = i <   b->c ?   b->v[i] : 0;
+        
+        x += (~neg & u) | (neg & v);
+        x -= (neg & u);
+        rem->v[i] = (uint32_t)x;
+        
+        x >>= 32;
+        x = (uint64_t)(int64_t)(int32_t)x;
+    }
     return rem;
 }
 

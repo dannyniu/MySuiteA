@@ -102,6 +102,7 @@ void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len
 
 static void sha256_final(sha256_t *restrict sha)
 {
+    int i;
     if( sha->finalized ) return;
     
     if( sha->filled / sizeof(uint32_t) >= 14 )
@@ -127,7 +128,7 @@ static void sha256_final(sha256_t *restrict sha)
     sha->Msg32[14] = htobe32((uint32_t)(sha->len >> 32));
     sha->Msg32[15] = htobe32((uint32_t)(sha->len));
     compressfunc_sha256(sha->H, sha->Msg32);
-    for(int i=0; i<8; i++)
+    for(i=0; i<8; i++)
         sha->Msg32[i] = htobe32(sha->H[i]);
     sha->finalized = 1;
 }
@@ -213,6 +214,7 @@ void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len
 
 static void sha512_final(sha512_t *restrict sha)
 {
+    int i;
     if( sha->finalized ) return;
     
     if( sha->filled / sizeof(uint64_t) >= 14 )
@@ -239,7 +241,7 @@ static void sha512_final(sha512_t *restrict sha)
     sha->Msg64[14] = htobe64(0);
     sha->Msg64[15] = htobe64(sha->len);
     compressfunc_sha512(sha->H, sha->Msg64);
-    for(int i=0; i<8; i++)
+    for(i=0; i<8; i++)
         sha->Msg64[i] = htobe64(sha->H[i]);
     sha->finalized = 1;
 }

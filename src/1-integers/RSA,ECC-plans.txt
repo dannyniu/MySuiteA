@@ -23,4 +23,10 @@ RSA will come before ECC. The initial effort will focus on designing
 working contexts for RSA decryption and encryption - they'll be slightly
 different to allow encryption contexts to consume less resource; ...
 
--
+2021-02-13:
+
+Current RSA progress:
+
++ DER parser.
+
+- Mathematical working context (partial, missing allocation for working vars).

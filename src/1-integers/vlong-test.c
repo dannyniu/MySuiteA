@@ -124,6 +124,13 @@ int main()
         if( (c = vlong2huge((vlong_t *)&x)) != a % b )
             wrong("irem", a % b, c), failed++;
 
+        for(int i=0; i<4; i++) x.v[i] = u.v[i];
+        vlong_imod_inplace((vlong_t *)&x, (vlong_t *)&v);
+
+        d = a >> 127 ? (b - (-a % b)) : a % b;
+        if( (c = vlong2huge((vlong_t *)&x)) != d )
+            wrong("imod", d, c), failed++;
+
     ts4: continue;
     }
     

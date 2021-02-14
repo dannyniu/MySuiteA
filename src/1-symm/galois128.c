@@ -39,14 +39,15 @@ static galois128_t galois128_x(galois128_t Y)
 static galois128_t galois128_mul(galois128_t X, galois128_t Y)
 {
     galois128_t Z = {0};
+    int i, j;
 
-    for(int i=0; i<128; i++)
+    for(i=0; i<128; i++)
     {
         register uint64_t mask;
         mask = X.w[i/64] >> (63 - (i & 63));
         mask &= 1;
         mask = ~(mask - 1);
-        for(int j=0; j<2; j++)
+        for(j=0; j<2; j++)
             Z.w[j] ^= Y.w[j] & mask;
 
         Y = galois128_x(Y);

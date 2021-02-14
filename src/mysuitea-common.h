@@ -219,8 +219,8 @@ typedef ReadFunc_t      GenFunc_t;
 #define ERASE_STATES(buf, len)                          \
     do {                                                \
         char volatile *ba = (void volatile *)(buf);     \
-        size_t l = (size_t)(len);                       \
-        for(size_t i=0; i<l; i++) ba[i] = 0;            \
-    } while(0)
+        size_t l = (size_t)(len), i;                    \
+        for(i=0; i<l; i++) ba[i] = 0;                   \
+    } while(false)
     
 #endif /* MySuiteA_mysuitea_common_h */

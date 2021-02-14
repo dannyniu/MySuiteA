@@ -47,8 +47,9 @@ static inline int mod5(int x) // x shall always be data-independent.
 static inline void theta(keccak_state_t A_out, keccak_state_t A)
 {
     keccak_word_t C[5];
+    register int x, y;
 
-    for(int x=0; x<5; x++)
+    for(x=0; x<5; x++)
         C[x] =
             A[0][x] ^
             A[1][x] ^
@@ -56,23 +57,25 @@ static inline void theta(keccak_state_t A_out, keccak_state_t A)
             A[3][x] ^
             A[4][x] ;
 
-    for(int x=0; x<5; x++)
+    for(x=0; x<5; x++)
     {
         keccak_word_t D = C[ mod5(x-1) ] ^ rot( C[ mod5(x+1) ] , 1 );
-        for(int y=0; y<5; y++) A_out[y][x] = A[y][x] ^ D;
+        for(y=0; y<5; y++) A_out[y][x] = A[y][x] ^ D;
     }
 }
 
 static inline void rho(keccak_state_t A_out, keccak_state_t A)
 {
+    int x=1, y=0;
+    int t;
+
     A_out[0][0] = A[0][0];
 
-    int x=1, y=0;
-    for(int t=0; t<24; t++)
+    for(t=0; t<24; t++)
     {
+        int x2 = y, y2 = mod5( 2*x+3*y );
         A_out[y][x] = rot( A[y][x] , ((t+1)*(t+2))>>1 );
 
-        int x2 = y, y2 = mod5( 2*x+3*y );
         x = x2;
         y = y2;
     }
@@ -80,26 +83,31 @@ static inline void rho(keccak_state_t A_out, keccak_state_t A)
 
 static inline void pi(keccak_state_t A_out, keccak_state_t A)
 {
-    for(int y=0; y<5; y++)
-        for(int x=0; x<5; x++)
+    int x, y;
+    for(y=0; y<5; y++)
+        for(x=0; x<5; x++)
             A_out[y][x] = A[x][ mod5(x+3*y) ];
 }
 
 static inline void chi(keccak_state_t A_out, keccak_state_t A)
 {
-    for(int y=0; y<5; y++)
-        for(int x=0; x<5; x++)
+    int x, y;
+    for(y=0; y<5; y++)
+        for(x=0; x<5; x++)
             A_out[y][x] = A[y][x] ^ ( ~A[y][ mod5(x+1) ] & A[y][ mod5(x+2) ] );
 }
 
 static inline int iota(keccak_state_t A_out, keccak_state_t A, int lfsr)
 {
-    for(int y=0; y<5; y++)
-        for(int x=0; x<5; x++)
+    int x, y;
+    int j;
+    keccak_word_t RC = 0;
+    
+    for(y=0; y<5; y++)
+        for(x=0; x<5; x++)
             A_out[y][x] = A[y][x];
 
-    keccak_word_t RC = 0;
-    for(int j=0; j<=6; j++)
+    for(j=0; j<=6; j++)
     {
         if( j <= l )
             RC ^= ((keccak_word_t)lfsr&1) << ((1<<j)-1);
@@ -121,14 +129,17 @@ void glue(Keccak_InstName,_Permute)(void const *in, void *out)
     keccak_word_t *ptr;
     int lfsr = 1;
 
+    int x, y;
+    int ir;
+
     cptr = in;
-    for(int y=0; y<5; y++)
-        for(int x=0; x<5; x++)
+    for(y=0; y<5; y++)
+        for(x=0; x<5; x++)
             A[y][x] = letoh(cptr[y*5+x]);
 
     // This version of MySuiteA implements Keccak-f,
     // and the generalized Keccak-p is omitted.
-    for(int ir = 0; ir < 12+2*l; ir++) {
+    for(ir = 0; ir < 12+2*l; ir++) {
         theta(A, A);
         rho(out, A);
         pi(A, out);
@@ -137,8 +148,8 @@ void glue(Keccak_InstName,_Permute)(void const *in, void *out)
     }
 
     ptr = out;
-    for(int y=0; y<5; y++)
-        for(int x=0; x<5; x++)
+    for(y=0; y<5; y++)
+        for(x=0; x<5; x++)
             ptr[y*5+x] = htole(A[y][x]);
 }
 
