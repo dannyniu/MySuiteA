@@ -109,16 +109,21 @@ static inline uint32_t vlong_word_shifted(
 // - 2 if a < b.
 static int vlong_cmps(uint32_t a, uint32_t b)
 {
-    uint64_t x = a, y;
-    x -= b;
+    uint32_t x;
+    uint64_t y;
+
+    y = a;
+    y -= b;
+    x = y;
 
     // (attempted) constant-time implementation.
-    y = (x >> 32) & 1;
+    y = (y >> 32) & 1;
+    
+    // Per suggestion by @fgrieu at https://crypto.stackexchange.com/q/88233 
     x = x | (x >> 16);
-    x = x | (x >>  8);
-    x = x | (x >>  4);
-    x = x | (x >>  2);
-    x = x | (x >>  1);
+    x &= 0xffffU;
+    x = -(1 ^ ((x ^ (x - 1)) >> 31));
+
     x &= 1;
     x &= ~y;
     
@@ -237,14 +242,13 @@ vlong_t *vlong_imod_inplace(vlong_t *rem, vlong_t const *b)
     vlong_remv_inplace(rem, b);
 
     for(i=0; i<rem->c; i++) z |= rem->v[i];
+    
+    // Per suggestion by @fgrieu at https://crypto.stackexchange.com/q/88233
     z |= z >> 16;
-    z |= z >> 8;
-    z |= z >> 4;
-    z |= z >> 2;
-    z |= z >> 1;
-    z = -(z & 1);
-
+    z &= 0xffffU;
+    z = -(1 ^ ((z ^ (z - 1)) >> 31));
     neg &= z;
+
     for(i=0; i<rem->c; i++)
     {
         uint32_t u, v;
