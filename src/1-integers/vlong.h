@@ -87,8 +87,8 @@ vlong_t *vlong_mulv_masked(
 
 vlong_t *vlong_modexpv(
     vlong_t *restrict out,
-    vlong_t const* base,
-    vlong_t const* e,
+    vlong_t const *base,
+    vlong_t const *e,
     vlong_t *restrict tmp1, // temporary variables are
     vlong_t *restrict tmp2, // allocated by the caller
     vlong_modfunc_t modfunc,

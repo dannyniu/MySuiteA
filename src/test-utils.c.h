@@ -39,26 +39,34 @@ void *frealloc(void *old, size_t len)
     return malloc(len);
 }
 
-#define a myrand_a
-#define b myrand_b
-
-static unsigned long a, b;
+static uint32_t rnd[4], i;
 #define p 521UL
 
-void mysrand(unsigned long x) { a = b = x % p; }
-unsigned long myrand(void) {
-    unsigned long x, y;
-    x = a*a + p*p - b*b;
-    x %= p;
-    y = 2 * a * b;
-    y %= p;
-    a = x;
-    b = y;
-    return x;
+#define qround(a, b, c, d)                      \
+    {                                           \
+        a += b; d ^= a; d = (d<<16)|(d>>16);    \
+        c += d; b ^= c; b = (b<<12)|(b>>20);    \
+        a += b; d ^= a; d = (d<< 8)|(d>>24);    \
+        c += d; b ^= c; b = (b<< 7)|(b>>25);    \
+    }
+
+void mysrand_permute()
+{
+    for(int c=1; c<4; c++)
+    {
+        rnd[0] ^= 0x9e377900 | c;
+        for(int r=0; r<c; r++) qround(rnd[0], rnd[1], rnd[2], rnd[3]);
+    }
 }
 
-#undef a
-#undef b
+unsigned long myrand(void)
+{
+    unsigned long ret = rnd[i++] % p;
+    if( i >= 4 ) { mysrand_permute(), i=0; }
+    return ret;
+}
+    
+void mysrand(unsigned long x) { rnd[0] = x; }
 #undef p
 
 #define u8cc(s) ( (s)[0] ? (uint64_t)(s)[0] << 56 | u7cc((s)+1) : 0)
