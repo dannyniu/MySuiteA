@@ -4,11 +4,12 @@
 #include "../2-xof/gimli-xof.h"
 
 #include <stdio.h>
+#include <string.h>
 
 static VLONG_T(9) p256, n256, c25519, t1, t2, t3;
 static gimli_xof_t gx;
 
-int main()
+int main(int argc, char *argv[])
 {
     p256.c = 9;
     p256.v[7] = -1;
@@ -40,6 +41,8 @@ int main()
 
     Gimli_XOF_Init(&gx);
     Gimli_XOF_Write(&gx, "Hello World!", 12);
+    if( argv[1] )
+        Gimli_XOF_Write(&gx, argv[1], strlen(argv[1]));
     Gimli_XOF_Final(&gx);
 
     printf("%d\n", MillerRabin(

@@ -3,7 +3,6 @@
 #include "MillerRabin.h"
 #include "../1-integers/vlong.h"
 
-#include <stdio.h>
 int MillerRabin(
     vlong_t const *restrict w,
     int iterations,
@@ -24,6 +23,8 @@ int MillerRabin(
             break;
     }
 
+    // synthesized variable: m = (w - 1) / (2 ** a).
+
 iteration_enter:
     if( !(iterations--) ) return 1;
 
@@ -40,7 +41,7 @@ regen: // Generate b in ]1, w-1[.
     if( i > 0 ) while( tmp1->v[i] && tmp1->v[i] >= w->v[i] ) tmp1->v[i] >>= 1;
     tmp1->v[0] |= 0xAA55;
     
-    // Raise b to m mod w.
+    // z := b ** m (mod w).
     for(i=1; i<n; i++) tmp->v[i] = 0; tmp->v[0] = 1;
     for(i=a;;)
     {
@@ -65,7 +66,7 @@ regen: // Generate b in ]1, w-1[.
         continue;
     }
 
-    // if z === +/- 1 mod w: goto iteration_enter.
+    // if z === +/- 1 (mod w): goto iteration_enter.
     for(i=n; --i>0; )
     {
         if( tmp->v[i] )
@@ -82,8 +83,8 @@ regen: // Generate b in ]1, w-1[.
         vlong_mulv_masked(tmp2, tmp, tmp, 1, modfunc, (void *)w);
         for(i=0; i<n; i++) tmp->v[i] = tmp2->v[i];
 
-        // if z === +1 mod w: return COMPOSITE.
-        // if z === -1 mod w: goto iteration_enter.
+        // if z === +1 (mod w): return COMPOSITE.
+        // if z === -1 (mod w): goto iteration_enter.
         for(i=n; --i>0; )
         {
             if( tmp->v[i] )

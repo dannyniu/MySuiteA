@@ -1,7 +1,7 @@
 #!/bin/sh
 
 testfunc() {
-    $exec
+    $exec "$(date)"
 }
 
 cd "$(dirname "$0")"
