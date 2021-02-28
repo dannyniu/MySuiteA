@@ -93,28 +93,202 @@ int ber_get_hdr(
     return 0;
 }
 
+uint8_t *ber_push_len(uint8_t **stack, uint32_t val)
+{
+    // 2021-02-28: This function hadn't been tested yet.
+    
+    if( val < 0x80 )
+    {
+        *((*stack)--) = val;
+    }
+    
+    else if( val < 0x100 )
+    {
+        *((*stack)--) = val;
+        *((*stack)--) = 0x80 | 1;
+    }
+
+    else if( val < 0x10000 )
+    {
+        *((*stack)--) = val;
+        *((*stack)--) = val;
+        *((*stack)--) = 0x80 | 2;
+    }
+
+    else if( val < 0x1000000 )
+    {
+        *((*stack)--) = val;
+        *((*stack)--) = val;
+        *((*stack)--) = val;
+        *((*stack)--) = 0x80 | 3;
+    }
+
+    else if( val < 0x80000000 )
+    {
+        *((*stack)--) = val;
+        *((*stack)--) = val;
+        *((*stack)--) = val;
+        *((*stack)--) = val;
+        *((*stack)--) = 0x80 | 4;
+    }
+    
+    else return NULL;
+
+    return *stack;
+}
+
+uint8_t *ber_push_tag(uint8_t **stack, uint32_t val, int pc)
+{
+    // 2021-02-28: This function hadn't been tested yet.
+    
+    uint8_t tagflags = (3 & (val >> 28)) | (pc & 1);
+    
+    if( val < (uint32_t)1 << 5 )
+    {
+        *((*stack)--) = tagflags | val;
+    }
+
+    else if( val < (uint32_t)1 << (7 * 1) )
+    {
+        *((*stack)--) = val;
+        *((*stack)--) = tagflags | 31;
+    }
+
+    else if( val < (uint32_t)1 << (7 * 2) )
+    {
+        *((*stack)--) = val;
+        *((*stack)--) = val | 0x80;
+        *((*stack)--) = tagflags | 31;
+    }
+
+    else if( val < (uint32_t)1 << (7 * 3) )
+    {
+        *((*stack)--) = val;
+        *((*stack)--) = val | 0x80;
+        *((*stack)--) = val | 0x80;
+        *((*stack)--) = tagflags | 31;
+    }
+
+    else if( val < (uint32_t)1 << (7 * 4) )
+    {
+        *((*stack)--) = val;
+        *((*stack)--) = val | 0x80;
+        *((*stack)--) = val | 0x80;
+        *((*stack)--) = val | 0x80;
+        *((*stack)--) = tagflags | 31;
+    }
+
+    else return NULL;
+
+    return *stack;
+}
+
+void *ber_util_splice_insert(
+    void *buf,        size_t len1,
+    ptrdiff_t offset, size_t len2)
+{
+    // Moves base[0:len1] to base[len2:len1+len2] and
+    // then base[offset:offset+len2] to base[0:len2]
+    // in such way that the contents of both segments are preserved.
+    //
+    // Assumption:
+    // 1. offset is finitely positive,
+    // 2. len1 <= offset, and
+    // 3. len1 > 0.
+    //
+    // Returns buf.
+
+    uint8_t *base, *src, *dst, *swap, save;
+    size_t copy_remain, i;
+
+    base = buf;
+
+    if( !len1 )
+    {
+        for(i=0; i<len2; i++)
+            base[i] = base[i + offset];
+
+        return buf; // Edge case handled specially.
+    }
+
+    // == iteration starts ==
+loop:
+    src = (uint8_t *)buf + offset;
+    dst = base;
+    swap = base + len1;
+
+    // == copying start ==
+    copy_remain = len1 < len2 ? len1 : len2;
+    if( !copy_remain ) return buf;
+
+    for(i=0; i<copy_remain; i++)
+    {
+        save    = src[i];
+        swap[i] = dst[i];
+        dst[i]  = save;
+    }
+    // == copying puases ==
+
+    if( len1 > len2 )
+    {
+        // next source segment:
+        // current source segment is exhausted,
+        // use ``swap'' in the next iteration;
+        offset = len1 + (size_t)(base - (uint8_t *)buf);
+        len2 = copy_remain;
+
+        // next destination segment:
+        // the remain following one.
+        base += copy_remain;
+        len1 -= copy_remain;
+    }
+    
+    else // len1 <= len2.
+    {
+        // next source segment:
+        // only part of ``src'' had been copied, copy the
+        // next part(s) in the next iteration.
+        offset += copy_remain;
+        len2 -= copy_remain;
+
+        // next destination segment:
+        // current destination is exhausted,
+        // use ``swap'' in the next iteration.
+        base += copy_remain;
+        len1 = copy_remain;
+    }
+
+    goto loop;
+}
+
 int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
 {
     // [ber-int-err-chk:2021-02-13]:
     // Because this function has no failure return values (yet),
-    // caller may skip checking error for this function.
-    
+    // caller may skip checking error for this function (for now).
+
+    // sizeof(uint32_t) * 3 - 1 because:
+    // - 1 for vlong_t::c,
+    // - 1 for computation overhead,
+    // - 1 for representation overhead.
     int32_t ret =
-        (srclen + sizeof(uint32_t) * 2 - 1) &
+        (enclen + sizeof(uint32_t) * 3 - 1) &
         (uint32_t)(-sizeof(uint32_t));
-    vlong_t *w = dst;
+    
+    vlong_t *w = any;
     uint32_t i;
+    
     aux = NULL; // silence the unused parameter warning.
 
     if( pass == 1 ) return ret;
 
-    w->c = (srclen + sizeof(uint32_t) - 1) / sizeof(uint32_t);
+    w->c = (enclen + sizeof(uint32_t) - 1) / sizeof(uint32_t);
     for(i=0; i<w->c; i++) w->v[i] = 0;
 
-    for(i=0; i<srclen; i++)
+    for(i=0; i<enclen; i++)
     {
         w->v[i / sizeof(uint32_t)] |=
-            src[srclen - i - 1] << ((i % sizeof(uint32_t)) * 8);
+            enc[enclen - i - 1] << ((i % sizeof(uint32_t)) * 8);
     }
 
     return ret;

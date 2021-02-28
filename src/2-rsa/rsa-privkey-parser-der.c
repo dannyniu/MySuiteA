@@ -16,16 +16,17 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
     
     int32_t ret = 0, subret;
     
-    const uint8_t *ptr = src;
-    size_t remain = srclen;
+    const uint8_t *ptr = enc;
+    size_t remain = enclen;
     uint32_t i;
 
     uint32_t tag, len;
 
-    RSA_Private_Context_Base_t *ctx = dst;
-    RSA_Private_Context_t *ctx2 = dst;
+    RSA_Private_Context_Base_t *ctx = any;
+    RSA_Private_Context_t *ctx2 = any;
 
     uint32_t *count_primes_other = aux;
+    int32_t size_modulus;
     
     uint32_t version;
 
@@ -60,10 +61,38 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
             ret; // it's been tracking occupied space since pass 1.
     }
     
-    ret += ber_tlv_decode_integer(
+    size_modulus = ber_tlv_decode_integer(
         pass, ptr, len,
         IF_MEMBER(ctx, offset_n), NULL);
+    ret += size_modulus;
     ptr += len; remain -= len;
+
+    if( pass == 2 )
+    {
+        ctx->offset_w1 = 
+            sizeof(RSA_Private_Context_Base_t) +
+            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            ret; // it's been tracking occupied space since pass 1.
+        ret += size_modulus;
+        
+        ctx->offset_w2 = 
+            sizeof(RSA_Private_Context_Base_t) +
+            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            ret; // it's been tracking occupied space since pass 1.
+        ret += size_modulus;
+        
+        ctx->offset_w3 = 
+            sizeof(RSA_Private_Context_Base_t) +
+            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            ret; // it's been tracking occupied space since pass 1.
+        ret += size_modulus;
+        
+        ctx->offset_w4 = 
+            sizeof(RSA_Private_Context_Base_t) +
+            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            ret; // it's been tracking occupied space since pass 1.
+        ret += size_modulus;
+    }
     
     //
     // publicExponent INTEGER, -- e
@@ -232,13 +261,13 @@ static int32_t ber_tlv_decode_OtherPrimeInfos(BER_TLV_DECODING_FUNC_PARAMS)
 {
     int32_t ret = 0, addr;
     
-    const uint8_t *ptr = src;
-    size_t remain = srclen;
+    const uint8_t *ptr = enc;
+    size_t remain = enclen;
     uint32_t i;
 
     uint32_t tag, len;
 
-    RSA_Private_Context_t *ctx = dst;
+    RSA_Private_Context_t *ctx = any;
 
     uint32_t *count_primes_other = aux;
 
