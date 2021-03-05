@@ -59,7 +59,7 @@ testfunc() {
         wait
         
         if [ "$(cat kblake2-test-ref)" = "$(cat kblake2-test-result)" ] ; then
-            echo Test succeeded for $algo klen=$klen mlen=$mlen
+            : echo Test succeeded for $algo klen=$klen mlen=$mlen
         else
             echo Test failed for $algo klen=$klen mlen=$mlen!
             failcount=$((failcount+1))

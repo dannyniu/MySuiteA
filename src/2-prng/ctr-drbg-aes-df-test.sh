@@ -8,7 +8,7 @@ cat << EOF
 # example file contain numerous errors and inconsistencies, and
 # I was not able to reproduce the results from the example file.
 # Testing of CTR-DRBG with derivation function had therefore been
-# given up.
+# forsaken.
 EOF
 
 testfunc() {

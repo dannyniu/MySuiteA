@@ -49,7 +49,7 @@ testfunc() {
         wait
         
         if [ "$(cat hmac-test-ref)" = "$(cat hmac-test-result)" ] ; then
-            echo Test succeeded for $algo klen=$klen mlen=$mlen
+            : echo Test succeeded for $algo klen=$klen mlen=$mlen
         else
             echo Test failed for $algo klen=$klen mlen=$mlen!
             failcount=$((failcount+1))
