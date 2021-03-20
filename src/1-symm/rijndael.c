@@ -259,6 +259,6 @@ Define_AES_KeyExpansion(AES128_KeyExpansion,4,10);
 Define_AES_KeyExpansion(AES192_KeyExpansion,6,12);
 Define_AES_KeyExpansion(AES256_KeyExpansion,8,14);
 
-uparam_t iAES128(int q) { return cAES128(q); }
-uparam_t iAES192(int q) { return cAES192(q); }
-uparam_t iAES256(int q) { return cAES256(q); }
+IntPtr iAES128(int q) { return cAES128(q); }
+IntPtr iAES192(int q) { return cAES192(q); }
+IntPtr iAES256(int q) { return cAES256(q); }

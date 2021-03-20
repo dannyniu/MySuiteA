@@ -31,13 +31,13 @@ void SHA3_256_Final(sha3_t *restrict x, void *restrict out, size_t t);
 void SHA3_384_Final(sha3_t *restrict x, void *restrict out, size_t t);
 void SHA3_512_Final(sha3_t *restrict x, void *restrict out, size_t t);
 
-#define cSHA3(bits,q) (                                         \
-        q==outBytes ? bits/8 :                                  \
-        q==blockBytes ? (1600-bits*2)/8 :                       \
-        q==contextBytes ? sizeof(struct sha3_context) :         \
-        q==InitFunc   ? (uparam_t)SHA3_##bits##_Init :          \
-        q==UpdateFunc ? (uparam_t)SHA3_##bits##_Update :        \
-        q==FinalFunc  ? (uparam_t)SHA3_##bits##_Final :         \
+#define cSHA3(bits,q) (                                 \
+        q==outBytes ? bits/8 :                          \
+        q==blockBytes ? (1600-bits*2)/8 :               \
+        q==contextBytes ? sizeof(struct sha3_context) : \
+        q==InitFunc   ? (IntPtr)SHA3_##bits##_Init :    \
+        q==UpdateFunc ? (IntPtr)SHA3_##bits##_Update :  \
+        q==FinalFunc  ? (IntPtr)SHA3_##bits##_Final :   \
         0)
 
 #define cSHA3_224(q) cSHA3(224,q)
@@ -45,9 +45,9 @@ void SHA3_512_Final(sha3_t *restrict x, void *restrict out, size_t t);
 #define cSHA3_384(q) cSHA3(384,q)
 #define cSHA3_512(q) cSHA3(512,q)
 
-uparam_t iSHA3_224(int q);
-uparam_t iSHA3_256(int q);
-uparam_t iSHA3_384(int q);
-uparam_t iSHA3_512(int q);
+IntPtr iSHA3_224(int q);
+IntPtr iSHA3_256(int q);
+IntPtr iSHA3_384(int q);
+IntPtr iSHA3_512(int q);
 
 #endif /* MySuiteA_sha3_h */

@@ -22,19 +22,15 @@ void Gimli_XOF_Write(
 void Gimli_XOF_Final(gimli_xof_t *restrict x);
 void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len);
 
-#ifndef foo
-# // Emacs seems to have difficulty indent correctly if nothing's here. 
-#endif /* foo */
-
 #define cGimli_XOF(q) (                                         \
         q==blockBytes ? 16 :                                    \
         q==contextBytes ? sizeof(struct gimli_xof_context) :    \
-        q==InitFunc ? (uparam_t)Gimli_XOF_Init :                \
-        q==WriteFunc ? (uparam_t)Gimli_XOF_Write :              \
-        q==XofFinalFunc ? (uparam_t)Gimli_XOF_Final :           \
-        q==ReadFunc ? (uparam_t)Gimli_XOF_Read :                \
+        q==InitFunc ? (IntPtr)Gimli_XOF_Init :                  \
+        q==WriteFunc ? (IntPtr)Gimli_XOF_Write :                \
+        q==XofFinalFunc ? (IntPtr)Gimli_XOF_Final :             \
+        q==ReadFunc ? (IntPtr)Gimli_XOF_Read :                  \
         0)
 
-uparam_t iGimli_XOF(int q);
+IntPtr iGimli_XOF(int q);
 
 #endif /* MySuiteA_gimli_hash_h */

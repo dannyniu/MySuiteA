@@ -11,7 +11,9 @@ union {
     hmac_drbg_hmac_sha384_t   x_hmac_sha384;
 } ctx;
 
-iCryptoObj_t drbg;
+iCryptoObj_t hash;
+tCryptoObj_t drbg = tHMAC_DRBG;
+CryptoParam_t P[2];
 
 typedef uint8_t buffer2048_t[256];
 buffer2048_t seed1, seed2, out, ref;
@@ -47,13 +49,18 @@ void test_run1(
 {
     int fails = 0;
     size_t kvlen;
+
+    P[0].template = tHMAC;
+    P[0].param = P+1;
+    P[1].info = hash;
+    P[1].aux = NULL;
     
     printf("...... Test Name: %s ......\n", tn);
 
-    INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen1);
+    ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen1);
     kvlen = ctx.x.prf_outlen * 2;
-    
-    RESEED_FUNC(drbg)(&ctx.x, seed2, seedlen2);
+
+    ((ReseedFunc_t)drbg(P, ReseedFunc))(&ctx.x, seed2, seedlen2);
 
     scanhex(ref, kvlen, exp1);
     if( memcmp(ref, ((uint8_t *)&ctx.x + ctx.x.offset_k), kvlen) )
@@ -68,10 +75,10 @@ void test_run1(
             kvlen);
     }
     
-    INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen1);
+    ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen1);
 
     // -3 to test incomplete blocks' code path
-    GEN_FUNC(drbg)(&ctx.x, out, ctx.x.prf_outlen * 2 - 3);
+    ((GenFunc_t)drbg(P, GenFunc))(&ctx.x, out, ctx.x.prf_outlen * 2 - 3);
     out[ctx.x.prf_outlen * 2 - 3] ^= 4;
     
     scanhex(ref, ctx.x.prf_outlen * 2, exp2);
@@ -106,7 +113,7 @@ void tests_runall()
     // - AdditionalInput        == null,
     // - PersonalizationString  == null/<t>.
     //
-    drbg = iHMAC_DRBG_HMAC_SHA1;
+    hash = iSHA1;
     seeds_init(55, 5, 60, 55);
     test_run1(
         "HMAC-DRBG<hash=SHA-1, shortseed>",
@@ -127,7 +134,7 @@ void tests_runall()
         "47B3CE06 9D98EDE6",
         115, 55); 
 
-    drbg = iHMAC_DRBG_HMAC_SHA256;
+    hash = iSHA256;
     seeds_init(55, 8, 63, 55);
     test_run1(
         "HMAC-DRBG<hash=SHA-256, shortseed>",
@@ -152,7 +159,7 @@ void tests_runall()
         "F26D5210 AD564248 872D7A28 784159C3",
         118, 55);
 
-    drbg = iHMAC_DRBG_HMAC_SHA384;
+    hash = iSHA384;
     seeds_init(111, 12, 123, 111);
     test_run1(
         "HMAC-DRBG<hash=SHA-384, shortseed>",

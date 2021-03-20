@@ -9,9 +9,9 @@ void Gimli_Permute(void const *in, void *out);
 
 #define cGimli(q) (                                     \
         q==blockBytes ? 48 :                            \
-        q==PermuteFunc ? (uparam_t)Gimli_Permute :      \
+        q==PermuteFunc ? (IntPtr)Gimli_Permute :        \
         0 )
 
-uparam_t iGimli(int q);
+IntPtr iGimli(int q);
 
 #endif /* MySuiteA_gimli_h */

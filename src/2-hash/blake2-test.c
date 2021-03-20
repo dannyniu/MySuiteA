@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
 {
     size_t in_len = 0;
     void *x = NULL;
-    
-    uparam_t (*h)() = iBLAKE2b256;
+
+    iCryptoObj_t h = iBLAKE2b256;
 
     mysrand((unsigned long)time(NULL));
     

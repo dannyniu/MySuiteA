@@ -11,7 +11,7 @@ union {
     ctr_drbg_aes256_t   x_aes256;
 } ctx;
 
-uparam_t (*drbg)(int);
+iCryptoObj_t drbg;
 
 typedef uint8_t buffer1024_t[128];
 buffer1024_t seed1, seed2, out, ref;

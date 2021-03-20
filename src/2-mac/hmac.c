@@ -59,3 +59,21 @@ finalized:
     // the code is slightly simpler.
     hmac->hFinal(aux, out, t);
 }
+
+#define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
+
+IntPtr tHMAC(const CryptoParam_t *P, int q)
+{
+    return cHMAC(T,q);
+}
+
+void *HMAC_T_Init(
+    const CryptoParam_t *restrict P,
+    hmac_t *restrict x,
+    void const *restrict key,
+    size_t keylen)
+{
+    *x = HMAC_INIT(cT);
+    HMAC_SetKey(x, key, keylen);
+    return x;
+}

@@ -16,6 +16,8 @@ int main(int argc, char *argv[])
     void *x = NULL;
 
     iCryptoObj_t h = NULL;
+    tCryptoObj_t m = tHMAC;
+    CryptoParam_t H;
     FILE *kfp;
 
     mysrand((unsigned long)time(NULL));
@@ -25,32 +27,34 @@ int main(int argc, char *argv[])
     {
         switch( u8cc(argv[1]) )
         {
-        case u8cc("sha1"): h = iHMAC_SHA1; break;
-        case u8cc("sha224"): h = iHMAC_SHA224; break;
-        case u8cc("sha256"): h = iHMAC_SHA256; break;
-        case u8cc("sha384"): h = iHMAC_SHA384; break;
-        case u8cc("sha512"): h = iHMAC_SHA512; break;
-        case u8cc("sha3_224"): h = iHMAC_SHA3_224; break;
-        case u8cc("sha3_256"): h = iHMAC_SHA3_256; break;
-        case u8cc("sha3_384"): h = iHMAC_SHA3_384; break;
-        case u8cc("sha3_512"): h = iHMAC_SHA3_512; break;
+        case u8cc("sha1"): h = iSHA1; break;
+        case u8cc("sha224"): h = iSHA224; break;
+        case u8cc("sha256"): h = iSHA256; break;
+        case u8cc("sha384"): h = iSHA384; break;
+        case u8cc("sha512"): h = iSHA512; break;
+        case u8cc("sha3_224"): h = iSHA3_224; break;
+        case u8cc("sha3_256"): h = iSHA3_256; break;
+        case u8cc("sha3_384"): h = iSHA3_384; break;
+        case u8cc("sha3_512"): h = iSHA3_512; break;
         
         default: return 1; break;
         }
     }
 
+    H.info = h, H.param = NULL;
+
     kfp = fopen("mac-test-key", "rb");
     x = malloc(CTX_BYTES(h));
     
-    KINIT_FUNC(h)(x, buf, fread(buf, 1, 512, kfp));
+    ((PKInitFunc_t)m(&H, KInitFunc))(&H, x, buf, fread(buf, 1, 512, kfp));
     fclose(kfp); kfp = NULL;
 
     while( (in_len = fread(buf, 1, myrand()+1, stdin)) > 0 )
     {
-        UPDATE_FUNC(h)(x, buf, in_len);
+        ((UpdateFunc_t)m(&H, UpdateFunc))(x, buf, in_len);
     }
-    
-    FINAL_FUNC(h)(x, buf, OUT_BYTES(h));
+
+    ((FinalFunc_t)m(&H, FinalFunc))(x, buf, OUT_BYTES(h));
     free(x);
     x = NULL;
     

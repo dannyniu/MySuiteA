@@ -3,6 +3,8 @@
 #ifndef MySuiteA_mysuitea_common_h
 #define MySuiteA_mysuitea_common_h 1
 
+#define static_assert _Static_assert
+
 #include <limits.h>
 #include <stdalign.h>
 #include <stdbool.h>
@@ -13,11 +15,11 @@
 #define glue(a,b) xglue(a,b)
 
 // Each primitive instance shall define
-// 1. a function compatible with the type (uintmax_t(*)(int)),
+// 1. a function compatible with the type (IntPtr(*)(int)),
 // 2. a function-like macro that evaluates to some integer types that's
 //    large enough to hold pointers,
-// that when evaluated in run-time or compile time,
-// yields relevant information associated with particular primitive.
+// that when evaluated in run-time or compile time, yields
+// relevant information associated with particular primitive.
 //
 // Both the function and the function like macro takes a single
 // argument `q' that is one of the constants enumerated below.
@@ -30,8 +32,7 @@
 // Per https://stackoverflow.com/q/64894785
 // ``uintptr_t'' is changed to ``uintmax_t'', and the
 // following static assertion is added.
-//
-//
+///
 // 2020-12-24:
 // ``uintmax_t'' is, on my second thought, an overkill.
 //
@@ -43,21 +44,42 @@
 // sizes as big as 2^32 bytes. (It's so much so that x86-64 and its ABI
 // don't extend the "immediate" operand for CALL instruction to 64-bits for
 // relatively positioned codes.)
+///
+// 2021-03-09:
+// The name of the type is changed to the more "semantic" ``IntPtr'',
+// allowing its name to be more meaningful and can be re-defined when
+// need arises. It is intentional that the type is signed.
 
 // Users of this library may change this type definition
 // should their memory model require special treatment.
-typedef size_t uparam_t;
+typedef intptr_t IntPtr;
 
-_Static_assert(
-    sizeof(uparam_t) >= sizeof(size_t) &&
-    sizeof(uparam_t) >= sizeof(void (*)(void)),
+static_assert(
+    sizeof(IntPtr) >= sizeof(size_t) &&
+    sizeof(IntPtr) >= sizeof(void (*)(void)),
     "Expectation on the compilation environment didn't hold!");
+
+typedef struct CryptoParam CryptoParam_t;
+
+typedef IntPtr (*iCryptoObj_t)(int q);
+typedef IntPtr (*tCryptoObj_t)(const CryptoParam_t *P, int q);
+
+struct CryptoParam {
+    union {
+        iCryptoObj_t info; // if param/aux is NULL,
+        tCryptoObj_t template; // otherwise.
+    };
+    union {
+        const CryptoParam_t *param;
+        const void *aux;
+    };
+};
 
 enum {
     // Applicable to
     // 1.) Primitives whose output length are fixed and constant. 
     //
-    // For hash functions, this is the length of the digest in bytes.
+    // - For hash functions, this is the length of the digest in bytes.
     //
     outBytes,
 
@@ -70,13 +92,13 @@ enum {
     // Applicable to
     // 1.) All keyed primitives.
     //
-    // If keyBytes == 0, then keyBytesMax specifies the
-    // maximum acceptable key length:
-    // - a value of 0 specifies that the primitive is unkeyed,
-    // - a value of ((size_t)-1) specifies that such limit
-    //   doesn't exist for that particular instance.
-    //
-    keyBytes, keyBytesMax,
+    // - If positive, the primitive accepts only keys of fixed length;
+    // - if negative, the primitive accepts keys of length up to
+    //   the absolute value of this parameter;
+    // - values with absolute values smaller than or equal to 4 have
+    //   special meanings;
+    // - a value of -1 specifies that the key may be of unlimited length;
+    keyBytes,
 
     // Applicable to
     // 1.) All iterated keyed permutation with at least 1 iteration.
@@ -101,9 +123,13 @@ enum {
     PermuteFunc,
 
     // Keyed Context Initialization Function (AEAD, HMAC, etc.) //
-    KInitFunc,
+    // 2021-03-20 addition for ``KInitFunc'':
+    // applicable to both instances and parameterized instance templates.
+    KInitFunc, 
     
     // Hash & XOF Functions //
+    // 2021-03-20 addition for ``InitFunc'':
+    // applicable to both instances and parameterized instance templates.
     InitFunc,
     UpdateFunc, WriteFunc=UpdateFunc,
     FinalFunc, XofFinalFunc,
@@ -119,7 +145,6 @@ enum {
 // Aliases additions for PRNG/DRBG.
 enum {
     seedBytes     = keyBytes,
-    seedBytesMax  = keyBytesMax,
     InstInitFunc  = KInitFunc,
     ReseedFunc    = WriteFunc,
     GenFunc       = ReadFunc,
@@ -136,6 +161,13 @@ typedef void *(*KInitFunc_t)(void *restrict x,
                              void const *restrict k,
                              size_t klen);
 typedef void (*InitFunc_t)(void *restrict x);
+
+// Same note as that for ``KInitFunc_t''.
+typedef void *(*PKInitFunc_t)(const CryptoParam_t *P,
+                             void *restrict x,
+                             void const *restrict k,
+                             size_t klen);
+typedef void (*PInitFunc_t)(const CryptoParam_t *P, void *restrict x);
 
 typedef void (*UpdateFunc_t)(void *restrict x,
                              void const *restrict data, 
@@ -163,6 +195,7 @@ typedef void *(*ADecFunc_t)(void *restrict x,
 
 // Alias additions for PRNG/DRBG.
 typedef KInitFunc_t     InstInitFunc_t;
+typedef PKInitFunc_t    PInstInitFunc_t;
 typedef WriteFunc_t     ReseedFunc_t;
 typedef ReadFunc_t      GenFunc_t;
 
@@ -171,25 +204,18 @@ typedef ReadFunc_t      GenFunc_t;
 // make sure that `obj' is not parenthesized so that
 // macro expansion won't be suppressed.
 
-#define OUT_BYTES(obj)      ((size_t)(obj(outBytes)))
-#define BLOCK_BYTES(obj)    ((size_t)(obj(blockBytes)))
-#define KEY_BYTES(obj)      ((size_t)(obj(keyBytes)))
-#define KEY_BYTES_MAX(obj)  ((size_t)(obj(keyBytesMax)))
-#define KSCHD_BYTES(obj)    ((size_t)(obj(keyschedBytes)))
-#define CTX_BYTES(obj)      ((size_t)(obj(contextBytes)))
-#define IV_BYTES(obj)       ((size_t)(obj(ivBytes)))
-#define TAG_BYTES(obj)      ((size_t)(obj(tagBytes)))
+#define OUT_BYTES(obj)      ((IntPtr)(obj(outBytes)))
+#define BLOCK_BYTES(obj)    ((IntPtr)(obj(blockBytes)))
+#define KEY_BYTES(obj)      ((IntPtr)(obj(keyBytes)))
+#define KSCHD_BYTES(obj)    ((IntPtr)(obj(keyschedBytes)))
+#define CTX_BYTES(obj)      ((IntPtr)(obj(contextBytes)))
+#define IV_BYTES(obj)       ((IntPtr)(obj(ivBytes)))
+#define TAG_BYTES(obj)      ((IntPtr)(obj(tagBytes)))
 
 // In case C doesn't expand nested macro.
-#define CTX_BYTES_1(obj)    ((size_t)(obj(contextBytes)))
-#define CTX_BYTES_2(obj)    ((size_t)(obj(contextBytes)))
-#define CTX_BYTES_3(obj)    ((size_t)(obj(contextBytes)))
-#define CTX_BYTES_4(obj)    ((size_t)(obj(contextBytes)))
-#define CTX_BYTES_5(obj)    ((size_t)(obj(contextBytes)))
-#define CTX_BYTES_6(obj)    ((size_t)(obj(contextBytes)))
-#define CTX_BYTES_7(obj)    ((size_t)(obj(contextBytes)))
-#define CTX_BYTES_8(obj)    ((size_t)(obj(contextBytes)))
-#define CTX_BYTES_9(obj)    ((size_t)(obj(contextBytes)))
+#define CTX_BYTES_1(obj)    ((IntPtr)(obj(contextBytes)))
+#define CTX_BYTES_2(obj)    ((IntPtr)(obj(contextBytes)))
+#define CTX_BYTES_3(obj)    ((IntPtr)(obj(contextBytes)))
 
 #define ENC_FUNC(obj)       ((EncFunc_t)(obj(EncFunc)))
 #define DEC_FUNC(obj)       ((DecFunc_t)(obj(DecFunc)))
@@ -210,8 +236,7 @@ typedef ReadFunc_t      GenFunc_t;
 #define ADEC_FUNC(obj)      ((ADecFunc_t)(obj(ADecFunc)))
 
 // Aliases additions for PRNG/DRBG.
-#define SEED_BYTES(obj)     ((size_t)(obj(seedBytes)))
-#define SEED_BYTES_MAX(obj) ((size_t)(obj(seedBytesMax)))
+#define SEED_BYTES(obj)     ((IntPtr)(obj(seedBytes)))
 #define INST_INIT_FUNC(obj) ((InstInitFunc_t)(obj(InstInitFunc)))
 #define RESEED_FUNC(obj)    ((ReseedFunc_t)(obj(ReseedFunc)))
 #define GEN_FUNC(obj)       ((GenFunc_t)(obj(GenFunc)))

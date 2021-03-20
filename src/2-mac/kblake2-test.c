@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     size_t in_len = 0;
     void *x = NULL;
 
-    uparam_t (*h)() = NULL;
+    iCryptoObj_t h = NULL;
     FILE *kfp;
 
     if( argc < 2 ) return 1;
@@ -50,6 +50,6 @@ int main(int argc, char *argv[])
     free(x);
     x = NULL;
     
-    for(unsigned i=0; i<OUT_BYTES(h); i++) printf("%02x", buf[i]);
+    for(int i=0; i<OUT_BYTES(h); i++) printf("%02x", buf[i]);
     return 0;
 }

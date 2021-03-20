@@ -34,5 +34,5 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len)
     Sponge_Read(&x->sponge, data, len);
 }
 
-uparam_t iSHAKE128(int q){ return cSHAKE128(q); }
-uparam_t iSHAKE256(int q){ return cSHAKE256(q); }
+IntPtr iSHAKE128(int q){ return cSHAKE128(q); }
+IntPtr iSHAKE256(int q){ return cSHAKE256(q); }

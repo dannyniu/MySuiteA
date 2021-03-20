@@ -180,22 +180,22 @@ finalized:
     }
 }
 
-uparam_t iBLAKE2b160(int q){ return cBLAKE2b160(q); }
-uparam_t iBLAKE2b256(int q){ return cBLAKE2b256(q); }
-uparam_t iBLAKE2b384(int q){ return cBLAKE2b384(q); }
-uparam_t iBLAKE2b512(int q){ return cBLAKE2b512(q); }
+IntPtr iBLAKE2b160(int q){ return cBLAKE2b160(q); }
+IntPtr iBLAKE2b256(int q){ return cBLAKE2b256(q); }
+IntPtr iBLAKE2b384(int q){ return cBLAKE2b384(q); }
+IntPtr iBLAKE2b512(int q){ return cBLAKE2b512(q); }
 
-uparam_t iBLAKE2s128(int q){ return cBLAKE2s128(q); }
-uparam_t iBLAKE2s160(int q){ return cBLAKE2s160(q); }
-uparam_t iBLAKE2s224(int q){ return cBLAKE2s224(q); }
-uparam_t iBLAKE2s256(int q){ return cBLAKE2s256(q); }
+IntPtr iBLAKE2s128(int q){ return cBLAKE2s128(q); }
+IntPtr iBLAKE2s160(int q){ return cBLAKE2s160(q); }
+IntPtr iBLAKE2s224(int q){ return cBLAKE2s224(q); }
+IntPtr iBLAKE2s256(int q){ return cBLAKE2s256(q); }
 
-uparam_t ikBLAKE2b160(int q){ return ckBLAKE2b160(q); }
-uparam_t ikBLAKE2b256(int q){ return ckBLAKE2b256(q); }
-uparam_t ikBLAKE2b384(int q){ return ckBLAKE2b384(q); }
-uparam_t ikBLAKE2b512(int q){ return ckBLAKE2b512(q); }
+IntPtr ikBLAKE2b160(int q){ return ckBLAKE2b160(q); }
+IntPtr ikBLAKE2b256(int q){ return ckBLAKE2b256(q); }
+IntPtr ikBLAKE2b384(int q){ return ckBLAKE2b384(q); }
+IntPtr ikBLAKE2b512(int q){ return ckBLAKE2b512(q); }
 
-uparam_t ikBLAKE2s128(int q){ return ckBLAKE2s128(q); }
-uparam_t ikBLAKE2s160(int q){ return ckBLAKE2s160(q); }
-uparam_t ikBLAKE2s224(int q){ return ckBLAKE2s224(q); }
-uparam_t ikBLAKE2s256(int q){ return ckBLAKE2s256(q); }
+IntPtr ikBLAKE2s128(int q){ return ckBLAKE2s128(q); }
+IntPtr ikBLAKE2s160(int q){ return ckBLAKE2s160(q); }
+IntPtr ikBLAKE2s224(int q){ return ckBLAKE2s224(q); }
+IntPtr ikBLAKE2s256(int q){ return ckBLAKE2s256(q); }

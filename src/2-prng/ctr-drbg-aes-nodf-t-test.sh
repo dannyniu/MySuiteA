@@ -7,8 +7,7 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src_common="
-ctr-drbg-aes-nodf-test.c
-ctr-drbg-aes.c
+ctr-drbg-aes-nodf-t-test.c
 ctr-drbg.c
 0-datum/endian.c
 "

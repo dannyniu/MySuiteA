@@ -70,7 +70,7 @@ void CTR_DRBG_Generate(
         void const *restrict seedstr,                   \
         size_t len);                                    \
                                                         \
-    uparam_t iCTR_DRBG_##algo(int q);
+    IntPtr iCTR_DRBG_##algo(int q);
 
 /* Notes on derivation function:
  *
@@ -95,11 +95,10 @@ void CTR_DRBG_Reseed_WithDF(
 
 #define cCTR_DRBG(bc,q) (                                       \
         q==contextBytes ? CTR_DRBG_CTX_LEN(c##bc) :             \
-        q==seedBytes ? 0 :                                      \
-        q==seedBytesMax ? ((uparam_t)-1) :                      \
-        q==InstInitFunc ? (uparam_t)CTR_DRBG_##bc##_InstInit :  \
-        q==ReseedFunc ? (uparam_t)CTR_DRBG_Reseed_WithDF :      \
-        q==GenFunc ? (uparam_t)CTR_DRBG_Generate :              \
+        q==seedBytes ? ((IntPtr)-1) :                           \
+        q==InstInitFunc ? (IntPtr)CTR_DRBG_##bc##_InstInit :    \
+        q==ReseedFunc ? (IntPtr)CTR_DRBG_Reseed_WithDF :        \
+        q==GenFunc ? (IntPtr)CTR_DRBG_Generate :                \
         0)
 
 #else
@@ -107,11 +106,19 @@ void CTR_DRBG_Reseed_WithDF(
 #define cCTR_DRBG(bc,q) (                                       \
         q==contextBytes ? CTR_DRBG_CTX_LEN(c##bc) :             \
         q==seedBytes ? BLOCK_BYTES(c##bc) + KEY_BYTES(c##bc) :  \
-        q==InstInitFunc ? (uparam_t)CTR_DRBG_##bc##_InstInit :  \
-        q==ReseedFunc ? (uparam_t)CTR_DRBG_Reseed :             \
-        q==GenFunc ? (uparam_t)CTR_DRBG_Generate :              \
+        q==InstInitFunc ? (IntPtr)CTR_DRBG_##bc##_InstInit :    \
+        q==ReseedFunc ? (IntPtr)CTR_DRBG_Reseed :               \
+        q==GenFunc ? (IntPtr)CTR_DRBG_Generate :                \
         0)
 
 #endif /* ! CTR_DRBG_OMIT_DF */
+
+IntPtr tCTR_DRBG(const CryptoParam_t *P, int q);
+
+void *CTR_DRBG_T_InstInit(
+    const CryptoParam_t *restrict P,
+    ctr_drbg_t *restrict x,
+    void const *restrict seedstr,
+    size_t len);
 
 #endif /* MySuiteA_ctr_drbg_h */

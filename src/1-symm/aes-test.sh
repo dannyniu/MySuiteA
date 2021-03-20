@@ -14,38 +14,28 @@ unitest_sh=../unitest.sh
 src_common="aes-test.c 0-datum/endian.c"
 bin=$(basename "$0" .sh)
 
-echo ======== Test Name: $bin ========
-echo C language code. [x86_64]
-arch=x86_64 cflags=""
-src="$src_common rijndael.c"
+vsrc(){ src="$src_common rijndael${1}.c" ; }
+
+arch=x86_64 cflags="" srcset="Plain C"
+vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [aarch64]
-arch=aarch64 cflags=""
-src="$src_common rijndael.c"
+arch=aarch64 cflags="" srcset="Plain C"
+vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [powerpc64]
-arch=powerpc64 cflags=""
-src="$src_common rijndael.c"
+arch=powerpc64 cflags="" srcset="Plain C"
+vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [sparc64]
-arch=sparc64 cflags=""
-src="$src_common rijndael.c"
+arch=sparc64 cflags="" srcset="Plain C"
+vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo x86 AESNI intrinsics.
-arch=x86_64 cflags="-maes"
-src="$src_common rijndael-x86.c"
+arch=x86_64 cflags="-maes" srcset="AESNI"
+vsrc "-x86"
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo ARM NEON Crypto intrinsics.
-arch=aarch64 cflags="-march=armv8-a+crypto"
-src="$src_common rijndael-arm.c"
+arch=aarch64 cflags="-march=armv8-a+crypto" srcset="ARM NEON Crypto"
+vsrc "-arm"
 ( . $unitest_sh )

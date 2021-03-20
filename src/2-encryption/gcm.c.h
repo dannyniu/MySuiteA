@@ -17,4 +17,4 @@
         return x;                                               \
     }                                                           \
                                                                 \
-    uparam_t iGCM_##algo(int q){ return cGCM_##algo(q); }
+    IntPtr iGCM_##algo(int q){ return cGCM_##algo(q); }

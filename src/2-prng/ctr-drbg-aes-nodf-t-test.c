@@ -11,7 +11,9 @@ union {
     ctr_drbg_aes256_t   x_aes256;
 } ctx;
 
-iCryptoObj_t drbg;
+iCryptoObj_t bc;
+tCryptoObj_t drbg = tCTR_DRBG;
+CryptoParam_t P[1];
 
 typedef uint8_t buffer512_t[64];
 buffer512_t seed1, seed2, out, ref;
@@ -27,14 +29,18 @@ void seeds_init()
 
 void test_run1(const char *tn, const char *exp1, const char *exp2)
 {
-    size_t seedlen = SEED_BYTES(drbg);
+    size_t seedlen;
     int fails = 0;
+
+    P[0].info = bc;
+    P[0].aux = NULL;
+    seedlen = drbg(P, seedBytes);
     
     printf("...... Test Name: %s ......\n", tn);
 
-    INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen);
+    ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen);
     
-    RESEED_FUNC(drbg)(&ctx.x, seed2, seedlen);
+    ((ReseedFunc_t)drbg(P, ReseedFunc))(&ctx.x, seed2, seedlen);
 
     scanhex(ref, seedlen, exp1);
     if( memcmp(ref, ((uint8_t *)&ctx.x + ctx.x.offset_k), seedlen) )
@@ -49,10 +55,10 @@ void test_run1(const char *tn, const char *exp1, const char *exp2)
             seedlen);
     }
     
-    INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen);
+    ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen);
 
     // -3 to test incomplete blocks' code path
-    GEN_FUNC(drbg)(&ctx.x, out, 32 - 3);
+    ((GenFunc_t)drbg(P, GenFunc))(&ctx.x, out, 32 - 3);
     out[29] ^= 4;
     
     scanhex(ref, 32, exp2);
@@ -89,7 +95,7 @@ void tests_runall()
     // - AdditionalInput        == null,
     // - PersonalizationString  == null.
     //
-    drbg = iCTR_DRBG_AES128;
+    bc = iAES128;
     test_run1(
         "CTR-DRBG<bc=AES-128, df=false>",
         "96077D4C 1BB00D60 CCDB6CCC 3698E424"
@@ -97,7 +103,7 @@ void tests_runall()
         "1686FFCF 9F358BE7 4452E647 BA156AAB"
         "05135797 117FD1AB 317D318C 660E3D18");
 
-    drbg = iCTR_DRBG_AES192;
+    bc = iAES192;
     test_run1(
         "CTR-DRBG<bc=AES-192, df=false>",
         "8161FBBD E8F1E27D 7696E672 3BCBE405"
@@ -106,7 +112,7 @@ void tests_runall()
         "01E0793E 6C7464FA FE1F6CF9 B7466A8A"
         "C4841737 9CBAA104 13DBCD98 E1977019");
 
-    drbg = iCTR_DRBG_AES256;
+    bc = iAES256;
     test_run1(
         "CTR-DRBG<bc=AES-256, df=false>",
         "8694D2A0 C9900AD9 41DC1F75 8862F4AA"

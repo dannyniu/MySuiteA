@@ -11,6 +11,8 @@ unitest_sh=../unitest.sh
 src_common="galois128-test.c 0-datum/endian.c"
 bin=$(basename "$0" .sh)
 
+vsrc(){ src="$src_common galois128${1}.c" ; }
+
 testnum="01 02 03 04 05 06"
 for n in $testnum
 do dd if=/dev/urandom bs=16 count=3 of=../../bin/testblob-$n.dat
@@ -18,42 +20,30 @@ done 2>/dev/null
 
 srctype=c
 
-echo ======== Test Name: $bin ========
-echo C language code. [x86_64]
-arch=x86_64 cflags=""
-src="$src_common galois128.c"
+arch=x86_64 cflags="" srcset="Plain C"
+vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [aarch64]
-arch=aarch64 cflags=""
-src="$src_common galois128.c"
+arch=aarch64 cflags="" srcset="Plain C"
+vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [powerpc64]
-arch=powerpc64 cflags=""
-src="$src_common galois128.c"
+arch=powerpc64 cflags="" srcset="Plain C"
+vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [sparc64]
-arch=sparc64 cflags=""
-src="$src_common galois128.c"
+arch=sparc64 cflags="" srcset="Plain C"
+vsrc ""
 ( . $unitest_sh )
 
 srctype=x
 
-echo ======== Test Name: $bin ========
-echo x86 PCLMUL intrinsics.
-arch=x86_64 cflags="-mpclmul"
-src="$src_common galois128-x86.c"
+arch=x86_64 cflags="-mpclmul" srcset="x86 PCLMUL"
+vsrc "-x86"
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo ARM NEON Crypto intrinsics.
-arch=aarch64 cflags="-march=armv8-a+crypto"
-src="$src_common galois128-arm.c"
+arch=aarch64 cflags="-march=armv8-a+crypto" srcset="ARM NEON Crypto"
+vsrc "-arm"
 ( . $unitest_sh )
 
 cd ../../bin

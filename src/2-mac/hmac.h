@@ -56,17 +56,24 @@ void HMAC_Final(hmac_t *restrict hmac, void *restrict out, size_t t);
         void const *restrict key,               \
         size_t keylen);                         \
                                                 \
-    uparam_t iHMAC_##algo(int q);
+    IntPtr iHMAC_##algo(int q);
     
 
 #define cHMAC(hash,q) (                                         \
         q==outBytes || q==blockBytes ? c##hash(q) :             \
-        q==keyBytes ? 0 :                                       \
-        q==keyBytesMax ? ((uparam_t)-1) :                      \
+        q==keyBytes ? ((IntPtr)-1) :                            \
         q==contextBytes ? sizeof(hmac_t) + CTX_BYTES(c##hash) : \
-        q==KInitFunc ? (uparam_t)HMAC_##hash##_Init :          \
-        q==UpdateFunc ? (uparam_t)HMAC_Update :                \
-        q==FinalFunc ? (uparam_t)HMAC_Final :                  \
+        q==KInitFunc ? (IntPtr)HMAC_##hash##_Init :             \
+        q==UpdateFunc ? (IntPtr)HMAC_Update :                   \
+        q==FinalFunc ? (IntPtr)HMAC_Final :                     \
         0)
+
+IntPtr tHMAC(const CryptoParam_t *P, int q);
+
+void *HMAC_T_Init(
+    const CryptoParam_t *restrict P,
+    hmac_t *restrict x,
+    void const *restrict k,
+    size_t klen);
 
 #endif /* MySuiteA_hmac_h */

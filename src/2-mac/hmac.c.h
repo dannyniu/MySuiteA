@@ -3,7 +3,7 @@
 #define Define_HMAC_Hash(algo,name)                             \
     void *HMAC_##algo##_Init(                                   \
         hmac_##name *restrict x,                                \
-        const void *restrict key,                               \
+        void const *restrict key,                               \
         size_t keylen)                                          \
     {                                                           \
         x->hmac = HMAC_INIT(c##algo);                           \
@@ -11,4 +11,4 @@
         return x;                                               \
     }                                                           \
                                                                 \
-    uparam_t iHMAC_##algo(int q){ return cHMAC_##algo(q); }
+    IntPtr iHMAC_##algo(int q){ return cHMAC_##algo(q); }

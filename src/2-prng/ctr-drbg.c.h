@@ -20,5 +20,5 @@
         return x;                                               \
     }                                                           \
                                                                 \
-    uparam_t iCTR_DRBG_##algo(int q)                            \
+    IntPtr iCTR_DRBG_##algo(int q)                              \
     { return cCTR_DRBG_##algo(q); }

@@ -63,7 +63,7 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-hmac-test.c
+hmac-t-test.c
 hmac-sha.c
 hmac-sha3.c
 hmac.c

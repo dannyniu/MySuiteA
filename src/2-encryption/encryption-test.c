@@ -15,13 +15,16 @@ int main(int argc, char *argv[])
     int i;
     uint8_t *ptr = NULL, *tmp;
     size_t *acc = NULL;
-    uparam_t (*aead)(int) = iGCM_AES128;
+    iCryptoObj_t aead = iGCM_AES128, bc = iAES128;
+    tCryptoObj_t mode = tGCM;
+    CryptoParam_t Bc;
 
     if( argc < 3 ) return 1;
-    if( !strcmp(argv[1], "128") ) aead = iGCM_AES128;
-    if( !strcmp(argv[1], "192") ) aead = iGCM_AES192;
-    if( !strcmp(argv[1], "256") ) aead = iGCM_AES256;
-    if( !strcmp(argv[1], "20") ) aead = iChaCha_AEAD;
+    if( !strcmp(argv[1], "128") ) aead=iGCM_AES128, bc=iAES128, mode=tGCM;
+    if( !strcmp(argv[1], "192") ) aead=iGCM_AES192, bc=iAES192, mode=tGCM;
+    if( !strcmp(argv[1], "256") ) aead=iGCM_AES256, bc=iAES256, mode=tGCM;
+    if( !strcmp(argv[1], "20") ) aead=iChaCha_AEAD, bc=NULL, mode=NULL;
+    Bc.info = bc, Bc.aux = NULL;
 
     freopen(argv[2], "r", stdin);
     
@@ -78,17 +81,42 @@ int main(int argc, char *argv[])
 
     printf("%s\n", argv[2]);
 
-    KINIT_FUNC(aead)(&gcm, k, KEY_BYTES(aead));
-    AENC_FUNC(aead)((void *)&gcm, iv, alen, a, len, p, x, 16, s);
-    if( memcmp(s, t, 16) ) printf("Encryption Failed: Tag Wrong!\n");
-    if( memcmp(c, x, len) ) printf("Encryption Failed: Ciphertext Wrong!\n");
-    ptr = ADEC_FUNC(aead)((void *)&gcm, iv, alen, a, len, c, x, 16, t);
-    if( !ptr ) printf("Decryption Errornously Returned FAIL\n");
-    if( memcmp(p, x, len) ) printf("Decryption Failed: Plaintext Wrong!\n");
+    KINIT_FUNC(aead)(
+        &gcm, k, KEY_BYTES(aead));
+    AENC_FUNC(aead)(
+        (void *)&gcm, iv, alen, a, len, p, x, 16, s);
+    if( memcmp(s, t, 16) ) printf("Enc Fail: Tag Wrong!\n");
+    if( memcmp(c, x, len) ) printf("Enc Fail: Ciphertext Wrong!\n");
+    ptr = ADEC_FUNC(aead)(
+        (void *)&gcm, iv, alen, a, len, c, x, 16, t);
+    if( !ptr ) printf("Dec Errornously Returned FAIL\n");
+    if( memcmp(p, x, len) ) printf("Dec Fail: Plaintext Wrong!\n");
 
     if( alen ) {
-        ptr = ADEC_FUNC(aead)((void *)&gcm, iv, alen-1, a+1, len, c, x, 16, t);
-        if( ptr ) printf("Decryption Errornously Secceeded!\n");
+        ptr = ADEC_FUNC(aead)(
+            (void *)&gcm, iv, alen-1, a+1, len, c, x, 16, t);
+        if( ptr ) printf("Dec Errornously Secceeded!\n");
+    }
+
+    if( mode && bc )
+    {
+        ((PKInitFunc_t)mode(&Bc, KInitFunc))(
+            &Bc, &gcm, k, mode(&Bc, keyBytes));
+        ((AEncFunc_t)mode(&Bc, AEncFunc))(
+            (void *)&gcm, iv, alen, a, len, p, x, 16, s);
+        if( memcmp(s, t, 16) ) printf("Enc Fail: Tag Wrong!\n");
+        if( memcmp(c, x, len) ) printf("Enc Fail: Ciphertext Wrong!\n");
+        ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
+                   (void *)&gcm, iv, alen, a, len, c, x, 16, t);
+        if( !ptr ) printf("Dec Errornously Returned FAIL\n");
+        if( memcmp(p, x, len) ) printf("Dec Fail: Plaintext Wrong!\n");
+        
+        if( alen ) {
+            ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
+                (void *)&gcm, iv, alen-1, a+1, len, c, x, 16, t);
+            if( ptr ) printf("Dec Errornously Secceeded!\n");
+        }
+
     }
 
     printf("Test Over\n");

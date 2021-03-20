@@ -66,47 +66,47 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t);
         q==outBytes ? 20 :                              \
         q==blockBytes ? 64 :                            \
         q==contextBytes ? sizeof(struct sha1_context) : \
-        q==InitFunc   ? (uparam_t)SHA1_Init :           \
-        q==UpdateFunc ? (uparam_t)SHA1_Update :         \
-        q==FinalFunc  ? (uparam_t)SHA1_Final :          \
+        q==InitFunc   ? (IntPtr)SHA1_Init :             \
+        q==UpdateFunc ? (IntPtr)SHA1_Update :           \
+        q==FinalFunc  ? (IntPtr)SHA1_Final :            \
         0)
 #define cSHA224(q) (                                            \
         q==outBytes ? 28 :                                      \
         q==blockBytes ? 64 :                                    \
         q==contextBytes ? sizeof(struct sha256_context) :       \
-        q==InitFunc   ? (uparam_t)SHA224_Init :                 \
-        q==UpdateFunc ? (uparam_t)SHA224_Update :               \
-        q==FinalFunc  ? (uparam_t)SHA224_Final :                \
+        q==InitFunc   ? (IntPtr)SHA224_Init :                   \
+        q==UpdateFunc ? (IntPtr)SHA224_Update :                 \
+        q==FinalFunc  ? (IntPtr)SHA224_Final :                  \
         0)
 #define cSHA256(q) (                                            \
         q==outBytes ? 32 :                                      \
         q==blockBytes ? 64 :                                    \
         q==contextBytes ? sizeof(struct sha256_context) :       \
-        q==InitFunc   ? (uparam_t)SHA256_Init :                 \
-        q==UpdateFunc ? (uparam_t)SHA256_Update :               \
-        q==FinalFunc  ? (uparam_t)SHA256_Final :                \
+        q==InitFunc   ? (IntPtr)SHA256_Init :                   \
+        q==UpdateFunc ? (IntPtr)SHA256_Update :                 \
+        q==FinalFunc  ? (IntPtr)SHA256_Final :                  \
         0)
 #define cSHA384(q) (                                            \
         q==outBytes ? 48 :                                      \
         q==blockBytes ? 128 :                                   \
         q==contextBytes ? sizeof(struct sha512_context) :       \
-        q==InitFunc   ? (uparam_t)SHA384_Init :                 \
-        q==UpdateFunc ? (uparam_t)SHA384_Update :               \
-        q==FinalFunc  ? (uparam_t)SHA384_Final :                \
+        q==InitFunc   ? (IntPtr)SHA384_Init :                   \
+        q==UpdateFunc ? (IntPtr)SHA384_Update :                 \
+        q==FinalFunc  ? (IntPtr)SHA384_Final :                  \
         0)
 #define cSHA512(q) (                                            \
         q==outBytes ? 64 :                                      \
         q==blockBytes ? 128 :                                   \
         q==contextBytes ? sizeof(struct sha512_context) :       \
-        q==InitFunc   ? (uparam_t)SHA512_Init :                 \
-        q==UpdateFunc ? (uparam_t)SHA512_Update :               \
-        q==FinalFunc  ? (uparam_t)SHA512_Final :                \
+        q==InitFunc   ? (IntPtr)SHA512_Init :                   \
+        q==UpdateFunc ? (IntPtr)SHA512_Update :                 \
+        q==FinalFunc  ? (IntPtr)SHA512_Final :                  \
         0)
 
-uparam_t iSHA1(int q);
-uparam_t iSHA224(int q);
-uparam_t iSHA256(int q);
-uparam_t iSHA384(int q);
-uparam_t iSHA512(int q);
+IntPtr iSHA1(int q);
+IntPtr iSHA224(int q);
+IntPtr iSHA256(int q);
+IntPtr iSHA384(int q);
+IntPtr iSHA512(int q);
 
 #endif

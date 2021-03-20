@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     Gimli_XOF_Init(&gx);
     Gimli_XOF_Write(&gx, "Hello World!", 12);
-    if( argv[1] )
+    if( argc >= 2 )
         Gimli_XOF_Write(&gx, argv[1], strlen(argv[1]));
     Gimli_XOF_Final(&gx);
 

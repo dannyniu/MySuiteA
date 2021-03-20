@@ -126,3 +126,24 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
 
     return out;
 }
+
+#define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
+
+IntPtr tGCM(const CryptoParam_t *P, int q)
+{
+    return cGCM(T,q);
+}
+
+void *GCM_T_Init(
+    const CryptoParam_t *restrict P,
+    gcm_t *restrict x,
+    void const *restrict k,
+    size_t klen)
+{
+    if( klen != (size_t)KEY_BYTES(cT) )
+        return NULL;
+    *x = GCM_INIT(cT);
+    KSCHD_FUNC(cT)(k, (char *)x + sizeof(*x));
+    x->enc(x->H, x->H, (char *)x + sizeof(*x));
+    return x;
+}

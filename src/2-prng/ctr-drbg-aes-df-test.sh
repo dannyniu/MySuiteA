@@ -27,38 +27,26 @@ bin=$(basename "$0" .sh)
 
 vsrc(){ src="$src_common 1-symm/rijndael${1}.c" ; }
 
-echo ======== Test Name: $bin ========
-echo C language code. [x86_64]
-arch=x86_64 cflags=""
+arch=x86_64 cflags="" srcset="Plain C"
 vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [aarch64]
-arch=aarch64 cflags=""
+arch=aarch64 cflags="" srcset="Plain C"
 vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [powerpc64]
-arch=powerpc64 cflags=""
+arch=powerpc64 cflags="" srcset="Plain C"
 vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo C language code. [sparc64]
-arch=sparc64 cflags=""
+arch=sparc64 cflags="" srcset="Plain C"
 vsrc ""
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo x86 AESNI intrinsics.
-arch=x86_64 cflags="-maes"
+arch=x86_64 cflags="-maes" srcset="AESNI"
 vsrc "-x86"
 ( . $unitest_sh )
 
-echo ======== Test Name: $bin ========
-echo ARM NEON Crypto intrinsics.
-arch=aarch64 cflags="-march=armv8-a+crypto"
+arch=aarch64 cflags="-march=armv8-a+crypto" srcset="ARM NEON Crypto"
 vsrc "-arm"
 ( . $unitest_sh )

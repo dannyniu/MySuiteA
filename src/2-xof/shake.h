@@ -20,22 +20,18 @@ void SHAKE_Write(shake_t *restrict x, const void *restrict data, size_t len);
 void SHAKE_Final(shake_t *restrict x);
 void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len);
 
-#ifndef foo
-# // Emacs seems to have difficulty indent correctly if nothing's here. 
-#endif /* foo */
-
 #define cSHAKE(bits,q) (                                        \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct shake_context) :        \
-        q==InitFunc ? (uparam_t)SHAKE##bits##_Init :            \
-        q==WriteFunc ? (uparam_t)SHAKE_Write :                  \
-        q==XofFinalFunc ? (uparam_t)SHAKE_Final :               \
-        q==ReadFunc ? (uparam_t)SHAKE_Read :                    \
+        q==InitFunc ? (IntPtr)SHAKE##bits##_Init :              \
+        q==WriteFunc ? (IntPtr)SHAKE_Write :                    \
+        q==XofFinalFunc ? (IntPtr)SHAKE_Final :                 \
+        q==ReadFunc ? (IntPtr)SHAKE_Read :                      \
         0)
 #define cSHAKE128(q) cSHAKE(128,q)
 #define cSHAKE256(q) cSHAKE(256,q)
 
-uparam_t iSHAKE128(int q);
-uparam_t iSHAKE256(int q);
+IntPtr iSHAKE128(int q);
+IntPtr iSHAKE256(int q);
 
 #endif /* MySuiteA_shake_h */

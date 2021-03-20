@@ -242,3 +242,28 @@ void CTR_DRBG_Reseed_WithDF(
 }
 
 #endif /* ! CTR_DRBG_OMIT_DF */
+
+#ifndef __CTR_DRBG_Seed
+#include "ctr-drbg.c.h" // Included only to use ``__CTR_DRBG_Seed''
+#endif
+
+#define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
+
+IntPtr tCTR_DRBG(const CryptoParam_t *P, int q)
+{
+    return cCTR_DRBG(T,q);
+}
+
+void *CTR_DRBG_T_InstInit(
+    const CryptoParam_t *restrict P,
+    ctr_drbg_t *restrict x,
+    void const *restrict seedstr,
+    size_t len)
+{
+    *x = CTR_DRBG_INIT(cT);
+    if( x->bc_blksize > CTR_DRBG_MAX_BLKSIZE ||
+        x->bc_keysize > CTR_DRBG_MAX_KEYSIZE )
+        return NULL;
+    __CTR_DRBG_Seed(x, seedstr, len);
+    return x;
+}

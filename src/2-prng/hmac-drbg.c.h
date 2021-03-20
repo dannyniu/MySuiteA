@@ -7,9 +7,10 @@
         size_t len)                                     \
     {                                                   \
         x->hmac_drbg = HMAC_DRBG_INIT(c##algo);         \
+        x->hmac_drbg.parameterization = NULL;           \
         HMAC_DRBG_Seed(&x->hmac_drbg, seedstr, len);    \
         return x;                                       \
     }                                                   \
                                                         \
-    uparam_t iHMAC_DRBG_##algo(int q)                   \
+    IntPtr iHMAC_DRBG_##algo(int q)                     \
     { return cHMAC_DRBG_##algo(q); }

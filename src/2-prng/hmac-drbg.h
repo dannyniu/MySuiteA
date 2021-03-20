@@ -4,7 +4,7 @@
 #define MySuiteA_hmac_drbg_h 1
 
 #include "../mysuitea-common.h"
-
+/*
 typedef struct hmac_drbg_context {
     size_t          ctx_len_total;
 
@@ -14,6 +14,30 @@ typedef struct hmac_drbg_context {
     
     ptrdiff_t       prf_ctx_offset;
     KInitFunc_t     prf_init;
+    UpdateFunc_t    prf_update;
+    FinalFunc_t     prf_final;
+} hmac_drbg_t;
+*/
+typedef struct hmac_drbg_context {
+    union
+    {
+        struct
+        {
+            uint16_t        ctx_len_total;
+            uint16_t        prf_outlen;
+        };
+        size_t              pad;
+    };
+    const CryptoParam_t     *parameterization;
+    ptrdiff_t       offset_k;
+    ptrdiff_t       offset_v;
+    
+    ptrdiff_t       prf_ctx_offset;
+    union
+    {
+        KInitFunc_t     prf_init;
+        PKInitFunc_t    prf_pinit;
+    };
     UpdateFunc_t    prf_update;
     FinalFunc_t     prf_final;
 } hmac_drbg_t;
@@ -59,15 +83,22 @@ void HMAC_DRBG_Generate(
         void const *restrict seedstr,                   \
         size_t len);                                    \
                                                         \
-    uparam_t iHMAC_DRBG_##algo(int q);
+    IntPtr iHMAC_DRBG_##algo(int q);
 
-#define cHMAC_DRBG(prf,q) (                                             \
-        q==contextBytes ? HMAC_DRBG_CTX_LEN(c##prf) :                   \
-        q==seedBytes ? 0 :                                              \
-        q==seedBytesMax ? ((uparam_t)-1) :                              \
-        q==InstInitFunc ? (uparam_t)HMAC_DRBG_##prf##_InstInit :        \
-        q==ReseedFunc ? (uparam_t)HMAC_DRBG_Reseed :                    \
-        q==GenFunc ? (uparam_t)HMAC_DRBG_Generate :                     \
+#define cHMAC_DRBG(prf,q) (                                     \
+        q==contextBytes ? HMAC_DRBG_CTX_LEN(c##prf) :           \
+        q==seedBytes ? ((IntPtr)-1) :                           \
+        q==InstInitFunc ? (IntPtr)HMAC_DRBG_##prf##_InstInit :  \
+        q==ReseedFunc ? (IntPtr)HMAC_DRBG_Reseed :              \
+        q==GenFunc ? (IntPtr)HMAC_DRBG_Generate :               \
         0)
+
+IntPtr tHMAC_DRBG(const CryptoParam_t *P, int q);
+
+void *HMAC_DRBG_T_InstInit(
+    const CryptoParam_t *restrict P,
+    hmac_drbg_t *restrict x,
+    void const *restrict seedstr,
+    size_t len);
 
 #endif /* MySuiteA_hmac_drbg_h */

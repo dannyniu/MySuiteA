@@ -53,13 +53,17 @@ hostname=$(uname -n)
 if
     [ $sysarch != $arch ] && ! (
         . /etc/os-release &&
-            echo $ID $ID_LIKE | fgrep ubuntu &&
+            echo $ID $ID_LIKE | fgrep -q ubuntu &&
             dpkg -l clang gcc-${arch}-linux-gnu qemu-user
     ) >/dev/null 2>&1
 then
     echo Skipping 1 non-native architecture test.
     exit
 fi
+
+# routinal notification info.
+echo ======== Test Name: $bin ========
+echo "${arch} / ${srcset}"
 
 if [ $sysarch = $arch ] ; then
     UsrArchIncPath=/usr/include
