@@ -11,4 +11,8 @@
 // additional primes.
 int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS);
 
+//
+// 2021-04-17: TODO: explain what aux do.
+int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS);
+
 #endif /* MySuiteA_rsa_codec_der_h */

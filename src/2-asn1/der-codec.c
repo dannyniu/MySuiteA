@@ -93,94 +93,133 @@ int ber_get_hdr(
     return 0;
 }
 
-uint8_t *ber_push_len(uint8_t **stack, uint32_t val)
+uint32_t ber_push_len(uint8_t **stack, uint32_t val)
 {
     // 2021-02-28: This function hadn't been tested yet.
+    // 2021-04-18: This function is being tested through its caller.
     
     if( val < 0x80 )
     {
-        *((*stack)--) = val;
+        if( *stack )
+        {
+            *(--(*stack)) = val;
+        }
+        return 1;
     }
     
     else if( val < 0x100 )
     {
-        *((*stack)--) = val;
-        *((*stack)--) = 0x80 | 1;
+        if( *stack )
+        {
+            *(--(*stack)) = val;
+            *(--(*stack)) = 0x80 | 1;
+        }
+        return 2;
     }
 
     else if( val < 0x10000 )
     {
-        *((*stack)--) = val;
-        *((*stack)--) = val;
-        *((*stack)--) = 0x80 | 2;
+        if( *stack )
+        {
+            *(--(*stack)) = val;
+            *(--(*stack)) = (val >>  8);
+            *(--(*stack)) = 0x80 | 2;
+        }
+        return 3;
     }
 
     else if( val < 0x1000000 )
     {
-        *((*stack)--) = val;
-        *((*stack)--) = val;
-        *((*stack)--) = val;
-        *((*stack)--) = 0x80 | 3;
+        if( *stack )
+        {
+            *(--(*stack)) = val;
+            *(--(*stack)) = (val >>  8);
+            *(--(*stack)) = (val >> 16);
+            *(--(*stack)) = 0x80 | 3;
+        }
+        return 4;
     }
 
     else if( val < 0x80000000 )
     {
-        *((*stack)--) = val;
-        *((*stack)--) = val;
-        *((*stack)--) = val;
-        *((*stack)--) = val;
-        *((*stack)--) = 0x80 | 4;
+        if( *stack )
+        {
+            *(--(*stack)) = val;
+            *(--(*stack)) = (val >>  8);
+            *(--(*stack)) = (val >> 16);
+            *(--(*stack)) = (val >> 24);
+            *(--(*stack)) = 0x80 | 4;
+        }
+        return 5;
     }
     
-    else return NULL;
-
-    return *stack;
+    else return 0;
 }
 
-uint8_t *ber_push_tag(uint8_t **stack, uint32_t val, int pc)
+uint32_t ber_push_tag(uint8_t **stack, uint32_t val, int pc)
 {
     // 2021-02-28: This function hadn't been tested yet.
+    // 2021-04-18: This function is being tested through its caller.
     
-    uint8_t tagflags = (3 & (val >> 28)) | (pc & 1);
+    uint8_t tagflags = ((6 & (val >> 28)) | (pc & 1)) << 5;
+    val &= BER_TLV_TAG_MAX;
     
     if( val < (uint32_t)1 << 5 )
     {
-        *((*stack)--) = tagflags | val;
+        if( *stack )
+        {
+            *(--(*stack)) = tagflags | val;
+        }
+        return 1;
     }
 
     else if( val < (uint32_t)1 << (7 * 1) )
     {
-        *((*stack)--) = val;
-        *((*stack)--) = tagflags | 31;
+        if( *stack )
+        {
+            *(--(*stack)) = val;
+            *(--(*stack)) = tagflags | 31;
+        }
+        return 2;
     }
 
     else if( val < (uint32_t)1 << (7 * 2) )
     {
-        *((*stack)--) = val;
-        *((*stack)--) = val | 0x80;
-        *((*stack)--) = tagflags | 31;
+        if( *stack )
+        {
+            *(--(*stack)) = 0x7f & val;
+            *(--(*stack)) = (0x7f & (val >>  7)) | 0x80;
+            *(--(*stack)) = tagflags | 31;
+        }
+        return 3;
     }
 
     else if( val < (uint32_t)1 << (7 * 3) )
     {
-        *((*stack)--) = val;
-        *((*stack)--) = val | 0x80;
-        *((*stack)--) = val | 0x80;
-        *((*stack)--) = tagflags | 31;
+        if( *stack )
+        {
+            *(--(*stack)) = 0x7f & val;
+            *(--(*stack)) = (0x7f & (val >>  7)) | 0x80;
+            *(--(*stack)) = (0x7f & (val >> 14)) | 0x80;
+            *(--(*stack)) = tagflags | 31;
+        }
+        return 4;
     }
 
     else if( val < (uint32_t)1 << (7 * 4) )
     {
-        *((*stack)--) = val;
-        *((*stack)--) = val | 0x80;
-        *((*stack)--) = val | 0x80;
-        *((*stack)--) = val | 0x80;
-        *((*stack)--) = tagflags | 31;
+        if( *stack )
+        {
+            *(--(*stack)) = 0x7f & val;
+            *(--(*stack)) = (0x7f & (val >>  7)) | 0x80;
+            *(--(*stack)) = (0x7f & (val >> 14)) | 0x80;
+            *(--(*stack)) = (0x7f & (val >> 21)) | 0x80;
+            *(--(*stack)) = tagflags | 31;
+        }
+        return 5;
     }
 
-    else return NULL;
-
-    return *stack;
+    else return 0;
 }
 
 void *ber_util_splice_insert(
@@ -289,6 +328,45 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     {
         w->v[i / sizeof(uint32_t)] |=
             enc[enclen - i - 1] << ((i % sizeof(uint32_t)) * 8);
+    }
+
+    return ret;
+}
+
+int32_t ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS)
+{
+    // 2021-04-17: This function had not been tested yet.
+
+    // [ber-int-err-chk:2021-02-13].
+
+    int32_t ret = 0;
+    int32_t i;
+    const vlong_t *w = any;
+
+    // silence 2 unused variable warnings.
+    enclen = 0;
+    aux = NULL;
+
+    // This function handles only unsigned integers.
+    ret = w->c * sizeof(uint32_t) + 1;
+    for(i=w->c; i--; )
+    {
+        if( w->v[i] < UINT32_C(1) << 31 ) ret--;
+        if( w->v[i] < UINT32_C(1) << 23 ) ret--;
+        if( w->v[i] < UINT32_C(1) << 15 ) ret--;
+        if( w->v[i] < UINT32_C(1) <<  7 ) ret--;
+        if( w->v[i] ) break;
+    }
+
+    if( pass == 1 ) return ret;
+
+    for(i=0; i<ret; i++) // i is the byte position in enc,
+    {
+        uint32_t u, v; // v is the shift amount,
+        u = ret - i - 1;
+        v = (u % sizeof(uint32_t)) * 8;
+        u /= sizeof(uint32_t); // u is the position in vlong.
+        enc[i] = u < w->c ? (w->v[u] >> v) : 0;
     }
 
     return ret;

@@ -11,11 +11,11 @@
 // For tags, the sign bit is set, and the 2nd and 3rd most significant bit
 // is allocated to represent tag types. For lengths, the sign bit is clear.
 
-#define BER_TLV_TAG_MAX         UINT32_C(0x0fffffff)
+#define BER_TLV_TAG_MAX         UINT32_C(0x0fffffff) // also a valid mask.
 #define BER_TLV_TAG_UNI(x) (x | UINT32_C(0x80000000)) // universal tag,
-#define BER_TLV_TAG_APP(x) (x | UINT32_C(0x90000000)) // application tag,
-#define BER_TLV_TAG_CTX(x) (x | UINT32_C(0xA0000000)) // context-specific tag,
-#define BER_TLV_TAG_PRI(x) (x | UINT32_C(0xB0000000)) // private tag.
+#define BER_TLV_TAG_APP(x) (x | UINT32_C(0xA0000000)) // application tag,
+#define BER_TLV_TAG_CTX(x) (x | UINT32_C(0xC0000000)) // context-specific tag,
+#define BER_TLV_TAG_PRI(x) (x | UINT32_C(0xE0000000)) // private tag.
 #define BER_TLV_LENGTH(x)  (x & UINT32_C(0x7FFFFFFF))
 
 // 2021-02-14:
@@ -31,23 +31,23 @@ int ber_get_hdr(
 
 // stacks are pre-allocated using estimated values returned from the
 // 1st pass invocation of ``ber_tlv_encoding_func'' functions.
-uint8_t *ber_push_len(uint8_t **stack, uint32_t val);
-uint8_t *ber_push_tag(uint8_t **stack, uint32_t val, int pc);
+uint32_t ber_push_len(uint8_t **stack, uint32_t val);
+uint32_t ber_push_tag(uint8_t **stack, uint32_t val, int pc);
 void *ber_util_splice_insert(
     void *buf,        size_t len1,
     ptrdiff_t offset, size_t len2);
 
 //
-// A ``ber_tlv_{de,en}coding_func'' has 2 passes,
+// A ``ber_tlv_{de,en}coding_func'' have 2 passes,
 //
-// - In pass 1, it returns the estimated size of memory required for holding:
+// - In pass 1, they returns the estimated size of memory required for holding:
 //   * a working context decoded from a DER-encoded object,
 //   * DER-encoding of the working variables.
 //
 //   On error, it returns -1, possibly propagated from
 //   nested calls.
 //
-// - In pass 2, the function:
+// - In pass 2, the functions:
 //   * decodes the DER-encoded object into the working context buffer,
 //   * encodes the DER representation of the working variables into a buffer.
 //   The buffer is allocated using the estimate from pass 1.
@@ -72,7 +72,14 @@ void *ber_util_splice_insert(
 typedef int32_t (*ber_tlv_decoding_func)(BER_TLV_DECODING_FUNC_PARAMS);
 typedef int32_t (*ber_tlv_encoding_func)(BER_TLV_ENCODING_FUNC_PARAMS);
 
+//
+// 2021-04-17, late note:
+// Because it requires handling length estimates, tagging, re-splicing, etc.
+// it is more natural to write primitive value codec functions to work
+// without caring for those, and let structure codec functions care for them.
+
 // [ber-int-err-chk:2021-02-13].
 int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS);
+int32_t ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS);
 
 #endif /* MySuiteA_der_parse_h */
