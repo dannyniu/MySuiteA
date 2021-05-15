@@ -95,9 +95,6 @@ int ber_get_hdr(
 
 uint32_t ber_push_len(uint8_t **stack, uint32_t val)
 {
-    // 2021-02-28: This function hadn't been tested yet.
-    // 2021-04-18: This function is being tested through its caller.
-    
     if( val < 0x80 )
     {
         if( *stack )
@@ -158,9 +155,6 @@ uint32_t ber_push_len(uint8_t **stack, uint32_t val)
 
 uint32_t ber_push_tag(uint8_t **stack, uint32_t val, int pc)
 {
-    // 2021-02-28: This function hadn't been tested yet.
-    // 2021-04-18: This function is being tested through its caller.
-    
     uint8_t tagflags = ((6 & (val >> 28)) | (pc & 1)) << 5;
     val &= BER_TLV_TAG_MAX;
     

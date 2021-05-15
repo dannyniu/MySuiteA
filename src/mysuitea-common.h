@@ -139,7 +139,11 @@ enum {
     AEncFunc, ADecFunc, 
     
     // Information macros evaluates to 0
-    // for queries not applicable to them. 
+    // for queries not applicable to them.
+
+    // Private-Use Range //
+    qPrivateUseBegin = 128,
+    qPrivateUseEnd = 255,
 };
 
 // Aliases additions for PRNG/DRBG.
