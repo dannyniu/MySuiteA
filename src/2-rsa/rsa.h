@@ -52,13 +52,16 @@ typedef struct {
         sizeof(RSA_Private_Context_Base_t) +                    \
         sizeof(RSA_OtherPrimeInfo_t) * ((c) - 2)  )
 
-#define RSA_PRIVATE_PARAM_ENTUPLE(__l__,__c__)                  \
-    ((RSA_Private_Param_t){ .l = (__l__), .c = (__c__), })
+#define RSA_PRIVATE_PARAM_ENTUPLE(l_,c_)                \
+    ((RSA_Private_Param_t){ .l = (l_), .c = (c_), })
 
 #define RSA_PRIVATE_PARAM_DETUPLE(obj) (obj).l, (obj).c
 
 // returns x on success and NULL on failure.
-RSA_Private_Context_t *rsa_keygen(
+
+// If x is NULL, returns size estimate for its memory allocation;
+// otherwise, returns x on success and 0 (NULL) on failure.
+IntPtr rsa_keygen(
     RSA_Private_Context_t *restrict x,
     RSA_Private_Param_t *restrict param,
     GenFunc_t prng_gen, void *restrict prng);
@@ -73,9 +76,7 @@ RSA_Private_Context_t *rsa_keygen(
 // ## or: ##
 //
 // RSA_Private_Param *param_keygen = ...;
-// void *rsa_priv_ctx =
-//     malloc(RSA_PRIVATE_CONTEXT_SIZE(
-//         RSA_PRIVATE_PARAM_DETUPLE(*param_keygen)));
+// void *rsa_priv_ctx = malloc(rsa_keygen(NULL, &param_keygen, NULL, NULL));
 // rsa_keygen(rsa_priv_ctx, param_keygen, SHAKE_Read, &xof);
 //
 

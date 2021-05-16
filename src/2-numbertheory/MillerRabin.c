@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2021-02-16. Public Domain. */
 
 #include "MillerRabin.h"
-#include "../1-integers/vlong.h"
 
 int MillerRabin(
     vlong_t const *restrict w,

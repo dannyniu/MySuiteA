@@ -4,9 +4,9 @@
 #define MySuiteA_MillerRabin_h 1
 
 #include "../mysuitea-common.h"
-#include "../1-integers/vlong.h"
 
-// returns 0 for composite, and 1 for probably prime.
+// Returns 0 for composite, and 1 for probably prime.
+// Caller should ensure w and tmp* are of same width.
 int MillerRabin(
     vlong_t const *restrict w,
     int iterations,
