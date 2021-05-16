@@ -311,8 +311,6 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     vlong_t *w = any;
     uint32_t i;
     
-    aux = NULL; // silence the unused parameter warning.
-
     if( pass == 1 ) return ret;
 
     w->c = (enclen + sizeof(uint32_t) - 1) / sizeof(uint32_t);
@@ -322,6 +320,19 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     {
         w->v[i / sizeof(uint32_t)] |=
             enc[enclen - i - 1] << ((i % sizeof(uint32_t)) * 8);
+    }
+
+    if( aux )
+    {
+        uint32_t *bits = aux;
+
+        for(i=w->c; --i; )
+            if( w->v[i] ) break;
+
+        *bits = w->v[i];
+        i = i * 32;
+        while( *bits ) i++, *bits >>= 1;
+        *bits = i;
     }
 
     return ret;

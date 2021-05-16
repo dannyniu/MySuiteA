@@ -1,6 +1,7 @@
 /* DannyNiu/NJF, 2021-02-12. Public Domain. */
 
 #include "rsa-codec-der.h"
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,6 +34,9 @@ int main(int argc, char *argv[])
 
     ctx = malloc(size);
     size = ber_tlv_decode_RSAPrivateKey(2, buf, len, ctx, &aux);
+    printf(
+        "modulus size: %"PRIu32"\n",
+        ((RSA_Private_Context_Base_t *)ctx)->modulus_bits);
 
     // encoding test.
     

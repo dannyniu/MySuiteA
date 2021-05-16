@@ -13,7 +13,7 @@ typedef struct {
     // CRT decryption/signing needs only 3 modulus-sized working variables,
     // Key generation requires 4.
     uint32_t offset_w1, offset_w2, offset_w3, offset_w4;
-    uint32_t count_primes_other;
+    uint32_t count_primes_other, modulus_bits;
     uint32_t offset_n, offset_e, offset_d;
     uint32_t offset_q, offset_dQ;
     uint32_t offset_p, offset_dP, offset_qInv;

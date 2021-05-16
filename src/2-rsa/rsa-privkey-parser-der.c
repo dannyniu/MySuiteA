@@ -63,7 +63,8 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
     
     size_modulus = ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_n), NULL);
+        IF_MEMBER(ctx, offset_n),
+        ctx ? &ctx->modulus_bits : NULL);
     ret += size_modulus;
     ptr += len; remain -= len;
 

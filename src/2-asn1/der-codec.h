@@ -79,6 +79,12 @@ typedef int32_t (*ber_tlv_encoding_func)(BER_TLV_ENCODING_FUNC_PARAMS);
 // without caring for those, and let structure codec functions care for them.
 
 // [ber-int-err-chk:2021-02-13].
+//
+// 2021-05-16:
+// For the integer decoder, ``aux'' optionally points to a ``uint32_t''
+// which receives the bit length (index of the highest bit set) of the
+// integer in the 2nd pass.
+//
 int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS);
 int32_t ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS);
 
