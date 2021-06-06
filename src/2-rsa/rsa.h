@@ -51,7 +51,7 @@ typedef struct {
 // Assume sizeof(uint32_t) == 4.
 #define RSA_PRIVATE_INTEGER_SIZE(bits) (4 * (((bits) + 32 * 3 - 1) / 32))
 
-// If c does not divide l, behavior is undefined.
+// [!A-E-D!]: If c does not divide l, behavior is undefined.
 #define RSA_PRIVATE_CONTEXT_SIZE_X(l,c) (                       \
         RSA_PRIVATE_INTEGER_SIZE((l) / (c)) * (3 * (c) - 1) +   \
         RSA_PRIVATE_INTEGER_SIZE((l)) * (2 + 4) +               \

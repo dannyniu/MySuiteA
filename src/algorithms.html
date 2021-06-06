@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset=utf-8>
+    <meta charset="UTF-8">
     <title>MySuiteA Algorithms</title>
 
     <style>
      body > * {
-       width:       calc(720px + 10vw);
-       margin:  1em calc(45vw - 360px);
+       width:        calc(720px + 20vw);
+       margin:   1em calc(40vw - 360px);
      }
 
      table {
-       border-collapse: collapse;
+       border-collapse:  collapse;
      }
      
      th, td {
-       padding: 3pt;
+       padding:  3pt;
      }
 
      th {
-       border:  thin solid black;
+       border:   thin solid black;
      }
 
      td {
-       border:  thin solid silver;
+       border:   thin solid silver;
      }
     </style>
 
@@ -56,7 +56,10 @@
         <tr>
           <td>SHA3 / Keccak</td>
           <td>Hash Function</td>
-          <td>Sponge</td>
+          <td>
+            Sponge Mode of Operation of
+            Permutation
+          </td>
         </tr>
 
         <tr>
@@ -68,19 +71,39 @@
         <tr>
           <td>GCM - Galois Counter Mode</td>
           <td>AEAD</td>
-          <td>Block Cipher Mode</td>
+          <td>
+            Composition of
+            Mode of Operation of Block Cipher with
+            Universal MAC Based on Binary Polynomial
+          </td>
         </tr>
 
         <tr>
           <td>ChaCha20-Poly1305</td>
           <td>AEAD</td>
-          <td>Stream Cipher</td>
+          <td>
+            Composition of
+            Stream Cipher Based on ARX with
+            Universal MAC Based on Integer Arithmetic
+          </td>
         </tr>
 
         <tr>
           <td>Gimli</td>
           <td>Permutation</td>
           <td>Binary Polynomial</td>
+        </tr>
+
+        <tr>
+          <td>HMAC-DRBG</td>
+          <td>Pseudo-Random Number Generator</td>
+          <td>Mode of Operation of PRF</td>
+        </tr>
+        
+        <tr>
+          <td>CTR-DRBG</td>
+          <td>Pseudo-Random Number Generator</td>
+          <td>Mode of Operation of Block Cipher</td>
         </tr>
         
       </tbody>
@@ -103,7 +126,7 @@
         <tr>
           <td>AES / Rijndael</td>
           <td>Normative</td>
-          <td>FIPS-197 Announcing the Advanced Encryption Standard (AES)</td>
+          <td>[FIPS-197] Announcing the Advanced Encryption Standard (AES)</td>
           <td></td>
           <td>2001-11-26</td>
           <td>
@@ -125,7 +148,7 @@
         <tr>
           <td>SHA-1, SHA-256, etc.</td>
           <td>Normative</td>
-          <td>FIPS-180-4 Secure Hash Standard (SHS)</td>
+          <td>[FIPS-180-4] Secure Hash Standard (SHS)</td>
           <td></td>
           <td>2015-08</td>
           <td>
@@ -137,7 +160,7 @@
           <td>SHA3 / Keccak</td>
           <td>Normative</td>
           <td>
-            FIPS-202 SHA-3 Standard:
+            [FIPS-202] SHA-3 Standard:
             Permutation-Based Hash and Extendable-Output Functions</td>
           <td></td>
           <td>2015-08</td>
@@ -161,6 +184,7 @@
           <td>BLAKE2</td>
           <td>Normative</td>
           <td>
+            [RFC-7693]
             The BLAKE2 Cryptographic Hash and
             Message Authentication Code (MAC)</td>
           <td></td>
@@ -189,6 +213,7 @@
           <td>GCM - Galois Counter Mode</td>
           <td>Normative</td>
           <td>
+            [NIST-SP-800-38D]
             Recommendation for Block Cipher Modes of Operation:
             Galois/Counter Mode (GCM) and GMAC</td>
           <td></td>
@@ -212,7 +237,10 @@
         <tr>
           <td>ChaCha20-Poly1305</td>
           <td>Normative</td>
-          <td>ChaCha20 and Poly1305 for IETF Protocols</td>
+          <td>
+            [RFC-8439]
+            ChaCha20 and Poly1305 for IETF Protocols
+          </td>
           <td></td>
           <td>2015-05</td>
           <td>
@@ -253,6 +281,21 @@
           <td>2017-06-27</td>
           <td>
             <a href="https://eprint.iacr.org/2017/630.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>HMAC-DRBG, CTR-DRBG</td>
+          <td>Normative</td>
+          <td>
+            [NIST-SP-800-90Ar1]
+            Recommendation for Random Number Generation
+            Using Deterministic Random Bit Generators
+          </td>
+          <td></td>
+          <td>2015-06</td>
+          <td>
+            <a href="https://doi.org/10.6028/NIST.SP.800-90Ar1">[1]</a>
           </td>
         </tr>
         

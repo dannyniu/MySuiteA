@@ -85,6 +85,18 @@ vlong_t *vlong_mulv_masked(
 
 // MAKR: == Modular Exponentiation ==
 
+// 2021-06-06:
+// There was an attempted optimization to reduce the number of
+// temporary variables by 1. While the attempt was successful,
+// it resulted in a break of assumption made by codes elsewhere.
+//
+// Specifically, it broke the assumption that:
+// 1. the number pointed to by ``base'' won't be modified, and
+// 2. ``out'' is not aliased to other numbers by intention and
+//    is modifiable.
+//
+// These assumptions are actually indicated through the use of
+// appropriate qualifiers on types.
 vlong_t *vlong_modexpv(
     vlong_t *restrict out,
     vlong_t const *base,
