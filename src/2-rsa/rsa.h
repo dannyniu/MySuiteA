@@ -9,11 +9,17 @@
 // this "array order" is intended to enable writing decryption/signing
 // operation in a single loop.
 
+// The CRT decryption/signing code assumes working variables w3 and w4
+// can hold 3 factor-sized integers. It is further assumed that
+// each factor will be at least 512 bits.
+
 typedef struct {
     // CRT decryption/signing needs only 3 modulus-sized working variables,
     // Key generation requires 4.
+    // It is guaranteed that the allocation of w1 thru w4 are contiguous,
+    // although the placement of such contiguous region is undefined.
     uint32_t offset_w1, offset_w2, offset_w3, offset_w4;
-    uint32_t count_primes_other, modulus_bits;
+    uint32_t count_primes_other, modulus_bits, scratch_variable;
     uint32_t offset_n, offset_e, offset_d;
     uint32_t offset_q, offset_dQ;
     uint32_t offset_p, offset_dP, offset_qInv;
@@ -43,14 +49,18 @@ typedef struct {
 //
 // note-2:
 // Assume sizeof(uint32_t) == 4.
-#define RSA_PRIVATE_INTEGER_SIZE(bits) (4 * (((bits) + 32 * 3 - 1) / 32)))
+#define RSA_PRIVATE_INTEGER_SIZE(bits) (4 * (((bits) + 32 * 3 - 1) / 32))
 
 // If c does not divide l, behavior is undefined.
-#define RSA_PRIVATE_CONTEXT_SIZE(l,c) (                         \
+#define RSA_PRIVATE_CONTEXT_SIZE_X(l,c) (                       \
         RSA_PRIVATE_INTEGER_SIZE((l) / (c)) * (3 * (c) - 1) +   \
         RSA_PRIVATE_INTEGER_SIZE((l)) * (2 + 4) +               \
+        (2 * 4) +                                               \
         sizeof(RSA_Private_Context_Base_t) +                    \
         sizeof(RSA_OtherPrimeInfo_t) * ((c) - 2)  )
+
+#define RSA_PRIVATE_CONTEXT_SIZE(...)\
+    RSA_PRIVATE_CONTEXT_SIZE_X(__VA_ARGS__)
 
 #define RSA_PRIVATE_PARAM_ENTUPLE(l_,c_)                \
     ((RSA_Private_Param_t){ .l = (l_), .c = (c_), })

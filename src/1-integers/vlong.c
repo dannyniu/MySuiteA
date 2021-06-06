@@ -136,7 +136,7 @@ static int vlong_cmpv_shifted(
     vlong_t const *b,
     vlong_size_t s)
 {
-    vlong_size_t w = (s + 31)/32;
+    vlong_size_t w = (s + 31) / 32;
     vlong_size_t t = a->c > (b->c + w) ? a->c : (b->c + w);
     uint32_t u, v;
     int res = 0, mask;
@@ -191,8 +191,10 @@ vlong_t *vlong_divv(
     if( quo && quo->c < a->c ) return NULL;
     if(        rem->c < b->c ) return NULL;
 
-    for(i=0; i<rem->c; i++) rem->v[i] = 0;
-    for(i=0; i<quo->c; i++) quo->v[i] = 0;
+    // It explicitly designed such that ``quo'' is
+    // an optional argument. Formmatted accordingly.
+    for(i=0;        i<rem->c; i++) rem->v[i] = 0;
+    for(i=0; quo && i<quo->c; i++) quo->v[i] = 0;
     
     i = a->c * 32;
 
@@ -215,7 +217,12 @@ vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b)
     
     if( rem->c < b->c ) return NULL;
 
-    i = rem->c * 32;
+    // 2021-06-05:
+    // 1 Optimization applied, because
+    // most uses of this function are
+    // based on public ``b''s
+    for(i=b->c; i && !b->v[--i]; );
+    i = (1 + rem->c - i) * 32;
 
     while( i-- )
     {
@@ -320,8 +327,11 @@ vlong_t *vlong_modexpv(
 
     for(i=0; i<n; i++)
     {
-        out->v[i] = i ? 0 : 1;
+        // 2021-06-05:
+        // 2 statements re-ordered to ensure
+        // copy won't be inconsistent.
         tmp1->v[i] = i < base->c ? base->v[i] : 0;
+        out->v[i] = i ? 0 : 1;
     }
     
     for(i=0;;)

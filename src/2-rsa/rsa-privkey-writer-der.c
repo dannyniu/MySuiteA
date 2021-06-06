@@ -7,8 +7,6 @@
 
 static int32_t ber_tlv_encode_OtherPrimeInfos(BER_TLV_ENCODING_FUNC_PARAMS);
 
-
-#include <stdio.h>
 int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
 {
     int32_t ret = 0, subret;
@@ -62,7 +60,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     }
     ret += taglen;
     ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // modulus INTEGER, -- n
     subret = ber_tlv_encode_integer(
@@ -261,6 +259,10 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     return ret;
 }
 
+// [2021-06-06:bug]:
+// A bug was detected that caused encoding of RSA private key with
+// more than 3 primes to emit incorrect result during testing of
+// the RSA keygen function.
 static int32_t ber_tlv_encode_OtherPrimeInfos(BER_TLV_ENCODING_FUNC_PARAMS)
 {
     int32_t ret = 0, subret, accum;
@@ -359,6 +361,7 @@ encode_1more_prime:
     {
         ber_util_splice_insert(ptr1, accum, (stack - ptr1), taglen);
     }
+    ptr += taglen; // [2021-06-06:bug]: was caused by the missing of this line.
     ret += accum + taglen; remain -= taglen;
     
     i++;

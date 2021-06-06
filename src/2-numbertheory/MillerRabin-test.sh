@@ -1,7 +1,8 @@
 #!/bin/sh
 
 testfunc() {
-    $exec "$(date)"
+    time $exec "$(date)"
+    #xcrun xctrace record --launch -- $exec "$(date)"
 }
 
 cd "$(dirname "$0")"
@@ -17,6 +18,7 @@ MillerRabin.c
 "
 bin=$(basename "$0" .sh)
 srcset="Plain C"
+optimize=true
 
 arch=x86_64 cflags=""
 ( . $unitest_sh )

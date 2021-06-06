@@ -4,6 +4,7 @@
 #define MySuiteA_MillerRabin_h 1
 
 #include "../mysuitea-common.h"
+#include "../1-integers/vlong.h"
 
 // Returns 0 for composite, and 1 for probably prime.
 // Caller should ensure w and tmp* are of same width.

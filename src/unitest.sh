@@ -24,6 +24,7 @@ else
 fi
 cc="$scan_build $scan_build_opt clang"
 cflags0="-Wall -Wextra -g -O0"
+[ X"$optimize" = Xtrue ] && cflags0="-Wall -Wextra -O"
 
 # Note 2020-02-18 regarding removal of "-Weverything" option:
 # refer to the following excerpt from the Clang Compiler User's Manual:
@@ -75,7 +76,7 @@ else
     last(){ shift $(( $# - 1 )) ; echo "$1" ; }
     UsrArchIncPath=/usr/$arch-$systarget/include
     UsrArchLibPath=/usr/$arch-$systarget/lib
-    UsrArchGccLibPath=`last /usr/lib/gcc-cross/$arch-$systarget/*`
+    UsrArchGccLibPath=$(last /usr/lib/gcc-cross/$arch-$systarget/*)
     
     cflags1="-target $arch-$systarget -isystem $UsrArchIncPath"
     ld="
