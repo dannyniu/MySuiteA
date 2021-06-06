@@ -25,10 +25,10 @@ static void galois128_store(void *ptr, galois128_t v)
 
 static galois128_t galois128_x(galois128_t Y)
 {
-    register uint64_t mask;
+    register uint64_t mask, x;
     mask = Y.w[1] & 1;
     mask = ~(mask - 1);
-    uint64_t x = UINT64_C(0xE100000000000000) & mask;
+    x = UINT64_C(0xE100000000000000) & mask;
 
     Y.w[1] = Y.w[1]>>1 | Y.w[0]<<63;
     Y.w[0] = Y.w[0]>>1 ^ x;
