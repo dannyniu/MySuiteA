@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2018-02-14. Public Domain */
+/* DannyNiu/NJF, 2018-02-14. Public Domain. */
 
 #include "gcm-aes.h"
 #include "gcm.c.h"
