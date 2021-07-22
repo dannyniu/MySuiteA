@@ -1,0 +1,2 @@
+The file "camellia.c" can be obtained from the following URL:
+- https://info.isl.ntt.co.jp/crypt/eng/camellia/source/

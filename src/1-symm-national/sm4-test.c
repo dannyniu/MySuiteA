@@ -1,20 +1,17 @@
-/* DannyNiu/NJF, 2018-01-31. Public Domain. */
+/* DannyNiu/NJF, 2021-06-23. Public Domain. */
 
-#include "rijndael.h"
+#include "sm4.h"
 #include "../test-utils.c.h"
 
 int main(int argc, char *argv[])
 {
     static char line[256], word[256];
-    static uint8_t k[32], w[240], ct[16], pt[16], xt[16];
-    iCryptoObj_t bc = iAES128;
+    static uint8_t k[32], w[128], ct[16], pt[16], xt[16];
+    iCryptoObj_t bc = iSM4;
     int i, l=-1;
 
-    if( argc < 2 ) return 1;
-    if( !strcmp(argv[1], "128") ) bc = iAES128;
-    if( !strcmp(argv[1], "192") ) bc = iAES192;
-    if( !strcmp(argv[1], "256") ) bc = iAES256;
-    
+    argc = 0, argv = NULL; // To silence the unused argument warning.
+
     while( fgets(line, sizeof(line), stdin) )
     {
         *word = '\0'; sscanf(line, "%s", word);

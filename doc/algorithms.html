@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>MySuiteA Algorithms</title>
+
+    <style>
+     body {
+       box-sizing:   border-box;
+       width:        calc(384px + 40vw);
+       margin:   1em calc(30vw - 192px);
+       padding:  2ex;
+     }
+
+     table {
+       border-collapse:  collapse;
+     }
+
+     body > table {
+       width:    100%;
+     }
+
+     th, td {
+       padding:  3pt;
+     }
+
+     th {
+       border:   thin solid black;
+     }
+
+     td {
+       border:   thin solid silver;
+     }
+    </style>
+
+  </head>
+  <body>
+
+    <h1>Criteria for Inclusion in MySuiteA</h1>
+
+    <p>
+      To limit scope creep, the following criteria is established for
+      determining whether an algorithm is to be implemented in MySuiteA.
+      An algorithm must meet all conditions of at least 1 criteria for
+      inclusion, otherwise, the algorithm will not be implemented.
+    </p>
+
+    <ul>
+      <li>
+        <b>Criteria 1.</b> The algorithm must meet the following 2 conditions:
+        <ol>
+          <li>The algorithm must be specified in a formal
+            international standard or the national standard
+            of a member state of the United Nations. </li>
+          <li>The algorithm must be proposed in an IETF RFC document
+            for use in a networking protocol. </li>
+        </ol>
+      </li>
+
+      <li>
+        <b>Criteria 2.</b> The algorithm must be specified in a
+        commercial or industrial standard that meet the following conditions:
+        <ol>
+          <li>The standard should either be a well-known "hash-sign" standard
+            (such as PKCS#1, SEC#1, etc.) or a standard adopted by a
+            standardization organization and had received named number-prefix
+            designation (such as RFC-2104, IEEE-1363). </li>
+          <li>The standard may be authored by a consortium or a
+            private company, but in either case must have had received
+            input from multiple parties of interest. </li>
+        </ol>
+      </li>
+
+      <li>
+        <b>Criteria 3.</b> The algorithm is under, or had underwent, active
+        research, and is a design that complements in functionality or
+        diversity to some algorithm(s) meeting any other criteria.
+      </li>
+    </ul>
+
+    <h1>Algorithms</h1>
+
+    <p>
+      Algorithms are listed first in the order of functionality (block cipher,
+      permutation, then hash function, message authentication code,
+      encryption, PRNG, public-key encryption / key exchange, and then
+      digital signature), then in the order of inclusion criteria.
+    </p>
+
+    <p>
+      References are listed similarly, with informative references (if any)
+      following normative references (if any).
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name (/ Academic Name)</th>
+          <th>Function</th>
+          <th>Construction</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>AES / Rijndael</td>
+          <td>Block Cipher</td>
+          <td>Substitution-Permutation Network</td>
+        </tr>
+
+        <tr>
+          <td>SM4</td>
+          <td>Block Cipher</td>
+          <td>Feistel Network</td>
+        </tr>
+
+        <tr>
+          <td>Camellia</td>
+          <td>Block Cipher</td>
+          <td>Feistel Network</td>
+        </tr>
+
+        <tr>
+          <td>SEED</td>
+          <td>Block Cipher</td>
+          <td>Feistel Network</td>
+        </tr>
+
+        <tr>
+          <td>ARIA</td>
+          <td>Block Cipher</td>
+          <td>Substitution-Permutation Network</td>
+        </tr>
+
+        <tr>
+          <td>Gimli</td>
+          <td>Permutation</td>
+          <td>Binary Polynomial</td>
+        </tr>
+
+        <tr>
+          <td>SHA-1, SHA-256, etc.</td>
+          <td>Hash Function</td>
+          <td>Merkle-Damgaard</td>
+        </tr>
+
+        <tr>
+          <td>SHA3 / Keccak</td>
+          <td>Hash Function</td>
+          <td>
+            Sponge Mode of Operation of
+            Permutation
+          </td>
+        </tr>
+
+        <tr>
+          <td>SM3</td>
+          <td>Hash Function</td>
+          <td>Merkle-Damgaard</td>
+        </tr>
+
+        <tr>
+          <td>BLAKE2</td>
+          <td>Hash Function</td>
+          <td>HAIFA</td>
+        </tr>
+
+        <tr>
+          <td>HMAC</td>
+          <td>MAC</td>
+          <td>Specialized Construction</td>
+        </tr>
+
+        <tr>
+          <td>GCM - Galois Counter Mode</td>
+          <td>AEAD</td>
+          <td>
+            Composition of
+            Mode of Operation of Block Cipher with
+            Universal MAC Based on Binary Polynomial
+          </td>
+        </tr>
+
+        <tr>
+          <td>ChaCha20-Poly1305</td>
+          <td>AEAD</td>
+          <td>
+            Composition of
+            Stream Cipher Based on ARX with
+            Universal MAC Based on Integer Arithmetic
+          </td>
+        </tr>
+
+        <tr>
+          <td>HMAC-DRBG</td>
+          <td>Pseudo-Random Number Generator</td>
+          <td>Mode of Operation of PRF</td>
+        </tr>
+
+        <tr>
+          <td>CTR-DRBG</td>
+          <td>Pseudo-Random Number Generator</td>
+          <td>Mode of Operation of Block Cipher</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <h1>References</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>Normativeness</th>
+          <th>Title</th>
+          <th>Authors</th>
+          <th>Date</th>
+          <th>URL</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>AES / Rijndael</td> <td>Normative</td>
+          <td>[FIPS-197] Announcing the Advanced Encryption Standard (AES)</td>
+          <td></td>
+          <td>2001-11-26</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.FIPS.197">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>AES / Rijndael</td> <td>Informative</td>
+          <td>AES Proposal: Rijndael</td>
+          <td>Joan Daemen, Vincent Rijmen</td>
+          <td></td>
+          <td>
+            <a href="https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/aes-development/rijndael-ammended.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>SM4</td> <td>Normative</td>
+          <td>
+            [GB/T 32907-2016] Information security technology --
+            SM4 block cipher algorithm
+          </td>
+          <td></td>
+          <td>2016-08</td>
+          <td><a href="http://www.gb688.cn/bzgk/gb/newGbInfo?hcno=7803DE42D3BC5E80B0C3E5D8E873D56A">[1]</a></td>
+        </tr>
+
+        <tr>
+          <td>SM4</td> <td>Informative</td>
+          <td>
+            The SM4 Blockcipher Algorithm And Its Modes Of Operations
+            draft-ribose-cfrg-sm4-10
+          </td>
+          <td></td>
+          <td>2018-04</td>
+          <td>
+            <a href="https://datatracker.ietf.org/doc/draft-ribose-cfrg-sm4/">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>Camellia</td> <td>Normative</td>
+          <td>Specification of Camellia - a 128-bit Block Cipher</td>
+          <td>
+            Kazumaro Aoki, Tetsuya Ichikawa, Masayuki Kanda,
+            Mitsuru Matsui, Shiho Moriai, Junko Nakajima, Toshio Tokita
+          </td>
+          <td>2001-09-26</td>
+          <td>
+            <a href="https://info.isl.ntt.co.jp/crypt/eng/camellia/specifications/">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>Camellia</td> <td>Informative</td>
+          <td>A Description of the Camellia Encryption Algorithm</td>
+          <td>M. Matsui, J. Nakajima, S. Moriai</td>
+          <td>2004-04</td>
+          <td><a href="https://tools.ietf.org/html/rfc3713">[1]</a>,</td>
+        </tr>
+
+        <tr>
+          <td>SEED</td> <td>Normative</td>
+          <td>[TTAS.KO-12.004/R1] 128-bit Block Cipher SEED</td>
+          <td></td>
+          <td>2005-12-21</td>
+          <td><a href="www.tta.or.kr/data/ttas_view.jsp?rn=1&pk_num=TTAS.KO-12.0004/R1">[1]</a>,</td>
+        </tr>
+
+        <tr>
+          <td>SEED</td> <td>Informative</td>
+          <td>[RFC-4269] The SEED Encryption Algorithm</td>
+          <td>H.J. Lee, S.J. Lee, J.H. Yoon, D.H. Cheon, J.I. Lee</td>
+          <td>2005-12</td>
+          <td><a href="https://tools.ietf.org/html/rfc4269">[1]</a>,</td>
+        </tr>
+
+        <tr>
+          <td>ARIA</td> <td>Normative</td>
+          <td>[KS X 1213:2004] 128-bit block encryption algorithm ARIA</td>
+          <td><i>Korean Agency for Technology and Standards (KATS)</i></td>
+          <td>2004-12</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td>ARIA</td> <td>Informative</td>
+          <td>[RFC-5794] A Description of the ARIA Encryption Algorithm</td>
+          <td>J.K. Lee, J.Y. Lee, J.H. Kim, D.S. Kwon, C.S. Kim</td>
+          <td>2005-12</td>
+          <td><a href="https://tools.ietf.org/html/rfc5794">[1]</a>,</td>
+        </tr>
+        
+        <tr>
+          <td>Gimli</td> <td>Informative</td>
+          <td>Gimli: a cross-platform permutation</td>
+          <td>
+            Daniel J. Bernstein, Stefan Kolbl, Stefan Lucks,
+            Pedro Maat Costa Massolino, Florian Mendel, Kashif Nawaz,
+            Tobias Schneider, Peter Schwabe, Francois-Xavier Standaert,
+            Yosuke Todo, Benoit Viguier
+          </td>
+          <td>2017-06-27</td>
+          <td>
+            <a href="https://eprint.iacr.org/2017/630.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>SHA-1, SHA-256, etc.</td> <td>Normative</td>
+          <td>[FIPS-180-4] Secure Hash Standard (SHS)</td>
+          <td></td>
+          <td>2015-08</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.FIPS.180-4">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>SHA3 / Keccak</td> <td>Normative</td>
+          <td>
+            [FIPS-202] SHA-3 Standard:
+            Permutation-Based Hash and Extendable-Output Functions
+          </td>
+          <td></td>
+          <td>2015-08</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.FIPS.202">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>SHA3 / Keccak</td> <td>Informative</td>
+          <td>The Keccak Reference</td>
+          <td>Guido Bertoni, Joan Daemen, Michael Peeters, Gilles Van Assche</td>
+          <td>2011-01-14</td>
+          <td>
+            <a href="https://keccak.team/files/Keccak-reference-3.0.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>BLAKE2</td> <td>Normative</td>
+          <td>
+            [RFC-7693]
+            The BLAKE2 Cryptographic Hash and
+            Message Authentication Code (MAC)
+          </td>
+          <td></td>
+          <td>2015-11</td>
+          <td>
+            <a href="https://tools.ietf.org/html/rfc7693">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>BLAKE2</td> <td>Informative</td>
+          <td>BLAKE2: simpler, smaller, fast as MD5</td>
+          <td>
+            Jean-Phillppe Aumasson,
+            Samuel Neves,
+            Zooko Wilcox-O'Hearn,
+            Christian Winnerlein
+          </td>
+          <td>2013-01-29</td>
+          <td>
+            <a href="http://blake2.net/blake2.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>GCM - Galois Counter Mode</td> <td>Normative</td>
+          <td>
+            [NIST-SP-800-38D]
+            Recommendation for Block Cipher Modes of Operation:
+            Galois/Counter Mode (GCM) and GMAC
+          </td>
+          <td></td>
+          <td>2007-11</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.SP.800-38D">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>GCM - Galois Counter Mode</td> <td>Informative</td>
+          <td>The Galois/Counter Mode of Operation (GCM)</td>
+          <td>David A. McGrew, John Viega</td>
+          <td></td>
+          <td>
+            <a href="http://www.csrc.nist.gov/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-revised-spec.pdf">[dead]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>ChaCha20-Poly1305</td> <td>Normative</td>
+          <td>
+            [RFC-8439]
+            ChaCha20 and Poly1305 for IETF Protocols
+          </td>
+          <td></td>
+          <td>2015-05</td>
+          <td>
+            <a href="https://tools.ietf.org/html/rfc8439">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>ChaCha20-Poly1305</td> <td>Informative</td>
+          <td>ChaCha, a variant of Salsa20</td>
+          <td>Daniel J. Bernstein</td>
+          <td>2008-01</td>
+          <td>
+            <a href="http://cr.yp.to/chacha/chacha-20080128.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>ChaCha20-Poly1305</td> <td>Informative</td>
+          <td>The Poly1305-AES message-authentication code</td>
+          <td>Daniel J. Bernstein</td>
+          <td>2005-03</td>
+          <td>
+            <a href="http://cr.yp.to/mac/poly1305-20050329.pdf">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
+          <td>HMAC-DRBG, CTR-DRBG</td> <td>Normative</td>
+          <td>
+            [NIST-SP-800-90Ar1]
+            Recommendation for Random Number Generation
+            Using Deterministic Random Bit Generators
+          </td>
+          <td></td>
+          <td>2015-06</td>
+          <td>
+            <a href="https://doi.org/10.6028/NIST.SP.800-90Ar1">[1]</a>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </body>
+</html>

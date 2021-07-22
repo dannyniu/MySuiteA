@@ -1,19 +1,19 @@
 /* DannyNiu/NJF, 2018-01-31. Public Domain. */
 
-#include "rijndael.h"
+#include "camellia.h"
 #include "../test-utils.c.h"
 
 int main(int argc, char *argv[])
 {
     static char line[256], word[256];
-    static uint8_t k[32], w[240], ct[16], pt[16], xt[16];
-    iCryptoObj_t bc = iAES128;
+    static uint8_t k[32], w[64], ct[16], pt[16], xt[16];
+    iCryptoObj_t bc = iCamellia128;
     int i, l=-1;
 
     if( argc < 2 ) return 1;
-    if( !strcmp(argv[1], "128") ) bc = iAES128;
-    if( !strcmp(argv[1], "192") ) bc = iAES192;
-    if( !strcmp(argv[1], "256") ) bc = iAES256;
+    if( !strcmp(argv[1], "128") ) bc = iCamellia128;
+    if( !strcmp(argv[1], "192") ) bc = iCamellia192;
+    if( !strcmp(argv[1], "256") ) bc = iCamellia256;
     
     while( fgets(line, sizeof(line), stdin) )
     {
