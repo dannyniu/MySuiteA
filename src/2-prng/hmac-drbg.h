@@ -19,10 +19,8 @@ typedef struct hmac_drbg_context {
 } hmac_drbg_t;
 */
 typedef struct hmac_drbg_context {
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             uint16_t        ctx_len_total;
             uint16_t        prf_outlen;
         };

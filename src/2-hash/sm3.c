@@ -53,12 +53,12 @@ static void sm3_final(sm3_t *restrict x)
     compressfunc_sm3(x->H, x->Msg32);
     for(i=0; i<8; i++)
         x->Msg32[i] = htobe32(x->H[i]);
-    x->finalized = 1;
+    x->finalized = true;
 }
 
 void SM3_Init(sm3_t *restrict x)
 {
-    x->finalized = 0;
+    x->finalized = false;
     x->len = 0;
     x->H[0] = 0x7380166f;
     x->H[1] = 0x4914b2b9;

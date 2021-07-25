@@ -8,7 +8,7 @@
 
 void SHA1_Init(sha1_t *restrict sha)
 {
-    sha->finalized = 0;
+    sha->finalized = false;
     sha->len = 0;
     sha->H[0] = 0x67452301;
     sha->H[1] = 0xefcdab89;
@@ -69,7 +69,7 @@ void SHA1_Final(sha1_t *restrict sha, void *restrict out, size_t t)
     compressfunc_sha1(sha->H, sha->Msg32);
     for(i=0; i<5; i++)
         sha->Msg32[i] = htobe32(sha->H[i]);
-    sha->finalized = 1;
+    sha->finalized = true;
 
 finalized:
     if( out )
@@ -130,12 +130,12 @@ static void sha256_final(sha256_t *restrict sha)
     compressfunc_sha256(sha->H, sha->Msg32);
     for(i=0; i<8; i++)
         sha->Msg32[i] = htobe32(sha->H[i]);
-    sha->finalized = 1;
+    sha->finalized = true;
 }
 
 void SHA224_Init(sha224_t *restrict sha)
 {
-    sha->finalized = 0;
+    sha->finalized = false;
     sha->len = 0;
     sha->H[0] = 0xc1059ed8;
     sha->H[1] = 0x367cd507;
@@ -164,7 +164,7 @@ void SHA224_Final(sha224_t *restrict sha, void *restrict out, size_t t)
 
 void SHA256_Init(sha256_t *restrict sha)
 {
-    sha->finalized = 0;
+    sha->finalized = false;
     sha->len = 0;
     sha->H[0] = 0x6a09e667;
     sha->H[1] = 0xbb67ae85;
@@ -243,12 +243,12 @@ static void sha512_final(sha512_t *restrict sha)
     compressfunc_sha512(sha->H, sha->Msg64);
     for(i=0; i<8; i++)
         sha->Msg64[i] = htobe64(sha->H[i]);
-    sha->finalized = 1;
+    sha->finalized = true;
 }
 
 void SHA384_Init(sha384_t *restrict sha)
 {
-    sha->finalized = 0;
+    sha->finalized = false;
     sha->len = 0;
     sha->H[0] = 0xcbbb9d5dc1059ed8;
     sha->H[1] = 0x629a292a367cd507;
@@ -277,7 +277,7 @@ void SHA384_Final(sha384_t *restrict sha, void *restrict out, size_t t)
 
 void SHA512_Init(sha512_t *restrict sha)
 {
-    sha->finalized = 0;
+    sha->finalized = false;
     sha->len = 0;
     sha->H[0] = 0x6a09e667f3bcc908;
     sha->H[1] = 0xbb67ae8584caa73b;

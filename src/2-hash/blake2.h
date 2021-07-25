@@ -35,21 +35,21 @@ void BLAKE2s160_Init(blake2s_t *restrict x);
 void BLAKE2s224_Init(blake2s_t *restrict x);
 void BLAKE2s256_Init(blake2s_t *restrict x);
 
-#define BLAKE2b_KEY_PARAMS                                      \
+#define BLAKE2b_KPARAMS                                         \
     blake2b_t *restrict x, void const *restrict k, size_t klen
 
-#define BLAKE2s_KEY_PARAMS                                      \
+#define BLAKE2s_KPARAMS                                         \
     blake2s_t *restrict x, void const *restrict k, size_t klen
 
-void kBLAKE2b160_Init(BLAKE2b_KEY_PARAMS);
-void kBLAKE2b256_Init(BLAKE2b_KEY_PARAMS);
-void kBLAKE2b384_Init(BLAKE2b_KEY_PARAMS);
-void kBLAKE2b512_Init(BLAKE2b_KEY_PARAMS);
+void *kBLAKE2b160_Init(BLAKE2b_KPARAMS);
+void *kBLAKE2b256_Init(BLAKE2b_KPARAMS);
+void *kBLAKE2b384_Init(BLAKE2b_KPARAMS);
+void *kBLAKE2b512_Init(BLAKE2b_KPARAMS);
 
-void kBLAKE2s128_Init(BLAKE2s_KEY_PARAMS);
-void kBLAKE2s160_Init(BLAKE2s_KEY_PARAMS);
-void kBLAKE2s224_Init(BLAKE2s_KEY_PARAMS);
-void kBLAKE2s256_Init(BLAKE2s_KEY_PARAMS);
+void *kBLAKE2s128_Init(BLAKE2s_KPARAMS);
+void *kBLAKE2s160_Init(BLAKE2s_KPARAMS);
+void *kBLAKE2s224_Init(BLAKE2s_KPARAMS);
+void *kBLAKE2s256_Init(BLAKE2s_KPARAMS);
 
 void blake2b_update(
     blake2b_t *restrict x,

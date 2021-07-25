@@ -14,7 +14,7 @@ static void *blake2b_init(
     
     x->outlen = outlen;
     x->keylen = keylen;
-    x->finalized = 0;
+    x->finalized = false;
     
     x->h[0] = 0x6a09e667f3bcc908;
     x->h[1] = 0xbb67ae8584caa73b;
@@ -45,10 +45,10 @@ void BLAKE2b256_Init(blake2b_t *restrict x){ blake2b_init(x, 32, NULL, 0); }
 void BLAKE2b384_Init(blake2b_t *restrict x){ blake2b_init(x, 48, NULL, 0); }
 void BLAKE2b512_Init(blake2b_t *restrict x){ blake2b_init(x, 64, NULL, 0); }
 
-void kBLAKE2b160_Init(BLAKE2b_KEY_PARAMS){ blake2b_init(x, 20, k, klen); }
-void kBLAKE2b256_Init(BLAKE2b_KEY_PARAMS){ blake2b_init(x, 32, k, klen); }
-void kBLAKE2b384_Init(BLAKE2b_KEY_PARAMS){ blake2b_init(x, 48, k, klen); }
-void kBLAKE2b512_Init(BLAKE2b_KEY_PARAMS){ blake2b_init(x, 64, k, klen); }
+void *kBLAKE2b160_Init(BLAKE2b_KPARAMS){ return blake2b_init(x, 20, k, klen); }
+void *kBLAKE2b256_Init(BLAKE2b_KPARAMS){ return blake2b_init(x, 32, k, klen); }
+void *kBLAKE2b384_Init(BLAKE2b_KPARAMS){ return blake2b_init(x, 48, k, klen); }
+void *kBLAKE2b512_Init(BLAKE2b_KPARAMS){ return blake2b_init(x, 64, k, klen); }
 
 void blake2b_update(blake2b_t *restrict x, const void *restrict data, size_t len)
 {
@@ -82,7 +82,7 @@ void blake2b_final(blake2b_t *restrict x, void *restrict out, size_t t)
     for(i=0; i<8; i++)
         *((uint64_t *)x->b + i) = htole64(x->h[i]);
     
-    x->finalized = 1;
+    x->finalized = true;
     
 finalized:
     if( out )
@@ -102,7 +102,7 @@ static void *blake2s_init(
 
     x->outlen = outlen;
     x->keylen = keylen;
-    x->finalized = 0;
+    x->finalized = false;
     
     x->h[0] = 0x6a09e667;
     x->h[1] = 0xbb67ae85;
@@ -133,10 +133,10 @@ void BLAKE2s160_Init(blake2s_t *restrict x){ blake2s_init(x, 20, NULL, 0); }
 void BLAKE2s224_Init(blake2s_t *restrict x){ blake2s_init(x, 28, NULL, 0); }
 void BLAKE2s256_Init(blake2s_t *restrict x){ blake2s_init(x, 32, NULL, 0); }
 
-void kBLAKE2s128_Init(BLAKE2s_KEY_PARAMS){ blake2s_init(x, 16, k, klen); }
-void kBLAKE2s160_Init(BLAKE2s_KEY_PARAMS){ blake2s_init(x, 20, k, klen); }
-void kBLAKE2s224_Init(BLAKE2s_KEY_PARAMS){ blake2s_init(x, 28, k, klen); }
-void kBLAKE2s256_Init(BLAKE2s_KEY_PARAMS){ blake2s_init(x, 32, k, klen); }
+void *kBLAKE2s128_Init(BLAKE2s_KPARAMS){ return blake2s_init(x, 16, k, klen); }
+void *kBLAKE2s160_Init(BLAKE2s_KPARAMS){ return blake2s_init(x, 20, k, klen); }
+void *kBLAKE2s224_Init(BLAKE2s_KPARAMS){ return blake2s_init(x, 28, k, klen); }
+void *kBLAKE2s256_Init(BLAKE2s_KPARAMS){ return blake2s_init(x, 32, k, klen); }
 
 void blake2s_update(blake2s_t *restrict x, const void *restrict data, size_t len)
 {
@@ -170,7 +170,7 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out, size_t t)
     for(i=0; i<8; i++)
         *((uint32_t *)x->b + i) = htole32(x->h[i]);
 
-    x->finalized = 1;
+    x->finalized = true;
 
 finalized:
     if( out )

@@ -7,7 +7,7 @@
         size_t keylen)                                          \
     {                                                           \
         x->hmac = HMAC_INIT(c##algo);                           \
-        HMAC_SetKey(&x->hmac, key, keylen);                     \
+        x = HMAC_SetKey(&x->hmac, key, keylen);                 \
         return x;                                               \
     }                                                           \
                                                                 \

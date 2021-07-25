@@ -4,7 +4,7 @@
 
 void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
 {
-    uint8_t const *restrict buffer = data;
+    uint8_t const *buffer = data;
     uint8_t *state = ((uint8_t *)s + s->offset);
 
     if( !data && len )
@@ -46,7 +46,7 @@ void Sponge_Final(sponge_t *restrict s)
 
     /* Finalization Guard. */
 
-    s->finalized = 1;
+    s->finalized = true;
 }
 
 void Sponge_Read(sponge_t *restrict s, void *restrict data, size_t len)

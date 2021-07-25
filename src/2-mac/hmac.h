@@ -33,7 +33,7 @@ typedef struct hmac_context {
         .K0 = {0}, .tag = {0},                  \
         .B = BLOCK_BYTES(hash),                 \
         .L = OUT_BYTES(hash),                   \
-        .finalized = 0,                         \
+        .finalized = false,                     \
         .pad1 = 0,                              \
         .offset = sizeof(hmac_t),               \
         .hInit = INIT_FUNC(hash),               \
@@ -41,9 +41,14 @@ typedef struct hmac_context {
         .hFinal = FINAL_FUNC(hash),             \
     })
 
-void HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen);
-void HMAC_Update(hmac_t *restrict hmac, const void *restrict data, size_t len);
-void HMAC_Final(hmac_t *restrict hmac, void *restrict out, size_t t);
+void *HMAC_SetKey(
+    hmac_t *restrict hmac, const void *restrict key, size_t keylen);
+
+void HMAC_Update(
+    hmac_t *restrict hmac, const void *restrict data, size_t len);
+
+void HMAC_Final(
+    hmac_t *restrict hmac, void *restrict out, size_t t);
 
 #define Declare_HMAC_Hash(algo,name)            \
     typedef struct {                            \

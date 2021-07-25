@@ -5,7 +5,7 @@
 #define ipad 0x36
 #define opad 0x5c
 
-void HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen)
+void *HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen)
 {
     void *aux = (uint8_t *)hmac + hmac->offset;
     size_t i;
@@ -29,6 +29,8 @@ void HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen)
     for(i=0; i<hmac->B; i++) hmac->K0[i] ^= ipad;
     hmac->hUpdate(aux, hmac->K0, hmac->B);
     for(i=0; i<hmac->B; i++) hmac->K0[i] ^= ipad;
+
+    return hmac;
 }
 
 void HMAC_Update(hmac_t *restrict hmac, const void *restrict data, size_t len)
@@ -52,7 +54,7 @@ void HMAC_Final(hmac_t *restrict hmac, void *restrict out, size_t t)
 
     hmac->hUpdate(aux, hmac->tag, hmac->L);
     hmac->hFinal(aux, NULL, 0);
-    hmac->finalized = 1;
+    hmac->finalized = true;
 
 finalized:
     // After aligning the interface of hash and mac (by adding outlen param)
@@ -74,6 +76,6 @@ void *HMAC_T_Init(
     size_t keylen)
 {
     *x = HMAC_INIT(cT);
-    HMAC_SetKey(x, key, keylen);
+    x = HMAC_SetKey(x, key, keylen);
     return x;
 }

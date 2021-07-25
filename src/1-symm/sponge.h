@@ -31,7 +31,7 @@ typedef struct sponge {
 #define SPONGE_INIT(r,lo,hi,p)                  \
     ((sponge_t){                                \
         .rate = r, .lopad = lo, .hipad = hi,    \
-        .finalized = 0, .filled = 0,            \
+        .finalized = false, .filled = 0,        \
         .offset = sizeof(sponge_t),             \
         .permute = PERMUTE_FUNC(p),             \
     })
