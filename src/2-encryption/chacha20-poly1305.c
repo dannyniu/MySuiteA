@@ -66,6 +66,7 @@ void *ChaCha_AEAD_Decrypt(
     alignas(uint64_t) uint8_t words[32];
     const uint8_t *iptr=in; uint8_t *optr=out;
     size_t i, j;
+    int b;
 
     chacha20_set_state(x->state, NULL, iv);
     chacha20_block(x->state, 0, 32, NULL, words);
@@ -85,14 +86,13 @@ void *ChaCha_AEAD_Decrypt(
     ((uint64_t *)words)[1] = htole64(len);
     poly1305_1block(&x->poly1305, words);
 
+    b = 0;
     poly1305_final(&x->poly1305);
     for(i=0; i<4; i++) ((uint32_t *)words)[i] = htole32(x->poly1305.a[i]);
     for(i=0; i<tlen; i++) {
-        if( ((const uint8_t *)T)[i] != (i<16 ? words[i] : 0) )
-            out = NULL;
+        b |= ((const uint8_t *)T)[i] ^ (i<16 ? words[i] : 0);
     }
-
-    if( !out ) return NULL;
+    if( b ) return NULL;
 
     for(i=0; i<len; i+=64) {
         chacha20_block(x->state, (uint32_t)(i/64+1), min(64,len-i), iptr+i, optr+i);

@@ -66,6 +66,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
                   size_t tlen, const void *T)
 {
     size_t i, j;
+    int b;
     
     alignas(16) uint32_t
         J0[4], 
@@ -77,7 +78,11 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     void *kschd = (uint8_t *)gcm + gcm->offset;
 
     // Prepare J0. 
-    for(i=0; i<3; i++){ J0[i] = ((const uint32_t *)iv)[i]; } J0[3] = htobe32(1);
+    for(i=0; i<3; i++)
+    {
+        J0[i] = ((const uint32_t *)iv)[i];
+    }
+    J0[3] = htobe32(1);
 
     // The A part of S. 
     for(j=0; j<alen; j+=16)
@@ -102,15 +107,15 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     ((uint64_t *)X)[1] = htobe64(len*8);
     galois128_hash1block(S, gcm->H, X);
 
-    // Calculate T. 
+    // Calculate T.
+    b = 0;
     gcm->enc(J0, X, kschd);
     for(i=0; i<4; i++) ((uint32_t *)X)[i] ^= S[i];
-    for(i=0; i<tlen; i++) {
-        if( ((const uint8_t *)T)[i] != (i<16 ? X[i] : 0) )
-            out = NULL;
+    for(i=0; i<tlen; i++)
+    {
+        b |= ((const uint8_t *)T)[i] ^ (i<16 ? X[i] : 0); 
     }
-
-    if( !out ) return NULL;
+    if( b ) return NULL;
 
     // GCTR: First CB. 
     for(i=0; i<4; i++){ CB[i] = J0[i]; }
