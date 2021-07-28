@@ -264,6 +264,9 @@ IntPtr rsa_keygen(
             (vlong_t *)(bp + px[(int32_t)t - 1].offset_r),
             -2, 0);
 
+        // 2021-07-27:
+        // this is probably the original reason
+        // for the [2021-06-05] change in "1-integers/vlong.c".
         vlong_modexpv(
             vl, vl, t1, t2, t3,
             (vlong_modfunc_t)vlong_remv_inplace,
@@ -378,12 +381,19 @@ IntPtr rsa_keygen(
     bx->offset_w4 = (uint8_t *)vl - bp;
     ul += vl->c + 1;
 
+    vl = (vlong_t *)ul;
+    vl->c = vlsize_modulus;
+    
+    bx->offset_w5 = (uint8_t *)vl - bp;
+    ul += vl->c + 1;
+
     for(i=0; i<vlsize_modulus; i++)
     {
         ((vlong_t *)(bp + bx->offset_w1))->v[i] = 0;
         ((vlong_t *)(bp + bx->offset_w2))->v[i] = 0;
         ((vlong_t *)(bp + bx->offset_w3))->v[i] = 0;
         ((vlong_t *)(bp + bx->offset_w4))->v[i] = 0;
+        ((vlong_t *)(bp + bx->offset_w5))->v[i] = 0;
     }
 
     LOGF("Total Size: %tu\n", ((uint8_t *)ul - bp));

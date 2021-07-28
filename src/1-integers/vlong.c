@@ -328,8 +328,8 @@ vlong_t *vlong_modexpv(
     for(i=0; i<n; i++)
     {
         // 2021-06-05:
-        // 2 statements re-ordered to ensure
-        // copy won't be inconsistent.
+        // 2 statements re-ordered to ensure copy won't be inconsistent,
+        // and that ``base'' can be reused (e.g. aliasing ``out'' to ``base'').
         tmp1->v[i] = i < base->c ? base->v[i] : 0;
         out->v[i] = i ? 0 : 1;
     }

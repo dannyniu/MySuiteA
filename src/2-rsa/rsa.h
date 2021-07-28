@@ -3,7 +3,7 @@
 #ifndef MySuiteA_rsa_h
 #define MySuiteA_rsa_h 1
 
-#include "../mysuitea-common.h"
+#include "../1-integers/vlong.h"
 
 // The structure is intentionally designed not in specification order,
 // this "array order" is intended to enable writing decryption/signing
@@ -14,11 +14,11 @@
 // each factor will be at least 512 bits.
 
 typedef struct {
-    // CRT decryption/signing needs only 3 modulus-sized working variables,
-    // Key generation requires 4.
+    // CRT decryption/signing needs 3 modulus-sized and 3 factor-sized
+    // vlongs. Key generation requires 4 modulus-sized vlongs.
     // It is guaranteed that the allocation of w1 thru w4 are contiguous,
     // although the placement of such contiguous region is undefined.
-    uint32_t offset_w1, offset_w2, offset_w3, offset_w4;
+    uint32_t offset_w1, offset_w2, offset_w3, offset_w4, offset_w5;
     uint32_t count_primes_other, modulus_bits, scratch_variable;
     uint32_t offset_n, offset_e, offset_d;
     uint32_t offset_q, offset_dQ;
@@ -89,5 +89,7 @@ IntPtr rsa_keygen(
 // void *rsa_priv_ctx = malloc(rsa_keygen(NULL, &param_keygen, NULL, NULL));
 // rsa_keygen(rsa_priv_ctx, param_keygen, SHAKE_Read, &xof);
 //
+
+vlong_t *rsa_fastdec(RSA_Private_Context_t *restrict x);
 
 #endif /* MySuiteA_rsa_h */

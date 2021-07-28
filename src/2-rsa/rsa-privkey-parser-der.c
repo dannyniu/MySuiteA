@@ -70,6 +70,8 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
+        uint8_t *bp = (void *)ctx;
+        
         ctx->offset_w1 = 
             sizeof(RSA_Private_Context_Base_t) +
             sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
@@ -93,6 +95,18 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
             sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
         ret += size_modulus;
+        
+        ctx->offset_w5 = 
+            sizeof(RSA_Private_Context_Base_t) +
+            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            ret; // it's been tracking occupied space since pass 1.
+        ret += size_modulus;
+
+        ((vlong_t *)(bp + ctx->offset_w1))->c = size_modulus / 4 - 1;
+        ((vlong_t *)(bp + ctx->offset_w2))->c = size_modulus / 4 - 1;
+        ((vlong_t *)(bp + ctx->offset_w3))->c = size_modulus / 4 - 1;
+        ((vlong_t *)(bp + ctx->offset_w4))->c = size_modulus / 4 - 1;
+        ((vlong_t *)(bp + ctx->offset_w5))->c = size_modulus / 4 - 1;
     }
     
     //
