@@ -27,6 +27,9 @@ int main(int argc, char *argv[])
     fread(buf, 1, len, fp);
     memset(buf2, 0, len);
 
+    fclose(fp);
+    fp = NULL;
+
     // decoding test.
     
     size = ber_tlv_decode_RSAPrivateKey(1, buf, len, NULL, &aux);

@@ -1,15 +1,15 @@
 #!/bin/sh
 
 testfunc() {
-    $exec ../tests/rsa-1440-3primes.der
+    $exec ../tests/rsa-1440-3primes.der ../tests/rsa-1440-pub.der
 }
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-rsa-privkey-der-codec-test.c
+rsa-pubkey-codec-der-test.c
+rsa-pubkey-codec-der.c
 rsa-privkey-parser-der.c
-rsa-privkey-writer-der.c
 2-asn1/der-codec.c
 "
 bin=$(basename "$0" .sh)

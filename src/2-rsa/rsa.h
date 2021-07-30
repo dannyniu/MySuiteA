@@ -19,7 +19,7 @@ typedef struct {
     // It is guaranteed that the allocation of w1 thru w4 are contiguous,
     // although the placement of such contiguous region is undefined.
     uint32_t offset_w1, offset_w2, offset_w3, offset_w4, offset_w5;
-    uint32_t count_primes_other, modulus_bits, scratch_variable;
+    uint32_t count_primes_other, modulus_bits;
     uint32_t offset_n, offset_e, offset_d;
     uint32_t offset_q, offset_dQ;
     uint32_t offset_p, offset_dP, offset_qInv;
@@ -67,7 +67,10 @@ typedef struct {
 
 #define RSA_PRIVATE_PARAM_DETUPLE(obj) (obj).l, (obj).c
 
-// returns x on success and NULL on failure.
+typedef struct {
+    uint32_t offset_w1, offset_w2, offset_w3, offset_w4;
+    uint32_t offset_n, offset_e, modulus_bits;
+} RSA_Public_Context_t;
 
 // If x is NULL, returns size estimate for its memory allocation;
 // otherwise, returns x on success and 0 (NULL) on failure.
@@ -89,6 +92,8 @@ IntPtr rsa_keygen(
 // void *rsa_priv_ctx = malloc(rsa_keygen(NULL, &param_keygen, NULL, NULL));
 // rsa_keygen(rsa_priv_ctx, param_keygen, SHAKE_Read, &xof);
 //
+
+vlong_t *rsa_enc(RSA_Public_Context_t *restrict x);
 
 vlong_t *rsa_fastdec(RSA_Private_Context_t *restrict x);
 
