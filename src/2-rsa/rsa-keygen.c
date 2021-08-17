@@ -7,7 +7,7 @@
 #define MR_ITERATIONS 8
 #define PUB_EXPONENT 65537
 
-#ifdef KEYGEN_LOGF
+#ifdef KEYGEN_LOGF_STDIO
 #include <stdio.h>
 #define LOGF(...) printf(__VA_ARGS__)
 #else
@@ -69,6 +69,7 @@ IntPtr rsa_keygen(
     bx->count_primes_other = param->c - 2;
     bx->modulus_bits = param->l;
 
+restart:
     ul = (void *)(
         bp +
         sizeof(RSA_Private_Context_Base_t) +
@@ -221,6 +222,11 @@ IntPtr rsa_keygen(
 
     // -- EGCD: e^{-1} mod \lambda(n) --
     t5 = EGCD(t5, vl, t1, t2, t3, t4);
+    if( !t5 )
+    {
+        LOGF("EGCD on e and lambda{n} failed, restarting\n");
+        goto restart;
+    }
     for(i=0; i<vl->c; i++) vl->v[i] = t5->v[i];
     vlong_imod_inplace(vl, t6);
     
