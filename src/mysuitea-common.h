@@ -59,6 +59,11 @@ static_assert(
     sizeof(IntPtr) >= sizeof(void (*)(void)),
     "Expectation on the compilation environment didn't hold!");
 
+// 2021-08-17: TODO:
+// Write about how HMAC-DRBG is instantiated at compile and run time and
+// how source-binary code boundary restricts the mixing of compile and
+// run time instantiation.
+
 typedef struct CryptoParam CryptoParam_t;
 
 typedef IntPtr (*iCryptoObj_t)(int q);

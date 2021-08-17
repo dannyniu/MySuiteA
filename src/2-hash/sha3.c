@@ -23,6 +23,10 @@ void SHA3_Update(sha3_t *restrict x, void const *restrict data, size_t len)
     Sponge_Update(&x->sponge, data, len);
 }
 
+// 2021-08-17:
+// It's very fortunate that SHA3 hash lengths don't exceed
+// the sponge rate parameters (1 block).
+
 #define Define_SHA3_Final(name,out_len)                         \
     void name(sha3_t *restrict x, void *restrict out, size_t t) \
     {                                                           \
