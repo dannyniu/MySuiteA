@@ -96,9 +96,6 @@ void CTR_DRBG_Reseed_WithDF(
 #define cCTR_DRBG(bc,q) (                                       \
         q==contextBytes ? CTR_DRBG_CTX_LEN(c##bc) :             \
         q==seedBytes ? ((IntPtr)-1) :                           \
-        q==InstInitFunc ? (IntPtr)CTR_DRBG_##bc##_InstInit :    \
-        q==ReseedFunc ? (IntPtr)CTR_DRBG_Reseed_WithDF :        \
-        q==GenFunc ? (IntPtr)CTR_DRBG_Generate :                \
         0)
 
 #else
@@ -106,12 +103,15 @@ void CTR_DRBG_Reseed_WithDF(
 #define cCTR_DRBG(bc,q) (                                       \
         q==contextBytes ? CTR_DRBG_CTX_LEN(c##bc) :             \
         q==seedBytes ? BLOCK_BYTES(c##bc) + KEY_BYTES(c##bc) :  \
-        q==InstInitFunc ? (IntPtr)CTR_DRBG_##bc##_InstInit :    \
-        q==ReseedFunc ? (IntPtr)CTR_DRBG_Reseed :               \
-        q==GenFunc ? (IntPtr)CTR_DRBG_Generate :                \
         0)
 
 #endif /* ! CTR_DRBG_OMIT_DF */
+
+#define xCTR_DRBG(bc,q) (                                       \
+        q==InstInitFunc ? (IntPtr)CTR_DRBG_##bc##_InstInit :    \
+        q==ReseedFunc ? (IntPtr)CTR_DRBG_Reseed :               \
+        q==GenFunc ? (IntPtr)CTR_DRBG_Generate :                \
+        cCTR_DRBG(bc,q) )
 
 IntPtr tCTR_DRBG(const CryptoParam_t *P, int q);
 

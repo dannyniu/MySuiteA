@@ -95,7 +95,7 @@ void HMAC_DRBG_Generate(
 
 IntPtr tHMAC_DRBG(const CryptoParam_t *P, int q)
 {
-    return cHMAC_DRBG(T,q);
+    return xHMAC_DRBG(T,q);
 }
 
 void *HMAC_DRBG_T_InstInit(

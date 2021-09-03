@@ -14,4 +14,8 @@ Declare_CTR_DRBG_Blockcipher(AES256, aes256_t); // for code consistency.
 #define cCTR_DRBG_AES192(q) cCTR_DRBG(AES192, q)
 #define cCTR_DRBG_AES256(q) cCTR_DRBG(AES256, q)
 
+#define xCTR_DRBG_AES128(q) xCTR_DRBG(AES128, q)
+#define xCTR_DRBG_AES192(q) xCTR_DRBG(AES192, q)
+#define xCTR_DRBG_AES256(q) xCTR_DRBG(AES256, q)
+
 #endif /* MySuiteA_ctr_drbg_aes_h */

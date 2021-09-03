@@ -2,7 +2,7 @@
 
 #include "ctr-drbg.h"
 
-void inc(uint8_t *vec)
+static void inc(uint8_t *vec)
 {
     int16_t a = 1, i = 0;
     while( i++ < 4 )
@@ -249,10 +249,7 @@ void CTR_DRBG_Reseed_WithDF(
 
 #define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
 
-IntPtr tCTR_DRBG(const CryptoParam_t *P, int q)
-{
-    return cCTR_DRBG(T,q);
-}
+IntPtr tCTR_DRBG(const CryptoParam_t *P, int q) { return xCTR_DRBG(T,q); }
 
 void *CTR_DRBG_T_InstInit(
     const CryptoParam_t *restrict P,

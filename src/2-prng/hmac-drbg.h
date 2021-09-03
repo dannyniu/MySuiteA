@@ -86,10 +86,13 @@ void HMAC_DRBG_Generate(
 #define cHMAC_DRBG(prf,q) (                                     \
         q==contextBytes ? HMAC_DRBG_CTX_LEN(c##prf) :           \
         q==seedBytes ? ((IntPtr)-1) :                           \
+        0)
+
+#define xHMAC_DRBG(prf,q) (                                     \
         q==InstInitFunc ? (IntPtr)HMAC_DRBG_##prf##_InstInit :  \
         q==ReseedFunc ? (IntPtr)HMAC_DRBG_Reseed :              \
         q==GenFunc ? (IntPtr)HMAC_DRBG_Generate :               \
-        0)
+        cHMAC_DRBG(prf,q) )
 
 IntPtr tHMAC_DRBG(const CryptoParam_t *P, int q);
 
