@@ -36,8 +36,14 @@ static inline uint8_t gmul(uint8_t a, uint8_t b)
     register uint8_t x = 0;
     register int i;
 
+    // 2021-09-02.
+    // Per https://crypto.stackexchange.com/a/82102/36960,
+    // one of the operands of ``gmul'' is actually from
+    // a set of public constants, where there's no need to
+    // mask for time side-channels.
+    
     for(i=0; i<8; a=xtime(a),i++)
-        x ^= ~((1 & (b >> i)) - 1) & a;
+        if( 1 & (b >> i) ) x ^= a;
 
     return x;
 }
@@ -84,7 +90,7 @@ static void MixColumns(uint8_t state[16])
     for(c=0; c<4; c++)
 	for(r=0; r<4; r++)
             for(i=0; i<4; i++)
-		s2[r+c*4] ^= gmul(a[(i+7-r)%4], s(i,c));
+		s2[r+c*4] ^= gmul(s(i,c), a[(i+7-r)%4]);
 
     for(i=0; i<16; i++)
         state[i] = s2[i];
@@ -136,7 +142,7 @@ static void InvMixColumns(uint8_t state[16])
     for(c=0; c<4; c++)
 	for(r=0; r<4; r++)
             for(i=0; i<4; i++)
-		s2[r+c*4] ^= gmul(a[(i+7-r)%4], s(i,c));
+		s2[r+c*4] ^= gmul(s(i,c), a[(i+7-r)%4]);
 
     for(i=0; i<16; i++)
         state[i] = s2[i];
