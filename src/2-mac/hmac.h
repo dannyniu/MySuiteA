@@ -66,7 +66,7 @@ void HMAC_Final(
 
 #define cHMAC(hash,q) (                                         \
         q==outBytes || q==blockBytes ? c##hash(q) :             \
-        q==keyBytes ? ((IntPtr)-1) :                            \
+        q==keyBytes ? (IntPtr)-BLOCK_BYTES(c##hash) :           \
         q==contextBytes ? sizeof(hmac_t) + CTX_BYTES(c##hash) : \
         q==KInitFunc ? (IntPtr)HMAC_##hash##_Init :             \
         q==UpdateFunc ? (IntPtr)HMAC_Update :                   \

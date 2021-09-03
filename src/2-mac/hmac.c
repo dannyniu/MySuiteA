@@ -20,9 +20,12 @@ void *HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen
     }
     else
     {
-        hmac->hInit(aux);
-        hmac->hUpdate(aux, key, keylen);
-        hmac->hFinal(aux, hmac->K0, hmac->L);
+        return NULL;
+        /* per https://www.rfc-editor.org/errata/eid4809
+         * // hmac->hInit(aux);
+         * // hmac->hUpdate(aux, key, keylen);
+         * // hmac->hFinal(aux, hmac->K0, hmac->L);
+         */
     }
         
     hmac->hInit(aux);

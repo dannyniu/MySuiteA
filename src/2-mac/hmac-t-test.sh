@@ -24,13 +24,13 @@ testfunc() {
     failcount=0
     for algo in $hash_algos ; do
         klen=0
-        while [ $klen -lt 288 ] ; do
+        while [ $klen -lt 64 ] ; do
             mlen=0
             while [ $mlen -lt 32768 ] ; do
                 echo $algo $klen $mlen
                 mlen=$((mlen*3+251))
             done
-            klen=$((klen*3+7))
+            klen=$((klen*2+3))
         done 
     done | while
         if ! read algo klen mlen ; then
