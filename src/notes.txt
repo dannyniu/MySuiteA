@@ -55,3 +55,31 @@ $$$ 2020-11-28 $$$
 
 Arbitrary engineering decisions are explained in comments in code
 with the tag: [!A-E-D!]
+
+
+
+$$$ 2021-09-03 $$$
+
+When "-Wgnu-folding-constant" warning is enabled, the compiler emits a warning
+when nesting information macros in static type declarations. The only way to
+avoid this warning (when not disabling it) is to omit function pointers in
+information macros - I do not deem this solution optimal.
+
+
+
+$$$ 2021-09-03 $$$
+
+It's decided that information macros for blockciphers, hash functions, and
+permutations shall not nest lower-level primitives. This restriction is added
+to:
+
+1. ease the implementation of some higher level primitives (e.g. CTR-DRBG
+   relies on block ciphers, and is built without provision for nested
+   template instantiation; the same can be said for HMAC);
+
+2. limit the nesting levels of information macros (e.g. PKCS#1 paddings of
+   MySuiteA RSA implementations require 2 hash functions - 1 for message,
+   1 for MGF. They would be able to share working context memory space if
+   it's possible to calculate the maximum of 2 sizes, even though in most
+   cases, they should be the same hash function. For more on this, see
+   https://stackoverflow.com/q/68992622 ).
