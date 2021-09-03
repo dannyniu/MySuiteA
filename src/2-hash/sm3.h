@@ -24,10 +24,14 @@ void SM3_Final(sm3_t *restrict sm3, void *restrict out, size_t t);
         q==outBytes ? 32 :                             \
         q==blockBytes ? 64 :                           \
         q==contextBytes ? sizeof(struct sm3_context) : \
+        0)
+
+#define xSM3(q) (                                      \
         q==InitFunc   ? (IntPtr)SM3_Init :             \
         q==UpdateFunc ? (IntPtr)SM3_Update :           \
         q==FinalFunc  ? (IntPtr)SM3_Final :            \
-        0)
+        cSM3(q) )
+
 IntPtr iSM3(int q);
 
 #endif

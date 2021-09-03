@@ -1,4 +1,5 @@
 /* DannyNiu/NJF, 2018-04-20. Public Domain. */
+// more test vectors at: https://crypto.stackexchange.com/q/51025
 
 #include "gimli-xof.h"
 #include <inttypes.h>

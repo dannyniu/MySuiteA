@@ -6,7 +6,7 @@
 void Gimli_XOF_Init(gimli_xof_t *restrict x)
 {
     *x = (gimli_xof_t){
-        .sponge = SPONGE_INIT(16, 0x1f, 0x80, cGimli),
+        .sponge = SPONGE_INIT(16, 0x1f, 0x80, xGimli),
         .state.u32 = {0}, 
     };
 }
@@ -29,4 +29,4 @@ void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len)
     Sponge_Read(&x->sponge, data, len);
 }
 
-IntPtr iGimli_XOF(int q){ return cGimli_XOF(q); }
+IntPtr iGimli_XOF(int q){ return xGimli_XOF(q); }

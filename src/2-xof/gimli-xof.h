@@ -25,11 +25,14 @@ void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len);
 #define cGimli_XOF(q) (                                         \
         q==blockBytes ? 16 :                                    \
         q==contextBytes ? sizeof(struct gimli_xof_context) :    \
+        0)
+
+#define xGimli_XOF(q) (                                         \
         q==InitFunc ? (IntPtr)Gimli_XOF_Init :                  \
         q==WriteFunc ? (IntPtr)Gimli_XOF_Write :                \
         q==XofFinalFunc ? (IntPtr)Gimli_XOF_Final :             \
         q==ReadFunc ? (IntPtr)Gimli_XOF_Read :                  \
-        0)
+        cGimli_XOF(q) )
 
 IntPtr iGimli_XOF(int q);
 

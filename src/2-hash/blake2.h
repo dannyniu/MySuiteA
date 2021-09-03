@@ -85,52 +85,86 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out, size_t t);
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? 128 :                                   \
         q==contextBytes ? sizeof(struct blake2b_context) :      \
+        0)
+
+#define xBLAKE2b(bits,q) (                                      \
         q==InitFunc   ? (IntPtr)BLAKE2b##bits##_Init :          \
         q==UpdateFunc ? (IntPtr)BLAKE2b##bits##_Update :        \
         q==FinalFunc  ? (IntPtr)BLAKE2b##bits##_Final :         \
-        0)
+        cBLAKE2b(bits,q) )
 
 #define cBLAKE2s(bits,q) (                                      \
         q==outBytes ? bits/8 :                                  \
         q==blockBytes ? 64 :                                    \
         q==contextBytes ? sizeof(struct blake2s_context) :      \
+        0)
+
+#define xBLAKE2s(bits,q) (                                      \
         q==InitFunc   ? (IntPtr)BLAKE2s##bits##_Init :          \
         q==UpdateFunc ? (IntPtr)BLAKE2s##bits##_Update :        \
         q==FinalFunc  ? (IntPtr)BLAKE2s##bits##_Final :         \
-        0)
+        cBLAKE2s(bits,q) )
 
 #define cBLAKE2b160(q) cBLAKE2b(160,q)
 #define cBLAKE2b256(q) cBLAKE2b(256,q)
 #define cBLAKE2b384(q) cBLAKE2b(384,q)
 #define cBLAKE2b512(q) cBLAKE2b(512,q)
 
+#define xBLAKE2b160(q) xBLAKE2b(160,q)
+#define xBLAKE2b256(q) xBLAKE2b(256,q)
+#define xBLAKE2b384(q) xBLAKE2b(384,q)
+#define xBLAKE2b512(q) xBLAKE2b(512,q)
+
 #define cBLAKE2s128(q) cBLAKE2s(128,q)
 #define cBLAKE2s160(q) cBLAKE2s(160,q)
 #define cBLAKE2s224(q) cBLAKE2s(224,q)
 #define cBLAKE2s256(q) cBLAKE2s(256,q)
 
+#define xBLAKE2s128(q) xBLAKE2s(128,q)
+#define xBLAKE2s160(q) xBLAKE2s(160,q)
+#define xBLAKE2s224(q) xBLAKE2s(224,q)
+#define xBLAKE2s256(q) xBLAKE2s(256,q)
+
 // 2020-09-19:
 // Haven't found motivation to override the unkeyed ``InitFunc'' yet.
 
 #define ckBLAKE2b(bits,q) (                             \
-        q==KInitFunc ? (IntPtr)kBLAKE2b##bits##_Init :  \
         q==keyBytes ? -64 :                             \
         cBLAKE2b(bits,q))
 
+#define xkBLAKE2b(bits,q) (                             \
+        q==keyBytes ? -64 :                             \
+        q==KInitFunc ? (IntPtr)kBLAKE2b##bits##_Init :  \
+        xBLAKE2b(bits,q))
+
 #define ckBLAKE2s(bits,q) (                             \
-        q==KInitFunc ? (IntPtr)kBLAKE2s##bits##_Init :  \
         q==keyBytes ? -32 :                             \
         cBLAKE2s(bits,q))
+
+#define xkBLAKE2s(bits,q) (                             \
+        q==keyBytes ? -32 :                             \
+        q==KInitFunc ? (IntPtr)kBLAKE2s##bits##_Init :  \
+        xBLAKE2s(bits,q))
 
 #define ckBLAKE2b160(q) ckBLAKE2b(160,q)
 #define ckBLAKE2b256(q) ckBLAKE2b(256,q)
 #define ckBLAKE2b384(q) ckBLAKE2b(384,q)
 #define ckBLAKE2b512(q) ckBLAKE2b(512,q)
 
+#define xkBLAKE2b160(q) xkBLAKE2b(160,q)
+#define xkBLAKE2b256(q) xkBLAKE2b(256,q)
+#define xkBLAKE2b384(q) xkBLAKE2b(384,q)
+#define xkBLAKE2b512(q) xkBLAKE2b(512,q)
+
 #define ckBLAKE2s128(q) ckBLAKE2s(128,q)
 #define ckBLAKE2s160(q) ckBLAKE2s(160,q)
 #define ckBLAKE2s224(q) ckBLAKE2s(224,q)
 #define ckBLAKE2s256(q) ckBLAKE2s(256,q)
+
+#define xkBLAKE2s128(q) xkBLAKE2s(128,q)
+#define xkBLAKE2s160(q) xkBLAKE2s(160,q)
+#define xkBLAKE2s224(q) xkBLAKE2s(224,q)
+#define xkBLAKE2s256(q) xkBLAKE2s(256,q)
 
 IntPtr iBLAKE2b160(int q);
 IntPtr iBLAKE2b256(int q);

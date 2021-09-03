@@ -304,8 +304,8 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t)
     }
 }
 
-IntPtr iSHA1(int q){ return cSHA1(q); }
-IntPtr iSHA224(int q){ return cSHA224(q); }
-IntPtr iSHA256(int q){ return cSHA256(q); }
-IntPtr iSHA384(int q){ return cSHA384(q); }
-IntPtr iSHA512(int q){ return cSHA512(q); }
+IntPtr iSHA1(int q){ return xSHA1(q); }
+IntPtr iSHA224(int q){ return xSHA224(q); }
+IntPtr iSHA256(int q){ return xSHA256(q); }
+IntPtr iSHA384(int q){ return xSHA384(q); }
+IntPtr iSHA512(int q){ return xSHA512(q); }

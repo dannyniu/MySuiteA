@@ -35,15 +35,23 @@ void SHA3_512_Final(sha3_t *restrict x, void *restrict out, size_t t);
         q==outBytes ? bits/8 :                          \
         q==blockBytes ? (1600-bits*2)/8 :               \
         q==contextBytes ? sizeof(struct sha3_context) : \
+        0)
+
+#define xSHA3(bits,q) (                                 \
         q==InitFunc   ? (IntPtr)SHA3_##bits##_Init :    \
         q==UpdateFunc ? (IntPtr)SHA3_##bits##_Update :  \
         q==FinalFunc  ? (IntPtr)SHA3_##bits##_Final :   \
-        0)
+        cSHA3(bits,q) )
 
 #define cSHA3_224(q) cSHA3(224,q)
 #define cSHA3_256(q) cSHA3(256,q)
 #define cSHA3_384(q) cSHA3(384,q)
 #define cSHA3_512(q) cSHA3(512,q)
+
+#define xSHA3_224(q) xSHA3(224,q)
+#define xSHA3_256(q) xSHA3(256,q)
+#define xSHA3_384(q) xSHA3(384,q)
+#define xSHA3_512(q) xSHA3(512,q)
 
 IntPtr iSHA3_224(int q);
 IntPtr iSHA3_256(int q);

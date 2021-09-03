@@ -23,29 +23,42 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len);
 #define cSHAKE(bits,q) (                                        \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct shake_context) :        \
+        0)
+
+#define xSHAKE(bits,q) (                                        \
         q==InitFunc ? (IntPtr)SHAKE##bits##_Init :              \
         q==WriteFunc ? (IntPtr)SHAKE_Write :                    \
         q==XofFinalFunc ? (IntPtr)SHAKE_Final :                 \
         q==ReadFunc ? (IntPtr)SHAKE_Read :                      \
-        0)
+        cSHAKE(bits,q) )
+
 #define cSHAKE128(q) cSHAKE(128,q)
 #define cSHAKE256(q) cSHAKE(256,q)
+
+#define xSHAKE128(q) xSHAKE(128,q)
+#define xSHAKE256(q) xSHAKE(256,q)
 
 IntPtr iSHAKE128(int q);
 IntPtr iSHAKE256(int q);
 
 #define cSHAKEoN(bits,N,q) (                                    \
-        q==outbytes ? N :                                       \
+        q==outBytes ? N :                                       \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct shake_context) :        \
+        0)
+
+#define xSHAKEoN(bits,N,q) (                                    \
         q==InitFunc ? (IntPtr)SHAKE##bits##_Init :              \
         q==WriteFunc ? (IntPtr)SHAKE_Write :                    \
         q==XofFinalFunc ? (IntPtr)SHAKE_Final :                 \
         q==ReadFunc ? (IntPtr)SHAKE_Read :                      \
-        0)
+        cSHAKEoN(bits,N,q) )
 
 #define cSHAKE128o32(q) cSHAKEoN(128,32,q)
 #define cSHAKE256o64(q) cSHAKEoN(256,64,q)
+
+#define xSHAKE128o32(q) xSHAKEoN(128,32,q)
+#define xSHAKE256o64(q) xSHAKEoN(256,64,q)
 
 IntPtr iSHAKE128o32(int q);
 IntPtr iSHAKE256o64(int q);

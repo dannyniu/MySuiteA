@@ -85,4 +85,4 @@ void SM3_Final(sm3_t *restrict x, void *restrict out, size_t t)
     }
 }
 
-IntPtr iSM3(int q){ return cSM3(q); }
+IntPtr iSM3(int q){ return xSM3(q); }
