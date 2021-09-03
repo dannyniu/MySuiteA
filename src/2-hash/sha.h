@@ -65,6 +65,7 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t);
 #define cSHA1(q) (                              \
         q==outBytes ? 20 :                      \
         q==blockBytes ? 64 :                    \
+        q==contextBytes ? sizeof(sha1_t) :      \
         0)
 
 #define xSHA1(q) (                              \
@@ -73,9 +74,10 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t);
         q==FinalFunc  ? (IntPtr)SHA1_Final :    \
         cSHA1(q) )
 
-#define cSHAoN(bits,blk,q) (                    \
-        q==outBytes ? bits/8 :                  \
-        q==blockBytes ? blk :                   \
+#define cSHAoN(bits,blk,q) (                            \
+        q==outBytes ? bits/8 :                          \
+        q==blockBytes ? blk :                           \
+        q==contextBytes ? sizeof(sha##bits##_t) :       \
         0)
 
 #define xSHAoN(bits,blk,q) (                            \
