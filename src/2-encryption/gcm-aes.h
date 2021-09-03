@@ -15,4 +15,8 @@ Declare_GCM_Blockcipher(AES256, aes256_t);
 #define cGCM_AES192(q) cGCM(AES192,q)
 #define cGCM_AES256(q) cGCM(AES256,q)
 
+#define xGCM_AES128(q) xGCM(AES128,q)
+#define xGCM_AES192(q) xGCM(AES192,q)
+#define xGCM_AES256(q) xGCM(AES256,q)
+
 #endif /* MySuiteA_gcm_aes_h */

@@ -7,14 +7,13 @@
         size_t klen)                                            \
     {                                                           \
         gcm_t *ctx = &x->gcm;                                   \
-        if( klen != KEY_BYTES(c##algo) )                        \
-            return NULL;                                        \
+        if( klen != KEY_BYTES(c##algo) ) return NULL;           \
         *x = (gcm_##name){                                      \
-            .gcm = GCM_INIT(c##algo),                           \
+            .gcm = GCM_INIT(x##algo),                           \
         };                                                      \
-        KSCHD_FUNC(c##algo)(k, x->kschd);                       \
+        KSCHD_FUNC(x##algo)(k, x->kschd);                       \
         ctx->enc(ctx->H, ctx->H, x->kschd);                     \
         return x;                                               \
     }                                                           \
                                                                 \
-    IntPtr iGCM_##algo(int q){ return cGCM_##algo(q); }
+    IntPtr iGCM_##algo(int q){ return xGCM_##algo(q); }

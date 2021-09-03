@@ -36,10 +36,13 @@ void *ChaCha_AEAD_Decrypt(
         q==keyBytes ? 32 :                              \
         q==contextBytes ? sizeof(chacha_aead_t) :       \
         q==ivBytes ? 12 : q==tagBytes ? 16 :            \
+        0)
+
+#define xChaCha_AEAD(q) (                               \
         q==KInitFunc ? (IntPtr)ChaCha_AEAD_Init :       \
         q==AEncFunc ? (IntPtr)ChaCha_AEAD_Encrypt :     \
         q==ADecFunc ? (IntPtr)ChaCha_AEAD_Decrypt :     \
-        0)
+        cChaCha_AEAD(q) )
 
 IntPtr iChaCha_AEAD(int q);
 

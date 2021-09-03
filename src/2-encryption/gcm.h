@@ -52,10 +52,13 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
         q==keyBytes ? c##bc(q) :                                        \
         q==contextBytes ? sizeof(gcm_t) + c##bc(keyschedBytes) :        \
         q==ivBytes ? 12 : q==tagBytes ? 16 :                            \
+        0)
+
+#define xGCM(bc,q) (                                                    \
         q==KInitFunc ? (IntPtr)GCM_##bc##_Init :                        \
         q==AEncFunc ? (IntPtr)GCM_Encrypt :                             \
         q==ADecFunc ? (IntPtr)GCM_Decrypt :                             \
-        0)
+        cGCM(bc,q) )
 
 IntPtr tGCM(const CryptoParam_t *P, int q);
 

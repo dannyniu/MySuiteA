@@ -101,4 +101,4 @@ void *ChaCha_AEAD_Decrypt(
     return out;
 }
 
-IntPtr iChaCha_AEAD(int q) { return cChaCha_AEAD(q); }
+IntPtr iChaCha_AEAD(int q) { return xChaCha_AEAD(q); }

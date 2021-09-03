@@ -134,10 +134,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
 
 #define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
 
-IntPtr tGCM(const CryptoParam_t *P, int q)
-{
-    return cGCM(T,q);
-}
+IntPtr tGCM(const CryptoParam_t *P, int q) { return xGCM(T,q); }
 
 void *GCM_T_Init(
     const CryptoParam_t *restrict P,
