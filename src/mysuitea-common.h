@@ -15,13 +15,13 @@
 #define glue(a,b) xglue(a,b)
 
 // Each primitive instance shall define
-// 1. a function compatible with the type (IntPtr(*)(int)),
+// 1. a function whose pointer is compatible with the type (IntPtr(*)(int)),
 // 2. a function-like macro that evaluates to some integer types that's
 //    large enough to hold pointers,
 // that when evaluated in run-time or compile time, yields
 // relevant information associated with particular primitive.
 //
-// Both the function and the function like macro takes a single
+// Both the function and the function-like macro takes a single
 // argument `q' that is one of the constants enumerated below.
 //
 // The name of the function shall be the name of the primitive
