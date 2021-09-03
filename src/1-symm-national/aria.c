@@ -414,6 +414,6 @@ void ARIA256_Decrypt(void const *in, void *out, void const *restrict w)
     return ARIA_Decrypt_Generic(in, out, w, 16);
 }
 
-IntPtr iARIA128(int q){ return cARIA128(q); }
-IntPtr iARIA192(int q){ return cARIA192(q); }
-IntPtr iARIA256(int q){ return cARIA256(q); }
+IntPtr iARIA128(int q){ return xARIA128(q); }
+IntPtr iARIA192(int q){ return xARIA192(q); }
+IntPtr iARIA256(int q){ return xARIA256(q); }

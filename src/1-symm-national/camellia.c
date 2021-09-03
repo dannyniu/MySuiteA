@@ -405,6 +405,6 @@ void Camellia256_Decrypt(void const *in, void *out, void const *restrict w)
     ((uint64_t *)out)[1] = htobe64(r);
 }
 
-IntPtr iCamellia128(int q) { return cCamellia128(q); }
-IntPtr iCamellia192(int q) { return cCamellia192(q); }
-IntPtr iCamellia256(int q) { return cCamellia256(q); }
+IntPtr iCamellia128(int q) { return xCamellia128(q); }
+IntPtr iCamellia192(int q) { return xCamellia192(q); }
+IntPtr iCamellia256(int q) { return xCamellia256(q); }

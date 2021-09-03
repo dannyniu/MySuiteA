@@ -185,7 +185,4 @@ void SEED_KeySched(void const *key, void *restrict w)
     }
 }
 
-IntPtr iSEED(int q)
-{
-    return cSEED(q);
-}
+IntPtr iSEED(int q) { return xSEED(q); }

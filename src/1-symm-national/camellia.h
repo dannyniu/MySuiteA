@@ -33,14 +33,21 @@ void Camellia256_Decrypt(void const *in, void *out, void const *restrict w);
         q==blockBytes ? 16 :                                    \
         q==keyBytes ? (bits)/8 :                                \
         q==keyschedBytes ? sizeof(camellia##bits##_kschd_t) :   \
+        0)
+
+#define xCamellia(bits,q) (                                     \
         q==EncFunc ? (IntPtr)Camellia##bits##_Encrypt :         \
         q==DecFunc ? (IntPtr)Camellia##bits##_Decrypt :         \
         q==KschdFunc ? (IntPtr)Camellia##bits##_KeySched :      \
-        0)
+        cCamellia(bits,q) )
 
 #define cCamellia128(q) cCamellia(128,q)
 #define cCamellia192(q) cCamellia(192,q)
 #define cCamellia256(q) cCamellia(256,q)
+
+#define xCamellia128(q) xCamellia(128,q)
+#define xCamellia192(q) xCamellia(192,q)
+#define xCamellia256(q) xCamellia(256,q)
 
 IntPtr iCamellia128(int q);
 IntPtr iCamellia192(int q);

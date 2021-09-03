@@ -7,11 +7,14 @@
 
 void KeccakF1600_Permute(void const *in, void *out);
 
-#define cKeccakF(b,q) (                                 \
-        q==blockBytes ? b/8 :                           \
+#define cKeccakF(b,q) ( q==blockBytes ? b/8 : 0 )
+
+#define xKeccakF(b,q) (                                 \
         q==PermuteFunc ? (IntPtr)KeccakF##b##_Permute : \
-        0 )
+        cKeccakF(b,q) )
+
 #define cKeccakF1600(q) cKeccakF(1600,q)
+#define xKeccakF1600(q) xKeccakF(1600,q)
 
 IntPtr iKeccakF1600(int q);
 

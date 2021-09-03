@@ -13,10 +13,13 @@ void SM4KeySched(void const *restrict key, void *restrict w);
         q==blockBytes ? 16 :                    \
         q==keyBytes ? 16 :                      \
         q==keyschedBytes ? (32 * 4) :           \
+        0)
+
+#define xSM4(q) (                               \
         q==EncFunc ? (IntPtr)SM4Encrypt :       \
         q==DecFunc ? (IntPtr)SM4Decrypt :       \
         q==KschdFunc ? (IntPtr)SM4KeySched :    \
-        0)
+        cSM4(q) )
 
 IntPtr iSM4(int q);
 

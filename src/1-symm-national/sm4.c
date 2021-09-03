@@ -158,7 +158,4 @@ void SM4KeySched(void const *restrict key, void *restrict w)
     }
 }
 
-IntPtr iSM4(int q)
-{
-    return cSM4(q);
-}
+IntPtr iSM4(int q) { return cSM4(q); }

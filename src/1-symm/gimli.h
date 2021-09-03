@@ -26,10 +26,11 @@
 
 void Gimli_Permute(void const *in, void *out);
 
-#define cGimli(q) (                                     \
-        q==blockBytes ? 48 :                            \
+#define cGimli(q) ( q==blockBytes ? 48 : 0 )
+
+#define xGimli(q) (                                     \
         q==PermuteFunc ? (IntPtr)Gimli_Permute :        \
-        0 )
+        cGimli(q) )
 
 IntPtr iGimli(int q);
 

@@ -21,13 +21,21 @@ void AES256_KeyExpansion(void const *restrict key, void *restrict w);
         q==blockBytes ? 16 :                                    \
         q==keyBytes ? (bits)/8 :                                \
         q==keyschedBytes ? ((bits)/32+6+1)*16 :                 \
+        0)
+
+#define xAES(bits,q) (                                          \
         q==EncFunc ? (IntPtr)AES##bits##_Cipher :               \
         q==DecFunc ? (IntPtr)AES##bits##_InvCipher :            \
         q==KschdFunc ? (IntPtr)AES##bits##_KeyExpansion :       \
-        0)
+        cAES(bits,q) )
+
 #define cAES128(q) cAES(128,q)
 #define cAES192(q) cAES(192,q)
 #define cAES256(q) cAES(256,q)
+
+#define xAES128(q) xAES(128,q)
+#define xAES192(q) xAES(192,q)
+#define xAES256(q) xAES(256,q)
 
 IntPtr iAES128(int q);
 IntPtr iAES192(int q);
