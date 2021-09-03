@@ -6,9 +6,9 @@
         void const *restrict key,                               \
         size_t keylen)                                          \
     {                                                           \
-        x->cmac = CMAC_INIT(c##algo);                           \
+        x->cmac = CMAC_INIT(x##algo);                           \
         x = CMAC_SetKey(&x->cmac, key, keylen);                 \
         return x;                                               \
     }                                                           \
                                                                 \
-    IntPtr iCMAC_##algo(int q){ return cCMAC_##algo(q); }
+    IntPtr iCMAC_##algo(int q){ return xCMAC_##algo(q); }

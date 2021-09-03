@@ -67,10 +67,7 @@ finalized:
 
 #define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
 
-IntPtr tHMAC(const CryptoParam_t *P, int q)
-{
-    return cHMAC(T,q);
-}
+IntPtr tHMAC(const CryptoParam_t *P, int q) { return xHMAC(T,q); }
 
 void *HMAC_T_Init(
     const CryptoParam_t *restrict P,

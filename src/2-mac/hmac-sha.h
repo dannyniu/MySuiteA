@@ -18,4 +18,10 @@ Declare_HMAC_Hash(SHA512, sha512_t);
 #define cHMAC_SHA384(q) cHMAC(SHA384, q)
 #define cHMAC_SHA512(q) cHMAC(SHA512, q)
 
+#define xHMAC_SHA1(q) xHMAC(SHA1, q)
+#define xHMAC_SHA224(q) xHMAC(SHA224, q)
+#define xHMAC_SHA256(q) xHMAC(SHA256, q)
+#define xHMAC_SHA384(q) xHMAC(SHA384, q)
+#define xHMAC_SHA512(q) xHMAC(SHA512, q)
+
 #endif /* MySuiteA_hmac_sha_h */

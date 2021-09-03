@@ -6,9 +6,9 @@
         void const *restrict key,                               \
         size_t keylen)                                          \
     {                                                           \
-        x->hmac = HMAC_INIT(c##algo);                           \
+        x->hmac = HMAC_INIT(x##algo);                           \
         x = HMAC_SetKey(&x->hmac, key, keylen);                 \
         return x;                                               \
     }                                                           \
                                                                 \
-    IntPtr iHMAC_##algo(int q){ return cHMAC_##algo(q); }
+    IntPtr iHMAC_##algo(int q){ return xHMAC_##algo(q); }

@@ -16,4 +16,9 @@ Declare_HMAC_Hash(SHA3_512, sha3_512_t);
 #define cHMAC_SHA3_384(q) cHMAC(SHA3_384, q)
 #define cHMAC_SHA3_512(q) cHMAC(SHA3_512, q)
 
+#define xHMAC_SHA3_224(q) xHMAC(SHA3_224, q)
+#define xHMAC_SHA3_256(q) xHMAC(SHA3_256, q)
+#define xHMAC_SHA3_384(q) xHMAC(SHA3_384, q)
+#define xHMAC_SHA3_512(q) xHMAC(SHA3_512, q)
+
 #endif /* MySuiteA_hmac_sha3_h */

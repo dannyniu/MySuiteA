@@ -97,10 +97,7 @@ finalized:
 
 #define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
 
-IntPtr tCMAC(const CryptoParam_t *P, int q)
-{
-    return cCMAC(T,q);
-}
+IntPtr tCMAC(const CryptoParam_t *P, int q) { return xCMAC(T,q); }
 
 void *CMAC_T_Init(
     const CryptoParam_t *restrict P,

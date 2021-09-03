@@ -70,10 +70,13 @@ void CMAC_Final(
         q==outBytes || q==blockBytes ? BLOCK_BYTES(c##bc) :     \
         q==keyBytes ? KEY_BYTES(c##bc) :                        \
         q==contextBytes ? sizeof(cmac_t) + KSCHD_BYTES(c##bc) : \
+        0)
+
+#define xCMAC(bc,q) (                                           \
         q==KInitFunc ? (IntPtr)CMAC_##bc##_Init :               \
         q==UpdateFunc ? (IntPtr)CMAC_Update :                   \
         q==FinalFunc ? (IntPtr)CMAC_Final :                     \
-        0)
+        cCMAC(bc,q) )
 
 IntPtr tCMAC(const CryptoParam_t *P, int q);
 
