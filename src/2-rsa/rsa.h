@@ -59,7 +59,7 @@ typedef struct {
         sizeof(RSA_Private_Context_Base_t) +                    \
         sizeof(RSA_OtherPrimeInfo_t) * ((c) - 2)  )
 
-#define RSA_PRIVATE_CONTEXT_SIZE(...)\
+#define RSA_PRIVATE_CONTEXT_SIZE(...)           \
     RSA_PRIVATE_CONTEXT_SIZE_X(__VA_ARGS__)
 
 #define RSA_PRIVATE_PARAM_ENTUPLE(l_,c_)                \

@@ -34,4 +34,20 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len);
 IntPtr iSHAKE128(int q);
 IntPtr iSHAKE256(int q);
 
+#define cSHAKEoN(bits,N,q) (                                    \
+        q==outbytes ? N :                                       \
+        q==blockBytes ? (1600-bits*2)/8 :                       \
+        q==contextBytes ? sizeof(struct shake_context) :        \
+        q==InitFunc ? (IntPtr)SHAKE##bits##_Init :              \
+        q==WriteFunc ? (IntPtr)SHAKE_Write :                    \
+        q==XofFinalFunc ? (IntPtr)SHAKE_Final :                 \
+        q==ReadFunc ? (IntPtr)SHAKE_Read :                      \
+        0)
+
+#define cSHAKE128o32(q) cSHAKEoN(128,32,q)
+#define cSHAKE256o64(q) cSHAKEoN(256,64,q)
+
+IntPtr iSHAKE128o32(int q);
+IntPtr iSHAKE256o64(int q);
+
 #endif /* MySuiteA_shake_h */

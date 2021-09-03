@@ -36,3 +36,6 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len)
 
 IntPtr iSHAKE128(int q){ return cSHAKE128(q); }
 IntPtr iSHAKE256(int q){ return cSHAKE256(q); }
+
+IntPtr iSHAKE128o32(int q){ return cSHAKE128o32(q); }
+IntPtr iSHAKE256o64(int q){ return cSHAKE256o64(q); }
