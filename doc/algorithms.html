@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>MySuiteA Algorithms</title>
+    <title>Algorithms Implemented in MySuiteA</title>
 
     <style>
      body {
@@ -83,7 +83,7 @@
     <p>
       Algorithms are listed first in the order of functionality (block cipher,
       permutation, then hash function, message authentication code,
-      encryption, PRNG, public-key encryption / key exchange, and then
+      encryption, PRNG, and then public-key encryption / key exchange, and
       digital signature), then in the order of inclusion criteria.
     </p>
 
@@ -163,6 +163,12 @@
           <td>BLAKE2</td>
           <td>Hash Function</td>
           <td>HAIFA</td>
+        </tr>
+
+        <tr>
+          <td>CMAC</td>
+          <td>MAC</td>
+          <td>Mode of Operation of Block Cipher</td>
         </tr>
 
         <tr>
@@ -266,7 +272,10 @@
 
         <tr>
           <td>Camellia</td> <td>Normative</td>
-          <td>Specification of Camellia - a 128-bit Block Cipher</td>
+          <td>
+            [RFC-3713]
+            Specification of Camellia - a 128-bit Block Cipher
+          </td>
           <td>
             Kazumaro Aoki, Tetsuya Ichikawa, Masayuki Kanda,
             Mitsuru Matsui, Shiho Moriai, Junko Nakajima, Toshio Tokita
@@ -366,6 +375,30 @@
         </tr>
 
         <tr>
+          <td>SM3</td> <td>Normative</td>
+          <td>
+            [GB/T 32905-2016]
+            Information security techniques—SM3 cryptographic hash algorithm
+          </td>
+          <td></td>
+          <td>2016-08</td>
+          <td><a href="http://www.gb688.cn/bzgk/gb/newGbInfo?hcno=45B1A67F20F3BF339211C391E9278F5E">[1]</a></td>
+        </tr>
+
+        <tr>
+          <td>SM3</td> <td>Informative</td>
+          <td>
+            The SM3 Cryptographic Hash Function
+            draft-sca-cfrg-sm3
+          </td>
+          <td></td>
+          <td>2018-07</td>
+          <td>
+            <a href="https://datatracker.ietf.org/doc/draft-sca-cfrg-sm3/">[1]</a>,
+          </td>
+        </tr>
+
+        <tr>
           <td>BLAKE2</td> <td>Normative</td>
           <td>
             [RFC-7693]
@@ -394,6 +427,54 @@
           </td>
         </tr>
 
+        <tr>
+          <td>CMAC</td> <td>Normative</td>
+          <td>
+            [NIST-SP-800-38B]
+            Recommendation for Block Cipher Modes of Operation:
+            The CMAC Mode for Authentication
+          </td>
+          <td></td>
+          <td>2005-05</td>
+          <td><a href="https://doi.org/10.6028/NIST.SP.800-38B">[1]</a></td>
+        </tr>
+        
+        <tr>
+          <td>HMAC</td> <td>Normative</td>
+          <td>
+            [RFC-2104]
+            HMAC: Keyed-Hashing for Message Authentication
+          </td>
+          <td>
+            Hugo Krawczyk, Mihir Bellare, Ran Canetti
+          </td>
+          <td>1997-02</td>
+          <td><a href="https://tools.ietf.org/html/rfc2104">[1]</a></td>
+        </tr>
+
+        <tr>
+          <td>HMAC</td> <td>Normative</td>
+          <td>
+            [FIPS-198 / FIPS-198-1]
+            The Keyed-Hash Message Authentication Code (HMAC)
+          </td>
+          <td></td>
+          <td>2002-03 / 2008-07</td>
+          <td><a href="https://doi.org/10.6028/NIST.FIPS.198-1">[1]</a></td>
+        </tr>
+
+        <tr>
+          <td>HMAC</td> <td>Informative</td>
+          <td>Keying Hash Functions for Message Authentication</td>
+          <td>
+            Hugo Krawczyk, Mihir Bellare, Ran Canetti
+          </td>
+          <td>1996-06</td>
+          <td><a href="https://cseweb.ucsd.edu/~mihir/papers/kmd5.pdf">
+            [1]
+          </a></td>
+        </tr>
+        
         <tr>
           <td>GCM - Galois Counter Mode</td> <td>Normative</td>
           <td>

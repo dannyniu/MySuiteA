@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>MySuiteA API Overview</title>
+
+    <style>
+     body {
+       box-sizing:   border-box;
+       width:        calc(384px + 40vw);
+       margin:   1em calc(30vw - 192px);
+       padding:  2ex;
+     }
+
+     table {
+       border-collapse:  collapse;
+     }
+
+     body > table {
+       width:    100%;
+     }
+
+     th, td {
+       padding:  3pt;
+     }
+
+     th {
+       border:   thin solid black;
+     }
+
+     td {
+       border:   thin solid silver;
+     }
+
+     code, pre {
+       background:   silver;
+       background:   rgba(224,224,224,0.75);
+     }
+
+     pre {
+       white-space:  pre-line;
+     }
+
+     .math-fonts {
+       white-space:  nowrap;
+       font-family:  serif;
+     }
+
+     .math-fonts var {
+       font-size:    125%;
+     }
+    </style>
+
+  </head>
+  <body>
+
+    <h1>MySuiteA's View of Cryptogrpahy Algorithms</h1>
+
+    <p>
+      In MySuiteA's view, a cryptographic algorithm consist of a set of
+      functions that transforms operands between various forms such as
+      plaintext message, ciphertext, digest, signature, predicate,
+      and/or other form of information;
+    </p>
+
+    <p>
+      a cryptographic algorithm is
+      associated with a set of properties that are intrinsic of the algorithm
+      (e.g. key and key schedule size, output size, input length limit);
+    </p>
+
+    <p>
+      an algorithm may be based on another algorithm, a.k.a. an algorithm
+      is parameterized by another (set of) algorithm(s) - for example, a
+      digital signature may be instantiated with a hash function, an
+      encryption algorithm may be instantiated with a blockcipher, etc.
+    </p>
+
+    <p>
+      Based on the above premise, the term <em>algorithm construction</em>
+      refers to algorithms that needs to be instantiated with another (set of)
+      algorithm(s) or other types of parameters; the term <em>algorithm
+      instance</em> refers to algorithms which have all necessary
+      parameterizations (if any) specified and can operate on operands in a
+      definite way.
+    </p>
+
+    <p>
+      The term <em>algorithm</em> can refer to either <em>algorithm
+      construction</em> or <em>algorithm instance</em>. The term
+      <em>algorithm family</em> is banned from use in MySuiteA documentations
+      as it is ambiguous.
+    </p>
+
+    <h1>MySuiteA's Implementation of Algorithms</h1>
+
+    <h2>Algorithm Instances</h2>
+
+    <p>
+      MySuiteA implements a uniform interface for using and instantiating from
+      cryptographic algorithms at compile, link, and run time.
+    </p>
+
+    <p>
+      At compile time, a function-like macro whose name consists of the name
+      of the algorithm prefixed with a single lower-case letter "c" is defined.
+      This macro takes a single argument <code><var>q</var></code>, which
+      specifies the property associated with the algorithm to be queried, and
+      evaluates to the value of that property.
+      For other queries, this macro evaluates to 0.
+    </p>
+
+    <p>
+      At link time, a similar macro exists. In addition to the queries
+      available in the link time queries, the pointers to the set of functions
+      constituting the algorithm may be queried. The prefix of this macro is
+      "x" instead of "c".
+    </p>
+
+    <p>
+      At run time, a function with the exact behavior of the link time macro
+      exists. A function is needed so as to enable run-time instantiation,
+      as a function can be encapsulated in a pointer to the function.
+      Such a function is colloquially called a "crypto object".
+    </p>
+
+    <p>
+      For the set of queries available (and their applicability to particular
+      types of algorithm), see "mysuitea-common.h".
+    </p>
+
+    <h2>Algorithm Construction Instantiation at Run Time</h2>
+
+    <p>
+      The "crypto object" function mentioned above takes a single argument.
+      It has the prototype:
+    </p>
+
+    <pre>
+      IntPtr (*iCryptoObj_t)(int q);
+    </pre>
+
+    <p>
+      where <code>IntPtr</code> is a signed integer type with same width as
+      a pointer type. By default this defined to be the same as
+      <code>intptr_t</code>, however on systems where object and function
+      pointer types have different representation, this may be changed to
+      something else by the user of the MySuiteA library.
+    </p>
+
+    <p>
+      A algorithm construction crypto object is represented as a function that
+      takes a parameterization argument first, then the query. Such function
+      has the prototype:
+    </p>
+
+    <pre>
+      IntPtr (*tCryptoObj_t)(const CryptoParam_t *P, int q);
+    </pre>
+
+    <p>
+      where <code>CryptoParam_t</code> contains the following members:
+    </p>
+
+    <p><code>iCryptoObj_t info;</code>
+      This member is used when <code>param</code> and <code>aux</code> are
+      both <code>NULL</code>, which indicates this parameter is an
+      algorithm instance.
+    </p>
+
+    <p><code>tCryptoObj_t template;</code>
+      This member is used if <code>param</code> or <code>aux</code> is
+      non-<code>NULL</code>, which indicates this parameter is an
+      algorithm construction that takes further instantiation parameter(s).
+    </p>
+
+    <p>
+      The members <code>info</code> and <code>template</code> are aliased
+      together in a <code>union</code> data structure.
+    </p>
+
+    <p><code>const CryptoParam_t *param;</code>
+      If used, this is passed as the first argument to <code>template</code>.
+      This allows an algorithm construction to be recursively instantiated
+      by other algorithm constructions and instances.
+    </p>
+
+    <p><code>const void *aux</code>
+      If used, this is passed as the first argument to <code>template</code>.
+      This member allow certain algorithm constructions to be instantiated with
+      objects and in ways not defined in MySuiteA.
+      This member is aliased to <code>param</code> in a <code>union</code>
+      data structure, so that caller of <code>template</code> doesn't have to
+      be aware of its argument semantics.
+    </p>
+
+    <p>
+      Both the parameter <code>P</code> and the member <code>param</code> may
+      point to both a single <code>CryptoParam_t</code> object, or the initial
+      element of an array of which - in the case of an array, the algorithm
+      construction is said to be parameterized by multiple elements.
+    </p>
+
+  </body>
+</html>

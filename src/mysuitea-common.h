@@ -14,20 +14,6 @@
 #define xglue(a,b) a##b
 #define glue(a,b) xglue(a,b)
 
-// Each primitive instance shall define
-// 1. a function whose pointer is compatible with the type (IntPtr(*)(int)),
-// 2. a function-like macro that evaluates to some integer types that's
-//    large enough to hold pointers,
-// that when evaluated in run-time or compile time, yields
-// relevant information associated with particular primitive.
-//
-// Both the function and the function-like macro takes a single
-// argument `q' that is one of the constants enumerated below.
-//
-// The name of the function shall be the name of the primitive
-// prefixed with a single "i"; the name of the macro shall be
-// the name of the primitive prefixed with a single "c".
-
 // <s>2020-11-21</s>:
 // Per https://stackoverflow.com/q/64894785
 // ``uintptr_t'' is changed to ``uintmax_t'', and the
@@ -59,10 +45,10 @@ static_assert(
     sizeof(IntPtr) >= sizeof(void (*)(void)),
     "Expectation on the compilation environment didn't hold!");
 
-// 2021-08-17: TODO:
-// Write about how HMAC-DRBG is instantiated at compile and run time and
-// how source-binary code boundary restricts the mixing of compile and
-// run time instantiation.
+// 2021-09-04:
+// Notes had been migrated to documentation.
+// See "doc/api.html" for a description of
+// MySuiteA's uniform algorithm interface.
 
 typedef struct CryptoParam CryptoParam_t;
 

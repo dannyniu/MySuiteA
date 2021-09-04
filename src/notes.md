@@ -85,7 +85,7 @@ verbatim inclusion.
 Instance "info" functions will switch to "x" macros for parameter values; 
 users of instance macros will update their source of information.
 
-The proposed change is currently underway as of 2021-09-03.
+The proposed change is realized as of 2021-09-04.
 
 ---
 
