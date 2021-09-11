@@ -4,7 +4,7 @@
 #include "rsa.h"
 
 // blueprint
-// # uppercases modulus-sized, lowercase prime-sized.
+// # uppercases modulus-sized, lowercase factor-sized.
 // # private-key components are prefixed with apostrophe.
 // # index suffixes follow underscore.
 // # flow-control statements in square brackets.
@@ -16,7 +16,7 @@
 //     h := divv    C, 'r_i
 //     h := modexpv h, 'd_i (mod: 'r_i, tmpvars: t, m) ; h can be aliased.
 //     m := divv    M, 'r_i
-//     m := subv    m, h    (mod: 'r_i)
+//     m := subv    h, m    (mod: 'r_i)
 //     h := mulv    m, 't_i (mod: 'r_i)
 //     [vecop<len(h)>] M += muls R, h ; implement raw.
 //     [reuse: h, m, t] R *= 'r_i
@@ -84,20 +84,24 @@ vlong_t *rsa_fastdec(RSA_Private_Context_t *restrict x)
                       (vlong_modfunc_t)vlong_remv_inplace, ri);
 
         vlong_divv(m, NULL, M, ri);
-        vlong_subv(m, m, h);
+        vlong_subv(m, h, m);
         vlong_imod_inplace(m, ri);
 
         vlong_mulv_masked(h, m, ti, 1,
                    (vlong_modfunc_t)vlong_remv_inplace, ri);
 
+        // 2021-09-11:
+        // This loop probably has some problem.
+        // Investigate and fix.
         for(a=0; a<h->c; a++)
         {
             uint64_t ax = 0;
-            for(b=0; b<M->c; b++)
+            for(b=0; b<R->c; b++)
             {
-                ax += b < R->c ? R->v[b] * (uint64_t)h->v[a] : 0;
-                ax += M->v[b];
-                M->v[b] = (uint32_t)ax;
+                ax += R->v[b] * (uint64_t)h->v[a];
+                if( a + b >= M->c ) break;
+                ax += M->v[a + b];
+                M->v[a + b] = (uint32_t)ax;
                 ax >>= 32;
             }
         }

@@ -8,7 +8,11 @@ void mgf1_pkcs1(
     void const *restrict in, size_t inlen,
     void *restrict out, size_t outlen, int xor)
 {
-    // 2021-09-03: This function had not been tested yet //
+    // 2021-09-11:
+    // This function is being tested through RSA-OAEP cipher,
+    // currently passing self-feeding tests, but not ones using
+    // publicly available test vectors.
+    
     size_t t, i;
     uint8_t *dst = out;
     uint8_t buf[64]; // assume hash functions are 512-bit maximum.
@@ -18,7 +22,7 @@ void mgf1_pkcs1(
     while( outlen )
     {
         t = x->base.hlen_mgf < outlen ? x->base.hlen_mgf : outlen;
-        
+
         hx->initfunc(x->hashctx);
         hx->updatefunc(x->hashctx, in, inlen);
         hx->updatefunc(x->hashctx, &c, sizeof(c));

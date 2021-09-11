@@ -262,7 +262,7 @@ restart:
         t4->c = t6->c;
 
         vlong_divv(
-            vl, NULL, t4,
+            vl, NULL, t6, // 2021-09-11: typo, was t4, should be t4.
             (vlong_t *)(bp + px[(int32_t)t - 1].offset_r));
 
         vlong_adds(

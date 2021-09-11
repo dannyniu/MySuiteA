@@ -20,8 +20,10 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     uint32_t tag, len;
 
     RSA_Public_Context_t *ctx = any;
+    uint8_t *bp = (void *)ctx;
 
     int32_t size_modulus;
+
 
     aux = NULL;
 
@@ -49,30 +51,36 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     ret += size_modulus;
     ptr += len; remain -= len;
 
+    // 2021-09-11:
+    // There was a serious error in which
+    // pass 1 gives wrong estimate.
+    
     if( pass == 2 )
-    {
-        uint8_t *bp = (void *)ctx;
-        
         ctx->offset_w1 = 
             sizeof(RSA_Public_Context_t) +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
-        
+    ret += size_modulus;
+
+    if( pass == 2 )
         ctx->offset_w2 = 
             sizeof(RSA_Public_Context_t) +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
+    ret += size_modulus;
         
+    if( pass == 2 )
         ctx->offset_w3 = 
             sizeof(RSA_Public_Context_t) +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
+    ret += size_modulus;
         
+    if( pass == 2 )
         ctx->offset_w4 = 
             sizeof(RSA_Public_Context_t) +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
+    ret += size_modulus;
         
+    if( pass == 2 )
+    {
         ((vlong_t *)(bp + ctx->offset_w1))->c = size_modulus / 4 - 1;
         ((vlong_t *)(bp + ctx->offset_w2))->c = size_modulus / 4 - 1;
         ((vlong_t *)(bp + ctx->offset_w3))->c = size_modulus / 4 - 1;

@@ -3,6 +3,8 @@
 #ifndef MySuiteA_gimli_hash_h
 #define MySuiteA_gimli_hash_h 1
 
+// See 2021-05-16 note in "1-symm/gimli.h" for security consideration.
+
 #include "../mysuitea-common.h"
 #include "../1-symm/sponge.h"
 

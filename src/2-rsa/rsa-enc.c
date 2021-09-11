@@ -4,7 +4,7 @@
 
 vlong_t *rsa_enc(RSA_Public_Context_t *restrict x)
 {
-    uint8_t *bp = x;
+    uint8_t *bp = (void *)x;
     
     return vlong_modexpv(
         (vlong_t *)(bp + x->offset_w2), // ciphertext output - C.

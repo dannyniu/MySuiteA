@@ -49,6 +49,7 @@ typedef struct {
 //
 // note-2:
 // Assume sizeof(uint32_t) == 4.
+static_assert(sizeof(uint32_t) == 4, "Data type assumption failed");
 #define RSA_PRIVATE_INTEGER_SIZE(bits) (4 * (((bits) + 32 * 3 - 1) / 32))
 
 // [!A-E-D!]: If c does not divide l, behavior is undefined.

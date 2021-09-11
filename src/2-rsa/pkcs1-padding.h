@@ -22,17 +22,39 @@ typedef struct {
     })
 
 typedef struct {
-    unsigned            hlen_msg;
-    unsigned            hlen_mgf;
+    // For public-key encryption:
+    // - 1: OK.
+    // - -1: Some encryption error.
+    // For private-key decryption:
+    // - 0: ciphertext decoded and ready for decryption.
+    // - >0: indicates the length of the decrypted plaintext.
+    // - <0: decryption failure.
+    //
+    // For signature gneration:
+    // - 1. OK.
+    // - -1. Some signing error.
+    // For signature verification:
+    // - 0: signature decoded and ready for verification.
+    // - 1: signature valid.
+    // - -1: signature invalid.
+    int32_t             status;
+
+    // Length of the salt in RSASSA-PSS.
+    uint32_t            slen;
+    
+    uint32_t            hlen_msg;
+    uint32_t            hlen_mgf;
     hash_funcs_set_t    hfuncs_msg, hfuncs_mgf;
 } pkcs1_padding_oracles_base_t;
 
-#define PKCS1_PADDING_ORACLES_BASE_INIT(hmsg, hmgf)     \
-    ((pkcs1_padding_oracles_base_t){                    \
-        .hlen_msg = OUT_BYTES(hmsg),                    \
-        .hlen_mgf = OUT_BYTES(hmgf),                    \
-        .hfuncs_msg = HASH_FUNCS_SET_INIT(hmsg),        \
-        .hfuncs_mgf = HASH_FUNCS_SET_INIT(hmgf),        \
+#define PKCS1_PADDING_ORACLES_BASE_INIT(hmsg, hmgf, saltlen)    \
+    ((pkcs1_padding_oracles_base_t){                            \
+        .status = 0,                                            \
+        .slen = saltlen,                                        \
+        .hlen_msg = OUT_BYTES(hmsg),                            \
+        .hlen_mgf = OUT_BYTES(hmgf),                            \
+        .hfuncs_msg = HASH_FUNCS_SET_INIT(hmsg),                \
+        .hfuncs_mgf = HASH_FUNCS_SET_INIT(hmgf),                \
     })
 
 #define PKCS1_PADDING_ORACLES_T(...)            \
@@ -44,9 +66,9 @@ typedef struct {
 typedef PKCS1_PADDING_ORACLES_T() pkcs1_padding_oracles_t;
 
 // 2021-09-03: See 2021-09-03b note in "notes.txt".
-#define PKCS1_PADDING_ORACLES_CTX_SIZE_X(hmsg, hmgf) (  \
-        sizeof(pkcs1_padding_oracles_base_t) +          \
-        (CTX_BYTES(hmsg) > CTX_BYTES(hmgf) ?            \
+#define PKCS1_PADDING_ORACLES_CTX_SIZE_X(hmsg, hmgf, saltlen) ( \
+        sizeof(pkcs1_padding_oracles_base_t) +                  \
+        (CTX_BYTES(hmsg) > CTX_BYTES(hmgf) ?                    \
          CTX_BYTES(hmsg) : CTX_BYTES(hmgf)) )
 
 #define PKCS1_PADDING_ORACLES_CTX_SIZE(...)             \
