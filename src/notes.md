@@ -93,9 +93,9 @@ The proposed change is realized as of 2021-09-04.
 2021-09-03b
 ===========
 
-It's decided that information macros for blockciphers, hash functions, and
-permutations shall not nest lower-level primitives. This restriction is added
-to:
+It's decided that information macros for blockciphers, hash and XOF functions, 
+and permutations shall not nest lower-level primitives. This restriction is 
+added to:
 
 1. ease the implementation of some higher level primitives (e.g. CTR-DRBG
    relies on block ciphers, and is built without provision for nested
