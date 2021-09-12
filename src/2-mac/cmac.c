@@ -4,7 +4,6 @@
 
 #define R_128 0x87
 
-#include <stdio.h> // Debug //
 void *CMAC_SetKey(cmac_t *restrict cmac, const void *restrict key, size_t keylen)
 {
     void *aux = (uint8_t *)cmac + cmac->offset;

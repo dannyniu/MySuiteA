@@ -52,7 +52,6 @@ static inline uint32_t P1(uint32_t X)
     return X ^ (X << 15 | X >> 17) ^ (X << 23 | X >> 9);
 }
 
-#include <stdio.h>
 void compressfunc_sm3(uint32_t V[8], uint32_t const *restrict M)
 {
     uint32_t A, B, C, D, E, F, G, H;
