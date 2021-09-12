@@ -24,6 +24,7 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     RSA_Private_Context_Base_t *ctx = any;
     RSA_Private_Context_t *ctx2 = any;
+    uint8_t *bp = (void *)ctx;
 
     uint32_t *count_primes_other = aux;
     int32_t size_modulus;
@@ -68,40 +69,48 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
     ret += size_modulus;
     ptr += len; remain -= len;
 
+    // 2021-09-12:
+    // There was a serious error similar to
+    // that in "rsa-pubkey-codec-der.c"
+    // found yesterday.
+    
     if( pass == 2 )
-    {
-        uint8_t *bp = (void *)ctx;
-        
         ctx->offset_w1 = 
             sizeof(RSA_Private_Context_Base_t) +
             sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
+    ret += size_modulus;
         
+    if( pass == 2 )
         ctx->offset_w2 = 
             sizeof(RSA_Private_Context_Base_t) +
             sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
+    ret += size_modulus;
         
+    if( pass == 2 )
         ctx->offset_w3 = 
             sizeof(RSA_Private_Context_Base_t) +
             sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
+    ret += size_modulus;
         
+    if( pass == 2 )
         ctx->offset_w4 = 
             sizeof(RSA_Private_Context_Base_t) +
             sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
+    ret += size_modulus;
         
+    if( pass == 2 )
         ctx->offset_w5 = 
             sizeof(RSA_Private_Context_Base_t) +
             sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
-        ret += size_modulus;
+    ret += size_modulus;
 
+    if( pass == 2 )
+    {
         ((vlong_t *)(bp + ctx->offset_w1))->c = size_modulus / 4 - 1;
         ((vlong_t *)(bp + ctx->offset_w2))->c = size_modulus / 4 - 1;
         ((vlong_t *)(bp + ctx->offset_w3))->c = size_modulus / 4 - 1;
