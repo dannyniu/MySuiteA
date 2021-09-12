@@ -3,12 +3,8 @@
 #include "rsaes-oaep.h"
 #include "../1-integers/vlong-dat.h"
 
-// Debug code remember to remove.
-void dumphex(uint8_t const *data, size_t len);
-#include <stdio.h>
-
 void *RSAES_OAEP_Encode_Ciphertext(
-    RSAES_OAEP_Enc_Context_t *restrict x,
+    PKCS1_Public_Context_t *restrict x,
     void *restrict ct, size_t *ctlen)
 {
     uint8_t *bx = (void *)x;
@@ -32,36 +28,29 @@ void *RSAES_OAEP_Encode_Ciphertext(
 }
 
 void *RSAES_OAEP_Enc(
-    RSAES_OAEP_Enc_Context_t *restrict x,
+    PKCS1_Public_Context_t *restrict x,
     void *restrict ss, size_t *restrict sslen,
     GenFunc_t prng_gen, void *restrict prng)
 {
     uint8_t *bx = (void *)x;
-    pkcs1_padding_oracles_base_t *po = (void *)(bx + x->offset_padding_oracle);
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
     RSA_Public_Context_t *ex = (void *)(bx + x->offset_rsa_pubctx);
     
     vlong_size_t t;
     uint8_t *mx = (void *)ex;
     uint8_t *hx = (uint8_t *)po + sizeof(pkcs1_padding_oracles_base_t);
 
-    vlong_size_t k = (ex->modulus_bits + 7) / 8; // UD if mod_bits % 7 != 0.
+    vlong_size_t k = (ex->modulus_bits + 0) / 8; // UD if mod_bits % 7 != 0.
     uint8_t *ptr;
 
-    if( po->status )
-    {
-    finish:
-        if( po->status < 0 ) return NULL;
-        return x;
-    }
+    po->status = 0;
 
     // length checking.
-    
     if( *sslen > k - 2 * po->hlen_msg - 2 )
     {
         // po->status = -1;
         // make length check failures recoverable.
         return NULL;
-        goto finish;
     }
 
     //
@@ -70,7 +59,7 @@ void *RSAES_OAEP_Enc(
     ptr = mx + ex->offset_w2;
     ptr = (void *)((vlong_t *)ptr)->v;
     for(t=0; t<k; t++) ptr[t] = 0;
-
+    
     // empty label.
     po->hfuncs_msg.initfunc(hx);
     if( po->hfuncs_msg.xfinalfunc )
@@ -86,7 +75,7 @@ void *RSAES_OAEP_Enc(
 
     // seed.
     prng_gen(prng, ptr + 1, po->hlen_msg);
-    
+
     mgf_auto(
         (void *)po,
         ptr + 1, po->hlen_msg, // seed
@@ -105,7 +94,9 @@ void *RSAES_OAEP_Enc(
 
     //
     // RSA encryption operation.
-    
+
     rsa_enc(ex);
+    
+    po->status = 1;
     return ss;
 }

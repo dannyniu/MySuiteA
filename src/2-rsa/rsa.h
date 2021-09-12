@@ -50,19 +50,24 @@ typedef struct {
 // note-2:
 // Assume sizeof(uint32_t) == 4.
 static_assert(sizeof(uint32_t) == 4, "Data type assumption failed");
-#define RSA_PRIVATE_INTEGER_SIZE(bits) (4 * (((bits) + 32 * 3 - 1) / 32))
+#define RSA_INTEGER_SIZE(bits) (4 * (((bits) + 32 * 3) / 32))
 
 // [!A-E-D!]: If c does not divide l, behavior is undefined.
-#define RSA_PRIVATE_CONTEXT_SIZE_X(l,c) (                       \
-        RSA_PRIVATE_INTEGER_SIZE((l) / (c)) * (3 * (c) - 1) +   \
-        RSA_PRIVATE_INTEGER_SIZE((l)) * (2 + 4) +               \
-        (2 * 4) +                                               \
-        sizeof(RSA_Private_Context_Base_t) +                    \
+//
+// 2021-09-11:
+// The erroneous (2 + 4) is changed to (5 + 2).
+// (2 * 4) changed to RSA_INTEGER_SIZE(17)
+#define RSA_PRIVATE_CONTEXT_SIZE_X(l,c) (               \
+        RSA_INTEGER_SIZE((l) / (c)) * (3 * (c) - 1) +   \
+        RSA_INTEGER_SIZE((l)) * (5 + 2) +               \
+        RSA_INTEGER_SIZE(17) +                          \
+        sizeof(RSA_Private_Context_Base_t) +            \
         sizeof(RSA_OtherPrimeInfo_t) * ((c) - 2)  )
 
 #define RSA_PRIVATE_CONTEXT_SIZE(...)           \
     RSA_PRIVATE_CONTEXT_SIZE_X(__VA_ARGS__)
 
+// the following macros are run-time only.
 #define RSA_PRIVATE_PARAM_ENTUPLE(l_,c_)                \
     ((RSA_Private_Param_t){ .l = (l_), .c = (c_), })
 
@@ -72,6 +77,11 @@ typedef struct {
     uint32_t offset_w1, offset_w2, offset_w3, offset_w4;
     uint32_t offset_n, offset_e, modulus_bits;
 } RSA_Public_Context_t;
+
+#define RSA_PUBLIC_CONTEXT_SIZE(l) (            \
+        RSA_INTEGER_SIZE((l)) * (4 + 1) +       \
+        RSA_INTEGER_SIZE(17) +                  \
+        sizeof(RSA_Public_Context_t) )
 
 // If x is NULL, returns size estimate for its memory allocation;
 // otherwise, returns x on success and 0 (NULL) on failure.

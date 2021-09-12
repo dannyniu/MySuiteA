@@ -30,16 +30,7 @@ int main(int argc, char *argv[])
             iSHA256,iSHA256,32),
     };
     
-    PKCS1_Private_Context_t *kgx = my_alloc("kgx",
-        PKCS1_PRIVATE_CONTEXT_SIZE(NBITS,2,cSHA256,cSHA256,32));
-
-    if( !kgx )
-    {
-        perror("malloc 1");
-        exit(EXIT_FAILURE);
-    }
-
-    *kgx = PKCS1_PRIVATE_CONTEXT_INIT(NBITS,2,xSHA256,xSHA256,32);
+    PKCS1_Private_Context_t *kgx = NULL;
 
     Gimli_XOF_Init(&gx);
     Gimli_XOF_Write(&gx, "Hello World!", 12);
@@ -47,6 +38,15 @@ int main(int argc, char *argv[])
         Gimli_XOF_Write(&gx, argv[1], strlen(argv[1]));
     Gimli_XOF_Final(&gx);
 
+    lret = PKCS1_Keygen(NULL, &params, NULL, NULL);
+    kgx = my_alloc("kgx", lret);
+
+    if( !kgx )
+    {
+        perror("malloc 1");
+        exit(EXIT_FAILURE);
+    }
+    
     lret = PKCS1_Keygen(kgx, &params, (GenFunc_t)Gimli_XOF_Read, &gx);
 
     if( !lret )
@@ -56,20 +56,31 @@ int main(int argc, char *argv[])
     }
     else printf("keygen.lret: %lx, %p\n", lret, kgx);
 
-    PKCS1_Private_Context_t *dex = kgx;
+    PKCS1_Private_Context_t *dex = NULL;
     void *copy;
 
-    // Debug: dump private key.
-    lret = PKCS1_Encode_RSAPrivateKey(1, NULL, 0, kgx, NULL);
+    // recoding private key.
+    lret = PKCS1_Encode_RSAPrivateKey(1, NULL, 0, kgx, &ap);
     copy = malloc(lret);
     PKCS1_Encode_RSAPrivateKey(2, copy, lret, kgx, NULL);
 
     FILE *fp = fopen("./rsa-priv-768.key", "wb"); // in "bin/"
     fwrite(copy, 1, lret, fp);
     fclose(fp);
+
+    size = lret;
+    lret = PKCS1_Decode_RSAPrivateKey(1, copy, size, NULL, &ap);
+    if( lret < 0 )
+    {
+        perror("privkey-decode 1");
+        exit(EXIT_FAILURE);
+    }
+    dex = my_alloc("dex", lret);
+    PKCS1_Decode_RSAPrivateKey(2, copy, size, dex, &ap);
     free(copy); copy = NULL;
 
-    lret = PKCS1_Encode_RSAPublicKey(1, NULL, 0, kgx, NULL);
+    // transfer public key to encryption working context.
+    lret = PKCS1_Encode_RSAPublicKey(1, NULL, 0, dex, NULL);
     copy = my_alloc("pubkey.der", lret);
 
     if( !copy )
@@ -80,17 +91,17 @@ int main(int argc, char *argv[])
 
     PKCS1_Encode_RSAPublicKey(2, copy, lret, kgx, NULL);
 
-    PKCS1_Public_Context_t *enx = my_alloc("enx",
-        PKCS1_PUBLIC_CONTEXT_SIZE(NBITS,cSHA256,cSHA256,32));
-
-    *enx = PKCS1_PUBLIC_CONTEXT_INIT(NBITS,xSHA256,xSHA256,32);
-
-    PKCS1_Decode_RSAPublicKey(2, copy, lret, enx, &ap);
-    uint32_t k = ((RSA_Public_Context_t *)((uint8_t *)enx + enx->offset_rsa_pubctx))->modulus_bits;
-    printf("Pubctx k: %u\n", k);
-    
-    free(copy);
-    copy = NULL;
+    PKCS1_Public_Context_t *enx = NULL;
+    size = lret;
+    lret = PKCS1_Decode_RSAPublicKey(1, copy, size, NULL, &ap);
+    if( lret < 0 )
+    {
+        perror("pubkey-decode 1");
+        exit(EXIT_FAILURE);
+    }
+    enx = my_alloc("enx", lret);
+    PKCS1_Decode_RSAPublicKey(2, copy, size, enx, &ap);
+    free(copy); copy = NULL;
 
     printf("tests start\n");
     
@@ -101,12 +112,9 @@ int main(int argc, char *argv[])
     void *ss1 = malloc(sslen);
     void *ss2 = malloc(sslen);
 
-    //dumphex(dex, 1328);
-    //dumphex(enx, 780);
-
-    for(int i=1; i<=testcount; i++)
+    for(int i=0; i<testcount; i++)
     {
-        printf("\t""test %d of %d\r", i, testcount);
+        printf("\t""test %d of %d\r", i+1, testcount);
         fflush(NULL);;
 
         RSAES_OAEP_Enc(enx, ss1, &sslen, (GenFunc_t)Gimli_XOF_Read, &gx);
@@ -134,6 +142,7 @@ int main(int argc, char *argv[])
     printf("\n%d of %d tests failed\n", failures, testcount);
     free(copy);
     free(enx);
+    free(dex);
     free(kgx);
     return 0;
 }

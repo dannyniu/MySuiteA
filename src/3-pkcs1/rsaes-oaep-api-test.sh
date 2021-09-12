@@ -2,13 +2,13 @@
 
 testfunc() {
     #lldb \
-        $exec "$(date)"
+        $exec #"$(date)"
 }
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-rsaes-oaep-correctness-test.c
+rsaes-oaep-api-test.c
 rsaes-oaep-dec.c
 rsaes-oaep-enc.c
 pkcs1.c

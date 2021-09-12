@@ -3,16 +3,12 @@
 #include "rsaes-oaep.h"
 #include "../1-integers/vlong-dat.h"
 
-// Debug code remember to remove.
-void dumphex(uint8_t const *data, size_t len);
-#include <stdio.h>
-
 void *RSAES_OAEP_Decode_Ciphertext(
-    RSAES_OAEP_Dec_Context_t *restrict x,
+    PKCS1_Private_Context_t *restrict x,
     void *restrict ct, size_t ctlen)
 {
     uint8_t *bx = (void *)x;
-    pkcs1_padding_oracles_base_t *po = (void *)(bx + x->offset_padding_oracle);
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
     RSA_Private_Context_Base_t *dx = (void *)(bx + x->offset_rsa_privctx);
     
     uint8_t *mx = (void *)dx;
@@ -25,18 +21,18 @@ void *RSAES_OAEP_Decode_Ciphertext(
 }
 
 void *RSAES_OAEP_Dec(
-    RSAES_OAEP_Dec_Context_t *restrict x,
+    PKCS1_Private_Context_t *restrict x,
     void *restrict ss, size_t *restrict sslen)
 {
     uint8_t *bx = (void *)x;
-    pkcs1_padding_oracles_base_t *po = (void *)(bx + x->offset_padding_oracle);
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
     RSA_Private_Context_Base_t *dx = (void *)(bx + x->offset_rsa_privctx);
 
     vlong_size_t t;
     uint8_t *mx = (void *)dx;
     vlong_t *vp1, *vp2;
 
-    vlong_size_t k = (dx->modulus_bits + 7) / 8; // UD if mod_bits % 7 != 0.
+    vlong_size_t k = (dx->modulus_bits + 0) / 8; // UD if mod_bits % 7 != 0.
     uint8_t *ptr;
 
     int32_t err = 0;
