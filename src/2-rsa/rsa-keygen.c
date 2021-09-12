@@ -33,7 +33,7 @@ static vlong_t *gen_oddint_bits(
     }
 
     w->v[0] |= 1;
-    w->v[bits / 32] |= 1 << bits;
+    if( bits % 32 ) w->v[bits / 32] |= 1 << (bits % 32);
 
     return w;
 }
