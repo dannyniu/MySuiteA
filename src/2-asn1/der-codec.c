@@ -305,7 +305,7 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     // - 1 for computation overhead,
     // - 1 for representation overhead.
     int32_t ret =
-        (enclen + sizeof(uint32_t) * 3 - 1) &
+        (enclen + sizeof(uint32_t) * 3) &
         (uint32_t)(-sizeof(uint32_t));
     
     vlong_t *w = any;
@@ -313,7 +313,7 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     
     if( pass == 1 ) return ret;
 
-    w->c = (enclen + sizeof(uint32_t) - 1) / sizeof(uint32_t);
+    w->c = (enclen + sizeof(uint32_t)) / sizeof(uint32_t);
     for(i=0; i<w->c; i++) w->v[i] = 0;
 
     for(i=0; i<enclen; i++)
