@@ -59,12 +59,6 @@ int main(int argc, char *argv[])
     der1 = malloc(len);
     ber_tlv_encode_RSAPrivateKey(2, der1, len, ctx, NULL);
 
-    {
-        int fd = creat("/Users/dannyniu/rkg", 0755);
-        write(fd, der1, len);
-        close(fd);
-    }
-
     // Experiment 3: Decode and Encode and Compare.
 
     size = ber_tlv_decode_RSAPrivateKey(1, der1, len, NULL, &aux);
