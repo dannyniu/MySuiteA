@@ -222,6 +222,7 @@ static void BlockCipher_df(
         inc(buf + 4); // ctr_len == 32 in bits.
     }
 
+    // 2021-09-13:
     // the absence of this if block caused CTR-DRBG-AES192 to fail.
     if( x->bc_keysize + x->bc_blksize > t )
     {
