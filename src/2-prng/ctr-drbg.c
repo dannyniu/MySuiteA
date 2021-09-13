@@ -14,11 +14,6 @@ static void inc(uint8_t *vec)
 
 #define KSCHD_PTR ((void *)((uint8_t *)x + x->kschd_offset))
 
-//int printf(const char *, ...); // debug //
-//void dumphex(const void *, size_t); // debug //
-#define printf(...) 0
-#define dumphex(...) ((void)0)
-
 static void CTR_DRBG_Update(
     ctr_drbg_t *restrict x,
     void const *restrict str,
@@ -27,9 +22,6 @@ static void CTR_DRBG_Update(
     uint8_t blk[CTR_DRBG_MAX_BLKSIZE];
     uint8_t *seed = ((uint8_t *)x + x->offset_k);
     size_t t;
-
-    printf("entering update\n");
-    dumphex(str, len);
 
     // Copy V to blk.
     for(t = 0; t<x->bc_blksize; t++)
@@ -60,9 +52,6 @@ static void CTR_DRBG_Update(
 
     // update key schedule.
     x->bc_kschd(seed, KSCHD_PTR);
-
-    printf("leaving update\n");
-    dumphex(seed, x->bc_blksize + x->bc_keysize);
 
     // 2021-09-12:
     // This function CTR_DRBG_Update had been verified as correct
@@ -160,7 +149,7 @@ static void BCC(
     }
     
     buf[t++] ^= 0x80;
-    x->bc_enc(buf, buf, KSCHD_PTR);dumphex(buf,16);
+    x->bc_enc(buf, buf, KSCHD_PTR);
 
     // 2021-09-12:
     // This function BCC had been verified as correct
