@@ -14,6 +14,11 @@ static void inc(uint8_t *vec)
 
 #define KSCHD_PTR ((void *)((uint8_t *)x + x->kschd_offset))
 
+//int printf(const char *, ...); // debug //
+//void dumphex(const void *, size_t); // debug //
+#define printf(...) 0
+#define dumphex(...) ((void)0)
+
 static void CTR_DRBG_Update(
     ctr_drbg_t *restrict x,
     void const *restrict str,
@@ -22,6 +27,9 @@ static void CTR_DRBG_Update(
     uint8_t blk[CTR_DRBG_MAX_BLKSIZE];
     uint8_t *seed = ((uint8_t *)x + x->offset_k);
     size_t t;
+
+    printf("entering update\n");
+    dumphex(str, len);
 
     // Copy V to blk.
     for(t = 0; t<x->bc_blksize; t++)
@@ -52,6 +60,15 @@ static void CTR_DRBG_Update(
 
     // update key schedule.
     x->bc_kschd(seed, KSCHD_PTR);
+
+    printf("leaving update\n");
+    dumphex(seed, x->bc_blksize + x->bc_keysize);
+
+    // 2021-09-12:
+    // This function CTR_DRBG_Update had been verified as correct
+    // manually against "CTR_DRBG_withDF.pdf" section:
+    // CTR_DRBG_AES128 >> Prediction_Resistance >>
+    // CTR_DRBG_Generate >> CTR_DRBG_Reseed >> Update.
 }
 
 void CTR_DRBG_Seed(
@@ -143,7 +160,13 @@ static void BCC(
     }
     
     buf[t++] ^= 0x80;
-    x->bc_enc(buf, buf, KSCHD_PTR);
+    x->bc_enc(buf, buf, KSCHD_PTR);dumphex(buf,16);
+
+    // 2021-09-12:
+    // This function BCC had been verified as correct
+    // manually against "CTR_DRBG_withDF.pdf" section:
+    // CTR_DRBG_AES128 >> Prediction_Resistance >>
+    // CTR_DRBG_Instantiate_algorithm.
 }
 
 static void BlockCipher_df(
@@ -199,6 +222,19 @@ static void BlockCipher_df(
         inc(buf + 4); // ctr_len == 32 in bits.
     }
 
+    // the absence of this if block caused CTR-DRBG-AES192 to fail.
+    if( x->bc_keysize + x->bc_blksize > t )
+    {
+        BCC(x, 3, bufvec, tmp);
+        for(o = 0; o < x->bc_blksize; o++)
+        {
+            if( o + t < x->bc_keysize + x->bc_blksize )
+                key[t + o] = tmp[o];
+            else break;
+        }
+    }
+
+
     // set new K.
     x->bc_kschd(key, KSCHD_PTR);
 
@@ -213,6 +249,12 @@ static void BlockCipher_df(
             else break;
         }
     }
+    
+    // 2021-09-12:
+    // This function BlockCipher_df had been verified as correct
+    // manually against "CTR_DRBG_withDF.pdf" section:
+    // CTR_DRBG_AES128 >> Prediction_Resistance >>
+    // CTR_DRBG_Instantiate_algorithm.
 }
 
 void CTR_DRBG_Seed_WithDF(
@@ -222,7 +264,7 @@ void CTR_DRBG_Seed_WithDF(
 {
     uint8_t seed_material[CTR_DRBG_MAX_KEYSIZE + CTR_DRBG_MAX_BLKSIZE];
     size_t seedlen = x->bc_blksize + x->bc_keysize;
-    
+
     BlockCipher_df(x, seedstr, len, seed_material, seedlen);
 
     CTR_DRBG_Seed(x, seed_material, seedlen);
@@ -238,6 +280,10 @@ void CTR_DRBG_Reseed_WithDF(
     
     BlockCipher_df(x, seedstr, len, seed_material, seedlen);
 
+    // 2021-09-11:
+    // forgetting to reset key schedule was a cause of inconsistency.
+    x->bc_kschd((uint8_t *)x + x->offset_k, KSCHD_PTR);
+    
     CTR_DRBG_Update(x, seed_material, seedlen);
 }
 

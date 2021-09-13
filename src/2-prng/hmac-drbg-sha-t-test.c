@@ -95,8 +95,6 @@ void test_run1(
 
 void tests_runall()
 {
-    // NIST example files seems to contain errors.
-    //
     // The 1st expected output comes from
     // the internal state after the 1st reseed
     // in the example values for which:

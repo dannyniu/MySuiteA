@@ -11,7 +11,9 @@ union {
     ctr_drbg_aes256_t   x_aes256;
 } ctx;
 
-iCryptoObj_t drbg;
+iCryptoObj_t bc;
+tCryptoObj_t drbg = tCTR_DRBG;
+CryptoParam_t P[1];
 
 typedef uint8_t buffer1024_t[128];
 buffer1024_t seed1, seed2, out, ref;
@@ -47,13 +49,16 @@ void test_run1(
 {
     int fails = 0;
     size_t kvlen;
+
+    P[0].info = bc;
+    P[0].aux = NULL;
     
     printf("...... Test Name: %s ......\n", tn);
 
-    INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen1);
+    ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen1);
     kvlen = ctx.x.bc_blksize + ctx.x.bc_keysize;
     
-    RESEED_FUNC(drbg)(&ctx.x, seed2, seedlen2);
+    ((ReseedFunc_t)drbg(P, ReseedFunc))(&ctx.x, seed2, seedlen2);
 
     scanhex(ref, kvlen, exp1);
     if( memcmp(ref, ((uint8_t *)&ctx.x + ctx.x.offset_k), kvlen) )
@@ -68,10 +73,10 @@ void test_run1(
             kvlen);
     }
     
-    INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen1);
+    ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen1);
 
     // -3 to test incomplete blocks' code path
-    GEN_FUNC(drbg)(&ctx.x, out, 32 - 3);
+    ((GenFunc_t)drbg(P, GenFunc))(&ctx.x, out, 32 - 3);
     out[29] ^= 4;
     
     scanhex(ref, 32, exp2);
@@ -90,8 +95,6 @@ void test_run1(
 
 void tests_runall()
 {
-    // NIST example files seems to contain errors.
-    //
     // The 1st expected output comes from
     // the internal state after the 1st reseed
     // in the example values for which:
@@ -106,7 +109,7 @@ void tests_runall()
     // - AdditionalInput        == null/<t>,
     // - PersonalizationString  == null/<t>.
     //
-    drbg = iCTR_DRBG_AES128;
+    bc = iAES128;
     seeds_init(32, 8, 40, 32);
     test_run1(
         "CTR-DRBG<bc=AES-128, df=true, shortseed>",
@@ -123,7 +126,7 @@ void tests_runall()
         "D701C9F2 37007030 DF1B8E70 EE4EEE29",
         72, 64);
 
-    drbg = iCTR_DRBG_AES192;
+    bc = iAES192;
     seeds_init(40, 12, 52, 40);
     test_run1(
         "CTR-DRBG<bc=AES-192, df=true, shortseed>",
@@ -142,7 +145,7 @@ void tests_runall()
         "01E3828B 5C455686 79A5555F 867AAC8C",
         92, 80);
 
-    drbg = iCTR_DRBG_AES256;
+    bc = iAES256;
     seeds_init(48, 16, 64, 48);
     test_run1(
         "CTR-DRBG<bc=AES-256, df=true, shortseed>",
