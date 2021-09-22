@@ -112,9 +112,9 @@
 
     <p>
       At link time, a similar macro exists. In addition to the queries
-      available in the link time queries, the pointers to the set of functions
-      constituting the algorithm may be queried. The prefix of this macro is
-      "x" instead of "c".
+      available in the compile time queries, the pointers to the set of
+      functions constituting the algorithm may be queried.
+      The prefix of this macro is "x" instead of "c".
     </p>
 
     <p>
@@ -142,7 +142,7 @@
 
     <p>
       where <code>IntPtr</code> is a signed integer type with same width as
-      a pointer type. By default this defined to be the same as
+      a pointer type. By default this is defined to be the same as
       <code>intptr_t</code>, however on systems where object and function
       pointer types have different representation, this may be changed to
       something else by the user of the MySuiteA library.
