@@ -35,14 +35,16 @@ bin=$(basename "$0" .sh)
 srcset="Plain C"
 optimize=true
 
-arch=x86_64 cflags="-D KEYGEN_LOGF"
+keygen_log="" # "-D KEYGEN_LOGF_STDIO"
+
+arch=x86_64 cflags="$keygen_log"
 ( . $unitest_sh )
 
-arch=aarch64 cflags="-D KEYGEN_LOGF"
+arch=aarch64 cflags="$keygen_log"
 ( . $unitest_sh )
 
-arch=powerpc64 cflags="-D KEYGEN_LOGF"
+arch=powerpc64 cflags="$keygen_log"
 ( . $unitest_sh )
 
-arch=sparc64 cflags="-D KEYGEN_LOGF"
+arch=sparc64 cflags="$keygen_log"
 ( . $unitest_sh )

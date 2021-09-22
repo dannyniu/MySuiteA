@@ -20,7 +20,6 @@ static vlong_t *gen_oddint_bits(
 {
     uint32_t t, m;
     rng(rng_ctx, w->v, w->c * sizeof(uint32_t));
-    bits = bits - 1;
 
     for(t = bits / 32; t < w->c; t++)
     {
@@ -32,8 +31,9 @@ static vlong_t *gen_oddint_bits(
         w->v[t] &= (1 << m) - 1;
     }
 
+    bits = bits - 1;
     w->v[0] |= 1;
-    w->v[bits / 32] |= 1 << (bits % 32);
+    w->v[bits / 32] |= UINT32_C(1) << (bits % 32);
 
     return w;
 }
@@ -289,6 +289,14 @@ restart:
             1, NULL, NULL);
 
         for(i=0; i<t6->c; i++) t6->v[i] = t4->v[i];
+
+        // -- check if modulus shrinked due to low parity at high bits. --
+        i = bits_per_prime * (t + 2) - 1;
+        if( t6->v[i / 32] >> (i % 32) == 0 )
+        {
+            LOGF("Higher-order bits shrinked, restarting\n");
+            goto restart;
+        }
     }
 
     bx->offset_n = (uint8_t *)t6 - bp;

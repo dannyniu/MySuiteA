@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     printf("tests start\n");
     
     int failures = 0;
-    int testcount = 80;
+    int testcount = 80 / 5;
     
     size_t sslen = SSLEN;
     void *ss1 = malloc(sslen);

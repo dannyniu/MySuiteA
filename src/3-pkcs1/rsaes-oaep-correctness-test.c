@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
     fclose(fp);
     free(copy); copy = NULL;
 
+    // transfer public key to encryption working context.
     lret = PKCS1_Encode_RSAPublicKey(1, NULL, 0, kgx, NULL);
     copy = my_alloc("pubkey.der", lret);
 
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
     printf("tests start\n");
     
     int failures = 0;
-    int testcount = 80;
+    int testcount = 80 / 5;
     
     size_t sslen = SSLEN;
     void *ss1 = malloc(sslen);
@@ -127,6 +128,7 @@ int main(int argc, char *argv[])
         if( memcmp(ss1, ss2, sslen) || !lret )
         {
             printf("Cipher Failure, %zd, %ld\n", sslen, (long)lret);
+            printf("seed: %s\n", argv[1]);
             failures ++;
         }
     }
