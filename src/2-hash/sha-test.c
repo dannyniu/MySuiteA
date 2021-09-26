@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
         case u8cc("sha256"): h = iSHA256; break;
         case u8cc("sha384"): h = iSHA384; break;
         case u8cc("sha512"): h = iSHA512; break;
+        case u8cc("s512t224"): h = iSHA512t224; break;
+        case u8cc("s512t256"): h = iSHA512t256; break;
         case u8cc("sha3-224"): h = iSHA3_224; break;
         case u8cc("sha3-256"): h = iSHA3_256; break;
         case u8cc("sha3-384"): h = iSHA3_384; break;

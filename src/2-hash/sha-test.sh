@@ -4,7 +4,7 @@ if ! command -v python3 >/dev/null ; then
     echo "Cannot invoke python3. (Not installed?)"
     exit 1;
 elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
-    echo "Python version too old, (3.6 or newer required)" # Assumes CPython. 
+    echo "Python version too old, (3.6 or newer required)" # Assumes CPython.
     exit 1;
 fi
 
@@ -15,10 +15,10 @@ testfunc() {
     mlen=0;
     while [ $mlen -lt 1000000 ] ; do
         dd if=/dev/urandom bs=32 count=$((mlen/32)) of=$testvec 2>/dev/null
-        
+
         for b in 1 224 256 384 512 ; do
-            ref=$(../src/2-hash/shasum.py sha$b < $testvec)
-            res=$($exec sha$b < $testvec)
+            ref="$(../src/2-hash/shasum.py sha$b < $testvec)"
+            res="$($exec sha$b < $testvec)"
             if ! [ "$ref" = "$res" ] ; then
                 echo sha${b} failed with "$ref" != $res
                 n=$((n+1))
@@ -26,7 +26,17 @@ testfunc() {
                 cp $testvec failed-sha${b}-$mlen.$datetime.$arch.dat
             fi
         done
-        
+
+        for b in 224 256; do
+            ref="$(../src/2-hash/shasum.py sha512_$b < $testvec)"
+            res="$($exec s512t${b} < $testvec)"
+            if ! [ "$ref" = "$res" ] ; then
+                echo sha512-${b} failed with "$ref" != $res
+                n=$((n+1))
+                cp $testvec failed-sha512t-${b}-$mlen.$datetime.$arch.dat
+            fi
+        done
+
         for b in 224 256 384 512; do
             ref="$(../src/2-hash/shasum.py sha3_$b < $testvec)"
             res="$($exec sha3-$b < $testvec)"
@@ -36,14 +46,14 @@ testfunc() {
                 cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
             fi
         done
-        
+
         for b in 128 256; do
             ref="$(../src/2-hash/shakesum.py shake_$b < $testvec)"
             res="$($exec shake${b} < $testvec)"
             if ! [ "$ref" = "$res" ] ; then
                 echo shake${b} failed with "$ref" != $res
                 n=$((n+1))
-                cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
+                cp $testvec failed-shake-${b}-$mlen.$datetime.$arch.dat
             fi
         done
 

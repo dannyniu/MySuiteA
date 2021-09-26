@@ -304,8 +304,68 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t)
     }
 }
 
+void SHA512t224_Init(sha512_t *restrict sha)
+{
+    sha->finalized = false;
+    sha->len = 0;
+    sha->H[0] = 0x8C3D37C819544DA2;
+    sha->H[1] = 0x73E1996689DCD4D6;
+    sha->H[2] = 0x1DFAB7AE32FF9C82;
+    sha->H[3] = 0x679DD514582F9FCF;
+    sha->H[4] = 0x0F6D2B697BD44DA8;
+    sha->H[5] = 0x77E36F7304C48942;
+    sha->H[6] = 0x3F9D85A86A1D36C8;
+    sha->H[7] = 0x1112E6AD91D692A1;
+    sha->filled = 0;
+}
+
+void SHA512t224_Final(sha512_t *restrict sha, void *restrict out, size_t t)
+{
+    uint8_t *ptr = out;
+    size_t i;
+
+    sha512_final(sha);
+    
+    if( out )
+    {
+        for(i=0; i<t; i++)
+            ptr[i] = i<28 ? sha->Msg8[i] : 0;
+    }
+}
+
+void SHA512t256_Init(sha512_t *restrict sha)
+{
+    sha->finalized = false;
+    sha->len = 0;
+    sha->H[0] = 0x22312194FC2BF72C;
+    sha->H[1] = 0x9F555FA3C84C64C2;
+    sha->H[2] = 0x2393B86B6F53B151;
+    sha->H[3] = 0x963877195940EABD;
+    sha->H[4] = 0x96283EE2A88EFFE3;
+    sha->H[5] = 0xBE5E1E2553863992;
+    sha->H[6] = 0x2B0199FC2C85B8AA;
+    sha->H[7] = 0x0EB72DDC81C52CA2;
+    sha->filled = 0;
+}
+
+void SHA512t256_Final(sha512_t *restrict sha, void *restrict out, size_t t)
+{
+    uint8_t *ptr = out;
+    size_t i;
+
+    sha512_final(sha);
+    
+    if( out )
+    {
+        for(i=0; i<t; i++)
+            ptr[i] = i<32 ? sha->Msg8[i] : 0;
+    }
+}    
+
 IntPtr iSHA1(int q){ return xSHA1(q); }
 IntPtr iSHA224(int q){ return xSHA224(q); }
 IntPtr iSHA256(int q){ return xSHA256(q); }
 IntPtr iSHA384(int q){ return xSHA384(q); }
 IntPtr iSHA512(int q){ return xSHA512(q); }
+IntPtr iSHA512t224(int q){ return xSHA512t224(q); }
+IntPtr iSHA512t256(int q){ return xSHA512t256(q); }

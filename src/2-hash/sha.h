@@ -52,7 +52,7 @@ typedef struct sha512_context {
         uint64_t    Msg64[16];
         uint8_t     Msg8[128];
     };
-} sha384_t, sha512_t;
+} sha384_t, sha512_t, sha512t_t;
 
 void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len);
 #define SHA384_Update sha512_update
@@ -61,6 +61,12 @@ void SHA384_Init(sha384_t *restrict sha);
 void SHA512_Init(sha512_t *restrict sha);
 void SHA384_Final(sha384_t *restrict sha, void *restrict out, size_t t);
 void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t);
+#define SHA512t224_Update sha512_update
+#define SHA512t256_Update sha512_update
+void SHA512t224_Init(sha512t_t *restrict sha);
+void SHA512t256_Init(sha512t_t *restrict sha);
+void SHA512t224_Final(sha512t_t *restrict sha, void *restrict out, size_t t);
+void SHA512t256_Final(sha512t_t *restrict sha, void *restrict out, size_t t);
 
 #define cSHA1(q) (                              \
         q==outBytes ? 20 :                      \
@@ -86,20 +92,38 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t);
         q==FinalFunc  ? (IntPtr)SHA##bits##_Final :     \
         cSHAoN(bits,blk,q) )
 
+#define cSHA512tN(bits,q) (                     \
+        q==outBytes ? bits/8 :                  \
+        q==blockBytes ? 128 :                   \
+        q==contextBytes ? sizeof(sha512t_t) :   \
+        0)
+
+#define xSHA512tN(bits,q) (                                     \
+        q==InitFunc   ? (IntPtr)SHA512t##bits##_Init :          \
+        q==UpdateFunc ? (IntPtr)SHA512t##bits##_Update :        \
+        q==FinalFunc  ? (IntPtr)SHA512t##bits##_Final :         \
+        cSHA512tN(bits,q) )
+
 #define cSHA224(q) cSHAoN(224,64,q)
 #define cSHA256(q) cSHAoN(256,64,q)
 #define cSHA384(q) cSHAoN(384,128,q)
 #define cSHA512(q) cSHAoN(512,128,q)
+#define cSHA512t224(q) cSHA512tN(224,q)
+#define cSHA512t256(q) cSHA512tN(256,q)
 
 #define xSHA224(q) xSHAoN(224,64,q)
 #define xSHA256(q) xSHAoN(256,64,q)
 #define xSHA384(q) xSHAoN(384,128,q)
 #define xSHA512(q) xSHAoN(512,128,q)
+#define xSHA512t224(q) xSHA512tN(224,q)
+#define xSHA512t256(q) xSHA512tN(256,q)
 
 IntPtr iSHA1(int q);
 IntPtr iSHA224(int q);
 IntPtr iSHA256(int q);
 IntPtr iSHA384(int q);
 IntPtr iSHA512(int q);
+IntPtr iSHA512t224(int q);
+IntPtr iSHA512t256(int q);
 
 #endif
