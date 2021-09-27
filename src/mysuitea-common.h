@@ -177,13 +177,13 @@ typedef void (*ReadFunc_t)(void *restrict x,
 
 // AEAD cipher taking data all-at-once.
 typedef void (*AEncFunc_t)(void *restrict x,
-                           void const *restrict iv,
+                           void const *iv,
                            size_t alen, void const *aad,
                            size_t len, void const *in, void *out,
                            size_t tlen, void *T);
 // returns ``out'' on success and ``NULL'' on decryption failure.
 typedef void *(*ADecFunc_t)(void *restrict x,
-                            void const *restrict iv,
+                            void const *iv,
                             size_t alen, void const *aad,
                             size_t len, void const *in, void *out,
                             size_t tlen, void const *T);

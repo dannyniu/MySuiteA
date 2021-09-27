@@ -24,13 +24,13 @@ typedef struct gcm_context {
     })
 
 void GCM_Encrypt(gcm_t *restrict gcm,
-                 const void *restrict iv, // fixed, 12 bytes. 
+                 const void *iv, // fixed, 12 bytes. 
                  size_t alen, const void *aad,
                  size_t len, const void *in, void *out,
                  size_t tlen, void *T); // zeros tail if tlen>16. 
 
 void *GCM_Decrypt(gcm_t *restrict gcm,
-                  const void *restrict iv,
+                  const void *iv,
                   size_t alen, const void *aad,
                   size_t len, const void *in, void *out,
                   size_t tlen, const void *T);

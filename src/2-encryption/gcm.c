@@ -5,7 +5,7 @@
 #include "../0-datum/endian.h"
 
 void GCM_Encrypt(gcm_t *restrict gcm,
-                 void const *restrict iv,
+                 void const *iv,
                  size_t alen, const void *aad,
                  size_t len, const void *in, void *out,
                  size_t tlen, void *T)
@@ -60,7 +60,7 @@ void GCM_Encrypt(gcm_t *restrict gcm,
 }
 
 void *GCM_Decrypt(gcm_t *restrict gcm,
-                  void const *restrict iv,
+                  void const *iv,
                   size_t alen, const void *aad,
                   size_t len, const void *in, void *out,
                   size_t tlen, const void *T)
