@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
         .aux_po = PKCS1_PADDING_ORACLES_PARAM_ENTUPLE(
             iSHA256,iSHA256,32),
     };
-    
+
     PKCS1_Private_Context_t *kgx = my_alloc("kgx",
         PKCS1_PRIVATE_CONTEXT_SIZE(NBITS,2,cSHA256,cSHA256,32));
 
@@ -89,15 +89,15 @@ int main(int argc, char *argv[])
     PKCS1_Decode_RSAPublicKey(2, copy, lret, enx, &ap);
     uint32_t k = ((RSA_Public_Context_t *)((uint8_t *)enx + enx->offset_rsa_pubctx))->modulus_bits;
     printf("Pubctx k: %u\n", k);
-    
+
     free(copy);
     copy = NULL;
 
     printf("tests start\n");
-    
+
     int failures = 0;
     int testcount = 80 / 5;
-    
+
     size_t sslen = SSLEN;
     void *ss1 = malloc(sslen);
     void *ss2 = malloc(sslen);
@@ -121,9 +121,9 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
 
-        RSAES_OAEP_Encode_Ciphertext(enx, copy, &size);        
+        RSAES_OAEP_Encode_Ciphertext(enx, copy, &size);
         RSAES_OAEP_Decode_Ciphertext(dex, copy, size);
-        
+
         lret = (IntPtr)RSAES_OAEP_Dec(dex, ss2, &sslen);
         if( memcmp(ss1, ss2, sslen) || !lret )
         {

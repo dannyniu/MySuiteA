@@ -54,3 +54,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# 2021-10-04 Additions: Python test submodules cache
+__pycache__
