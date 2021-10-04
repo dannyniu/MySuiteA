@@ -62,7 +62,12 @@ int main(int argc, char *argv[])
     fread(copy, 1, NBITS / 8, stdin);
     RSAES_OAEP_Decode_Ciphertext(dex, copy, NBITS / 8);
         
-    RSAES_OAEP_Dec(dex, NULL, &sslen);
+    lret = (IntPtr)RSAES_OAEP_Dec(dex, NULL, &sslen);
+    if( !lret )
+    {
+        printf("Decryption Failure. \n");
+        exitstat = 1;
+    }
 
     ss = realloc(ss, sslen);
     RSAES_OAEP_Dec(dex, ss, &sslen);

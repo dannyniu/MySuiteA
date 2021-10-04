@@ -16,6 +16,9 @@ hName = "sha256"
 hLen = hashlib.new(hName).digest_size
 mgf = MGF1
 
+# Alter some of the following expresssions
+# for testing decryption failure.
+
 msg = bytes(sys.argv[1], encoding="ascii")
 lHash = hashlib.new(hName).digest()
 PS = b'\0' * (k - len(msg) - 2 * hLen - 2)
