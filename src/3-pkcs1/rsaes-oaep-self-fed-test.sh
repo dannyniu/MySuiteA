@@ -8,7 +8,7 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-rsaes-oaep-correctness-test.c
+rsaes-oaep-self-fed-test.c
 rsaes-oaep-dec.c
 rsaes-oaep-enc.c
 pkcs1.c

@@ -16,9 +16,9 @@
        border-collapse:  collapse;
      }
 
-     body > table {
-       width:    100%;
-     }
+     /* body > table {
+        width:    100%;
+        } */
 
      th, td {
        padding:  3pt;
@@ -29,7 +29,7 @@
      }
 
      td {
-       border:   thin solid silver;
+       border:   thin solid gray;
      }
 
      code, pre {
@@ -39,6 +39,11 @@
 
      pre {
        white-space:  pre-line;
+     }
+
+     span.tab {
+       display:      inline-block;
+       width:        4ex;
      }
 
      .math-fonts {
@@ -199,6 +204,503 @@
       point to both a single <code>CryptoParam_t</code> object, or the initial
       element of an array of which - in the case of an array, the algorithm
       construction is said to be parameterized by multiple elements.
+    </p>
+
+    <h1>MySuiteA Algorithm APIs</h1>
+
+    <p>
+      MySuiteA strives to implement a uniform set of interface where there's
+      a common API for each type of cryptographic algorithm. This interface
+      is layered, where higher-level schemes may be instantiated from
+      lower-level primitives. As explained in the note in "notes.md" dated
+      [2021-09-03b], blockciphers, permutations, hash, and XOF functions
+      never take parameters to instantiate from, and will always be
+      algorithm instances.
+    </p>
+
+    <!-- p>
+         Some APIs are marked as "low-level". The primitives these APIs
+         corresponds to are considered strictly building blocks for
+         higher-level constructs and shouldn't be used directly in general.
+         For example, a blockcipher shouldn't be used directly to
+         encryption information, especially not in a inconsiderate ECB
+         mode of operation; it should be used in a mode that provides at least
+         IND-CPA such as CBC, CTR, or an authenticated encryption mode that
+         provides IND-CCA (and IND-CCA2).
+         </p -->
+
+    <p>
+      MySuiteA is an octet-oriented implementation, and is written with the
+      assumption that 1 byte is exactly 8 bits (1 octet). It also assumes
+      that 16-bit, 32-bit, 64-bit exact-width integers are available.
+    </p>
+
+    <p>
+      In the following sub-sections, property queries available to a particular
+      type of cryptographic algorithm are listed in <code>code shading</code>,
+      each followed by a description of its semantic. The following shorthands
+      are used in function prototype descriptions:
+    </p>
+
+    <table>
+      <tr><th><code>buf</code></th> <td><code>void *</code></td> </tr>
+      <tr><th><code>dat</code></th> <td><code>void const *</code></td> </tr>
+      <tr>
+        <th><code>rbuf</code></th>
+        <td><code>void *restrict</code></td>
+      </tr>
+      <tr>
+        <th><code>rdat</code></th>
+        <td><code>void const *restrict</code></td>
+      </tr>
+      <tr>
+        <th><code>_param_</code></th>
+        <td><code>const CryptoParam_t *P</code></td>
+      </tr>
+    </table>
+
+    <h2>Blockcipher</h2>
+
+    <p>
+      A blockcipher is a fixed-width keyed permutation. MySuiteA currently
+      only support a single block size of 128 bits. Use of 64-bit blocks
+      have negative security implications; blockciphers with larger
+      block sizes currently lack support from higher-level algorithm
+      constructions and therefore have poorer interoperability and is of
+      lesser use.
+    </p>
+
+    <p>
+      Note the phrase "blockcipher instance" is used to distinguish it from
+      a blockcipher family, which may specify many variants of blockcipher
+      instances.
+    </p>
+
+    <dl>
+      <dt><code>blockBytes</code></dt>
+      <dd>Block size of the blockcipher instance in bytes</dd>
+
+      <dt><code>keyBytes</code></dt>
+      <dd>Key size of the blockcipher instance in bytes</dd>
+
+      <dt><code>keyschedBytes</code></dt>
+      <dd>Key schedule size of the blockcipher instance in bytes</dd>
+
+      <dt><code>EncFunc</code></dt>
+      <dd>
+        The blockcipher encryption function of prototype
+        <code>void (*)(dat in, buf out, rdat w);</code> where
+        <ul>
+          <li><code>in</code> is the input plaintext block, </li>
+          <li><code>out</code> is the output ciphertext block, and </li>
+          <li><code>w</code> is the key schedule generated from the key. </li>
+        </ul>
+      </dd>
+
+      <dt><code>DecFunc</code></dt>
+      <dd>
+        The blockcipher decryption function of prototype
+        <code>void (*)(dat in, buf out, rdat w);</code> where
+        <ul>
+          <li><code>in</code> is the input ciphertext block, </li>
+          <li><code>out</code> is the output plaintext block, and </li>
+          <li><code>w</code> is the key schedule generated from the key. </li>
+        </ul>
+      </dd>
+
+      <dt><code>KschdFunc</code></dt>
+      <dd>
+        The key schedule expansion function of prototype
+        <code>void (*)(rdat key, rbuf w);</code> where
+        <ul>
+          <li><code>key</code> is cipher key to use, </li>
+          <li><code>w</code> is the buffer to hold the key schedule. </li>
+        </ul>
+      </dd>
+    </dl>
+
+    <p><em>[note:in-out-ptr-alias]
+      Note that neither <code>in</code> nor <code>out</code> has the
+      <code>restrict</code> pointer qualifier. This is an intentional
+      design decision for allowing in-place cipher computation.
+      It is implemented as if the encryption and decryption functions first
+      copied input to output buffer before encryption/decryption.
+    </em></p>
+
+    <h2>Permutation</h2>
+
+    <dl>
+      <dt><code>blockBytes</code></dt>
+      <dd>The block size of the permutation</dd>
+
+      <dt><code>PermuteFunc</code></dt>
+      <dd>
+        The (forward) permutation function of prototype
+        <code>void (*)(dat in, buf out);</code> where
+        <ul>
+          <li><code>in</code> is the input block, </li>
+          <li><code>out</code> is the output block. </li>
+        </ul>
+      </dd>
+    </dl>
+
+    <p>
+      See note tagged <em>[note:in-out-ptr-alias]</em> in the
+      <a>Blockcipher</a> section.
+    </p>
+
+    <h2>Hash Function & Message Authentication Code</h2>
+
+    <dl>
+      <dt><code>outBytes</code></dt>
+      <dd>The length of the hash digest / MAC tag output in bytes</dd>
+
+      <dt><code>blockBytes</code> (hash-specific)</dt>
+      <dd>
+        The amount of data in bytes, which when accumulated, will cause the
+        state transformation function, (be it a compression function,
+        a permutation, or anything else,) to iterate for 1 invocation.
+      </dd>
+
+      <dt><code>keyBytes</code> (MAC-specific)</dt>
+      <dd>
+        The supported length(s) of the key. See "mysuitea-common.h" for
+        the interpretation of the values of this property.
+      </dd>
+
+      <dt><code>contextBytes</code></dt>
+      <dd>
+        The size of the working context, in bytes,
+        for the hash/MAC function.
+      </dd>
+
+      <dt><code>InitFunc</code> (hash-specific)</dt>
+      <dd>
+        The working context initialization function of prototype
+        <code>void (*)(rbuf x);</code> where
+        <ul>
+          <li>
+            <code>x</code> is the pointer
+            to the working context in memory.
+          </li>
+        </ul>
+      </dd>
+
+      <dt><code>KInitFunc</code> (MAC-specific)</dt>
+      <dd>
+        The working context initialization function of prototype
+        <code>void *(*)(rbuf x, rdat k, size_t klen);</code>;
+        or if the construction is parameterized, the function of prototype
+        <code>void *(*)(_param_, rbuf x, rdat k, size_t klen);</code> where
+        <ul>
+          <li><code>_param_</code> is the instantiation parameter, </li>
+          <li>
+            <code>x</code> is the pointer,
+            to the working context in memory.
+          </li>
+          <li><code>k</code> is MAC key to use, </li>
+          <li><code>klen</code> is length of the key input. </li>
+        </ul>
+        If the key length is invalid for the MAC function, or some other
+        (yet-to-be-specified) error occurs, the function returns NULL.
+        Otherwise, everything succeeds, and <code>x</code> is returned.
+      </dd>
+
+      <dt><code>UpdateFunc</code></dt>
+      <dd>
+        The update function that feeds data into the hash working context.
+        It has the prototype
+        <code>void (*)(rbuf x, rdat data, size_t len);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the working context, </li>
+          <li><code>data</code> the data to feed into the working context,</li>
+          <li><code>len</code> the length of the data. </li>
+        </ul>
+      </dd>
+
+      <dt><code>FinalFunc</code></dt>
+      <dd>
+        The finalization function which marks the working context as finalized
+        and computes the hash digest / MAC tag if the working context hasn't
+        been finalized yet, and then reads out the result. It has the prototype
+        <code>void (*)(rbuf x, rdat out, size_t t);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the working context, </li>
+          <li><code>out</code>
+            is the pointer to the memory location to which,
+            the hash digest will be written,
+          </li>
+          <li><code>len</code>
+            is the requested length of the digest.
+            <em></em>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+
+    <p><em>
+      [note:outlen]: It is a convention of MySuiteA that,
+      if the requested length is greater than (or less than) the
+      digest/tag length of the hash/MAC function, then the output will be
+      zero-extended (or truncated).
+    </em></p>
+
+    <h2>XOF (Extendable-Output Function)</h2>
+
+    <dl>
+      <dt><code>blockBytes</code> (hash-specific)</dt>
+      <dd>
+        The amount of data in bytes, which when accumulated, will cause the
+        state transformation function, (be it a compression function,
+        a permutation, or anything else,) to iterate for 1 invocation.
+      </dd>
+
+      <dt><code>contextBytes</code></dt>
+      <dd>
+        The size of the working context, in bytes,
+        for the XOF function.
+      </dd>
+
+      <dt><code>InitFunc</code> (hash-specific)</dt>
+      <dd>
+        The working context initialization function of prototype
+        <code>void (*)(rbuf x);</code> where
+        <ul>
+          <li>
+            <code>x</code> is the pointer
+            to the working context in memory.
+          </li>
+        </ul>
+      </dd>
+
+      <dt><code>WriteFunc</code></dt>
+      <dd>
+        The update function that feeds (writes) data into the
+        XOF working context. It has the prototype
+        <code>void (*)(rbuf x, rdat data, size_t len);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the working context, </li>
+          <li><code>data</code> the data to feed into the working context,</li>
+          <li><code>len</code> the length of the data. </li>
+        </ul>
+      </dd>
+
+      <dt><code>XofFinalFunc</code></dt>
+      <dd>
+        The finalization function which, if the working context hasn't been
+        finalized yet, marks the working context as finalized and performs
+        finalization computation to make the context ready for output being
+        read. It has the prototype
+        <code>void (*)(rbuf x);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the working context, </li>
+        </ul>
+      </dd>
+
+      <dt><code>ReadFunc</code></dt>
+      <dd>
+        The output function that reads data out of the XOF working context.
+        It has the prototype
+        <code>void (*)(rbuf x, rbuf data, size_t len);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the working context, </li>
+          <li><code>data</code> the buffer into which data will be read, </li>
+          <li><code>len</code> the requested length of the data. </li>
+        </ul>
+      </dd>
+    </dl>
+
+    <p>
+      Because <code>WriteFunc</code> and <code>UpdateFunc</code> have
+      identical prototype, and that they serve very similar purpose,
+      these 2 symbolic constants are aliased together by having
+      identical numerical value.
+    </p>
+
+    <h2>Encryption</h2>
+
+    <dl>
+      <dt><code>keyBytes</code></dt>
+      <dd>The byte length of the key supported by the algorithm instance</dd>
+
+      <dt><code>contextBytes</code></dt>
+      <dd>The size of the cipher working context in bytes</dd>
+
+      <dt><code>ivBytes</code></dt>
+      <dd>
+        The byte length of the initialization vector
+        supported by the algorithm instance.
+      </dd>
+
+      <dt><code>KInitFunc</code></dt>
+      <dd>
+        The working context initialization function of prototype
+        <code>void *(*)(rbuf x, rdat k, size_t klen);</code>;
+        or if it's a parameterized algorithm construction,
+        the function of prototype
+        <code>void *(*)(_param_, rbuf x, rdat k, size_t klen);</code> where
+        <ul>
+          <li><code>_param_</code> is the instantiation parameter, </li>
+          <li>
+            <code>x</code> is the pointer
+            to the working context in memory,
+          </li>
+          <li><code>k</code> is cipher key to use, </li>
+          <li><code>klen</code> is length of the key input. </li>
+        </ul>
+        If the key length is invalid for the algorithm instance, or some other
+        (yet-to-be-specified) error occurs, the function returns NULL.
+        Otherwise, everything succeeds, and <code>x</code> is returned.
+      </dd>
+
+      <dt><code>AEncFunc</code></dt>
+      <dd>
+        The authenticated encryption function of prototype
+        <pre>void (*)(
+          <span class="tab"></span>rbuf x, dat iv,
+          <span class="tab"></span>size_t alen, dat aad,
+          <span class="tab"></span>size_t len, dat in, buf out,
+          <span class="tab"></span>size_t tlen, buf T);
+        </pre> where
+        <ul>
+          <li><code>x</code> is the cipher working context, </li>
+          <li><code>alen</code> is the byte length of <code>aad</code>, </li>
+          <li><code>aad</code>
+            is the additional data to be authenticated but not encrypted,
+          </li>
+          <li><code>len</code>
+            is the byte length of plaintext and ciphertext,
+          </li>
+          <li><code>in</code>, <code>out</code>
+            are plaintext input and ciphertext output respectively,
+          </li>
+          <li><code>tlen</code>
+            is the requested length of the tag,
+          </li>
+          <li><code>T</code>
+            is the buffer in which the tag will be stored.
+          </li>
+        </ul>
+      </dd>
+
+      <dt><code>ADecFunc</code></dt>
+      <dd>
+        The authenticated encryption function of prototype
+        <pre>void *(*)(
+          <span class="tab"></span>rbuf x, dat iv,
+          <span class="tab"></span>size_t alen, dat aad,
+          <span class="tab"></span>size_t len, dat in, buf out,
+          <span class="tab"></span>size_t tlen, dat T);
+        </pre> where
+        <ul>
+          <li><code>x</code> is the cipher working context, </li>
+          <li><code>alen</code> is the byte length of <code>aad</code>, </li>
+          <li><code>aad</code>
+            is the additional non-encrypted data to be verified,
+          </li>
+          <li><code>len</code>
+            is the byte length of plaintext and ciphertext,
+          </li>
+          <li><code>in</code>, <code>out</code>
+            are ciphertext input and plaintext output respectively,
+          </li>
+          <li><code>tlen</code>
+            is the length of the MAC tag to be compared,
+            which may be truncated or zero-extended
+            at the request of the invoker of the encryption function,
+          </li>
+          <li><code>T</code>
+            is the buffer that stores the MAC tag.
+          </li>
+        </ul>
+        Upon successful decryption, out will be returned.
+        Otherwise, if there is decryption failure or
+        any other kind of error, NULL will be returned.
+      </dd>
+    </dl>
+
+    <p>
+      See notes tagged <em>[note:in-out-ptr-alias]</em> in the
+      <a>Blockcipher</a> section and <em>[note:outlen]</em> in the
+      <a>Hash Function & Message Authentication Code</a> section.
+    </p>
+
+    <h2>Pseudo-Random Number Generator</h2>
+
+    <dl>
+      <dt><code>contextBytes</code></dt>
+      <dd>The size of the PRNG working context in bytes. </dd>
+
+      <dt><code>seedBytes</code></dt>
+      <dd>The supported length(s) of the seed in bytes. </dd>
+
+      <dt><code>InstInitFunc</code></dt>
+      <dd>
+        The PRNG instantiation initialization function. It has the prototype:
+        <code>void *(*)(rbuf x, rdat seedstr, size_t len);</code> or
+        if the construction is parameterized, the function of prototype:
+        <code>void *(*)(_param_, rbuf x, rdat seedstr, size_t len);</code>
+        where
+        <ul>
+          <li><code>_param_</code> is the instantiation parameter, </li>
+          <li><code>x</code> is the pointer to the working context, </li>
+          <li><code>seedstr</code> is the pointer to the PRNG seed, </li>
+          <li><code>len</code> is the length of the seed in bytes, </li>
+        </ul>
+        If the seed length is unsupported, or some other (yet-to-be-speciied)
+        error, the function returns NULL. Otherwise, everything succeeds, and
+        <code>x</code> is returned.
+      </dd>
+
+      <dt><code>ReseedFunc</code></dt>
+      <dd>
+        The PRNG reseeding function of prototype:
+        <code>void (*)(rbuf x, rdat seedstr, size_t len);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the PRNG working context, </li>
+          <li><code>seedstr</code>
+            is the pointer to the reseeding material,
+          </li>
+          <li><code>len</code>
+            is the length of the reseeding material in bytes.
+          </li>
+        </ul>
+      </dd>
+
+      <dt><code>GenFunc</code></dt>
+      <dd>
+        The PRNG randomness generation function of prototype:
+        <code>void (*)(rbuf x, rbuf out, size_t len);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the PRNG working context, </li>
+          <li><code>seedstr</code>
+            is the pointer to the memory location to store the random bytes,
+          </li>
+          <li><code>len</code>
+            is the length of the requested random bytes.
+          </li>
+        </ul>
+      </dd>
+    </dl>
+
+    <p>
+      Due to functional similarity as well as them having
+      identical prototypes,
+      <code>InstInitFUnc</code>,
+      <code>ReseedFunc</code>, and
+      <code>GenFunc</code>
+      are aliased to
+      <code>KInitFunc</code>,
+      <code>WriteFunc</code>, and
+      <code>ReadFunc</code> respectively, by them having
+      identical pairs of numerical values.
+    </p>
+
+    <h2>Still Developing</h2>
+
+    <p>
+      Other cryptographic primitives are under development, and
+      uniform interfaces for them are still exploring.
     </p>
 
   </body>
