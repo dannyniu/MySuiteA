@@ -300,7 +300,7 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     // Because this function has no failure return values (yet),
     // caller may skip checking error for this function (for now).
 
-    // sizeof(uint32_t) * 3 - 1 because:
+    // sizeof(uint32_t) * 3 because:
     // - 1 for vlong_t::c,
     // - 1 for computation overhead,
     // - 1 for representation overhead.

@@ -43,7 +43,7 @@ typedef struct {
 } RSA_Private_Param_t;
 
 // note-1:
-// 32 * 3 - 1 because:
+// 32 * 3 because:
 // see notes in "2-asn1/der-codec.c"
 // ``ber_tlv_decode_integer''
 //
