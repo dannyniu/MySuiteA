@@ -564,6 +564,7 @@
         </pre> where
         <ul>
           <li><code>x</code> is the cipher working context, </li>
+          <li><code>iv</code> points to the initialization vector, </li>
           <li><code>alen</code> is the byte length of <code>aad</code>, </li>
           <li><code>aad</code>
             is the additional data to be authenticated but not encrypted,
@@ -594,6 +595,7 @@
         </pre> where
         <ul>
           <li><code>x</code> is the cipher working context, </li>
+          <li><code>iv</code> points to the initialization vector, </li>
           <li><code>alen</code> is the byte length of <code>aad</code>, </li>
           <li><code>aad</code>
             is the additional non-encrypted data to be verified,
@@ -686,14 +688,14 @@
     <p>
       Due to functional similarity as well as them having
       identical prototypes,
-      <code>InstInitFUnc</code>,
+      <code>InstInitFunc</code>,
       <code>ReseedFunc</code>, and
       <code>GenFunc</code>
       are aliased to
       <code>KInitFunc</code>,
       <code>WriteFunc</code>, and
       <code>ReadFunc</code> respectively, by them having
-      identical pairs of numerical values.
+      identical corresponding numerical values.
     </p>
 
     <h2>Still Developing</h2>
