@@ -1,6 +1,7 @@
 /* DannyNiu/NJF, 2021-02-12. Public Domain. */
 
 #include "rsa-codec-der.h"
+#include "../0-exec/struct-delta.c.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,8 +40,7 @@ int main(int argc, char *argv[])
 
     // RSA decryption test.
 
-    uint8_t *bp = (void *)ctx;
-    vlong_t *C = (void *)(bp + ctx->base.offset_w1);
+    vlong_t *C = DeltaTo((&ctx->base), offset_w1);
 
     for(long i = C->c; --i > 44; ) C->v[i] = 0;
     C->v[ 44] = 0x16f4a33d;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
     vlong_t *M = rsa_fastdec(ctx);
     vlong_size_t i = 0;
-    if( M == (void *)(bp + ctx->base.offset_w2) ) printf("sane\n");
+    if( M == DeltaTo((&ctx->base), offset_w2) ) printf("sane\n");
     
     if( M->v[0] != 65535 ) printf("RSA Decipher Incorrect!\n"); else
     {

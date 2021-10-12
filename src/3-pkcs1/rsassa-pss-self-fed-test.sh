@@ -2,7 +2,7 @@
 
 testfunc() {
     #lldb \
-        $exec #"$(date)"
+        $exec "$(date)"
 }
 
 cd "$(dirname "$0")"

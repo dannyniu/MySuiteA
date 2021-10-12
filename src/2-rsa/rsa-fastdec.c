@@ -2,6 +2,7 @@
 // Implementation of [QC82] fast decipherment.
 
 #include "rsa.h"
+#include "../0-exec/struct-delta.c.h"
 
 // blueprint
 // # uppercases modulus-sized, lowercase factor-sized.
@@ -24,7 +25,6 @@
 
 vlong_t *rsa_fastdec(RSA_Private_Context_t *restrict x)
 {
-    uint8_t *bp = (void *)x;
     RSA_Private_Context_Base_t *bx = &x->base;
     RSA_OtherPrimeInfo_t *px = x->primes_other;
 
@@ -38,9 +38,9 @@ vlong_t *rsa_fastdec(RSA_Private_Context_t *restrict x)
     int i, j;
     uint32_t *ul;
     
-    vlong_t *C = (void *)(bp + bx->offset_w1); // set to C.
-    vlong_t *M = (void *)(bp + bx->offset_w2); // set to M.
-    vlong_t *R = (void *)(bp + bx->offset_w3); // allocated for R.
+    vlong_t *C = DeltaTo(bx, offset_w1); // set to C.
+    vlong_t *M = DeltaTo(bx, offset_w2); // set to M.
+    vlong_t *R = DeltaTo(bx, offset_w3); // allocated for R.
 
     vlong_t *ri, *di, *ti;
 
@@ -59,25 +59,25 @@ vlong_t *rsa_fastdec(RSA_Private_Context_t *restrict x)
     t->c = vlsize_factor;
     ul += t->c + 1;
 
-    vlong_divv(h, NULL, C, (void *)(bp + bx->offset_q));
-    vlong_modexpv(h, h, (void *)(bp + bx->offset_dQ), t, m,
+    vlong_divv(h, NULL, C, DeltaTo(bx, offset_q));
+    vlong_modexpv(h, h, DeltaTo(bx, offset_dQ), t, m,
                   (vlong_modfunc_t)vlong_remv_inplace,
-                  (void *)(bp + bx->offset_q));
+                  DeltaTo(bx, offset_q));
 
     b = h->c;
     for(a=0; a<M->c; a++)
         M->v[a] = a < b ? h->v[a] : 0;
     
-    b = ((vlong_t *)(bp + bx->offset_q))->c;
+    b = ((vlong_t *)DeltaTo(bx, offset_q))->c;
     for(a=0; a<R->c; a++)
-        R->v[a] = a < b ? ((vlong_t *)(bp + bx->offset_q))->v[a] : 0;
+        R->v[a] = a < b ? ((vlong_t *)DeltaTo(bx, offset_q))->v[a] : 0;
     
     for(i=0; (unsigned)i<=bx->count_primes_other; i++)
     {
         j = i - 1;
-        ri = (vlong_t *)(bp + px[j].offset_r);
-        di = (vlong_t *)(bp + px[j].offset_d);
-        ti = (vlong_t *)(bp + px[j].offset_t);
+        ri = DeltaAdd(x, px[j].offset_r);
+        di = DeltaAdd(x, px[j].offset_d);
+        ti = DeltaAdd(x, px[j].offset_t);
 
         vlong_divv(h, NULL, C, ri);
         vlong_modexpv(h, h, di, t, m,

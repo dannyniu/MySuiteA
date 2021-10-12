@@ -2,6 +2,7 @@
 
 #include "gcm.h"
 #include "../1-symm/galois128.h"
+#include "../0-exec/struct-delta.c.h"
 #include "../0-datum/endian.h"
 
 void GCM_Encrypt(gcm_t *restrict gcm,
@@ -19,7 +20,7 @@ void GCM_Encrypt(gcm_t *restrict gcm,
     alignas(16) uint8_t X[16];
     const uint8_t *iptr = in; uint8_t *optr = out;
 
-    void *kschd = (uint8_t *)gcm + gcm->offset;
+    void *kschd = DeltaTo(gcm, offset);
 
     // Prepare J0. 
     for(i=0; i<3; i++){ J0[i] = ((const uint32_t *)iv)[i]; } J0[3] = htobe32(1);
@@ -75,7 +76,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     alignas(16) uint8_t X[16];
     const uint8_t *iptr = in; uint8_t *optr = out;
 
-    void *kschd = (uint8_t *)gcm + gcm->offset;
+    void *kschd = DeltaTo(gcm, offset);
 
     // Prepare J0. 
     for(i=0; i<3; i++)

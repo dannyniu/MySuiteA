@@ -2,16 +2,14 @@
 
 #include "rsaes-oaep.h"
 #include "../1-integers/vlong-dat.h"
+#include "../0-exec/struct-delta.c.h"
 
 void *RSAES_OAEP_Encode_Ciphertext(
     PKCS1_Public_Context_t *restrict x,
     void *restrict ct, size_t *ctlen)
 {
-    uint8_t *bx = (void *)x;
-    RSA_Public_Context_t *ex = (void *)(bx + x->offset_rsa_pubctx);
-
-    uint8_t *mx = (void *)ex;
-    vlong_t *vp = (void *)(mx + ex->offset_w2);
+    RSA_Public_Context_t *ex = DeltaTo(x, offset_rsa_pubctx);
+    vlong_t *vp = DeltaTo(ex, offset_w2);
     
     if( !ct )
     {
@@ -23,7 +21,6 @@ void *RSAES_OAEP_Encode_Ciphertext(
     if( *ctlen * 8 < ex->modulus_bits ) return NULL;
 
     vlong_I2OSP(vp, ct, *ctlen);
-    
     return ct;
 }
 
@@ -32,13 +29,11 @@ void *RSAES_OAEP_Enc(
     void *restrict ss, size_t *restrict sslen,
     GenFunc_t prng_gen, void *restrict prng)
 {
-    uint8_t *bx = (void *)x;
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    RSA_Public_Context_t *ex = (void *)(bx + x->offset_rsa_pubctx);
+    RSA_Public_Context_t *ex = DeltaTo(x, offset_rsa_pubctx);
     
     vlong_size_t t;
-    uint8_t *mx = (void *)ex;
-    uint8_t *hx = (uint8_t *)po + sizeof(pkcs1_padding_oracles_base_t);
+    void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
 
     vlong_size_t k = (ex->modulus_bits + 0) / 8; // UD if mod_bits % 7 != 0.
     uint8_t *ptr;
@@ -56,7 +51,7 @@ void *RSAES_OAEP_Enc(
     //
     // EME-OAEP encoding.
     
-    ptr = mx + ex->offset_w2;
+    ptr = DeltaTo(ex, offset_w2);
     ptr = (void *)((vlong_t *)ptr)->v;
     for(t=0; t<k; t++) ptr[t] = 0;
     
@@ -90,7 +85,7 @@ void *RSAES_OAEP_Enc(
         ptr + 1, po->hlen_msg, // maskedSeed
         1);
 
-    vlong_OS2IP((void *)(mx + ex->offset_w1), ptr, k);
+    vlong_OS2IP(DeltaTo(ex, offset_w1), ptr, k);
 
     //
     // RSA encryption operation.

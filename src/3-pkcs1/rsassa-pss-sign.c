@@ -2,16 +2,17 @@
 
 #include "rsaes-oaep.h"
 #include "../1-integers/vlong-dat.h"
+#include "../0-exec/struct-delta.c.h"
 
 void *RSASSA_PSS_Encode_Signature(
     PKCS1_Private_Context_t *restrict x,
     void *restrict sig, size_t *siglen)
 {
-    uint8_t *bx = (void *)x;
-    // pkcs1_padding_oracles_base_t *po = &x->po_base; // 2021-10-10: unused.
-    RSA_Private_Context_Base_t *dx = (void *)(bx + x->offset_rsa_privctx);
-    
-    uint8_t *mx = (void *)dx;
+    RSA_Private_Context_Base_t *dx = DeltaTo(x, offset_rsa_privctx);
+
+    // 2021-10-10:
+    // unused as signature serializer doesn't change working context status.
+    // pkcs1_padding_oracles_base_t *po = &x->po_base; 
 
     vlong_size_t emBits = dx->modulus_bits;
     vlong_size_t emLen = (emBits + 7) / 8;
@@ -26,7 +27,7 @@ void *RSASSA_PSS_Encode_Signature(
 
     if( *siglen < emLen ) return NULL;
 
-    ptr = mx + dx->offset_w1;
+    ptr = DeltaTo(dx, offset_w1);
     ptr = (void *)((vlong_t *)ptr)->v;
     for(t=0; t<emLen; t++) ((uint8_t *)sig)[t] = ptr[t];
         
@@ -38,13 +39,11 @@ void *RSASSA_PSS_Sign(
     void const *restrict msg, size_t msglen,
     GenFunc_t prng_gen, void *restrict prng)
 {
-    uint8_t *bx = (void *)x;
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     void *hashctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
-    RSA_Private_Context_Base_t *dx = (void *)(bx + x->offset_rsa_privctx);
+    RSA_Private_Context_Base_t *dx = DeltaTo(x, offset_rsa_privctx);
 
     vlong_size_t t;
-    uint8_t *mx = (void *)dx;
     vlong_t *vp1; // , *vp2;
 
     vlong_size_t emBits = dx->modulus_bits - 1;
@@ -56,14 +55,16 @@ void *RSASSA_PSS_Sign(
 
     if( po->status )
     {
-    finish:
-        if( po->status < 0 ) return NULL;
-        else if( po->status > 0 )
+        if( po->status > 0 )
         {
             po->status = 0;
-            return x;
+            goto begin;
         }
+    finish:
+        if( po->status < 0 ) return NULL;
+        else return x;
     }
+begin:
     
     if( emLen < po->hlen_msg + po->slen + 2 )
     {
@@ -72,7 +73,7 @@ void *RSASSA_PSS_Sign(
     }
 
     // Setup buffer for EM.
-    ptr = mx + dx->offset_w2;
+    ptr = DeltaTo(dx, offset_w2);
     ptr = (void *)((vlong_t *)ptr)->v;
     ptr[emLen - 1] = 0xbc;
 
@@ -119,12 +120,12 @@ void *RSASSA_PSS_Sign(
     ptr[0] &= 0xFF >> t;
 
     // EM to Integer.
-    vp1 = (vlong_t *)(mx + dx->offset_w1);
+    vp1 = DeltaTo(dx, offset_w1);
     vlong_OS2IP(vp1, ptr, emLen);
 
     // RSA Maths.
     vp1 = rsa_fastdec((void *)dx);
-    ptr = mx + dx->offset_w1;
+    ptr = DeltaTo(dx, offset_w1);
     ptr = (void *)((vlong_t *)ptr)->v;
     vlong_I2OSP(vp1, ptr, emLen);
 

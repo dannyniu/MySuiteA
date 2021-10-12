@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     size_t size, len;
     uint8_t *der1, *der2;
     RSA_Private_Context_t *ctx, *ctx2;
-    RSA_Private_Param_t p_rsa = RSA_PRIVATE_PARAM_ENTUPLE(1440, 6);
+    RSA_Private_Param_t p_rsa = RSA_PRIVATE_PARAM_ENTUPLE(960, 3);
 
     uint32_t aux;
     

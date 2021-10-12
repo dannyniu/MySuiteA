@@ -1,6 +1,6 @@
 /* DannyNiu/NJF, 2021-09-11. Public Domain. */
 
-#include "rsaes-oaep.h"
+#include "rsassa-pss.h"
 #include "../2-rsa/rsa-codec-der.h"
 #include "../2-hash/sha.h"
 
@@ -9,7 +9,7 @@
 static gimli_xof_t gx;
 
 #define NBITS 768
-#define SSLEN 16
+#define MSGMAX 96
 
 void *my_alloc(const char *s, size_t len)
 {
@@ -29,17 +29,8 @@ int main(int argc, char *argv[])
         .aux_po = PKCS1_PADDING_ORACLES_PARAM_ENTUPLE(
             iSHA256,iSHA256,32),
     };
-
-    PKCS1_Private_Context_t *kgx = my_alloc("kgx",
-        PKCS1_PRIVATE_CONTEXT_SIZE(NBITS,2,cSHA256,cSHA256,32));
-
-    if( !kgx )
-    {
-        perror("malloc 1");
-        exit(EXIT_FAILURE);
-    }
-
-    *kgx = PKCS1_PRIVATE_CONTEXT_INIT(NBITS,2,xSHA256,xSHA256,32);
+    
+    PKCS1_Private_Context_t *kgx = NULL;
 
     Gimli_XOF_Init(&gx);
     Gimli_XOF_Write(&gx, "Hello World!", 12);
@@ -47,6 +38,15 @@ int main(int argc, char *argv[])
         Gimli_XOF_Write(&gx, argv[1], strlen(argv[1]));
     Gimli_XOF_Final(&gx);
 
+    lret = PKCS1_Keygen(NULL, &params, NULL, NULL);
+    kgx = my_alloc("kgx", lret);
+
+    if( !kgx )
+    {
+        perror("malloc 1");
+        exit(EXIT_FAILURE);
+    }
+    
     lret = PKCS1_Keygen(kgx, &params, (GenFunc_t)Gimli_XOF_Read, &gx);
 
     if( !lret )
@@ -56,21 +56,31 @@ int main(int argc, char *argv[])
     }
     else printf("keygen.lret: %lx, %p\n", lret, kgx);
 
-    PKCS1_Private_Context_t *dex = kgx;
+    PKCS1_Private_Context_t *dex = NULL;
     void *copy;
 
-    // Debug: dump private key.
-    lret = PKCS1_Encode_RSAPrivateKey(1, NULL, 0, kgx, NULL);
+    // recoding private key.
+    lret = PKCS1_Encode_RSAPrivateKey(1, NULL, 0, kgx, &ap);
     copy = malloc(lret);
     PKCS1_Encode_RSAPrivateKey(2, copy, lret, kgx, NULL);
 
     FILE *fp = fopen("./rsa-priv-768.key", "wb"); // in "bin/"
     fwrite(copy, 1, lret, fp);
     fclose(fp);
+
+    size = lret;
+    lret = PKCS1_Decode_RSAPrivateKey(1, copy, size, NULL, &ap);
+    if( lret < 0 )
+    {
+        perror("privkey-decode 1");
+        exit(EXIT_FAILURE);
+    }
+    dex = my_alloc("dex", lret);
+    PKCS1_Decode_RSAPrivateKey(2, copy, size, dex, &ap);
     free(copy); copy = NULL;
 
     // transfer public key to encryption working context.
-    lret = PKCS1_Encode_RSAPublicKey(1, NULL, 0, kgx, NULL);
+    lret = PKCS1_Encode_RSAPublicKey(1, NULL, 0, dex, NULL);
     copy = my_alloc("pubkey.der", lret);
 
     if( !copy )
@@ -81,38 +91,41 @@ int main(int argc, char *argv[])
 
     PKCS1_Encode_RSAPublicKey(2, copy, lret, kgx, NULL);
 
-    PKCS1_Public_Context_t *enx = my_alloc("enx",
-        PKCS1_PUBLIC_CONTEXT_SIZE(NBITS,cSHA256,cSHA256,32));
-
-    *enx = PKCS1_PUBLIC_CONTEXT_INIT(NBITS,xSHA256,xSHA256,32);
-
-    PKCS1_Decode_RSAPublicKey(2, copy, lret, enx, &ap);
-    uint32_t k = ((RSA_Public_Context_t *)((uint8_t *)enx + enx->offset_rsa_pubctx))->modulus_bits;
-    printf("Pubctx k: %u\n", k);
-
-    free(copy);
-    copy = NULL;
+    PKCS1_Public_Context_t *enx = NULL;
+    size = lret;
+    lret = PKCS1_Decode_RSAPublicKey(1, copy, size, NULL, &ap);
+    if( lret < 0 )
+    {
+        perror("pubkey-decode 1");
+        exit(EXIT_FAILURE);
+    }
+    enx = my_alloc("enx", lret);
+    PKCS1_Decode_RSAPublicKey(2, copy, size, enx, &ap);
+    free(copy); copy = NULL;
 
     printf("tests start\n");
-
+    
     int failures = 0;
     int testcount = 80 / 5;
 
-    size_t sslen = SSLEN;
-    void *ss1 = malloc(sslen);
-    void *ss2 = malloc(sslen);
+    uint32_t dword; // data word that receives output from PRNG.
+    size_t msglen = MSGMAX;
+    void *msg = malloc(msglen);
+    // void *sig = copy;
 
-    //dumphex(dex, 1328);
-    //dumphex(enx, 780);
-
-    for(int i=1; i<=testcount; i++)
+    for(int i=0; i<testcount; i++)
     {
-        printf("\t""test %d of %d\r", i, testcount);
+        printf("\t""test %d of %d\r", i+1, testcount);
         fflush(NULL);
 
-        RSAES_OAEP_Enc(enx, ss1, &sslen, (GenFunc_t)Gimli_XOF_Read, &gx);
-        RSAES_OAEP_Encode_Ciphertext(enx, NULL, &size);
+        Gimli_XOF_Read(&gx, &dword, sizeof(dword));
+        msglen = dword % MSGMAX;
 
+        Gimli_XOF_Read(&gx, msg, msglen);
+
+        RSASSA_PSS_Sign(dex, msg, msglen, (GenFunc_t)Gimli_XOF_Read, &gx);
+        RSASSA_PSS_Encode_Signature(dex, NULL, &size);
+        
         if( !copy ) copy = malloc(size);
 
         if( !copy )
@@ -121,21 +134,22 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
 
-        RSAES_OAEP_Encode_Ciphertext(enx, copy, &size);
-        RSAES_OAEP_Decode_Ciphertext(dex, copy, size);
-
-        lret = (IntPtr)RSAES_OAEP_Dec(dex, ss2, &sslen);
-        if( memcmp(ss1, ss2, sslen) || !lret )
+        RSASSA_PSS_Encode_Signature(dex, copy, &size);        
+        RSASSA_PSS_Decode_Signature(enx, copy, size);
+        
+        lret = (IntPtr)RSASSA_PSS_Verify(enx, msg, msglen);
+        if( !lret )
         {
-            printf("Cipher Failure, %zd, %ld\n", sslen, (long)lret);
-            printf("seed: %s\n", argv[1]);
+            printf("%d: Signature Failure\n", i);
             failures ++;
+            break;
         }
     }
 
     printf("\n%d of %d tests failed\n", failures, testcount);
     free(copy);
     free(enx);
+    free(dex);
     free(kgx);
     return 0;
 }

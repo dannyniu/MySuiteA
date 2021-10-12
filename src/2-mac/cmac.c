@@ -1,12 +1,13 @@
 /* DannyNiu/NJF, 2018-02-18. Public Domain. */
 
 #include "cmac.h"
+#include "../0-exec/struct-delta.c.h"
 
 #define R_128 0x87
 
 void *CMAC_SetKey(cmac_t *restrict cmac, const void *restrict key, size_t keylen)
 {
-    void *aux = (uint8_t *)cmac + cmac->offset;
+    void *aux = DeltaTo(cmac, offset);
     size_t i;
     uint8_t b; // same size as R_blksize - 1 octet for now.
 
@@ -40,7 +41,7 @@ void *CMAC_SetKey(cmac_t *restrict cmac, const void *restrict key, size_t keylen
 
 void CMAC_Update(cmac_t *restrict cmac, const void *restrict data, size_t len)
 {
-    void *aux = (uint8_t *)cmac + cmac->offset;
+    void *aux = DeltaTo(cmac, offset);
     uint8_t const *buffer = data;
 
     if( cmac->filled >= CMAC_BLKSIZE && len )
@@ -64,7 +65,7 @@ void CMAC_Update(cmac_t *restrict cmac, const void *restrict data, size_t len)
 
 void CMAC_Final(cmac_t *restrict cmac, void *restrict out, size_t t)
 {
-    void *aux = (uint8_t *)cmac + cmac->offset;
+    void *aux = DeltaTo(cmac, offset);
     size_t i;
 
     if( cmac->finalized ) goto finalized;

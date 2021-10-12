@@ -1,11 +1,9 @@
 /* DannyNiu/NJF, 2021-02-13. Public Domain. */
 
 #include "rsa-codec-der.h"
+#include "../0-exec/struct-delta.c.h"
 
 #define BER_HDR ber_get_hdr(&ptr, &remain, &tag, &len)
-
-#define IF_MEMBER(ctx, member)                                  \
-    ((void *)(ctx ? (uint8_t *)ctx + ctx->member : NULL))
 
 static int32_t ber_tlv_decode_OtherPrimeInfos(BER_TLV_DECODING_FUNC_PARAMS);
 
@@ -22,9 +20,8 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     uint32_t tag, len;
 
-    RSA_Private_Context_Base_t *ctx = any;
-    RSA_Private_Context_t *ctx2 = any;
-    uint8_t *bp = (void *)ctx;
+    RSA_Private_Context_Base_t *bx = any;
+    RSA_Private_Context_t *ctx = any;
 
     uint32_t *count_primes_other = aux;
     int32_t size_modulus;
@@ -46,7 +43,7 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->count_primes_other = *count_primes_other;
+        bx->count_primes_other = *count_primes_other;
     }
 
     //
@@ -56,16 +53,16 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->offset_n =
+        bx->offset_n =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     }
     
     size_modulus = ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_n),
-        ctx ? &ctx->modulus_bits : NULL);
+        DeltaTo(bx, offset_n),
+        bx ? &bx->modulus_bits : NULL);
     ret += size_modulus;
     ptr += len; remain -= len;
 
@@ -75,47 +72,47 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
     // found yesterday.
     
     if( pass == 2 )
-        ctx->offset_w1 = 
+        bx->offset_w1 = 
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
         
     if( pass == 2 )
-        ctx->offset_w2 = 
+        bx->offset_w2 = 
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
         
     if( pass == 2 )
-        ctx->offset_w3 = 
+        bx->offset_w3 = 
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
         
     if( pass == 2 )
-        ctx->offset_w4 = 
+        bx->offset_w4 = 
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
         
     if( pass == 2 )
-        ctx->offset_w5 = 
+        bx->offset_w5 = 
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
 
     if( pass == 2 )
     {
-        ((vlong_t *)(bp + ctx->offset_w1))->c = size_modulus / 4 - 1;
-        ((vlong_t *)(bp + ctx->offset_w2))->c = size_modulus / 4 - 1;
-        ((vlong_t *)(bp + ctx->offset_w3))->c = size_modulus / 4 - 1;
-        ((vlong_t *)(bp + ctx->offset_w4))->c = size_modulus / 4 - 1;
-        ((vlong_t *)(bp + ctx->offset_w5))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(bx, offset_w1))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(bx, offset_w2))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(bx, offset_w3))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(bx, offset_w4))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(bx, offset_w5))->c = size_modulus / 4 - 1;
     }
     
     //
@@ -125,15 +122,15 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->offset_e =
+        bx->offset_e =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_e), NULL);
+        DeltaTo(bx, offset_e), NULL);
     ptr += len; remain -= len;
 
     //
@@ -143,15 +140,15 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->offset_d =
+        bx->offset_d =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_d), NULL);
+        DeltaTo(bx, offset_d), NULL);
     ptr += len; remain -= len;
 
     //
@@ -161,15 +158,15 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->offset_p =
+        bx->offset_p =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_p), NULL);
+        DeltaTo(bx, offset_p), NULL);
     ptr += len; remain -= len;
 
     //
@@ -179,15 +176,15 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->offset_q =
+        bx->offset_q =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_q), NULL);
+        DeltaTo(bx, offset_q), NULL);
     ptr += len; remain -= len;
 
     //
@@ -197,15 +194,15 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->offset_dP =
+        bx->offset_dP =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_dP), NULL);
+        DeltaTo(bx, offset_dP), NULL);
     ptr += len; remain -= len;
 
     //
@@ -215,15 +212,15 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->offset_dQ =
+        bx->offset_dQ =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_dQ), NULL);
+        DeltaTo(bx, offset_dQ), NULL);
     ptr += len; remain -= len;
 
     //
@@ -233,15 +230,15 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( pass == 2 )
     {
-        ctx->offset_qInv =
+        bx->offset_qInv =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other +
             ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_qInv), NULL);
+        DeltaTo(bx, offset_qInv), NULL);
     ptr += len; remain -= len;
 
     if( version == 0 )
@@ -260,12 +257,12 @@ int32_t ber_tlv_decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
         if( pass == 2 )
         {
             // borrow an available variable.
-            ctx2->primes_other[0].offset_r = ret;
+            ctx->primes_other[0].offset_r = ret;
         }
         
         subret = ber_tlv_decode_OtherPrimeInfos(
             pass, ptr, len,
-            ctx2, count_primes_other);
+            ctx, count_primes_other);
         
         if( subret == -1 ) return -1;
         ret += subret;
@@ -291,14 +288,14 @@ static int32_t ber_tlv_decode_OtherPrimeInfos(BER_TLV_DECODING_FUNC_PARAMS)
 
     uint32_t tag, len;
 
-    RSA_Private_Context_t *ctx = any;
+    RSA_Private_Context_t *bx = any;
 
     uint32_t *count_primes_other = aux;
 
     if( pass == 2 )
     {
         // done borrowing.
-        addr = ctx->primes_other[0].offset_r;
+        addr = bx->primes_other[0].offset_r;
     }
 
     i = 0;
@@ -330,15 +327,15 @@ decode_1more_prime:
 
     if( pass == 2 )
     {
-        ctx->primes_other[i].offset_r =
+        bx->primes_other[i].offset_r =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->base.count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->base.count_primes_other +
             addr + ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, primes_other[i].offset_r), NULL);
+        DeltaTo(bx, primes_other[i].offset_r), NULL);
     ptr += len; remain -= len;
 
     //
@@ -348,15 +345,15 @@ decode_1more_prime:
 
     if( pass == 2 )
     {
-        ctx->primes_other[i].offset_d =
+        bx->primes_other[i].offset_d =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->base.count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->base.count_primes_other +
             addr + ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, primes_other[i].offset_d), NULL);
+        DeltaTo(bx, primes_other[i].offset_d), NULL);
     ptr += len; remain -= len;
 
     // coefficient INTEGER -- t_i
@@ -365,15 +362,15 @@ decode_1more_prime:
 
     if( pass == 2 )
     {
-        ctx->primes_other[i].offset_t =
+        bx->primes_other[i].offset_t =
             sizeof(RSA_Private_Context_Base_t) +
-            sizeof(RSA_OtherPrimeInfo_t) * ctx->base.count_primes_other +
+            sizeof(RSA_OtherPrimeInfo_t) * bx->base.count_primes_other +
             addr + ret; // it's been tracking occupied space since pass 1.
     }
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, primes_other[i].offset_t), NULL);
+        DeltaTo(bx, primes_other[i].offset_t), NULL);
     ptr += len; remain -= len;
 
     //

@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     for(int i=0; i<testcount; i++)
     {
         printf("\t""test %d of %d\r", i+1, testcount);
-        fflush(NULL);;
+        fflush(NULL);
 
         RSAES_OAEP_Enc(enx, ss1, &sslen, (GenFunc_t)Gimli_XOF_Read, &gx);
         RSAES_OAEP_Encode_Ciphertext(enx, NULL, &size);

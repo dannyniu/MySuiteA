@@ -1,11 +1,9 @@
 /* DannyNiu/NJF, 2021-02-13. Public Domain. */
 
 #include "rsa-codec-der.h"
+#include "../0-exec/struct-delta.c.h"
 
 #define BER_HDR ber_get_hdr(&ptr, &remain, &tag, &len)
-
-#define IF_MEMBER(ctx, member)                                  \
-    ((void *)(ctx ? (uint8_t *)ctx + ctx->member : NULL))
 
 int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
 {
@@ -20,7 +18,6 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     uint32_t tag, len;
 
     RSA_Public_Context_t *ctx = any;
-    uint8_t *bp = (void *)ctx;
 
     int32_t size_modulus;
 
@@ -46,7 +43,7 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     
     size_modulus = ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_n),
+        DeltaTo(ctx, offset_n),
         ctx ? &ctx->modulus_bits : NULL);
     ret += size_modulus;
     ptr += len; remain -= len;
@@ -81,10 +78,10 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
         
     if( pass == 2 )
     {
-        ((vlong_t *)(bp + ctx->offset_w1))->c = size_modulus / 4 - 1;
-        ((vlong_t *)(bp + ctx->offset_w2))->c = size_modulus / 4 - 1;
-        ((vlong_t *)(bp + ctx->offset_w3))->c = size_modulus / 4 - 1;
-        ((vlong_t *)(bp + ctx->offset_w4))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(ctx, offset_w1))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(ctx, offset_w2))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(ctx, offset_w3))->c = size_modulus / 4 - 1;
+        ((vlong_t *)DeltaTo(ctx, offset_w4))->c = size_modulus / 4 - 1;
     }
     
     //
@@ -101,7 +98,7 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     
     ret += ber_tlv_decode_integer(
         pass, ptr, len,
-        IF_MEMBER(ctx, offset_e), NULL);
+        DeltaTo(ctx, offset_e), NULL);
     ptr += len; remain -= len;
 
     //
@@ -135,7 +132,7 @@ int32_t ber_tlv_encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // modulus INTEGER, -- n
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_n), NULL);
+        DeltaTo(ctx, offset_n), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -154,7 +151,7 @@ int32_t ber_tlv_encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // publicExponent INTEGER, -- e
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_e), NULL);
+        DeltaTo(ctx, offset_e), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].

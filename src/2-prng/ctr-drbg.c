@@ -1,6 +1,7 @@
 /* DannyNiu/NJF, 2020-11-28. Public Domain. */
 
 #include "ctr-drbg.h"
+#include "../0-exec/struct-delta.c.h"
 
 static void inc(uint8_t *vec)
 {
@@ -20,7 +21,7 @@ static void CTR_DRBG_Update(
     size_t len)
 {
     uint8_t blk[CTR_DRBG_MAX_BLKSIZE];
-    uint8_t *seed = ((uint8_t *)x + x->offset_k);
+    uint8_t *seed = DeltaTo(x, offset_k);
     size_t t;
 
     // Copy V to blk.
@@ -65,7 +66,7 @@ void CTR_DRBG_Seed(
     void const *restrict seedstr,
     size_t len)
 {
-    uint8_t *seed = ((uint8_t *)x + x->offset_k);
+    uint8_t *seed = DeltaTo(x, offset_k);
     size_t t;
     
     for(t = 0; t < x->bc_blksize + x->bc_keysize; t++)
@@ -89,7 +90,7 @@ void CTR_DRBG_Generate(
     size_t len)
 {
     uint8_t blk[CTR_DRBG_MAX_BLKSIZE];
-    uint8_t *seed = ((uint8_t *)x + x->offset_k);
+    uint8_t *seed = DeltaTo(x, offset_k);
     uint8_t *buf = out;
     size_t t;
 
@@ -272,7 +273,7 @@ void CTR_DRBG_Reseed_WithDF(
 
     // 2021-09-11:
     // forgetting to reset key schedule was a cause of inconsistency.
-    x->bc_kschd((uint8_t *)x + x->offset_k, KSCHD_PTR);
+    x->bc_kschdDeltaTo(x, offset_k, KSCHD_PTR);
     
     CTR_DRBG_Update(x, seed_material, seedlen);
 }

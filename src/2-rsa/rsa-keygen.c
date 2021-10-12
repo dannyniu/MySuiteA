@@ -3,6 +3,7 @@
 #include "rsa.h"
 #include "../2-numbertheory/MillerRabin.h"
 #include "../2-numbertheory/EGCD.h"
+#include "../0-exec/struct-delta.c.h"
 
 #define MR_ITERATIONS 8
 #define PUB_EXPONENT 65537
@@ -52,7 +53,6 @@ IntPtr rsa_keygen(
     RSA_Private_Context_Base_t *bx;
     RSA_OtherPrimeInfo_t *px;
     
-    uint8_t *bp;
     vlong_t *vl, *t1, *t2, *t3, *t4, *t5, *t6;
     uint32_t *ul;
 
@@ -64,14 +64,13 @@ IntPtr rsa_keygen(
 
     bx = &x->base;
     px = x->primes_other;
-    bp = (uint8_t *)x;
 
     bx->count_primes_other = param->c - 2;
     bx->modulus_bits = param->l;
 
 restart:
-    ul = (void *)(
-        bp +
+    ul = DeltaAdd( 
+        x,
         sizeof(RSA_Private_Context_Base_t) +
         sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other);
     
@@ -79,16 +78,17 @@ restart:
     vl = (vlong_t *)ul;
     vl->c = 1;
     vl->v[0] = PUB_EXPONENT;
-    bx->offset_e = (uint8_t *)vl - bp;
+    bx->offset_e = DeltaOf(x, vl);
+    bx->offset_e = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     // p -- the first prime factor.
     vl = (vlong_t *)ul;
     vl->c = vlsize_factor;
 
-    t1 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 1);
-    t2 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 2);
-    t3 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 3);
+    t1 = DeltaAdd(vl, (vl->c + 1) * 4 * 1);
+    t2 = DeltaAdd(vl, (vl->c + 1) * 4 * 2);
+    t3 = DeltaAdd(vl, (vl->c + 1) * 4 * 3);
     t1->c = t2->c = t3->c = vl->c;
     
     while(1)
@@ -99,16 +99,16 @@ restart:
     }
     LOGF("Generated - p\n");
     
-    bx->offset_p = (uint8_t *)vl - bp;
+    bx->offset_p = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     // q -- the second prime factor.
     vl = (vlong_t *)ul;
     vl->c = vlsize_factor;
 
-    t1 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 1);
-    t2 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 2);
-    t3 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 3);
+    t1 = DeltaAdd(vl, (vl->c + 1) * 4 * 1);
+    t2 = DeltaAdd(vl, (vl->c + 1) * 4 * 2);
+    t3 = DeltaAdd(vl, (vl->c + 1) * 4 * 3);
     t1->c = t2->c = t3->c = vl->c;
 
     while(1)
@@ -119,7 +119,7 @@ restart:
     }
     LOGF("Generated - q\n");
     
-    bx->offset_q = (uint8_t *)vl - bp;
+    bx->offset_q = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     // r_i -- the i'th prime factor.
@@ -128,9 +128,9 @@ restart:
         vl = (vlong_t *)ul;
         vl->c = vlsize_factor;
 
-        t1 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 1);
-        t2 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 2);
-        t3 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 3);
+        t1 = DeltaAdd(vl, (vl->c + 1) * 4 * 1);
+        t2 = DeltaAdd(vl, (vl->c + 1) * 4 * 2);
+        t3 = DeltaAdd(vl, (vl->c + 1) * 4 * 3);
         t1->c = t2->c = t3->c = vl->c;
 
         while(1)
@@ -141,7 +141,7 @@ restart:
         }
         LOGF("Generated - r_%u\n", (unsigned)t + 3);
 
-        px[t].offset_r = (uint8_t *)vl - bp;
+        px[t].offset_r = DeltaOf(x, vl);
         ul += vl->c + 1;
     }
     
@@ -154,25 +154,25 @@ restart:
 
     // just enough space for
     // offset_w[1-4], n, and factor-sized exponents.
-    t1 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 1);
-    t2 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 2);
-    t3 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 3);
-    t4 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 4);
-    t5 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 5);
-    t6 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 6);
+    t1 = DeltaAdd(vl, (vl->c + 1) * 4 * 1);
+    t2 = DeltaAdd(vl, (vl->c + 1) * 4 * 2);
+    t3 = DeltaAdd(vl, (vl->c + 1) * 4 * 3);
+    t4 = DeltaAdd(vl, (vl->c + 1) * 4 * 4);
+    t5 = DeltaAdd(vl, (vl->c + 1) * 4 * 5);
+    t6 = DeltaAdd(vl, (vl->c + 1) * 4 * 6);
     t1->c = t2->c = t3->c = t4->c = t5->c = t6->c = vl->c;
 
     // -- mult (p - 1) --
     vlong_adds(
-        (vlong_t *)(bp + bx->offset_p),
-        (vlong_t *)(bp + bx->offset_p),
+        DeltaTo(bx, offset_p),
+        DeltaTo(bx, offset_p),
         -1, 0);
     vlong_mulv_masked(
-        t1, vl, (vlong_t *)(bp + bx->offset_p),
+        t1, vl, DeltaTo(bx, offset_p),
         1, NULL, NULL);
     vlong_adds(
-        (vlong_t *)(bp + bx->offset_p),
-        (vlong_t *)(bp + bx->offset_p),
+        DeltaTo(bx, offset_p),
+        DeltaTo(bx, offset_p),
         +1, 0);
     for(i=0; i<vl->c; i++) vl->v[i] = t1->v[i];
     
@@ -180,15 +180,15 @@ restart:
 
     // -- mult (q - 1) --
     vlong_adds(
-        (vlong_t *)(bp + bx->offset_q),
-        (vlong_t *)(bp + bx->offset_q),
+        DeltaTo(bx, offset_q),
+        DeltaTo(bx, offset_q),
         -1, 0);
     vlong_mulv_masked(
-        t1, vl, (vlong_t *)(bp + bx->offset_q),
+        t1, vl, DeltaTo(bx, offset_q),
         1, NULL, NULL);
     vlong_adds(
-        (vlong_t *)(bp + bx->offset_q),
-        (vlong_t *)(bp + bx->offset_q),
+        DeltaTo(bx, offset_q),
+        DeltaTo(bx, offset_q),
         +1, 0);
     for(i=0; i<vl->c; i++) vl->v[i] = t1->v[i];
     
@@ -198,15 +198,15 @@ restart:
     for(t=0; t<bx->count_primes_other; t++)
     {
         vlong_adds(
-            (vlong_t *)(bp + px[t].offset_r),
-            (vlong_t *)(bp + px[t].offset_r),
+            DeltaAdd(bx, px[t].offset_r),
+            DeltaAdd(bx, px[t].offset_r),
             -1, 0);
         vlong_mulv_masked(
-            t1, vl, (vlong_t *)(bp + px[t].offset_r),
+            t1, vl, DeltaAdd(bx, px[t].offset_r),
             1, NULL, NULL);
         vlong_adds(
-            (vlong_t *)(bp + px[t].offset_r),
-            (vlong_t *)(bp + px[t].offset_r),
+            DeltaAdd(bx, px[t].offset_r),
+            DeltaAdd(bx, px[t].offset_r),
             +1, 0);
         for(i=0; i<vl->c; i++) vl->v[i] = t1->v[i];
         
@@ -230,7 +230,7 @@ restart:
     for(i=0; i<vl->c; i++) vl->v[i] = t5->v[i];
     vlong_imod_inplace(vl, t6);
     
-    bx->offset_d = (uint8_t *)vl - bp;
+    bx->offset_d = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     LOGF("Computed - d\n");
@@ -247,27 +247,27 @@ restart:
         t6->v[i] = 0;
     
     for(i=0; i<vlsize_factor; i++)
-        t6->v[i] = ((vlong_t *)(bp + bx->offset_q))->v[i];
+        t6->v[i] = ((vlong_t *)DeltaTo(bx, offset_q))->v[i];
 
     for(t=0; t<bx->count_primes_other+1; t++)
     {
         vl = (vlong_t *)ul;
         vl->c = vlsize_factor;
 
-        t1 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 1);
-        t2 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 2);
-        t3 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 3);
-        t4 = (vlong_t *)((uint8_t *)vl + (vl->c + 1) * 4 * 4);
+        t1 = DeltaAdd(vl, (vl->c + 1) * 4 * 1);
+        t2 = DeltaAdd(vl, (vl->c + 1) * 4 * 2);
+        t3 = DeltaAdd(vl, (vl->c + 1) * 4 * 3);
+        t4 = DeltaAdd(vl, (vl->c + 1) * 4 * 4);
         t1->c = t2->c = t3->c = vl->c;
         t4->c = t6->c;
 
         vlong_divv(
             vl, NULL, t6, // 2021-09-11: typo, was t4, should be t6.
-            (vlong_t *)(bp + px[(int32_t)t - 1].offset_r));
+            DeltaAdd(bx, px[(int32_t)t - 1].offset_r));
 
         vlong_adds(
             t1,
-            (vlong_t *)(bp + px[(int32_t)t - 1].offset_r),
+            DeltaAdd(bx, px[(int32_t)t - 1].offset_r),
             -2, 0);
 
         // 2021-07-27:
@@ -276,16 +276,16 @@ restart:
         vlong_modexpv(
             vl, vl, t1, t2, t3,
             (vlong_modfunc_t)vlong_remv_inplace,
-            (void *)(bp + px[(int32_t)t - 1].offset_r));
+            (void *)DeltaAdd(bx, px[(int32_t)t - 1].offset_r));
 
-        px[(int32_t)t - 1].offset_t = (uint8_t *)vl - bp;
+        px[(int32_t)t - 1].offset_t = DeltaOf(x, vl);
         ul += vl->c + 1;
 
         LOGF("Computed - t_%u\n", t + 2);
 
         // -- n: accumulate to the public modulus --
         vlong_mulv_masked(
-            t4, t6, (vlong_t *)(bp + px[(int32_t)t - 1].offset_r),
+            t4, t6, DeltaAdd(bx, px[(int32_t)t - 1].offset_r),
             1, NULL, NULL);
 
         for(i=0; i<t6->c; i++) t6->v[i] = t4->v[i];
@@ -299,26 +299,26 @@ restart:
         }
     }
 
-    bx->offset_n = (uint8_t *)t6 - bp;
+    bx->offset_n = DeltaOf(bx, t6);
 
     // dP -- CRT exponent of p.
     vl = (vlong_t *)ul;
     vl->c = vlsize_factor;
 
     vlong_adds(
-        (vlong_t *)(bp + bx->offset_p),
-        (vlong_t *)(bp + bx->offset_p),
+        DeltaTo(bx, offset_p),
+        DeltaTo(bx, offset_p),
         -1, 0);
     vlong_divv(
         vl, NULL,
-        (vlong_t *)(bp + bx->offset_d),
-        (vlong_t *)(bp + bx->offset_p));
+        DeltaTo(bx, offset_d),
+        DeltaTo(bx, offset_p));
     vlong_adds(
-        (vlong_t *)(bp + bx->offset_p),
-        (vlong_t *)(bp + bx->offset_p),
+        DeltaTo(bx, offset_p),
+        DeltaTo(bx, offset_p),
         +1, 0);
 
-    bx->offset_dP = (uint8_t *)vl - bp;
+    bx->offset_dP = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     LOGF("Computed - dP\n");
@@ -328,19 +328,19 @@ restart:
     vl->c = vlsize_factor;
     
     vlong_adds(
-        (vlong_t *)(bp + bx->offset_q),
-        (vlong_t *)(bp + bx->offset_q),
+        DeltaTo(bx, offset_q),
+        DeltaTo(bx, offset_q),
         -1, 0);
     vlong_divv(
         vl, NULL,
-        (vlong_t *)(bp + bx->offset_d),
-        (vlong_t *)(bp + bx->offset_q));
+        DeltaTo(bx, offset_d),
+        DeltaTo(bx, offset_q));
     vlong_adds(
-        (vlong_t *)(bp + bx->offset_q),
-        (vlong_t *)(bp + bx->offset_q),
+        DeltaTo(bx, offset_q),
+        DeltaTo(bx, offset_q),
         +1, 0);
 
-    bx->offset_dQ = (uint8_t *)vl - bp;
+    bx->offset_dQ = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     LOGF("Computed - dQ\n");
@@ -352,19 +352,19 @@ restart:
         vl->c = vlsize_factor;
     
         vlong_adds(
-            (vlong_t *)(bp + px[t].offset_r),
-            (vlong_t *)(bp + px[t].offset_r),
+            DeltaAdd(bx, px[t].offset_r),
+            DeltaAdd(bx, px[t].offset_r),
             -1, 0);
         vlong_divv(
             vl, NULL,
-            (vlong_t *)(bp + bx->offset_d),
-            (vlong_t *)(bp + px[t].offset_r));
+            DeltaTo(bx, offset_d),
+            DeltaAdd(bx, px[t].offset_r));
         vlong_adds(
-            (vlong_t *)(bp + px[t].offset_r),
-            (vlong_t *)(bp + px[t].offset_r),
+            DeltaAdd(bx, px[t].offset_r),
+            DeltaAdd(bx, px[t].offset_r),
             +1, 0);
 
-        px[t].offset_d = (uint8_t *)vl - bp;
+        px[t].offset_d = DeltaOf(x, vl);
         ul += vl->c + 1;
 
         LOGF("Computed - d_%u\n", (unsigned)t + 3);
@@ -374,42 +374,42 @@ restart:
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
     
-    bx->offset_w1 = (uint8_t *)vl - bp;
+    bx->offset_w1 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
     
-    bx->offset_w2 = (uint8_t *)vl - bp;
+    bx->offset_w2 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
     
-    bx->offset_w3 = (uint8_t *)vl - bp;
+    bx->offset_w3 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
     
-    bx->offset_w4 = (uint8_t *)vl - bp;
+    bx->offset_w4 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
     
-    bx->offset_w5 = (uint8_t *)vl - bp;
+    bx->offset_w5 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     for(i=0; i<vlsize_modulus; i++)
     {
-        ((vlong_t *)(bp + bx->offset_w1))->v[i] = 0;
-        ((vlong_t *)(bp + bx->offset_w2))->v[i] = 0;
-        ((vlong_t *)(bp + bx->offset_w3))->v[i] = 0;
-        ((vlong_t *)(bp + bx->offset_w4))->v[i] = 0;
-        ((vlong_t *)(bp + bx->offset_w5))->v[i] = 0;
+        ((vlong_t *)DeltaTo(bx, offset_w1))->v[i] = 0;
+        ((vlong_t *)DeltaTo(bx, offset_w2))->v[i] = 0;
+        ((vlong_t *)DeltaTo(bx, offset_w3))->v[i] = 0;
+        ((vlong_t *)DeltaTo(bx, offset_w4))->v[i] = 0;
+        ((vlong_t *)DeltaTo(bx, offset_w5))->v[i] = 0;
     }
 
-    LOGF("Total Size: %tu\n", ((uint8_t *)ul - bp));
+    LOGF("Total Size: %tu\n", DeltaOf(ul, x));
     return (IntPtr)x;
 }

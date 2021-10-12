@@ -2,17 +2,15 @@
 
 #include "rsaes-oaep.h"
 #include "../1-integers/vlong-dat.h"
+#include "../0-exec/struct-delta.c.h"
 
 void *RSASSA_PSS_Decode_Signature(
     PKCS1_Public_Context_t *restrict x,
     void *restrict sig, size_t siglen)
 {
-    uint8_t *bx = (void *)x;
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    RSA_Public_Context_t *ex = (void *)(bx + x->offset_rsa_pubctx);
-    
-    uint8_t *mx = (void *)ex;
-    vlong_t *vp = (void *)(mx + ex->offset_w1);
+    RSA_Public_Context_t *ex = DeltaTo(x, offset_rsa_pubctx);
+    vlong_t *vp = DeltaTo(ex, offset_w1);
 
     vlong_OS2IP(vp, sig, siglen);
 
@@ -24,13 +22,11 @@ void const *RSASSA_PSS_Verify(
     PKCS1_Public_Context_t *restrict x,
     void const *restrict msg, size_t msglen)
 {
-    uint8_t *bx = (void *)x;
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     void *hashctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
-    RSA_Public_Context_t *ex = (void *)(bx + x->offset_rsa_pubctx);
+    RSA_Public_Context_t *ex = DeltaTo(x, offset_rsa_pubctx);
 
     vlong_size_t t;
-    uint8_t *mx = (void *)ex;
     vlong_t *vp1, *vp2;
 
     vlong_size_t emBits = ex->modulus_bits - 1;
@@ -57,8 +53,8 @@ void const *RSASSA_PSS_Verify(
     // signature loading function, bound checking is
     // performed here.
 
-    vp1 = (vlong_t *)(mx + ex->offset_w1);
-    vp2 = (vlong_t *)(mx + ex->offset_n);
+    vp1 = DeltaTo(ex, offset_w1);
+    vp2 = DeltaTo(ex, offset_n);
     t = vp1->c > vp2->c ? vp1->c : vp2->c;
     
     while( t-- )
@@ -74,8 +70,8 @@ void const *RSASSA_PSS_Verify(
         else if( u < v ) break;
     }
 
-    vp1 = rsa_enc((void *)ex);
-    ptr = mx + ex->offset_w1;
+    vp1 = rsa_enc(ex);
+    ptr = DeltaTo(ex, offset_w1);
     ptr = (void *)((vlong_t *)ptr)->v;
     vlong_I2OSP(vp1, ptr, emLen);
 
@@ -122,7 +118,7 @@ void const *RSASSA_PSS_Verify(
     }
 
     // Computing H' prerequisite: mHash.
-    vp2 = (vlong_t *)(mx + ex->offset_w3);
+    vp2 = DeltaTo(ex, offset_w3);
     po->hfuncs_msg.initfunc(hashctx);
     po->hfuncs_msg.updatefunc(hashctx, msg, msglen);
     if( po->hfuncs_msg.xfinalfunc )

@@ -1,9 +1,7 @@
 /* DannyNiu/NJF, 2021-04-17. Public Domain. */
 
 #include "rsa-codec-der.h"
-
-#define IF_MEMBER(ctx, member)                                  \
-    ((void *)(ctx ? (uint8_t *)ctx + ctx->member : NULL))
+#include "../0-exec/struct-delta.c.h"
 
 static int32_t ber_tlv_encode_OtherPrimeInfos(BER_TLV_ENCODING_FUNC_PARAMS);
 
@@ -18,15 +16,15 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
 
     uint32_t taglen;
     
-    const RSA_Private_Context_Base_t *ctx = any;
-    const RSA_Private_Context_t *ctx2 = any;
+    const RSA_Private_Context_Base_t *bx = any;
+    const RSA_Private_Context_t *ctx = any;
 
     uint32_t version;
     VLONG_T(1) ver;
 
     aux = NULL;
 
-    if( ctx->count_primes_other > 0 )
+    if( bx->count_primes_other > 0 )
         version = 1;
     else version = 0;
     
@@ -65,7 +63,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // modulus INTEGER, -- n
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_n), NULL);
+        DeltaTo(bx, offset_n), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -84,7 +82,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // publicExponent INTEGER, -- e
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_e), NULL);
+        DeltaTo(bx, offset_e), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -103,7 +101,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // privateExponent INTEGER, -- d
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_d), NULL);
+        DeltaTo(bx, offset_d), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -122,7 +120,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // prime1 INTEGER, -- p
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_p), NULL);
+        DeltaTo(bx, offset_p), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -141,7 +139,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // prime2 INTEGER, -- q
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_q), NULL);
+        DeltaTo(bx, offset_q), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -160,7 +158,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // exponent1 INTEGER, -- d mod (p-1)
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_dP), NULL);
+        DeltaTo(bx, offset_dP), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -179,7 +177,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // exponent2 INTEGER, -- d mod (q-1)
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_dQ), NULL);
+        DeltaTo(bx, offset_dQ), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -198,7 +196,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     // coefficient INTEGER, -- (inverse of q) mod p
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, offset_qInv), NULL);
+        DeltaTo(bx, offset_qInv), NULL);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -225,7 +223,7 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
         
         subret = ber_tlv_encode_OtherPrimeInfos(
             pass, ptr, remain,
-            ctx2, NULL);
+            ctx, NULL);
         ret += subret;
 
         if( pass == 2 ) stack = enc + enclen;
@@ -275,7 +273,7 @@ static int32_t ber_tlv_encode_OtherPrimeInfos(BER_TLV_ENCODING_FUNC_PARAMS)
 
     uint32_t taglen;
 
-    const RSA_Private_Context_t *ctx = any;
+    const RSA_Private_Context_t *bx = any;
 
     aux = NULL;
 
@@ -283,7 +281,7 @@ static int32_t ber_tlv_encode_OtherPrimeInfos(BER_TLV_ENCODING_FUNC_PARAMS)
 encode_1more_prime:
     if( pass == 1 || pass == 2 )
     {
-        if( i >= ctx->base.count_primes_other )
+        if( i >= bx->base.count_primes_other )
             return ret;
     }
     else return -1;
@@ -297,7 +295,7 @@ encode_1more_prime:
     // prime INTEGER, -- r_i
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, primes_other[i].offset_r), NULL);
+        DeltaTo(bx, primes_other[i].offset_r), NULL);
     accum += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -316,7 +314,7 @@ encode_1more_prime:
     // exponent INTEGER, -- d_i
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, primes_other[i].offset_d), NULL);
+        DeltaTo(bx, primes_other[i].offset_d), NULL);
     accum += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -334,7 +332,7 @@ encode_1more_prime:
     // coefficient INTEGER -- t_i
     subret = ber_tlv_encode_integer(
         pass, ptr, remain,
-        IF_MEMBER(ctx, primes_other[i].offset_t), NULL);
+        DeltaTo(bx, primes_other[i].offset_t), NULL);
     accum += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].

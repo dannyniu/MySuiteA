@@ -2,17 +2,15 @@
 
 #include "rsaes-oaep.h"
 #include "../1-integers/vlong-dat.h"
+#include "../0-exec/struct-delta.c.h"
 
 void *RSAES_OAEP_Decode_Ciphertext(
     PKCS1_Private_Context_t *restrict x,
     void *restrict ct, size_t ctlen)
 {
-    uint8_t *bx = (void *)x;
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    RSA_Private_Context_Base_t *dx = (void *)(bx + x->offset_rsa_privctx);
-    
-    uint8_t *mx = (void *)dx;
-    vlong_t *vp = (void *)(mx + dx->offset_w1);
+    RSA_Private_Context_Base_t *dx = DeltaTo(x, offset_rsa_privctx);
+    vlong_t *vp = DeltaTo(dx, offset_w1);
 
     vlong_OS2IP(vp, ct, ctlen);
     
@@ -24,12 +22,10 @@ void *RSAES_OAEP_Dec(
     PKCS1_Private_Context_t *restrict x,
     void *restrict ss, size_t *restrict sslen)
 {
-    uint8_t *bx = (void *)x;
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    RSA_Private_Context_Base_t *dx = (void *)(bx + x->offset_rsa_privctx);
+    RSA_Private_Context_Base_t *dx = DeltaTo(x, offset_rsa_privctx);
 
     vlong_size_t t;
-    uint8_t *mx = (void *)dx;
     vlong_t *vp1, *vp2;
 
     vlong_size_t k = (dx->modulus_bits + 0) / 8; // UD if mod_bits % 7 != 0.
@@ -46,7 +42,7 @@ void *RSAES_OAEP_Dec(
         {
             size_t i;
             uint8_t *from, *to;
-            from = mx + dx->offset_w1;
+            from = DeltaTo(dx, offset_w1);
             from = (void *)((vlong_t *)from)->v;
             from += k - *sslen;
             to = ss;
@@ -73,8 +69,8 @@ void *RSAES_OAEP_Dec(
     // ciphertext loading function, bound checking is
     // performed here.
 
-    vp1 = (vlong_t *)(mx + dx->offset_w1);
-    vp2 = (vlong_t *)(mx + dx->offset_n);
+    vp1 = DeltaTo(dx, offset_w1);
+    vp2 = DeltaTo(dx, offset_n);
     t = vp1->c > vp2->c ? vp1->c : vp2->c;
     
     while( t-- )
@@ -91,7 +87,7 @@ void *RSAES_OAEP_Dec(
     }
 
     vp1 = rsa_fastdec((void *)dx);
-    ptr = mx + dx->offset_w1;
+    ptr = DeltaTo(dx, offset_w1);
     ptr = (void *)((vlong_t *)ptr)->v;
     vlong_I2OSP(vp1, ptr, k);
 

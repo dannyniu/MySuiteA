@@ -1,6 +1,7 @@
 /* DannyNiu/NJF, 2020-11-28. Public Domain. */
 
 #include "hmac-drbg.h"
+#include "../0-exec/struct-delta.c.h"
 
 #define PRF_INIT(...)                                   \
     ( x->parameterization ?                             \
@@ -13,9 +14,9 @@ static void HMAC_DRBG_Update(
     size_t len)
 {
     size_t outlen = x->prf_outlen;
-    void *K = ((uint8_t *)x + x->offset_k);
-    void *V = ((uint8_t *)x + x->offset_v);
-    void *H = ((uint8_t *)x + x->prf_ctx_offset);
+    void *K = DeltaTo(x, offset_k);
+    void *V = DeltaTo(x, offset_v);
+    void *H = DeltaTo(x, prf_ctx_offset);
     uint8_t c;
 
     c = 0;
@@ -72,9 +73,9 @@ void HMAC_DRBG_Generate(
     size_t len)
 {
     size_t outlen = x->prf_outlen;
-    void *K = ((uint8_t *)x + x->offset_k);
-    void *V = ((uint8_t *)x + x->offset_v);
-    void *H = ((uint8_t *)x + x->prf_ctx_offset);
+    void *K = DeltaTo(x, offset_k);
+    void *V = DeltaTo(x, offset_v);
+    void *H = DeltaTo(x, prf_ctx_offset);
 
     uint8_t *buf = out;
     size_t tmplen = 0;

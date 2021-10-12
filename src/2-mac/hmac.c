@@ -1,13 +1,14 @@
 /* DannyNiu/NJF, 2018-02-18. Public Domain. */
 
 #include "hmac.h"
+#include "../0-exec/struct-delta.c.h"
 
 #define ipad 0x36
 #define opad 0x5c
 
 void *HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen)
 {
-    void *aux = (uint8_t *)hmac + hmac->offset;
+    void *aux = DeltaTo(hmac, offset);
     size_t i;
 
     for(i=0; i<sizeof(hmac->K0); i++) hmac->K0[i] = 0;
@@ -38,12 +39,12 @@ void *HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen
 
 void HMAC_Update(hmac_t *restrict hmac, const void *restrict data, size_t len)
 {
-    hmac->hUpdate((uint8_t *)hmac + hmac->offset, data, len);
+    hmac->hUpdate(DeltaTo(hmac, offset), data, len);
 }
 
 void HMAC_Final(hmac_t *restrict hmac, void *restrict out, size_t t)
 {
-    void *aux = (uint8_t *)hmac + hmac->offset;
+    void *aux = DeltaTo(hmac, offset);
     size_t i;
 
     if( hmac->finalized ) goto finalized;
