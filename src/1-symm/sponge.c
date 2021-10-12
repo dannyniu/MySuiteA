@@ -1,11 +1,12 @@
 /* DannyNiu/NJF, 2018-02-07. Public Domain. */
 
 #include "sponge.h"
+#include "../0-exec/struct-delta.c.h"
 
 void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
 {
     uint8_t const *buffer = data;
-    uint8_t *state = ((uint8_t *)s + s->offset);
+    uint8_t *state = DeltaTo(s, offset);
 
     if( !data && len )
     {
@@ -32,7 +33,7 @@ void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
 
 void Sponge_Final(sponge_t *restrict s)
 {
-    uint8_t *state = ((uint8_t *)s + s->offset);
+    uint8_t *state = DeltaTo(s, offset);
     
     if( s->finalized ) return;
 
@@ -52,7 +53,7 @@ void Sponge_Final(sponge_t *restrict s)
 void Sponge_Read(sponge_t *restrict s, void *restrict data, size_t len)
 {
     uint8_t *ptr = data;
-    uint8_t *state = ((uint8_t *)s + s->offset);
+    uint8_t *state = DeltaTo(s, offset);
     
     while( len-- )
     {
