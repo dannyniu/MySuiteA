@@ -3,6 +3,8 @@
 #include "pkcs1.h"
 #include "../2-rsa/rsa-codec-der.h"
 
+#if ! (PKCS1_OMIT_KEYGEN || PKCS1_OMIT_PRIV_OPS)
+
 IntPtr PKCS1_Keygen(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
     CryptoParam_t *restrict param,
@@ -30,6 +32,10 @@ IntPtr PKCS1_Keygen(
         return ret;
     }
 }
+
+#endif /* ! (PKCS1_OMIT_KEYGEN || PKCS1_OMIT_PRIV_OPS) */
+
+#if ! PKCS1_OMIT_PRIV_OPS
 
 int32_t PKCS1_Encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
 {
@@ -71,14 +77,23 @@ int32_t PKCS1_Decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
 int32_t PKCS1_Encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
 {
-    const PKCS1_Pub_Ctx_Hdr_t *x = any;
+    // 2021-10-30:
+    // This function erroneously used the public context when
+    // public key are generated on and could only be exported
+    // from a private context. A fix had been applied.
+    
+    const PKCS1_Priv_Ctx_Hdr_t *x = any;
     aux = NULL;
     
     return ber_tlv_encode_RSAPublicKey(
         pass, enc, enclen, 
-        x ? (void *)((uint8_t *)x + x->offset_rsa_pubctx) : NULL,
+        x ? (void *)((uint8_t *)x + x->offset_rsa_privctx) : NULL,
         NULL);
 }
+
+#endif /* ! PKCS1_OMIT_PRIV_OPS */
+
+#if ! PKCS1_OMIT_PUB_OPS
 
 int32_t PKCS1_Decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
 {
@@ -106,3 +121,5 @@ int32_t PKCS1_Decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     
     return ret;
 }
+
+#endif /* ! PKCS1_OMIT_PUB_OPS */

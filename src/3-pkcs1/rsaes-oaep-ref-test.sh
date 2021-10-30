@@ -21,7 +21,6 @@ rsaes-oaep-dec.c
 pkcs1.c
 2-rsa/pkcs1-padding.c
 2-rsa/rsa-fastdec.c
-2-rsa/rsa-keygen.c
 2-rsa/rsa-privkey-parser-der.c
 2-rsa/rsa-privkey-writer-der.c
 2-rsa/rsa-pubkey-codec-der.c
@@ -32,23 +31,23 @@ pkcs1.c
 2-numbertheory/EGCD.c
 2-asn1/der-codec.c
 1-symm/fips-180.c
-1-symm/sponge.c
 0-datum/endian.c
 "
 bin=$(basename "$0" .sh)
 srcset="Plain C"
+variant="-D PKCS1_OMIT_PUB_OPS -D PKCS1_OMIT_KEYGEN"
 optimize=true
 
 keygen_log="" # "-D KEYGEN_LOGF_STDIO"
 
-arch=x86_64 cflags="$keygen_log"
+arch=x86_64 cflags="$variant $keygen_log"
 ( . $unitest_sh )
 
-arch=aarch64 cflags="$keygen_log"
+arch=aarch64 cflags="$variant $keygen_log"
 ( . $unitest_sh )
 
-arch=powerpc64 cflags="$keygen_log"
+arch=powerpc64 cflags="$variant $keygen_log"
 ( . $unitest_sh )
 
-arch=sparc64 cflags="$keygen_log"
+arch=sparc64 cflags="$variant $keygen_log"
 ( . $unitest_sh )
