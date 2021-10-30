@@ -5,10 +5,10 @@
 #include "../0-exec/struct-delta.c.h"
 
 void *RSASSA_PSS_Encode_Signature(
-    PKCS1_Private_Context_t *restrict x,
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen)
 {
-    RSA_Private_Context_Base_t *dx = DeltaTo(x, offset_rsa_privctx);
+    RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
 
     // 2021-10-10:
     // unused as signature serializer doesn't change working context status.
@@ -35,13 +35,13 @@ void *RSASSA_PSS_Encode_Signature(
 }
 
 void *RSASSA_PSS_Sign(
-    PKCS1_Private_Context_t *restrict x,
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen,
     GenFunc_t prng_gen, void *restrict prng)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     void *hashctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
-    RSA_Private_Context_Base_t *dx = DeltaTo(x, offset_rsa_privctx);
+    RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
 
     vlong_size_t t;
     vlong_t *vp1; // , *vp2;

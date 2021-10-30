@@ -65,10 +65,10 @@ typedef struct {
 
 typedef PKCS1_PADDING_ORACLES_T() pkcs1_padding_oracles_t;
 
-typedef struct {
-    iCryptoObj_t hash_msg, hash_mgf;
-    uint32_t saltlen;
-} PKCS1_Padding_Oracles_Param_t;
+// ${ [0].info } is the crypto-object for the message hash function.
+// ${ [1].info } is the crypto-object for the mask generating hash function.
+// ${ [2].aux] } is the length of the salt ("sLen" in the doc).
+typedef CryptoParam_t PKCS1_Padding_Oracles_Param_t[3];
 
 #define PKCS1_HASH_CTX_SIZE_X(hmsg,hmgf)        \
     (CTX_BYTES(hmsg) > CTX_BYTES(hmgf) ?        \
@@ -84,15 +84,6 @@ typedef struct {
 
 #define PKCS1_PADDING_ORACLES_CTX_SIZE(...)             \
     PKCS1_PADDING_ORACLES_CTX_SIZE_X(__VA_ARGS__)
-
-// the following macros are run-time only.
-#define PKCS1_PADDING_ORACLES_PARAM_ENTUPLE(hmsg,hmgf,slen)     \
-    ((PKCS1_Padding_Oracles_Param_t){                           \
-        .hash_msg = hmsg, .hash_mgf = hmgf, .saltlen = slen,    \
-    })
-
-#define PKCS1_PADDING_ORACLES_PARAM_DETUPLE(obj)        \
-    (obj).hash_msg, (obj).hash_mgf, (obj).saltlen
 
 void mgf1_pkcs1(
     pkcs1_padding_oracles_t *restrict x,

@@ -16,8 +16,8 @@ int32_t ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
 
     uint32_t taglen;
     
-    const RSA_Private_Context_Base_t *bx = any;
-    const RSA_Private_Context_t *ctx = any;
+    const RSA_Priv_Base_Ctx_t *bx = any;
+    const RSA_Priv_Ctx_Hdr_t *ctx = any;
 
     uint32_t version;
     VLONG_T(1) ver;
@@ -273,7 +273,7 @@ static int32_t ber_tlv_encode_OtherPrimeInfos(BER_TLV_ENCODING_FUNC_PARAMS)
 
     uint32_t taglen;
 
-    const RSA_Private_Context_t *bx = any;
+    const RSA_Priv_Ctx_Hdr_t *bx = any;
 
     aux = NULL;
 

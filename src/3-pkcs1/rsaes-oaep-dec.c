@@ -5,11 +5,11 @@
 #include "../0-exec/struct-delta.c.h"
 
 void *RSAES_OAEP_Decode_Ciphertext(
-    PKCS1_Private_Context_t *restrict x,
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void *restrict ct, size_t ctlen)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    RSA_Private_Context_Base_t *dx = DeltaTo(x, offset_rsa_privctx);
+    RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
     vlong_t *vp = DeltaTo(dx, offset_w1);
 
     vlong_OS2IP(vp, ct, ctlen);
@@ -19,11 +19,11 @@ void *RSAES_OAEP_Decode_Ciphertext(
 }
 
 void *RSAES_OAEP_Dec(
-    PKCS1_Private_Context_t *restrict x,
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void *restrict ss, size_t *restrict sslen)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    RSA_Private_Context_Base_t *dx = DeltaTo(x, offset_rsa_privctx);
+    RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
 
     vlong_size_t t;
     vlong_t *vp1, *vp2;

@@ -32,8 +32,11 @@ int main(int argc, char *argv[])
 {
     size_t size, len;
     uint8_t *der1, *der2;
-    RSA_Private_Context_t *ctx, *ctx2;
-    RSA_Private_Param_t p_rsa = RSA_PRIVATE_PARAM_ENTUPLE(960, 3);
+    RSA_Priv_Ctx_Hdr_t *ctx, *ctx2;
+    RSA_Priv_Param_t p_rsa = {
+        [0].aux = 960, // modulus bits.
+        [1].aux = 3, // primes count
+    };
 
     uint32_t aux;
     
@@ -44,11 +47,11 @@ int main(int argc, char *argv[])
     Gimli_XOF_Final(&gx);
 
     // Experiment 1: RSA Key Generation.
-    size = rsa_keygen(NULL, &p_rsa, NULL, NULL);
+    size = rsa_keygen(NULL, p_rsa, NULL, NULL);
     printf("sizeof(ctx-priv): %zu\n", size);
     
     ctx = malloc(size);
-    rsa_keygen(ctx, &p_rsa, (GenFunc_t)Gimli_XOF_Read, &gx);
+    rsa_keygen(ctx, p_rsa, (GenFunc_t)Gimli_XOF_Read, &gx);
 
     dump_ctx_words((void *)ctx, size);
 

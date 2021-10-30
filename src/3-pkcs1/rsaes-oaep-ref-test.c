@@ -20,11 +20,14 @@ int main(int argc, char *argv[])
     size_t size;
 
     PKCS1_Codec_Aux_t ap = {
-        .aux_po = PKCS1_PADDING_ORACLES_PARAM_ENTUPLE(
-            iSHA256,iSHA256,32),
+        .aux_po = {
+            [0] = { .info = iSHA256, .param = NULL, },
+            [1] = { .info = iSHA256, .param = NULL, },
+            [2] = { .info = NULL, .aux = 32, },
+        },
     };
 
-    PKCS1_Private_Context_t *dex = NULL;
+    PKCS1_Priv_Ctx_Hdr_t *dex = NULL;
     void *copy;
 
     FILE *fp = fopen("../tests/rsa-1440-3primes.der", "rb"); // in "tests/"
@@ -72,7 +75,7 @@ int main(int argc, char *argv[])
     ss = realloc(ss, sslen);
     RSAES_OAEP_Dec(dex, ss, &sslen);
     
-    if( strncmp(ss, argv[1], sslen) )
+    if( argc < 2 || strncmp(ss, argv[1], sslen) )
     {
         printf("Reference Testing Failed Once, (ss=%zd,arg=%zd)%s\n",
                sslen, strlen(argv[1]), argv[1]);

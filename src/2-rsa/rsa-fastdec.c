@@ -23,9 +23,9 @@
 //     [reuse: h, m, t] R *= 'r_i
 // [return: M]
 
-vlong_t *rsa_fastdec(RSA_Private_Context_t *restrict x)
+vlong_t *rsa_fastdec(RSA_Priv_Ctx_Hdr_t *restrict x)
 {
-    RSA_Private_Context_Base_t *bx = &x->base;
+    RSA_Priv_Base_Ctx_t *bx = &x->base;
     RSA_OtherPrimeInfo_t *px = x->primes_other;
 
     uint32_t modulus_bits = bx->modulus_bits;

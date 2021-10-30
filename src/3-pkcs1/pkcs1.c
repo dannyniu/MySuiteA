@@ -4,38 +4,36 @@
 #include "../2-rsa/rsa-codec-der.h"
 
 IntPtr PKCS1_Keygen(
-    PKCS1_Private_Context_t *restrict x,
-    PKCS1_Private_Param_t *restrict param,
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    CryptoParam_t *restrict param,
     GenFunc_t prng_gen, void *restrict prng)
 {
     IntPtr ret;
-    PKCS1_Padding_Oracles_Param_t *po = &param->params_po;
     
     if( x )
     {
-        *x = PKCS1_PRIVATE_CONTEXT_INIT(
-            PKCS1_PRIVATE_PARAM_DETUPLE(*param));
+        *x = PKCS1_PRIV_CTX_INIT(
+            param[0].info, param[1].info, param[2].aux,
+            param[3].aux, param[4].aux);
     }
 
     ret = rsa_keygen(
         x ? (void *)((uint8_t *)x + x->offset_rsa_privctx) : NULL,
-        &param->params_rsa, prng_gen, prng);
+        param + 3, prng_gen, prng);
 
     if( !ret ) return 0;
     else if( x ) return (IntPtr)x;
     else
     {
-        ret += sizeof(PKCS1_Private_Context_t);
-        ret += PKCS1_HASH_CTX_SIZE(
-            po->hash_msg,
-            po->hash_mgf);
+        ret += sizeof(PKCS1_Priv_Ctx_Hdr_t);
+        ret += PKCS1_HASH_CTX_SIZE(param[0].info, param[1].info);
         return ret;
     }
 }
 
 int32_t PKCS1_Encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
 {
-    const PKCS1_Private_Context_t *x = any;
+    const PKCS1_Priv_Ctx_Hdr_t *x = any;
     aux = NULL;
     
     return ber_tlv_encode_RSAPrivateKey(
@@ -46,18 +44,16 @@ int32_t PKCS1_Encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
 
 int32_t PKCS1_Decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 {
+    PKCS1_Priv_Ctx_Hdr_t *x = any;
     PKCS1_Codec_Aux_t *ap = aux;
-    PKCS1_Padding_Oracles_Param_t *po = &ap->aux_po;
-    PKCS1_Private_Context_t *x = any;
+    CryptoParam_t *po = ap->aux_po;
     int32_t ret;
 
     if( x )
     {
-        *x = PKCS1_PRIVATE_CONTEXT_INIT(
-            0,0, // these 2 arguments are not used by this macro.
-            po->hash_msg,
-            po->hash_mgf,
-            po->saltlen);
+        *x = PKCS1_PRIV_CTX_INIT(
+            po[0].info, po[1].info, po[2].aux,
+            0, 0); // these 2 arguments are not used by this macro.
     }
 
     ret = ber_tlv_decode_RSAPrivateKey(
@@ -67,17 +63,15 @@ int32_t PKCS1_Decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( ret < 0 ) return ret;
 
-    ret += sizeof(PKCS1_Private_Context_t);
-    ret += PKCS1_HASH_CTX_SIZE(
-        po->hash_msg,
-        po->hash_mgf);
+    ret += sizeof(PKCS1_Priv_Ctx_Hdr_t);
+    ret += PKCS1_HASH_CTX_SIZE(po[0].info, po[1].info);
 
     return ret;
 }
 
 int32_t PKCS1_Encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
 {
-    const PKCS1_Public_Context_t *x = any;
+    const PKCS1_Pub_Ctx_Hdr_t *x = any;
     aux = NULL;
     
     return ber_tlv_encode_RSAPublicKey(
@@ -88,18 +82,16 @@ int32_t PKCS1_Encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
 
 int32_t PKCS1_Decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
 {
+    PKCS1_Pub_Ctx_Hdr_t *x = any;
     PKCS1_Codec_Aux_t *ap = aux;
-    PKCS1_Padding_Oracles_Param_t *po = &ap->aux_po;
-    PKCS1_Public_Context_t *x = any;
+    CryptoParam_t *po = ap->aux_po;
     int32_t ret;
 
     if( x )
     {
-        *x = PKCS1_PUBLIC_CONTEXT_INIT(
-            0, // this argument is not used by this macro.
-            po->hash_msg,
-            po->hash_mgf,
-            po->saltlen);
+        *x = PKCS1_PUB_CTX_INIT(
+            po[0].info, po[1].info, po[2].aux,
+            0); // this argument is not used by this macro.
     }
     
     ret = ber_tlv_decode_RSAPublicKey(
@@ -109,10 +101,8 @@ int32_t PKCS1_Decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     if( ret < 0 ) return ret;
 
-    ret += sizeof(PKCS1_Public_Context_t);
-    ret += PKCS1_HASH_CTX_SIZE(
-        po->hash_msg,
-        po->hash_mgf);
+    ret += sizeof(PKCS1_Pub_Ctx_Hdr_t);
+    ret += PKCS1_HASH_CTX_SIZE(po[0].info, po[1].info);
     
     return ret;
 }

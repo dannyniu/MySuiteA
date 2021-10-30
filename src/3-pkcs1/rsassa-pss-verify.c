@@ -5,11 +5,11 @@
 #include "../0-exec/struct-delta.c.h"
 
 void *RSASSA_PSS_Decode_Signature(
-    PKCS1_Public_Context_t *restrict x,
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t siglen)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    RSA_Public_Context_t *ex = DeltaTo(x, offset_rsa_pubctx);
+    RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
     vlong_t *vp = DeltaTo(ex, offset_w1);
 
     vlong_OS2IP(vp, sig, siglen);
@@ -19,12 +19,12 @@ void *RSASSA_PSS_Decode_Signature(
 }
 
 void const *RSASSA_PSS_Verify(
-    PKCS1_Public_Context_t *restrict x,
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     void *hashctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
-    RSA_Public_Context_t *ex = DeltaTo(x, offset_rsa_pubctx);
+    RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
 
     vlong_size_t t;
     vlong_t *vp1, *vp2;

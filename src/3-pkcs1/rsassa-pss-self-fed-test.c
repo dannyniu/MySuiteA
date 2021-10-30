@@ -22,77 +22,8 @@ int main(int argc, char *argv[])
     IntPtr lret;
     size_t size;
 
-    PKCS1_Private_Param_t params = PKCS1_PRIVATE_PARAM_ENTUPLE(
-        NBITS,2,iSHA256,iSHA256,32);
-
-    PKCS1_Codec_Aux_t ap = {
-        .aux_po = PKCS1_PADDING_ORACLES_PARAM_ENTUPLE(
-            iSHA256,iSHA256,32),
-    };
-
-    PKCS1_Private_Context_t *kgx = my_alloc("kgx",
-        PKCS1_PRIVATE_CONTEXT_SIZE(NBITS,2,cSHA256,cSHA256,32));
-
-    if( !kgx )
-    {
-        perror("malloc 1");
-        exit(EXIT_FAILURE);
-    }
-
-    *kgx = PKCS1_PRIVATE_CONTEXT_INIT(NBITS,2,xSHA256,xSHA256,32);
-
-    Gimli_XOF_Init(&gx);
-    Gimli_XOF_Write(&gx, "Hello World!", 12);
-    if( argc >= 2 )
-        Gimli_XOF_Write(&gx, argv[1], strlen(argv[1]));
-    Gimli_XOF_Final(&gx);
-
-    lret = PKCS1_Keygen(kgx, &params, (GenFunc_t)Gimli_XOF_Read, &gx);
-
-    if( !lret )
-    {
-        perror("MySuiteA RSA Key Generation 1");
-        exit(EXIT_FAILURE);
-    }
-    else printf("keygen.lret: %lx, %p\n", lret, kgx);
-
-    PKCS1_Private_Context_t *dex = kgx;
-    void *copy;
-
-    // Debug: dump private key.
-    lret = PKCS1_Encode_RSAPrivateKey(1, NULL, 0, kgx, NULL);
-    copy = malloc(lret);
-    PKCS1_Encode_RSAPrivateKey(2, copy, lret, kgx, NULL);
-
-    FILE *fp = fopen("./rsa-priv-768.key", "wb"); // in "bin/"
-    fwrite(copy, 1, lret, fp);
-    fclose(fp);
-    free(copy); copy = NULL;
-
-    // transfer public key to encryption working context.
-    lret = PKCS1_Encode_RSAPublicKey(1, NULL, 0, kgx, NULL);
-    copy = my_alloc("pubkey.der", lret);
-
-    if( !copy )
-    {
-        perror("malloc 2");
-        exit(EXIT_FAILURE);
-    }
-
-    PKCS1_Encode_RSAPublicKey(2, copy, lret, kgx, NULL);
-
-    PKCS1_Public_Context_t *enx = my_alloc("enx",
-        PKCS1_PUBLIC_CONTEXT_SIZE(NBITS,cSHA256,cSHA256,32));
-
-    *enx = PKCS1_PUBLIC_CONTEXT_INIT(NBITS,xSHA256,xSHA256,32);
-
-    PKCS1_Decode_RSAPublicKey(2, copy, lret, enx, &ap);
-    uint32_t k = ((RSA_Public_Context_t *)((uint8_t *)enx + enx->offset_rsa_pubctx))->modulus_bits;
-    printf("Pubctx k: %u\n", k);
-
-    free(copy);
-    copy = NULL;
-
+#include "test-self-fed-test.c.h"
+    
     printf("tests start\n");
 
     int failures = 0;
@@ -128,9 +59,9 @@ int main(int argc, char *argv[])
         }
 
         RSASSA_PSS_Encode_Signature(dex, copy, &size);
-        RSASSA_PSS_Decode_Signature(enx, copy, size);
+        RSASSA_PSS_Decode_Signature(&enx.header, copy, size);
 
-        lret = (IntPtr)RSASSA_PSS_Verify(enx, msg, msglen);
+        lret = (IntPtr)RSASSA_PSS_Verify(&enx.header, msg, msglen);
         if( !lret )
         {
             printf("%d: Signature Failure\n", i);
@@ -141,7 +72,5 @@ int main(int argc, char *argv[])
 
     printf("\n%d of %d tests failed\n", failures, testcount);
     free(copy);
-    free(enx);
-    free(kgx);
     return 0;
 }

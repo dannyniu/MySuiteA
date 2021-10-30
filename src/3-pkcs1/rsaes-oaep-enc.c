@@ -5,10 +5,10 @@
 #include "../0-exec/struct-delta.c.h"
 
 void *RSAES_OAEP_Encode_Ciphertext(
-    PKCS1_Public_Context_t *restrict x,
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void *restrict ct, size_t *ctlen)
 {
-    RSA_Public_Context_t *ex = DeltaTo(x, offset_rsa_pubctx);
+    RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
     vlong_t *vp = DeltaTo(ex, offset_w2);
     
     if( !ct )
@@ -25,12 +25,12 @@ void *RSAES_OAEP_Encode_Ciphertext(
 }
 
 void *RSAES_OAEP_Enc(
-    PKCS1_Public_Context_t *restrict x,
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void *restrict ss, size_t *restrict sslen,
     GenFunc_t prng_gen, void *restrict prng)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    RSA_Public_Context_t *ex = DeltaTo(x, offset_rsa_pubctx);
+    RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
     
     vlong_size_t t;
     void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));

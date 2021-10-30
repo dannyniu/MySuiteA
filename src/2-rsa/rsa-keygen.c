@@ -40,17 +40,17 @@ static vlong_t *gen_oddint_bits(
 }
 
 IntPtr rsa_keygen(
-    RSA_Private_Context_t *restrict x,
-    RSA_Private_Param_t *restrict param,
+    RSA_Priv_Ctx_Hdr_t *restrict x,
+    CryptoParam_t *restrict param,
     GenFunc_t prng_gen, void *restrict prng)
 {
-    uint32_t bits_per_prime = param->l / param->c;
+    uint32_t bits_per_prime = param[0].aux / param[1].aux;
     uint32_t i, t;
 
-    vlong_size_t vlsize_modulus = (param->l + 32 * 2 - 1) / 32;
+    vlong_size_t vlsize_modulus = (param[0].aux + 32 * 2 - 1) / 32;
     vlong_size_t vlsize_factor = (bits_per_prime + 32 * 2 - 1) / 32;
     
-    RSA_Private_Context_Base_t *bx;
+    RSA_Priv_Base_Ctx_t *bx;
     RSA_OtherPrimeInfo_t *px;
     
     vlong_t *vl, *t1, *t2, *t3, *t4, *t5, *t6;
@@ -58,27 +58,25 @@ IntPtr rsa_keygen(
 
     if( !x )
     {
-        return RSA_PRIVATE_CONTEXT_SIZE(
-            RSA_PRIVATE_PARAM_DETUPLE(*param));
+        return RSA_PRIV_CTX_SIZE(param[0].aux, param[1].aux);
     }
 
     bx = &x->base;
     px = x->primes_other;
 
-    bx->count_primes_other = param->c - 2;
-    bx->modulus_bits = param->l;
+    bx->count_primes_other = param[1].aux - 2;
+    bx->modulus_bits = param[0].aux;
 
 restart:
     ul = DeltaAdd( 
         x,
-        sizeof(RSA_Private_Context_Base_t) +
+        sizeof(RSA_Priv_Base_Ctx_t) +
         sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other);
     
     // e -- public exponent.
     vl = (vlong_t *)ul;
     vl->c = 1;
     vl->v[0] = PUB_EXPONENT;
-    bx->offset_e = DeltaOf(x, vl);
     bx->offset_e = DeltaOf(x, vl);
     ul += vl->c + 1;
 
@@ -410,6 +408,6 @@ restart:
         ((vlong_t *)DeltaTo(bx, offset_w5))->v[i] = 0;
     }
 
-    LOGF("Total Size: %tu\n", DeltaOf(ul, x));
+    LOGF("Total Size: %tu\n", DeltaOf(x, ul));
     return (IntPtr)x;
 }

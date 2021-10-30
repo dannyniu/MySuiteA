@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     size = ber_tlv_decode_RSAPrivateKey(2, buf, len, ctx, &aux);
     printf(
         "modulus size: %"PRIu32"\n",
-        ((RSA_Private_Context_Base_t *)ctx)->modulus_bits);
+        ((RSA_Priv_Base_Ctx_t *)ctx)->modulus_bits);
 
     // encoding test.
     

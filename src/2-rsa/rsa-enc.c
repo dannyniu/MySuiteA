@@ -3,7 +3,7 @@
 #include "rsa.h"
 #include "../0-exec/struct-delta.c.h"
 
-vlong_t *rsa_enc(RSA_Public_Context_t *restrict x)
+vlong_t *rsa_enc(RSA_Pub_Ctx_Hdr_t *restrict x)
 {
     return vlong_modexpv(
         DeltaTo(x, offset_w2), // ciphertext output - C.

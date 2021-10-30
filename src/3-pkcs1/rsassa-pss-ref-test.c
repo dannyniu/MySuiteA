@@ -26,12 +26,14 @@ int main(int argc, char *argv[])
     size_t size;
 
     PKCS1_Codec_Aux_t ap = {
-        .aux_po = PKCS1_PADDING_ORACLES_PARAM_ENTUPLE(
-            iSHA256,iSHA256,32),
-        0, // to silence the [-Wmissing-field-initializers] warning.
+        .aux_po = {
+            [0] = { .info = iSHA256, .param = NULL, },
+            [1] = { .info = iSHA256, .param = NULL, },
+            [2] = { .info = NULL, .aux = 32, },
+        },
     };
 
-    PKCS1_Public_Context_t *enx = NULL;
+    PKCS1_Pub_Ctx_Hdr_t *enx = NULL;
     void *copy;
 
     FILE *fp = fopen("../tests/rsa-1440-pub.der", "rb"); // in "tests/"

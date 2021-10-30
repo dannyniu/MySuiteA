@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     void *buf;
     long len, size;
     uint32_t aux;
-    RSA_Private_Context_t *ctx;
+    RSA_Priv_Ctx_Hdr_t *ctx;
 
     if( argc < 2 ) return 1;
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     size = ber_tlv_decode_RSAPrivateKey(2, buf, len, ctx, &aux);
     printf(
         "modulus size: %"PRIu32"\n",
-        ((RSA_Private_Context_Base_t *)ctx)->modulus_bits);
+        ctx->base.modulus_bits);
 
     // RSA decryption test.
 

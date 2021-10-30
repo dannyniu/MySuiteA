@@ -17,10 +17,9 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     uint32_t tag, len;
 
-    RSA_Public_Context_t *ctx = any;
+    RSA_Pub_Ctx_Hdr_t *ctx = any;
 
     int32_t size_modulus;
-
 
     aux = NULL;
 
@@ -37,7 +36,7 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     if( pass == 2 )
     {
         ctx->offset_n =
-            sizeof(RSA_Public_Context_t) +
+            sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     }
     
@@ -54,25 +53,25 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     
     if( pass == 2 )
         ctx->offset_w1 = 
-            sizeof(RSA_Public_Context_t) +
+            sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
 
     if( pass == 2 )
         ctx->offset_w2 = 
-            sizeof(RSA_Public_Context_t) +
+            sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
         
     if( pass == 2 )
         ctx->offset_w3 = 
-            sizeof(RSA_Public_Context_t) +
+            sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
         
     if( pass == 2 )
         ctx->offset_w4 = 
-            sizeof(RSA_Public_Context_t) +
+            sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
         
@@ -92,7 +91,7 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     if( pass == 2 )
     {
         ctx->offset_e =
-            sizeof(RSA_Public_Context_t) +
+            sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     }
     
@@ -103,7 +102,7 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     //
     // } -- End of "RSAPublicKey ::= SEQUENCE".
-    ret += sizeof(RSA_Public_Context_t);
+    ret += sizeof(RSA_Pub_Ctx_Hdr_t);
 
     return ret;
 }
@@ -119,7 +118,7 @@ int32_t ber_tlv_encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
 
     uint32_t taglen;
     
-    const RSA_Private_Context_Base_t *ctx = any;
+    const RSA_Priv_Base_Ctx_t *ctx = any;
 
     aux = NULL;
 
