@@ -62,7 +62,7 @@ struct CryptoParam {
     };
     union {
         const CryptoParam_t *param;
-        const void *aux;
+        IntPtr aux;
     };
 };
 
