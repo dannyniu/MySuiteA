@@ -4,6 +4,9 @@
 #define MySuiteA_der_codec_h 1
 
 #include "../mysuitea-common.h"
+
+// This header needs the vlong types,
+// the implementation needs the 'topbit' function.
 #include "../1-integers/vlong-dat.h"
 
 // 2021-02-12:

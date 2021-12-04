@@ -30,7 +30,7 @@ void test_run1(
     size_t rl;
 
     P[0].info = bc;
-    P[0].aux = NULL;
+    P[0].param = NULL;
     
     printf("...... Test Name: %s ......\n", tn);
     kl = (uint8_t *)scanhex(key, -1, k) - key;

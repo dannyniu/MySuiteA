@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2021-02-12. Public Domain. */
 
+#define ENABLE_HOSTED_HEADERS
 #include "der-codec.h"
-#include <stdio.h>
 
 void test_tag(void)
 {

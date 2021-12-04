@@ -1,6 +1,6 @@
 /* DannyNiu/NJF, 2020-12-27. Public Domain. */
 
-#include <stdio.h>
+#define ENABLE_HOSTED_HEADERS
 #include "vlong.h"
 
 __uint128_t vlong2huge(vlong_t *x)

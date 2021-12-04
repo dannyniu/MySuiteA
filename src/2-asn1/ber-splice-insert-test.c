@@ -1,10 +1,6 @@
 /* DannyNiu/NJF, 2021-02-28. Public Domain. */
 
 #include "der-codec.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
 #include "../test-utils.c.h"
 
 #define BUFLEN 512

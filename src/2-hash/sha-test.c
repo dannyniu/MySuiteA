@@ -1,8 +1,5 @@
 /* DannyNiu/NJF, 2018-02-06. Public Domain. */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "sha.h"
 #include "sha3.h"
 #include "../2-xof/shake.h"

@@ -1,10 +1,8 @@
 /* DannyNiu/NJF, 2021-02-16. Public Domain. */
 
+#define ENABLE_HOSTED_HEADERS
 #include "MillerRabin.h"
 #include "../2-xof/gimli-xof.h"
-
-#include <stdio.h>
-#include <string.h>
 
 static VLONG_T(9) p256, n256, c25519;
 static VLONG_T(33) rp, t1, t2, t3;

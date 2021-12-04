@@ -1,11 +1,8 @@
 /* DannyNiu/NJF, 2018-04-20. Public Domain. */
 // more test vectors at: https://crypto.stackexchange.com/q/51025
 
+#define ENABLE_HOSTED_HEADERS
 #include "gimli-xof.h"
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
 
 #define HASH_LEN 32
 

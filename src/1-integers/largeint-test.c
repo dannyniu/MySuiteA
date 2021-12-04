@@ -1,8 +1,8 @@
 /* DannyNiu/NJF, 2018-03-01. Public Domain. */
 
+#define ENABLE_HOSTED_HEADERS
 #include "largeint.h"
 #include "../0-datum/endian.h"
-#include <stdio.h>
 
 static __uint128_t a, b, c, d;
 static struct intdesc w, x, y, z, nid;

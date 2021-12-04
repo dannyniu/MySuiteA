@@ -1,15 +1,9 @@
 /* DannyNiu/NJF, 2021-02-16. Public Domain. */
 
+#define ENABLE_HOSTED_HEADERS
 #include "rsa.h"
 #include "rsa-codec-der.h"
 #include "../2-xof/gimli-xof.h"
-
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 static gimli_xof_t gx;
 

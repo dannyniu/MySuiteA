@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2018-02-06. Public Domain. */
 
+#define ENABLE_HOSTED_HEADERS
 #include "keccak.h"
-#include <stdio.h>
 
 static _Alignas(uint64_t) uint8_t state[200] = { [0] = 0x06, [135] = 0x80 };
 

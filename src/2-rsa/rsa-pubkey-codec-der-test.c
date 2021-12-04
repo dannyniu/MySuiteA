@@ -1,10 +1,7 @@
 /* DannyNiu/NJF, 2021-02-12. Public Domain. */
 
+#define ENABLE_HOSTED_HEADERS
 #include "rsa-codec-der.h"
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char *argv[])
 {

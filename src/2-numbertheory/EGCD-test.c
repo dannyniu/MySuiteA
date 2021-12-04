@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2021-01-24. Public Domain. */
 
-#include <stdio.h>
-#include <string.h>
+#define ENABLE_HOSTED_HEADERS
 #include "EGCD.h"
 
 static VLONG_T(4) x, p, z, a, quo, rem, y1, y2;

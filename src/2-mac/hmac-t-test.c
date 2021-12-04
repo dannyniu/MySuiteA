@@ -1,8 +1,5 @@
 /* DannyNiu/NJF, 2018-02-19. Public Domain. */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "hmac-sha.h"
 #include "hmac-sha3.h"
 

@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2018-02-11. Public Domain. */
 
+#define ENABLE_HOSTED_HEADERS
 #include "galois128.h"
-#include <stdio.h>
 
 int main()
 {

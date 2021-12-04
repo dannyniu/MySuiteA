@@ -1,8 +1,5 @@
 /* DannyNiu/NJF, 2018-02-06. Public Domain. */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "blake2.h"
 
 #include "../test-utils.c.h"

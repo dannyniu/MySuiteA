@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2021-01-24. Public Domain. */
 
-#include <stdio.h>
-#include <string.h>
+#define ENABLE_HOSTED_HEADERS
 #include "vlong.h"
 
 static VLONG_T(4) a, base, e, mod, t1, t2;

@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2018-02-10. Public Domain. */
 
-#include <stdalign.h>
-#include <stdio.h>
+#define ENABLE_HOSTED_HEADERS
 #include "chacha.h"
 
 int main()
