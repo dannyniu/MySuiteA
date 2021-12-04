@@ -9,9 +9,9 @@
 int main(int argc, char *argv[])
 {
     FILE *fp;
-    void *buf, *buf2;
+    void *buf, *buf2, *buf3;
     long len, size;
-    uint32_t *ctx, aux;
+    uint32_t *ctx;
 
     if( argc < 3 ) return 1;
 
@@ -28,22 +28,22 @@ int main(int argc, char *argv[])
 
     // private key decoding test.
     
-    size = ber_tlv_decode_RSAPrivateKey(1, buf, len, NULL, &aux);
+    size = ber_tlv_decode_RSAPrivateKey(NULL, buf, len);
     printf("privkey 1st pass decoding returned: %ld\n", size);
 
     ctx = malloc(size);
-    size = ber_tlv_decode_RSAPrivateKey(2, buf, len, ctx, &aux);
+    size = ber_tlv_decode_RSAPrivateKey(ctx, buf, len);
     printf(
         "modulus size: %"PRIu32"\n",
         ((RSA_Priv_Base_Ctx_t *)ctx)->modulus_bits);
 
-    // public key encoding test.
+    // public key exporting test.
     
-    len = ber_tlv_encode_RSAPublicKey(1, NULL, 0, ctx, NULL);
-    printf("pubkey 1st pass encoding returned: %ld\n", len);
+    len = ber_tlv_export_RSAPublicKey(ctx, NULL, 0);
+    printf("pubkey 1st pass exporting returned: %ld\n", len);
 
     buf2 = malloc(len);
-    len = ber_tlv_encode_RSAPublicKey(2, buf2, size, ctx, NULL);
+    len = ber_tlv_export_RSAPublicKey(ctx, buf2, size);
 
     fp = fopen(argv[2], "wb");
     fwrite(buf2, 1, len, fp);
@@ -51,14 +51,23 @@ int main(int argc, char *argv[])
     
     // public key decoding test.
 
-    size = ber_tlv_decode_RSAPublicKey(1, buf2, len, NULL, NULL);
+    size = ber_tlv_decode_RSAPublicKey(NULL, buf2, len);
     printf("pubkey 1st pass decoding returned: %ld\n", size);
     
     ctx = realloc(ctx, size);
-    size = ber_tlv_decode_RSAPublicKey(2, buf2, len, ctx, NULL);
+    size = ber_tlv_decode_RSAPublicKey(ctx, buf2, len);
     printf(
         "modulus size: %"PRIu32"\n",
         ((RSA_Pub_Ctx_Hdr_t *)ctx)->modulus_bits);
+
+    // public key encoding test.
+
+    len = ber_tlv_encode_RSAPublicKey(ctx, NULL, 0);
+    printf("pubkey 1stpass encoding returned: %ld\n", len);
+
+    buf3 = malloc(len);
+    len = ber_tlv_encode_RSAPublicKey(ctx, buf3, len);
+    printf("memcmp returned %d\n", memcmp(buf2, buf3, len));
     
     return 0;
 }

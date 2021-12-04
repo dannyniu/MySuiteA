@@ -20,8 +20,8 @@ void test_len(void)
     size_t length = 4;
     const uint8_t *ptr = blob;
     size_t len = length;
-    uint32_t t = ber_get_len(&ptr, &len);
-    printf("l:actual:   %08x %ld %zd\n", t, ptr - blob, len);
+    size_t t = ber_get_len(&ptr, &len);
+    printf("l:actual:   %08zx %ld %zd\n", t, ptr - blob, len);
 }
 
 int main()

@@ -25,12 +25,12 @@ int main(int argc, char *argv[])
     IntPtr lret;
     size_t size;
 
-    PKCS1_Codec_Aux_t ap = {
-        .aux_po = {
-            [0] = { .info = iSHA256, .param = NULL, },
-            [1] = { .info = iSHA256, .param = NULL, },
-            [2] = { .info = NULL, .aux = 32, },
-        },
+    PKCS1_RSA_Param_t params = {
+        [0] = { .info = iSHA256, .param = NULL, },
+        [1] = { .info = iSHA256, .param = NULL, },
+        [2] = { .info = NULL, .aux = 32, },
+        [3] = { .info = NULL, .aux = NBITS, },
+        [4] = { .info = NULL, .aux = 2, },
     };
 
     PKCS1_Pub_Ctx_Hdr_t *enx = NULL;
@@ -45,14 +45,14 @@ int main(int argc, char *argv[])
     fclose(fp);
 
     size = lret;
-    lret = PKCS1_Decode_RSAPublicKey(1, copy, size, NULL, &ap);
+    lret = PKCS1_Decode_RSAPublicKey(NULL, copy, size, params);
     if( lret < 0 )
     {
         perror("pubkey-decode 1");
         exit(EXIT_FAILURE);
     }
     enx = malloc(lret);
-    PKCS1_Decode_RSAPublicKey(2, copy, size, enx, &ap);
+    PKCS1_Decode_RSAPublicKey(enx, copy, size, params);
     free(copy); copy = NULL;
 
     int exitstat = 0;

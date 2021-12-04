@@ -18,7 +18,9 @@ pkcs1.c
 2-rsa/rsa-keygen.c
 2-rsa/rsa-privkey-parser-der.c
 2-rsa/rsa-privkey-writer-der.c
-2-rsa/rsa-pubkey-codec-der.c
+2-rsa/rsa-pubkey-export-der.c
+2-rsa/rsa-pubkey-parser-der.c
+2-rsa/rsa-pubkey-writer-der.c
 2-hash/sha.c
 1-integers/vlong.c
 1-integers/vlong-dat.c

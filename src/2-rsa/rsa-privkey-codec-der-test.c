@@ -6,12 +6,29 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define DUMP_CONTEXT_WORDS 0
+
+#if DUMP_CONTEXT_WORDS
+void dump_ctx_words(const uint32_t *ctx, size_t size)
+{
+    if( !ctx ) return;
+    for(size_t i=0; i*4<size; i++)
+    {
+        printf(
+            "%08x%c", ctx[i],
+            (4 - i % 4 == 1) ? '\n' : ' ');
+    }
+}
+#else
+#define dump_ctx_words(...) ((void)0)
+#endif /* DUMP_CONTEXT_WORDS */
+
 int main(int argc, char *argv[])
 {
     FILE *fp;
     void *buf, *buf2;
     long len, size;
-    uint32_t *ctx, aux;
+    uint32_t *ctx;
 
     if( argc < 2 ) return 1;
 
@@ -32,29 +49,31 @@ int main(int argc, char *argv[])
 
     // decoding test.
     
-    size = ber_tlv_decode_RSAPrivateKey(1, buf, len, NULL, &aux);
+    size = ber_tlv_decode_RSAPrivateKey(NULL, buf, len);
     printf("1st pass decoding returned: %ld\n", size);
 
     ctx = malloc(size);
-    size = ber_tlv_decode_RSAPrivateKey(2, buf, len, ctx, &aux);
+    size = ber_tlv_decode_RSAPrivateKey(ctx, buf, len);
     printf(
         "modulus size: %"PRIu32"\n",
         ((RSA_Priv_Base_Ctx_t *)ctx)->modulus_bits);
 
+    dump_ctx_words((void *)ctx, size);
+
     // encoding test.
     
-    size = ber_tlv_encode_RSAPrivateKey(1, buf2, len, ctx, NULL);
+    size = ber_tlv_encode_RSAPrivateKey(ctx, NULL, 0);
     printf("1st pass encoding returned: %ld\n", size);
 
-    size = ber_tlv_encode_RSAPrivateKey(2, buf2, len, ctx, NULL);
+    size = ber_tlv_encode_RSAPrivateKey(ctx, buf2, len);
     
     printf("memcmp-1 returned %d\n", memcmp(buf, buf2, len));
 
-    ber_tlv_decode_RSAPrivateKey(1, buf2, len, ctx, &aux);
-    ber_tlv_decode_RSAPrivateKey(2, buf2, len, ctx, &aux);
+    ber_tlv_decode_RSAPrivateKey(NULL, buf2, len);
+    ber_tlv_decode_RSAPrivateKey(ctx, buf2, len);
     
-    ber_tlv_encode_RSAPrivateKey(1, buf, len, ctx, NULL);
-    ber_tlv_encode_RSAPrivateKey(2, buf, len, ctx, NULL);
+    ber_tlv_encode_RSAPrivateKey(ctx, NULL, 0);
+    ber_tlv_encode_RSAPrivateKey(ctx, buf, len);
 
     printf("memcmp-2 returned %d\n", memcmp(buf, buf2, len));
 

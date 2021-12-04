@@ -1,7 +1,8 @@
 #!/bin/sh
 
 testfunc() {
-    $exec "$(date)"
+    #lldb \
+        $exec "$(date)"
 }
 
 cd "$(dirname "$0")"
@@ -12,6 +13,7 @@ rsa-keygen.c
 rsa-privkey-parser-der.c
 rsa-privkey-writer-der.c
 1-integers/vlong.c
+1-integers/vlong-dat.c
 2-numbertheory/MillerRabin.c
 2-numbertheory/EGCD.c
 2-asn1/der-codec.c

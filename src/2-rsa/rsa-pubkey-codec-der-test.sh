@@ -8,12 +8,16 @@ cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
 rsa-pubkey-codec-der-test.c
-rsa-pubkey-codec-der.c
+rsa-pubkey-export-der.c
+rsa-pubkey-parser-der.c
+rsa-pubkey-writer-der.c
 rsa-privkey-parser-der.c
 2-asn1/der-codec.c
+1-integers/vlong-dat.c
 "
 bin=$(basename "$0" .sh)
 srcset="Plain C"
+optimize=true
 
 arch=x86_64 cflags=""
 ( . $unitest_sh )

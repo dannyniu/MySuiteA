@@ -19,12 +19,12 @@ int main(int argc, char *argv[])
     IntPtr lret;
     size_t size;
 
-    PKCS1_Codec_Aux_t ap = {
-        .aux_po = {
-            [0] = { .info = iSHA256, .param = NULL, },
-            [1] = { .info = iSHA256, .param = NULL, },
-            [2] = { .info = NULL, .aux = 32, },
-        },
+    PKCS1_RSA_Param_t params = {
+        [0] = { .info = iSHA256, .param = NULL, },
+        [1] = { .info = iSHA256, .param = NULL, },
+        [2] = { .info = NULL, .aux = 32, },
+        [3] = { .info = NULL, .aux = NBITS, },
+        [4] = { .info = NULL, .aux = 2, },
     };
 
     PKCS1_Priv_Ctx_Hdr_t *dex = NULL;
@@ -39,14 +39,14 @@ int main(int argc, char *argv[])
     fclose(fp);
 
     size = lret;
-    lret = PKCS1_Decode_RSAPrivateKey(1, copy, size, NULL, &ap);
+    lret = PKCS1_Decode_RSAPrivateKey(NULL, copy, size, params);
     if( lret < 0 )
     {
         perror("privkey-decode 1");
         exit(EXIT_FAILURE);
     }
     dex = malloc(lret);
-    PKCS1_Decode_RSAPrivateKey(2, copy, size, dex, &ap);
+    PKCS1_Decode_RSAPrivateKey(dex, copy, size, params);
     free(copy); copy = NULL;
 
     int exitstat = 0;

@@ -11,9 +11,11 @@ rsa-privkey-codec-der-test.c
 rsa-privkey-parser-der.c
 rsa-privkey-writer-der.c
 2-asn1/der-codec.c
+1-integers/vlong-dat.c
 "
 bin=$(basename "$0" .sh)
 srcset="Plain C"
+optimize=true
 
 arch=x86_64 cflags=""
 ( . $unitest_sh )

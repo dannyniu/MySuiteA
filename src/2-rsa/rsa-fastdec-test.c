@@ -1,18 +1,14 @@
 /* DannyNiu/NJF, 2021-02-12. Public Domain. */
 
+#define ENABLE_HOSTED_HEADERS
 #include "rsa-codec-der.h"
 #include "../0-exec/struct-delta.c.h"
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char *argv[])
 {
     FILE *fp;
     void *buf;
     long len, size;
-    uint32_t aux;
     RSA_Priv_Ctx_Hdr_t *ctx;
 
     if( argc < 2 ) return 1;
@@ -29,11 +25,11 @@ int main(int argc, char *argv[])
 
     // decoding test.
     
-    size = ber_tlv_decode_RSAPrivateKey(1, buf, len, NULL, &aux);
+    size = ber_tlv_decode_RSAPrivateKey(NULL, buf, len);
     printf("1st pass decoding returned: %ld\n", size);
 
     ctx = malloc(size);
-    size = ber_tlv_decode_RSAPrivateKey(2, buf, len, ctx, &aux);
+    size = ber_tlv_decode_RSAPrivateKey(ctx, buf, len);
     printf(
         "modulus size: %"PRIu32"\n",
         ctx->base.modulus_bits);

@@ -37,8 +37,6 @@ int main(int argc, char *argv[])
         [0].aux = 960, // modulus bits.
         [1].aux = 3, // primes count
     };
-
-    uint32_t aux;
     
     Gimli_XOF_Init(&gx);
     Gimli_XOF_Write(&gx, "Hello World!", 12);
@@ -56,23 +54,23 @@ int main(int argc, char *argv[])
     dump_ctx_words((void *)ctx, size);
 
     // Experiment 2: Encoding the Generated Private Key.
-    len = ber_tlv_encode_RSAPrivateKey(1, NULL, 0, ctx, NULL);
+    len = ber_tlv_encode_RSAPrivateKey(ctx, NULL, 0);
     printf("sizeof(der-priv): %zu\n", len);
 
     der1 = malloc(len);
-    ber_tlv_encode_RSAPrivateKey(2, der1, len, ctx, NULL);
+    ber_tlv_encode_RSAPrivateKey(ctx, der1, len);
 
     // Experiment 3: Decode and Encode and Compare.
 
-    size = ber_tlv_decode_RSAPrivateKey(1, der1, len, NULL, &aux);
+    size = ber_tlv_decode_RSAPrivateKey(NULL, der1, len);
     ctx2 = malloc(size);
-    ber_tlv_decode_RSAPrivateKey(2, der1, len, ctx2, &aux);
+    ber_tlv_decode_RSAPrivateKey(ctx2, der1, len);
 
-    size = ber_tlv_encode_RSAPrivateKey(1, NULL, 0, ctx, NULL);
+    size = ber_tlv_encode_RSAPrivateKey(ctx, NULL, 0);
     printf("sizeof(der-priv): %zu\n", size);
 
     der2 = malloc(size);
-    ber_tlv_encode_RSAPrivateKey(2, der2, size, ctx, NULL);
+    ber_tlv_encode_RSAPrivateKey(ctx, der2, size);
 
     // -- Result of the Compare --
 

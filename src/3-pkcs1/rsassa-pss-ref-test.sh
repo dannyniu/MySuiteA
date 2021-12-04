@@ -21,7 +21,8 @@ rsassa-pss-verify.c
 pkcs1.c
 2-rsa/pkcs1-padding.c
 2-rsa/rsa-enc.c
-2-rsa/rsa-pubkey-codec-der.c
+2-rsa/rsa-pubkey-parser-der.c
+2-rsa/rsa-pubkey-writer-der.c
 2-hash/sha.c
 1-integers/vlong.c
 1-integers/vlong-dat.c

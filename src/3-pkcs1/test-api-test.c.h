@@ -1,6 +1,6 @@
 /* DannyNiu/NJF, 2021-10-30. Public Domain. */
 
-PKCS1_Priv_Param_t params = {
+PKCS1_RSA_Param_t params = {
     [0] = { .info = iSHA256, .param = NULL, },
     [1] = { .info = iSHA256, .param = NULL, },
     [2] = { .info = NULL, .aux = 32, },
@@ -8,14 +8,6 @@ PKCS1_Priv_Param_t params = {
     [4] = { .info = NULL, .aux = 2, },
 };
 
-PKCS1_Codec_Aux_t ap = {
-    .aux_po = {
-        [0] = { .info = iSHA256, .param = NULL, },
-        [1] = { .info = iSHA256, .param = NULL, },
-        [2] = { .info = NULL, .aux = 32, },
-    },
-};
-    
 PKCS1_Priv_Ctx_Hdr_t *kgx = NULL;
 
 Gimli_XOF_Init(&gx);
@@ -46,27 +38,27 @@ PKCS1_Priv_Ctx_Hdr_t *dex = NULL;
 void *copy;
 
 // recoding private key.
-lret = PKCS1_Encode_RSAPrivateKey(1, NULL, 0, kgx, &ap);
+lret = PKCS1_Encode_RSAPrivateKey(kgx, NULL, 0, params);
 copy = malloc(lret);
-PKCS1_Encode_RSAPrivateKey(2, copy, lret, kgx, NULL);
+PKCS1_Encode_RSAPrivateKey(kgx, copy, lret, params);
 
 FILE *fp = fopen("./rsa-priv-768.key", "wb"); // in "bin/"
 fwrite(copy, 1, lret, fp);
 fclose(fp);
 
 size = lret;
-lret = PKCS1_Decode_RSAPrivateKey(1, copy, size, NULL, &ap);
+lret = PKCS1_Decode_RSAPrivateKey(NULL, copy, size, params);
 if( lret < 0 )
 {
     perror("privkey-decode 1");
     exit(EXIT_FAILURE);
 }
 dex = my_alloc("dex", lret);
-PKCS1_Decode_RSAPrivateKey(2, copy, size, dex, &ap);
+PKCS1_Decode_RSAPrivateKey(dex, copy, size, params);
 free(copy); copy = NULL;
 
 // transfer public key to encryption working context.
-lret = PKCS1_Encode_RSAPublicKey(1, NULL, 0, dex, NULL);
+lret = PKCS1_Export_RSAPublicKey(dex, NULL, 0, NULL);
 copy = my_alloc("pubkey.der", lret);
 
 if( !copy )
@@ -75,16 +67,16 @@ if( !copy )
     exit(EXIT_FAILURE);
 }
 
-PKCS1_Encode_RSAPublicKey(2, copy, lret, kgx, NULL);
+PKCS1_Export_RSAPublicKey(kgx, copy, lret, NULL);
 
 PKCS1_Pub_Ctx_Hdr_t *enx = NULL;
 size = lret;
-lret = PKCS1_Decode_RSAPublicKey(1, copy, size, NULL, &ap);
+lret = PKCS1_Decode_RSAPublicKey(NULL, copy, size, params);
 if( lret < 0 )
 {
     perror("pubkey-decode 1");
     exit(EXIT_FAILURE);
 }
 enx = my_alloc("enx", lret);
-PKCS1_Decode_RSAPublicKey(2, copy, size, enx, &ap);
+PKCS1_Decode_RSAPublicKey(enx, copy, size, params);
 free(copy); copy = NULL;

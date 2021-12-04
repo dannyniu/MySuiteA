@@ -1,7 +1,8 @@
 #!/bin/sh
 
 testfunc() {
-    $exec ../tests/rsa-1440-3primes.der
+    #lldb \
+        $exec ../tests/rsa-1440-3primes.der
 }
 
 cd "$(dirname "$0")"
@@ -13,6 +14,7 @@ rsa-privkey-parser-der.c
 rsa-privkey-writer-der.c
 2-asn1/der-codec.c
 1-integers/vlong.c
+1-integers/vlong-dat.c
 "
 bin=$(basename "$0" .sh)
 srcset="Plain C"

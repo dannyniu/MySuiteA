@@ -1,6 +1,6 @@
 /* DannyNiu/NJF, 2021-10-30. Public Domain. */
 
-PKCS1_Priv_Param_t params = {
+PKCS1_RSA_Param_t params = {
     [0] = { .info = iSHA256, .param = NULL, },
     [1] = { .info = iSHA256, .param = NULL, },
     [2] = { .info = NULL, .aux = 32, },
@@ -8,20 +8,12 @@ PKCS1_Priv_Param_t params = {
     [4] = { .info = NULL, .aux = 2, },
 };
 
-PKCS1_Codec_Aux_t ap = {
-    .aux_po = {
-        [0] = { .info = iSHA256, .param = NULL, },
-        [1] = { .info = iSHA256, .param = NULL, },
-        [2] = { .info = NULL, .aux = 32, },
-    },
-};
-
 PKCS1_PRIV_CTX_T(cSHA256,cSHA256,32,NBITS,2) kgx = {
     .header = PKCS1_PRIV_CTX_INIT(
         params[0].info, params[1].info, params[2].aux,
         params[3].aux, params[4].aux),
 };
-    
+
 Gimli_XOF_Init(&gx);
 Gimli_XOF_Write(&gx, "Hello World!", 12);
 if( argc >= 2 )
@@ -41,9 +33,9 @@ PKCS1_Priv_Ctx_Hdr_t *dex = &kgx.header;
 void *copy;
 
 // Debug: dump private key.
-lret = PKCS1_Encode_RSAPrivateKey(1, NULL, 0, &kgx.header, NULL);
+lret = PKCS1_Encode_RSAPrivateKey(&kgx.header, NULL, 0, NULL);
 copy = malloc(lret);
-PKCS1_Encode_RSAPrivateKey(2, copy, lret, &kgx.header, NULL);
+PKCS1_Encode_RSAPrivateKey(&kgx.header, copy, lret, NULL);
 
 FILE *fp = fopen("./rsa-priv-768.key", "wb"); // in "bin/"
 fwrite(copy, 1, lret, fp);
@@ -51,7 +43,7 @@ fclose(fp);
 free(copy); copy = NULL;
 
 // transfer public key to encryption working context.
-lret = PKCS1_Encode_RSAPublicKey(1, NULL, 0, &kgx.header, NULL);
+lret = PKCS1_Export_RSAPublicKey(&kgx.header, NULL, 0, NULL);
 copy = my_alloc("pubkey.der", lret);
 
 if( !copy )
@@ -60,15 +52,15 @@ if( !copy )
     exit(EXIT_FAILURE);
 }
 
-PKCS1_Encode_RSAPublicKey(2, copy, lret, &kgx.header, NULL);
+PKCS1_Export_RSAPublicKey(&kgx.header, copy, lret, NULL);
 
-PKCS1_PUB_CTX_T(cSHA256,cSHA256,32,NBITS) enx = {
+PKCS1_PUB_CTX_T(cSHA256,cSHA256,32,NBITS,2) enx = {
     .header = PKCS1_PUB_CTX_INIT(
-        params[0].info, params[1].info,
-        params[2].aux, params[3].aux),
+        params[0].info, params[1].info, params[2].aux,
+        params[3].aux, params[4].aux),
 };
     
-PKCS1_Decode_RSAPublicKey(2, copy, lret, &enx.header, &ap);
+PKCS1_Decode_RSAPublicKey(&enx.header, copy, lret, params);
     
 uint32_t k =
     ((RSA_Pub_Ctx_Hdr_t *)(
