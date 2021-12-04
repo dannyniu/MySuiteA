@@ -28,7 +28,7 @@ different to allow encryption contexts to consume less resource; ...
 It is intended that public-key cryptography will support at least
 key and ciphergram formats of ASN.1 and JSON, with other formats being
 considered. This is currently under investigation, and a uniform API
-for PKC is being post-poned for his.
+for PKC is being post-poned for this.
 
 This does not mean their API will be left in an inconsistently implemented
 state - their API will conform to that in "mysuitea-common.h", only that
