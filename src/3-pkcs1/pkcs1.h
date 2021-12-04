@@ -25,7 +25,7 @@ typedef struct {
 
 // ${ [0...2].* } are that for the padding scheme.
 // ${ [3...4].* } are that for the rsa algorithm.
-typedef CryptoParam_t PKCS1_Priv_Param_t[5];
+typedef CryptoParam_t PKCS1_RSA_Param_t[5];
 
 #define PKCS1_PRIV_CTX_PAYLOAD_SIZE_X(hmsg,hmgf,slen,bits,primes) (     \
         PKCS1_HASH_CTX_SIZE(hmsg,hmgf) +                                \
@@ -66,25 +66,23 @@ typedef struct {
     pkcs1_padding_oracles_base_t po_base;
 } PKCS1_Pub_Ctx_Hdr_t;
 
-// ${ [0...2].* } are that for the padding scheme.
-// ${ [3].* } is that for the rsa algorithm,
-typedef CryptoParam_t PKCS1_Pub_Param_t[4];
-
-#define PKCS1_PUB_CTX_PAYLOAD_SIZE_X(hmsg,hmgf,slen,bits) ( \
-        PKCS1_HASH_CTX_SIZE(hmsg,hmgf) +            \
+// primes is ignored in public contexts' macros,
+// as it's only applicable to private contexts.
+#define PKCS1_PUB_CTX_PAYLOAD_SIZE_X(hmsg,hmgf,slen,bits,primes) (    \
+        PKCS1_HASH_CTX_SIZE(hmsg,hmgf) +                              \
         RSA_PUB_CTX_SIZE(bits) )
 
 #define PKCS1_PUB_CTX_PAYLOAD_SIZE(...)         \
     PKCS1_PUB_CTX_PAYLOAD_SIZE_X(__VA_ARGS__)
 
-#define PKCS1_PUB_CTX_SIZE_X(hmsg,hmgf,slen,bits) ( \
-        PKCS1_PUB_CTX_PAYLOAD_SIZE(                 \
-            hmsg,hmgf,slen,bits) +                  \
+#define PKCS1_PUB_CTX_SIZE_X(hmsg,hmgf,slen,bits,primes) (      \
+        PKCS1_PUB_CTX_PAYLOAD_SIZE(                             \
+            hmsg,hmgf,slen,bits) +                              \
         sizeof(PKCS1_Pub_Ctx_Hdr_t) )
 
 #define PKCS1_PUB_CTX_SIZE(...) PKCS1_PUB_CTX_SIZE_X(__VA_ARGS__)
 
-#define PKCS1_PUB_CTX_INIT(hmsg,hmgf,slen,bits)                 \
+#define PKCS1_PUB_CTX_INIT(hmsg,hmgf,slen,bits,primes)          \
     ((PKCS1_Pub_Ctx_Hdr_t){                                     \
         .offset_rsa_pubctx =                                    \
         sizeof(ptrdiff_t) +                                     \
@@ -99,11 +97,6 @@ typedef CryptoParam_t PKCS1_Pub_Param_t[4];
         uint8_t payload[PKCS1_PUB_CTX_PAYLOAD_SIZE(__VA_ARGS__)];       \
     }
 
-typedef struct {
-    PKCS1_Padding_Oracles_Param_t aux_po;
-    uint32_t aux_misc;
-} PKCS1_Codec_Aux_t;
-
 // Same notes as rsa_keygen in "rsa.h",
 // as this function is a wrapper of it.
 IntPtr PKCS1_Keygen(
@@ -114,14 +107,25 @@ IntPtr PKCS1_Keygen(
 // Codec functions prefixed with PKCS1 always work with
 // ASN.1 DER coded keys.
 //
-// For decoding functions, aux points to an object of type
-// PKCS1_Codec_Aux_t. Such object holds information necessary
-// for estimating the memory usage for padding oracle data
-// structure. As such, it's necessary to setup its aux_po member
-// at minimum.
-int32_t PKCS1_Encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS);
-int32_t PKCS1_Decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS);
-int32_t PKCS1_Encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS);
-int32_t PKCS1_Decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS);
+// For decoding functions, ``param'' points to an array of ``CryptoParam_t''
+// objects. This array is initialized with the padding parameters (hash
+// functions and salt length). These information contributes to the estimate
+// of the required space of the working context.
+//
+// In short, ``aux'' contains the same thing as ``param'' in ``PKCS1_Keygen''.
+IntPtr PKCS1_Encode_RSAPrivateKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
+
+IntPtr PKCS1_Decode_RSAPrivateKey(
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
+
+IntPtr PKCS1_Export_RSAPublicKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
+
+IntPtr PKCS1_Encode_RSAPublicKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
+
+IntPtr PKCS1_Decode_RSAPublicKey(
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 #endif /* MySuiteA_pkcs1_h */

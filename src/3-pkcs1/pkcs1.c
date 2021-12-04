@@ -2,6 +2,7 @@
 
 #include "pkcs1.h"
 #include "../2-rsa/rsa-codec-der.h"
+#include "../0-exec/struct-delta.c.h"
 
 #if ! (PKCS1_OMIT_KEYGEN || PKCS1_OMIT_PRIV_OPS)
 
@@ -11,7 +12,7 @@ IntPtr PKCS1_Keygen(
     GenFunc_t prng_gen, void *restrict prng)
 {
     IntPtr ret;
-    
+
     if( x )
     {
         *x = PKCS1_PRIV_CTX_INIT(
@@ -20,7 +21,7 @@ IntPtr PKCS1_Keygen(
     }
 
     ret = rsa_keygen(
-        x ? (void *)((uint8_t *)x + x->offset_rsa_privctx) : NULL,
+        DeltaTo(x, offset_rsa_privctx),
         param + 3, prng_gen, prng);
 
     if( !ret ) return 0;
@@ -37,88 +38,95 @@ IntPtr PKCS1_Keygen(
 
 #if ! PKCS1_OMIT_PRIV_OPS
 
-int32_t PKCS1_Encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
+IntPtr PKCS1_Encode_RSAPrivateKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     const PKCS1_Priv_Ctx_Hdr_t *x = any;
-    aux = NULL;
-    
+    param = NULL;
+
     return ber_tlv_encode_RSAPrivateKey(
-        pass, enc, enclen, 
-        x ? (void *)((uint8_t *)x + x->offset_rsa_privctx) : NULL,
-        NULL);
+        DeltaTo(x, offset_rsa_privctx), enc, enclen);
 }
 
-int32_t PKCS1_Decode_RSAPrivateKey(BER_TLV_DECODING_FUNC_PARAMS)
+IntPtr PKCS1_Decode_RSAPrivateKey(
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     PKCS1_Priv_Ctx_Hdr_t *x = any;
-    PKCS1_Codec_Aux_t *ap = aux;
-    CryptoParam_t *po = ap->aux_po;
-    int32_t ret;
+    IntPtr ret;
 
     if( x )
     {
         *x = PKCS1_PRIV_CTX_INIT(
-            po[0].info, po[1].info, po[2].aux,
-            0, 0); // these 2 arguments are not used by this macro.
+            param[0].info, param[1].info, param[2].aux,
+            param[3].aux, param[4].aux); // 2 ignored parameters.
     }
 
     ret = ber_tlv_decode_RSAPrivateKey(
-        pass, enc, enclen,
-        x ? (void *)((uint8_t *)x + x->offset_rsa_privctx) : NULL,
-        &ap->aux_misc);
+        DeltaTo(x, offset_rsa_privctx), enc, enclen);
 
     if( ret < 0 ) return ret;
 
     ret += sizeof(PKCS1_Priv_Ctx_Hdr_t);
-    ret += PKCS1_HASH_CTX_SIZE(po[0].info, po[1].info);
+    ret += PKCS1_HASH_CTX_SIZE(param[0].info, param[1].info);
 
     return ret;
 }
 
-int32_t PKCS1_Encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
+IntPtr PKCS1_Export_RSAPublicKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     // 2021-10-30:
     // This function erroneously used the public context when
     // public key are generated on and could only be exported
     // from a private context. A fix had been applied.
-    
+
     const PKCS1_Priv_Ctx_Hdr_t *x = any;
-    aux = NULL;
-    
-    return ber_tlv_encode_RSAPublicKey(
-        pass, enc, enclen, 
-        x ? (void *)((uint8_t *)x + x->offset_rsa_privctx) : NULL,
-        NULL);
+    param = NULL;
+
+    return ber_tlv_export_RSAPublicKey(
+        DeltaTo(x, offset_rsa_privctx), enc, enclen);
 }
 
 #endif /* ! PKCS1_OMIT_PRIV_OPS */
 
 #if ! PKCS1_OMIT_PUB_OPS
 
-int32_t PKCS1_Decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
+IntPtr PKCS1_Encode_RSAPublicKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
+{
+    // 2021-10-30:
+    // This function erroneously used the public context when
+    // public key are generated on and could only be exported
+    // from a private context. A fix had been applied.
+
+    const PKCS1_Pub_Ctx_Hdr_t *x = any;
+    param = NULL;
+
+    return ber_tlv_encode_RSAPublicKey(
+        DeltaTo(x, offset_rsa_pubctx), enc, enclen);
+}
+
+IntPtr PKCS1_Decode_RSAPublicKey(
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     PKCS1_Pub_Ctx_Hdr_t *x = any;
-    PKCS1_Codec_Aux_t *ap = aux;
-    CryptoParam_t *po = ap->aux_po;
-    int32_t ret;
+    IntPtr ret;
 
     if( x )
     {
         *x = PKCS1_PUB_CTX_INIT(
-            po[0].info, po[1].info, po[2].aux,
-            0); // this argument is not used by this macro.
+            param[0].info, param[1].info, param[2].aux,
+            param[3].aux, param[4].aux); // 2 ignored parameters.
     }
-    
+
     ret = ber_tlv_decode_RSAPublicKey(
-        pass, enc, enclen,
-        x ? (void *)((uint8_t *)x + x->offset_rsa_pubctx) : NULL,
-        &ap->aux_misc);
+        DeltaTo(x, offset_rsa_pubctx), enc, enclen);
 
     if( ret < 0 ) return ret;
 
     ret += sizeof(PKCS1_Pub_Ctx_Hdr_t);
-    ret += PKCS1_HASH_CTX_SIZE(po[0].info, po[1].info);
-    
+    ret += PKCS1_HASH_CTX_SIZE(param[0].info, param[1].info);
+
     return ret;
 }
 
