@@ -66,8 +66,8 @@ typedef struct {
 typedef PKCS1_PADDING_ORACLES_T() pkcs1_padding_oracles_t;
 
 // ${ [0].info } is the crypto-object for the message hash function.
-// ${ [1].info } is the crypto-object for the mask generating hash function.
-// ${ [2].aux] } is the length of the salt ("sLen" in the doc).
+// ${ [1].info } is the crypto-object for the MGF hash function.
+// ${ [2].aux } is the length of the salt ("sLen" in the doc).
 typedef CryptoParam_t PKCS1_Padding_Oracles_Param_t[3];
 
 #define PKCS1_HASH_CTX_SIZE_X(hmsg,hmgf)        \
