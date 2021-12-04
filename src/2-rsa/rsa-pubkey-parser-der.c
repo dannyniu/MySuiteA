@@ -5,23 +5,23 @@
 
 #define BER_HDR ber_get_hdr(&ptr, &remain, &tag, &len)
 
-int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
+IntPtr ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
 {
     // 2021-02-13: refer to
-    // [ber-int-err-chk:2021-02-13] in "2-asn1/der-parse.c".
-    
-    int32_t ret = 0;
+    // [ber-int-err-chk:2021-02-13] in "2-asn1/der-codec.c".
+
+    int pass = any ? 2 : 1;
+    IntPtr ret = 0;
     
     const uint8_t *ptr = enc;
     size_t remain = enclen;
 
-    uint32_t tag, len;
+    uint32_t tag;
+    size_t len;
 
     RSA_Pub_Ctx_Hdr_t *ctx = any;
 
     int32_t size_modulus;
-
-    aux = NULL;
 
     //
     // RSAPublicKey ::= SEQUENCE {
@@ -40,10 +40,8 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
             ret; // it's been tracking occupied space since pass 1.
     }
     
-    size_modulus = ber_tlv_decode_integer(
-        pass, ptr, len,
-        DeltaTo(ctx, offset_n),
-        ctx ? &ctx->modulus_bits : NULL);
+    size_modulus = ber_tlv_decode_integer(DeltaTo(ctx, offset_n), ptr, len);
+    if( pass == 2 )  ctx->modulus_bits = vlong_topbit(DeltaTo(ctx, offset_n));
     ret += size_modulus;
     ptr += len; remain -= len;
 
@@ -95,89 +93,12 @@ int32_t ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
             ret; // it's been tracking occupied space since pass 1.
     }
     
-    ret += ber_tlv_decode_integer(
-        pass, ptr, len,
-        DeltaTo(ctx, offset_e), NULL);
+    ret += ber_tlv_decode_integer(DeltaTo(ctx, offset_e), ptr, len);
     ptr += len; remain -= len;
 
     //
     // } -- End of "RSAPublicKey ::= SEQUENCE".
     ret += sizeof(RSA_Pub_Ctx_Hdr_t);
-
-    return ret;
-}
-
-int32_t ber_tlv_encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
-{
-    int32_t ret = 0, subret;
-
-    uint8_t *stack = NULL;
-    uint8_t *ptr = enc;
-    size_t remain = enclen;
-    //- not used -// uint32_t i;
-
-    uint32_t taglen;
-    
-    const RSA_Priv_Base_Ctx_t *ctx = any;
-
-    aux = NULL;
-
-    //
-    // RSAPublicKey ::= SEQUENCE {
-    //- if( -1 == BER_HDR ) return -1;
-    //- if( tag != BER_TLV_TAG_UNI(16) ) return -1;
-
-    //
-    // modulus INTEGER, -- n
-    subret = ber_tlv_encode_integer(
-        pass, ptr, remain,
-        DeltaTo(ctx, offset_n), NULL);
-    ret += subret;
-
-    if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
-    taglen = 0;
-    taglen += ber_push_len(&stack, subret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
-    if( pass == 2 )
-    {
-        ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
-    }
-    ret += taglen;
-    ptr += subret + taglen; remain -= subret + taglen;
-    
-    //
-    // publicExponent INTEGER, -- e
-    subret = ber_tlv_encode_integer(
-        pass, ptr, remain,
-        DeltaTo(ctx, offset_e), NULL);
-    ret += subret;
-
-    if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
-    taglen = 0;
-    taglen += ber_push_len(&stack, subret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
-    if( pass == 2 )
-    {
-        ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
-    }
-    ret += taglen;
-    ptr += subret + taglen; remain -= subret + taglen;
-    
-    //
-    // } -- End of "RSAPublicKey ::= SEQUENCE".
-    
-    if( pass == 2 ) stack = enc + enclen;
-    taglen = 0;
-    taglen += ber_push_len(&stack, ret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(16), 1);
-
-    if( pass == 2 )
-    {
-        ber_util_splice_insert(enc, ret, (stack - enc), taglen);
-    }
-    ret += taglen;
 
     return ret;
 }

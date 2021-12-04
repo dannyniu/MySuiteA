@@ -4,35 +4,38 @@
 #define MySuiteA_der_codec_h 1
 
 #include "../mysuitea-common.h"
-#include "../1-integers/vlong.h"
+#include "../1-integers/vlong-dat.h"
 
 // 2021-02-12:
-// MySuiteA internally represent BER tags and lengths as 32-bit integers.
-// For tags, the sign bit is set, and the 2nd and 3rd most significant bit
-// is allocated to represent tag types. For lengths, the sign bit is clear.
+// MySuiteA internally represent BER tags as 32-bit integers and lengths as
+// ``size_t''. For tags, the most-significant is set, and the 2nd and 3rd
+// most significant bit is allocated to represent tag types.
+//
+// 2021-11-19:
+// BER TLV lengths are changed to be represented by ``size_t''. The above note
+// had been amended accordingly.
 
 #define BER_TLV_TAG_MAX         UINT32_C(0x0fffffff) // also a valid mask.
 #define BER_TLV_TAG_UNI(x) (x | UINT32_C(0x80000000)) // universal tag,
 #define BER_TLV_TAG_APP(x) (x | UINT32_C(0xA0000000)) // application tag,
 #define BER_TLV_TAG_CTX(x) (x | UINT32_C(0xC0000000)) // context-specific tag,
 #define BER_TLV_TAG_PRI(x) (x | UINT32_C(0xE0000000)) // private tag.
-#define BER_TLV_LENGTH(x)  (x & UINT32_C(0x7FFFFFFF))
 
 // 2021-02-14:
 // For nomenclature consistency:
-// 1. a function contains the words encode/decode in its name,
-// 2. a source code files contains the parser/writer in its name.
+// 1. a function contains the words encode/decode (and export) in its name,
+// 2. a source code files contains the parser/writer (and export) in its name.
 
 uint32_t ber_get_tag(const uint8_t **buf, size_t *len);
-uint32_t ber_get_len(const uint8_t **buf, size_t *len);
+size_t   ber_get_len(const uint8_t **buf, size_t *len);
 int ber_get_hdr(
     const uint8_t **ptr, size_t *remain,
-    uint32_t *tag, uint32_t *len);
+    uint32_t *tag, size_t *len);
 
 // stacks are pre-allocated using estimated values returned from the
 // 1st pass invocation of ``ber_tlv_encoding_func'' functions.
-uint32_t ber_push_len(uint8_t **stack, uint32_t val);
-uint32_t ber_push_tag(uint8_t **stack, uint32_t val, int pc);
+size_t ber_push_len(uint8_t **stack, size_t val);
+size_t ber_push_tag(uint8_t **stack, uint32_t val, int pc);
 void *ber_util_splice_insert(
     void *buf,        size_t len1,
     ptrdiff_t offset, size_t len2);
@@ -54,23 +57,22 @@ void *ber_util_splice_insert(
 //
 //   the function returns the same value as in pass 1.
 //
-// - Pass 0 is reserved.
+// To enter pass 1 in encoding (decoding) function, ``enc'' (any) should be
+// specified as NULL, and (in decoding functions) ``enclen'' should be 0
+// (in the decoding functions, ``enclen'' is ignored for now, but values
+// other than 0 should be considered as reserved).
 //
-// The ``aux'' parameter holds working information that's
-// passed from one pass to the next. The format of this
-// parameter is specific to individual decoding and encoding
-// functions, and should be documented by them.
+// To enter pass 2, both ``any'' and ``enc'' should be specified, and
+// ``enclen'' should be the size of the buffer allocated for ``enc''.
 
 #define BER_TLV_DECODING_FUNC_PARAMS                    \
-    int pass, const uint8_t *enc, uint32_t enclen,      \
-    void *any, void *aux
+    void *any, const uint8_t *enc, size_t enclen
 
 #define BER_TLV_ENCODING_FUNC_PARAMS                    \
-    int pass, uint8_t *enc, uint32_t enclen,            \
-    const void *any, void *aux
+    void const *any, uint8_t *enc, size_t enclen
 
-typedef int32_t (*ber_tlv_decoding_func)(BER_TLV_DECODING_FUNC_PARAMS);
-typedef int32_t (*ber_tlv_encoding_func)(BER_TLV_ENCODING_FUNC_PARAMS);
+typedef IntPtr (*ber_tlv_decoding_func)(BER_TLV_DECODING_FUNC_PARAMS);
+typedef IntPtr (*ber_tlv_encoding_func)(BER_TLV_ENCODING_FUNC_PARAMS);
 
 //
 // 2021-04-17, late note:
@@ -79,13 +81,7 @@ typedef int32_t (*ber_tlv_encoding_func)(BER_TLV_ENCODING_FUNC_PARAMS);
 // without caring for those, and let structure codec functions care for them.
 
 // [ber-int-err-chk:2021-02-13].
-//
-// 2021-05-16:
-// For the integer decoder, ``aux'' optionally points to a ``uint32_t''
-// which receives the bit length (index of the highest bit set) of the
-// integer in the 2nd pass.
-//
-int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS);
-int32_t ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS);
+IntPtr ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS);
+IntPtr ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS);
 
 #endif /* MySuiteA_der_parse_h */

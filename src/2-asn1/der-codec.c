@@ -46,12 +46,12 @@ done:
     return tag;
 }
 
-uint32_t ber_get_len(const uint8_t **buf, size_t *len)
+size_t ber_get_len(const uint8_t **buf, size_t *len)
 {
     const uint8_t *p = *buf;
     size_t remain = *len;
 
-    uint32_t ret = 0, s = 0;
+    size_t ret = 0, s = 0;
 
     // see [2021-02-12:presumption-failure].
     
@@ -61,7 +61,7 @@ uint32_t ber_get_len(const uint8_t **buf, size_t *len)
     if( ret < 128 ) goto done;
 
     s = ret & 0x7F;
-    if( s > 4 || s > remain )
+    if( s > sizeof(size_t) || s > remain )
     {
         // Actually, I wanted to handle the case where (*buf)[0] is 0xff
         // as X.690 reserves it for future extension, but my case is
@@ -85,7 +85,7 @@ done:
 
 int ber_get_hdr(
     const uint8_t **ptr, size_t *remain,
-    uint32_t *tag, uint32_t *len)
+    uint32_t *tag, size_t *len)
 {
     if( !~(*tag = ber_get_tag(ptr, remain)) ) return -1;
     if( !~(*len = ber_get_len(ptr, remain)) ) return -1;
@@ -93,7 +93,7 @@ int ber_get_hdr(
     return 0;
 }
 
-uint32_t ber_push_len(uint8_t **stack, uint32_t val)
+size_t ber_push_len(uint8_t **stack, size_t val)
 {
     if( val < 0x80 )
     {
@@ -104,56 +104,22 @@ uint32_t ber_push_len(uint8_t **stack, uint32_t val)
         return 1;
     }
     
-    else if( val < 0x100 )
+    else
     {
-        if( *stack )
+        size_t ret = 0;
+        while( val )
         {
-            *(--(*stack)) = val;
-            *(--(*stack)) = 0x80 | 1;
+            if( *stack ) *(--(*stack)) = val;
+            val >>= 8;
+            ret++;
         }
-        return 2;
+        
+        if( *stack ) *(--(*stack)) = 0x80 | ret;
+        return ret + 1;
     }
-
-    else if( val < 0x10000 )
-    {
-        if( *stack )
-        {
-            *(--(*stack)) = val;
-            *(--(*stack)) = (val >>  8);
-            *(--(*stack)) = 0x80 | 2;
-        }
-        return 3;
-    }
-
-    else if( val < 0x1000000 )
-    {
-        if( *stack )
-        {
-            *(--(*stack)) = val;
-            *(--(*stack)) = (val >>  8);
-            *(--(*stack)) = (val >> 16);
-            *(--(*stack)) = 0x80 | 3;
-        }
-        return 4;
-    }
-
-    else if( val < 0x80000000 )
-    {
-        if( *stack )
-        {
-            *(--(*stack)) = val;
-            *(--(*stack)) = (val >>  8);
-            *(--(*stack)) = (val >> 16);
-            *(--(*stack)) = (val >> 24);
-            *(--(*stack)) = 0x80 | 4;
-        }
-        return 5;
-    }
-    
-    else return 0;
 }
 
-uint32_t ber_push_tag(uint8_t **stack, uint32_t val, int pc)
+size_t ber_push_tag(uint8_t **stack, uint32_t val, int pc)
 {
     uint8_t tagflags = ((6 & (val >> 28)) | (pc & 1)) << 5;
     val &= BER_TLV_TAG_MAX;
@@ -294,7 +260,7 @@ loop:
     goto loop;
 }
 
-int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
+IntPtr ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
 {
     // [ber-int-err-chk:2021-02-13]:
     // Because this function has no failure return values (yet),
@@ -304,16 +270,16 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     // - 1 for vlong_t::c,
     // - 1 for computation overhead,
     // - 1 for representation overhead.
-    int32_t ret =
-        (enclen + sizeof(uint32_t) * 3) &
-        (uint32_t)(-sizeof(uint32_t));
+    IntPtr ret =
+        (enclen + sizeof(uint32_t) * 3) & (-sizeof(uint32_t));
     
     vlong_t *w = any;
     uint32_t i;
     
-    if( pass == 1 ) return ret;
+    if( !any ) return ret;
 
     w->c = (enclen + sizeof(uint32_t)) / sizeof(uint32_t);
+    
     for(i=0; i<w->c; i++) w->v[i] = 0;
 
     for(i=0; i<enclen; i++)
@@ -322,39 +288,25 @@ int32_t ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
             enc[enclen - i - 1] << ((i % sizeof(uint32_t)) * 8);
     }
 
-    if( aux )
-    {
-        uint32_t *bits = aux;
-
-        for(i=w->c; --i; )
-            if( w->v[i] ) break;
-
-        *bits = w->v[i];
-        i = i * 32;
-        while( *bits ) i++, *bits >>= 1;
-        *bits = i;
-    }
-
     return ret;
 }
 
-int32_t ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS)
+IntPtr ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS)
 {
     // 2021-04-17: This function had not been tested yet.
 
     // [ber-int-err-chk:2021-02-13].
 
-    int32_t ret = 0;
-    int32_t i;
+    size_t ret = 0;
+    size_t i;
     const vlong_t *w = any;
 
     // silence 2 unused variable warnings.
     enclen = 0;
-    aux = NULL;
 
     // This function handles only unsigned integers.
     ret = w->c * sizeof(uint32_t) + 1;
-    for(i=w->c; i--; )
+    for(i=w->c; --i < w->c; )
     {
         if( w->v[i] < UINT32_C(1) << 31 ) ret--;
         if( w->v[i] < UINT32_C(1) << 23 ) ret--;
@@ -363,7 +315,7 @@ int32_t ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS)
         if( w->v[i] ) break;
     }
 
-    if( pass == 1 ) return ret;
+    if( !enc ) return ret;
 
     for(i=0; i<ret; i++) // i is the byte position in enc,
     {

@@ -8,6 +8,8 @@
 
 static_assert(sizeof(uint32_t) == 4, "Data type assumption failed.");
 
+vlong_size_t vlong_topbit(vlong_t *x);
+
 void vlong_OS2IP(vlong_t *restrict vl, const uint8_t *restrict os, size_t len);
 void vlong_I2OSP(vlong_t const *restrict vl, uint8_t *restrict os, size_t len);
 

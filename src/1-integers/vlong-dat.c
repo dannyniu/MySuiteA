@@ -2,6 +2,20 @@
 
 #include "vlong-dat.h"
 
+vlong_size_t vlong_topbit(vlong_t *x)
+{
+    vlong_size_t i;
+    uint32_t bits;
+
+    for(i=x->c; --i; )
+        if( x->v[i] ) break;
+
+    bits = x->v[i];
+    i = i * 32;
+    while( bits ) i++, bits >>= 1;
+    return i;
+}
+
 void vlong_OS2IP(vlong_t *restrict vl, const uint8_t *restrict os, size_t len)
 {
     // 2021-09-11:
