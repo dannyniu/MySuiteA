@@ -11,6 +11,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef ENABLE_HOSTED_HEADERS
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#endif /* ENABLE_TRACE_STDIO */
+
 #define xglue(a,b) a##b
 #define glue(a,b) xglue(a,b)
 
@@ -41,8 +48,8 @@
 typedef intptr_t IntPtr;
 
 static_assert(
-    sizeof(IntPtr) >= sizeof(size_t) &&
-    sizeof(IntPtr) >= sizeof(void (*)(void)),
+    sizeof(IntPtr) == sizeof(size_t) &&
+    sizeof(IntPtr) == sizeof(void (*)(void)),
     "Expectation on the compilation environment didn't hold!");
 
 // 2021-09-04:
@@ -68,7 +75,7 @@ struct CryptoParam {
 
 enum {
     // Applicable to
-    // 1.) Primitives whose output length are fixed and constant. 
+    // 1.) Primitives whose output length are fixed and constant.
     //
     // - For hash functions, this is the length of the digest in bytes.
     //
@@ -76,7 +83,7 @@ enum {
 
     // Applicable to
     // 1.) Fixed-length keyed or unkeyed permutations.
-    // 2.) Iterated bufferred processing primitives. 
+    // 2.) Iterated bufferred processing primitives.
     //
     blockBytes,
 
@@ -98,14 +105,14 @@ enum {
 
     // Applicable to
     // 1.) Primitives reusing working variables for invocations.
-    // 2.) Primitives saving working varibles for later resumption. 
+    // 2.) Primitives saving working varibles for later resumption.
     //
     contextBytes,
 
     // Applicable to
     // 1.) AEAD.
     //
-    ivBytes, tagBytes, 
+    ivBytes, tagBytes,
 
     // Block Cipher Interfaces //
     EncFunc, DecFunc, KschdFunc,
@@ -116,8 +123,8 @@ enum {
     // Keyed Context Initialization Function (AEAD, HMAC, etc.) //
     // 2021-03-20 addition for ``KInitFunc'':
     // applicable to both instances and parameterized instance templates.
-    KInitFunc, 
-    
+    KInitFunc,
+
     // Hash & XOF Functions //
     // 2021-03-20 addition for ``InitFunc'':
     // applicable to both instances and parameterized instance templates.
@@ -127,8 +134,49 @@ enum {
     ReadFunc,
 
     // AEAD Functions //
-    AEncFunc, ADecFunc, 
-    
+    AEncFunc, ADecFunc,
+
+    // Public-Key Cryptography //
+    bytesCtxPriv, bytexCtxPub,
+
+    // e.g.
+    // ECC has keys whose sizes are determined by the domain parameters
+    // of the curve; whereas RSA has parameters determined by the size
+    // of the modulus and the number of prime factors.
+    //
+    // The significance of this is that, when loading keys, the size of
+    // the working context is determined by the key decoder if this is 1,
+    // and by the compile-time or run-time parameters if this is 0.
+    //
+    // The size of the working context for key generation is independent of
+    // this and can be determined by either compile-time and run-time
+    // parameter, or the key generating function.
+    isParamDetermByKey,
+
+    // Obtains a set of parameter presets.
+    PKParamsFunc,
+
+    PKKeygenFunc,
+    PKEncFunc, PKDecFunc, // Key Encapsulation Mechanism
+    PKSignFunc, PKVerifyFunc, // Digital Signature Schemes
+
+    // Key Material Saving and Loading //
+    // - Encoder and Decoder work on the working contexts of their
+    //   respective key types.
+    // - Public key exporter exports public key from a private-key context
+    //   which contains the keypair generated from the keygen function
+    //   or imported using a private key decoding function.
+    // - While public key exporter is sufficient for importing public key
+    //   generated elsewhere, dedicated encoder for the public-key context
+    //   allows for transcoding between different public-key formats
+    //   (e.g. DER, XDR, JSON, etc.) as had been possible with private keys.
+    PKPrivkeyEncoder, PKPubkeyEncoder, PKPubkeyExporter,
+    PKPrivkeyDecoder, PKPubkeyDecoder,
+
+    // Ciphergram Saving and Loading //
+    PKCtEncoder, PKSigEncoder, // Ct: Ciphertext
+    PKCtDecoder, PKSigDecoder, // Sig: Signature
+
     // Information macros evaluates to 0
     // for queries not applicable to them.
 
@@ -165,7 +213,7 @@ typedef void *(*PKInitFunc_t)(const CryptoParam_t *P,
 typedef void (*PInitFunc_t)(const CryptoParam_t *P, void *restrict x);
 
 typedef void (*UpdateFunc_t)(void *restrict x,
-                             void const *restrict data, 
+                             void const *restrict data,
                              size_t len);
 typedef UpdateFunc_t WriteFunc_t;
 
@@ -193,6 +241,63 @@ typedef KInitFunc_t     InstInitFunc_t;
 typedef PKInitFunc_t    PInstInitFunc_t;
 typedef WriteFunc_t     ReseedFunc_t;
 typedef ReadFunc_t      GenFunc_t;
+
+// ``index'' starts at 0,
+// at which the function returns the length of parameter vector.
+//
+// For ``index'' greater than 0,
+// The function sets ``out'' to a certain parameter set
+// and returns the expected security level in bits.
+//
+// The function returns 0 to indicate end of list.
+//
+typedef int (*PKParamsFunc_t)(int index, CryptoParam_t *out);
+
+typedef IntPtr (*PKKeygenFunc_t)(void *restrict x,
+                                 CryptoParam_t *restrict param,
+                                 GenFunc_t prng_gen, void *restrict prng);
+
+// returns ss on success and NULL on failure.
+// by convention, if ss is NULL, *sslen is set to its length.
+typedef void *(*PKEncFunc_t)(void *restrict x,
+                             void *restrict ss, size_t *restrict sslen,
+                             GenFunc_t prng_gen, void *restrict prng);
+
+// returns x on success and NULL on failure.
+// if ss is NULL, *sslen is set to its length.
+typedef void *(*PKDecFunc_t)(void *restrict x,
+                            void *restrict ss, size_t *restrict sslen);
+
+// returns x on success and NULL on failure.
+typedef void *(*PKSignFunc_t)(void *restrict x,
+                              void const *restrict msg, size_t msglen,
+                              GenFunc_t prng_gen, void *restrict prng);
+
+// returns msg on success and NULL on failure.
+typedef void const *(*PKVerifyFunc_t)(void *restrict x,
+                                      void const *restrict msg,
+                                      size_t msglen);
+
+// 2-pass codecs similar to that in "2-asn1/der-codec.h".
+typedef IntPtr (*PKKeyEncoder_t)(void const *restrict any,
+                                 void *restrict enc,
+                                 size_t enclen,
+                                 CryptoParam_t *restrict aux);
+
+// Same as above.
+typedef IntPtr (*PKKeyDecoder_t)(void *restrict any,
+                                 void const *restrict enc,
+                                 size_t enclen,
+                                 CryptoParam_t *restrict aux);
+
+// returnx c on success and NULL on failure.
+// if c is NULL, *len is set to its length.
+typedef void *(*PKCiphergramEncoder_t)(void *restrict x,
+                                       void *restrict c, size_t *len);
+
+// returns x on success and NULL on failure.
+typedef void *(*PKCiphergramDecoder_t)(void *restrict x,
+                                       void const *restrict c, size_t len);
 
 // Because `obj' can be an identifier naming a macro
 // as well as a pointer to a function , we have to
@@ -242,5 +347,5 @@ typedef ReadFunc_t      GenFunc_t;
         size_t l = (size_t)(len), i;                    \
         for(i=0; i<l; i++) ba[i] = 0;                   \
     } while(false)
-    
+
 #endif /* MySuiteA_mysuitea_common_h */

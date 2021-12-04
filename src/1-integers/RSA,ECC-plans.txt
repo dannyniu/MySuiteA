@@ -23,7 +23,18 @@ RSA will come before ECC. The initial effort will focus on designing
 working contexts for RSA decryption and encryption - they'll be slightly
 different to allow encryption contexts to consume less resource; ...
 
-2021-02-13:
+2021-12-04:
+
+It is intended that public-key cryptography will support at least
+key and ciphergram formats of ASN.1 and JSON, with other formats being
+considered. This is currently under investigation, and a uniform API
+for PKC is being post-poned for his.
+
+This does not mean their API will be left in an inconsistently implemented
+state - their API will conform to that in "mysuitea-common.h", only that
+the definition for their "crypto object" will come at a later time.
+
+2021-12-04:
 
 Current RSA progress:
 
@@ -31,6 +42,8 @@ Current RSA progress:
 
 + Mathematical working context.
 
-- Schemes' paddings' working context.
++ Schemes' paddings' working context.
 
-- Full-scheme testing.
++ Full-scheme testing.
+
+- Uniform API.
