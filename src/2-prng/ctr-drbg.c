@@ -273,7 +273,7 @@ void CTR_DRBG_Reseed_WithDF(
 
     // 2021-09-11:
     // forgetting to reset key schedule was a cause of inconsistency.
-    x->bc_kschdDeltaTo(x, offset_k, KSCHD_PTR);
+    x->bc_kschd(DeltaTo(x, offset_k), KSCHD_PTR);
     
     CTR_DRBG_Update(x, seed_material, seedlen);
 }

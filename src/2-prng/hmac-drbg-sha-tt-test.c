@@ -53,7 +53,7 @@ void test_run1(
     P[0].template = tHMAC;
     P[0].param = P+1;
     P[1].info = hash;
-    P[1].aux = NULL;
+    P[1].param = NULL;
     
     printf("...... Test Name: %s ......\n", tn);
 

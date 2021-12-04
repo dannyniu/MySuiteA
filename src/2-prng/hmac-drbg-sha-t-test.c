@@ -51,7 +51,7 @@ void test_run1(
     size_t kvlen;
 
     P[0].info = hmac;
-    P[0].aux = NULL;
+    P[0].param = NULL;
     
     printf("...... Test Name: %s ......\n", tn);
 

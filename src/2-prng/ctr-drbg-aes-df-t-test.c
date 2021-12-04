@@ -51,7 +51,7 @@ void test_run1(
     size_t kvlen;
 
     P[0].info = bc;
-    P[0].aux = NULL;
+    P[0].param = NULL;
     
     printf("...... Test Name: %s ......\n", tn);
 
@@ -99,14 +99,14 @@ void tests_runall()
     // the internal state after the 1st reseed
     // in the example values for which:
     // - PredictionResistance   == true,
-    // - AdditionalInput        == null/<t>,
+    // - AdditionalInput        == null,
     // - PersonalizationString  == null/<t>.
     //
     // The 2nd expected output comes from
     // the output generated from the 1st call to
     // the instance for which:
     // - PredicationResistance  == false,
-    // - AdditionalInput        == null/<t>,
+    // - AdditionalInput        == null,
     // - PersonalizationString  == null/<t>.
     //
     bc = iAES128;

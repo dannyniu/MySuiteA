@@ -90,20 +90,18 @@ void test_run1(
 
 void tests_runall()
 {
-    // NIST example files seems to contain errors.
-    //
     // The 1st expected output comes from
     // the internal state after the 1st reseed
     // in the example values for which:
     // - PredictionResistance   == true,
-    // - AdditionalInput        == null/<t>,
+    // - AdditionalInput        == null,
     // - PersonalizationString  == null/<t>.
     //
     // The 2nd expected output comes from
     // the output generated from the 1st call to
     // the instance for which:
     // - PredicationResistance  == false,
-    // - AdditionalInput        == null/<t>,
+    // - AdditionalInput        == null,
     // - PersonalizationString  == null/<t>.
     //
     drbg = iCTR_DRBG_AES128;

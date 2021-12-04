@@ -33,7 +33,7 @@ void test_run1(const char *tn, const char *exp1, const char *exp2)
     int fails = 0;
 
     P[0].info = bc;
-    P[0].aux = NULL;
+    P[0].param = NULL;
     seedlen = drbg(P, seedBytes);
     
     printf("...... Test Name: %s ......\n", tn);
