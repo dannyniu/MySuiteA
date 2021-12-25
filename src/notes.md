@@ -152,16 +152,18 @@ descirbed above.
   algorithm. For signature schemes, this means `PKSignFunc` and `PKVerifyFunc`
   must match; for KEMs this means `PKEncFunc` and `PKDecFunc` must match.
 
-// (Key-pair Codec)
-//     |
-//     |
-// _assoc thru KeyGen function with_
-//     |
-//     |
-// (PKC Algo)
-//     |
-//     |
-// _assoc thru Pub/Priv operating functions with_
-//     |
-//     |
-// (Ciphergram Codec)
+```
+> (Key-pair Codec)
+>     |
+>     |
+> _assoc thru KeyGen function with_
+>     |
+>     |
+> (PKC Algo)
+>     |
+>     |
+> _assoc thru Pub/Priv operating functions with_
+>     |
+>     |
+> (Ciphergram Codec)
+```
