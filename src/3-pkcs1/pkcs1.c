@@ -4,7 +4,7 @@
 #include "../2-rsa/rsa-codec-der.h"
 #include "../0-exec/struct-delta.c.h"
 
-#if ! (PKCS1_OMIT_KEYGEN || PKCS1_OMIT_PRIV_OPS)
+#if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS)
 
 IntPtr PKCS1_Keygen(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
@@ -34,9 +34,9 @@ IntPtr PKCS1_Keygen(
     }
 }
 
-#endif /* ! (PKCS1_OMIT_KEYGEN || PKCS1_OMIT_PRIV_OPS) */
+#endif /* ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS) */
 
-#if ! PKCS1_OMIT_PRIV_OPS
+#if ! PKC_OMIT_PRIV_OPS
 
 IntPtr PKCS1_Encode_RSAPrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
@@ -87,9 +87,9 @@ IntPtr PKCS1_Export_RSAPublicKey(
         DeltaTo(x, offset_rsa_privctx), enc, enclen);
 }
 
-#endif /* ! PKCS1_OMIT_PRIV_OPS */
+#endif /* ! PKC_OMIT_PRIV_OPS */
 
-#if ! PKCS1_OMIT_PUB_OPS
+#if ! PKC_OMIT_PUB_OPS
 
 IntPtr PKCS1_Encode_RSAPublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
@@ -130,4 +130,37 @@ IntPtr PKCS1_Decode_RSAPublicKey(
     return ret;
 }
 
-#endif /* ! PKCS1_OMIT_PUB_OPS */
+#endif /* ! PKC_OMIT_PUB_OPS */
+
+#include "../2-hash/sha.h"
+
+int PKCS1_PKParams(int index, CryptoParam_t *out)
+{
+    switch( index )
+    {
+    case 0:
+        return 5;
+        break;
+
+    case 1:
+        out[0].info = iSHA256;
+        out[1].info = iSHA256;
+        out[2].info = NULL;
+        out[3].info = NULL;
+        out[4].info = NULL;
+        out[0].param = NULL;
+        out[1].param = NULL;
+        out[2].aux = 32;
+        out[3].aux = 2048;
+        out[4].aux = 2;
+        return 112;
+        break;
+
+    default:
+        return 0;
+    }
+}
+
+#if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
+IntPtr iPKCS1_KeyCodec(int q) { return xPKCS1_KeyCodec(q); }
+#endif

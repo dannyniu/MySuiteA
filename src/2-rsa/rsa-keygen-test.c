@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
     uint8_t *der1, *der2;
     RSA_Priv_Ctx_Hdr_t *ctx, *ctx2;
     RSA_Priv_Param_t p_rsa = {
-        [0].aux = 960, // modulus bits.
-        [1].aux = 3, // primes count
+        [0].aux = 2048, // modulus bits.
+        [1].aux = 2, // primes count
     };
     
     Gimli_XOF_Init(&gx);

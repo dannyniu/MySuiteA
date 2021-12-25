@@ -31,4 +31,23 @@ void *RSAES_OAEP_Enc(
     void *restrict ss, size_t *restrict sslen,
     GenFunc_t prng_gen, void *restrict prng);
 
+#define cRSAES_OAEP cRSA_PKCS1
+
+#define xRSAES_OAEP(hmsg,hmgf,slen,bits,primes,q) (     \
+        q==PKParamsFunc ? (IntPtr)PKCS1_PKParams :      \
+        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :        \
+        q==PKEncFunc ? (IntPtr)RSAES_OAEP_Enc :         \
+        q==PKDecFunc ? (IntPtr)RSAES_OAEP_Dec :         \
+        cRSAES_OAEP(hmsg,hmgf,slen,bits,primes,q) )
+
+#define xRSAES_OAEP_CtCodec(q) (                                \
+        q==PKEncFunc ? (IntPtr)RSAES_OAEP_Enc :                 \
+        q==PKDecFunc ? (IntPtr)RSAES_OAEP_Dec :                 \
+        q==PKCtEncoder ? (IntPtr)RSAES_OAEP_Encode_Ciphertext : \
+        q==PKCtDecoder ? (IntPtr)RSAES_OAEP_Decode_Ciphertext : \
+        0)
+
+IntPtr tRSAES_OAEP(const CryptoParam_t *P, int q);
+IntPtr iRSAES_OAEP_CtCodec(int q);
+
 #endif /* MySuiteA_RSAES_OAEP_h */

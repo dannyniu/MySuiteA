@@ -77,7 +77,7 @@ typedef struct {
 
 #define PKCS1_PUB_CTX_SIZE_X(hmsg,hmgf,slen,bits,primes) (      \
         PKCS1_PUB_CTX_PAYLOAD_SIZE(                             \
-            hmsg,hmgf,slen,bits) +                              \
+            hmsg,hmgf,slen,bits,primes) +                       \
         sizeof(PKCS1_Pub_Ctx_Hdr_t) )
 
 #define PKCS1_PUB_CTX_SIZE(...) PKCS1_PUB_CTX_SIZE_X(__VA_ARGS__)
@@ -127,5 +127,26 @@ IntPtr PKCS1_Encode_RSAPublicKey(
 
 IntPtr PKCS1_Decode_RSAPublicKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
+
+int PKCS1_PKParams(int index, CryptoParam_t *out);
+
+#define xPKCS1_KeyCodec(q) (                                            \
+        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                        \
+        q==PKPrivkeyEncoder ? (IntPtr)PKCS1_Encode_RSAPrivateKey :      \
+        q==PKPrivkeyDecoder ? (IntPtr)PKCS1_Decode_RSAPrivateKey :      \
+        q==PKPubkeyExporter ? (IntPtr)PKCS1_Export_RSAPublicKey :       \
+        q==PKPubkeyEncoder ? (IntPtr)PKCS1_Encode_RSAPublicKey :        \
+        q==PKPubkeyDecoder ? (IntPtr)PKCS1_Decode_RSAPublicKey :        \
+        0)
+
+IntPtr iPKCS1_KeyCodec(int q);
+
+#define cRSA_PKCS1(hmsg,hmgf,slen,bits,primes,q) (      \
+        q==bytesCtxPriv ? PKCS1_PRIV_CTX_SIZE(          \
+            hmsg,hmgf,slen,bits,primes) :               \
+        q==bytesCtxPub ? PKCS1_PUB_CTX_SIZE(            \
+            hmsg,hmgf,slen,bits,primes) :               \
+        q==isParamDetermByKey ? 1 :                     \
+        0)
 
 #endif /* MySuiteA_pkcs1_h */

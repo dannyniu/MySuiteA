@@ -34,7 +34,7 @@ This does not mean their API will be left in an inconsistently implemented
 state - their API will conform to that in "mysuitea-common.h", only that
 the definition for their "crypto object" will come at a later time.
 
-2021-12-04:
+2021-12-25:
 
 Current RSA progress:
 
@@ -46,4 +46,4 @@ Current RSA progress:
 
 + Full-scheme testing.
 
-- Uniform API.
++ Uniform API.

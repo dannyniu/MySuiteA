@@ -34,7 +34,7 @@ pkcs1.c
 "
 bin=$(basename "$0" .sh)
 srcset="Plain C"
-variant="-D PKCS1_OMIT_PRIV_OPS"
+variant="-D PKC_OMIT_PRIV_OPS"
 optimize=true
 
 keygen_log="" # "-D KEYGEN_LOGF_STDIO"

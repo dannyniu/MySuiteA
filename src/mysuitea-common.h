@@ -74,18 +74,20 @@ struct CryptoParam {
 };
 
 enum {
+    //-- Symmetric-Key Cryptography --//
+    
     // Applicable to
     // 1.) Primitives whose output length are fixed and constant.
     //
     // - For hash functions, this is the length of the digest in bytes.
     //
-    outBytes,
+    outBytes = 1,
 
     // Applicable to
     // 1.) Fixed-length keyed or unkeyed permutations.
     // 2.) Iterated bufferred processing primitives.
     //
-    blockBytes,
+    blockBytes = 2,
 
     // Applicable to
     // 1.) All keyed primitives.
@@ -96,48 +98,48 @@ enum {
     // - values with absolute values smaller than or equal to 4 have
     //   special meanings;
     // - a value of -1 specifies that the key may be of unlimited length;
-    keyBytes,
+    keyBytes = 3,
 
     // Applicable to
     // 1.) All iterated keyed permutation with at least 1 iteration.
     //
-    keyschedBytes,
+    keyschedBytes = 4,
 
     // Applicable to
     // 1.) Primitives reusing working variables for invocations.
     // 2.) Primitives saving working varibles for later resumption.
     //
-    contextBytes,
+    contextBytes = 5,
 
     // Applicable to
     // 1.) AEAD.
     //
-    ivBytes, tagBytes,
+    ivBytes = 6, tagBytes = 7,
 
     // Block Cipher Interfaces //
-    EncFunc, DecFunc, KschdFunc,
+    EncFunc = 21, DecFunc = 22, KschdFunc = 23,
 
     // Permutation Interfaces //
-    PermuteFunc,
+    PermuteFunc = 24,
 
     // Keyed Context Initialization Function (AEAD, HMAC, etc.) //
     // 2021-03-20 addition for ``KInitFunc'':
     // applicable to both instances and parameterized instance templates.
-    KInitFunc,
+    KInitFunc = 25,
 
     // Hash & XOF Functions //
     // 2021-03-20 addition for ``InitFunc'':
     // applicable to both instances and parameterized instance templates.
-    InitFunc,
-    UpdateFunc, WriteFunc=UpdateFunc,
-    FinalFunc, XofFinalFunc,
-    ReadFunc,
+    InitFunc = 26,
+    UpdateFunc = 27, WriteFunc=UpdateFunc,
+    FinalFunc = 28, XofFinalFunc = 29,
+    ReadFunc = 30,
 
     // AEAD Functions //
-    AEncFunc, ADecFunc,
+    AEncFunc = 31, ADecFunc = 32,
 
-    // Public-Key Cryptography //
-    bytesCtxPriv, bytexCtxPub,
+    //-- Public-Key Cryptography --//
+    bytesCtxPriv = 101, bytesCtxPub = 102,
 
     // e.g.
     // ECC has keys whose sizes are determined by the domain parameters
@@ -151,14 +153,14 @@ enum {
     // The size of the working context for key generation is independent of
     // this and can be determined by either compile-time and run-time
     // parameter, or the key generating function.
-    isParamDetermByKey,
+    isParamDetermByKey = 103,
 
     // Obtains a set of parameter presets.
-    PKParamsFunc,
+    PKParamsFunc = 121,
 
-    PKKeygenFunc,
-    PKEncFunc, PKDecFunc, // Key Encapsulation Mechanism
-    PKSignFunc, PKVerifyFunc, // Digital Signature Schemes
+    PKKeygenFunc = 122,
+    PKEncFunc = 123, PKDecFunc = 124, // Key Encapsulation Mechanism
+    PKSignFunc = 125, PKVerifyFunc = 126, // Digital Signature Schemes
 
     // Key Material Saving and Loading //
     // - Encoder and Decoder work on the working contexts of their
@@ -169,20 +171,20 @@ enum {
     // - While public key exporter is sufficient for importing public key
     //   generated elsewhere, dedicated encoder for the public-key context
     //   allows for transcoding between different public-key formats
-    //   (e.g. DER, XDR, JSON, etc.) as had been possible with private keys.
-    PKPrivkeyEncoder, PKPubkeyEncoder, PKPubkeyExporter,
-    PKPrivkeyDecoder, PKPubkeyDecoder,
+    //   (e.g. DER, CBOR, JSON, etc.) as had been possible with private keys.
+    PKPrivkeyEncoder = 141, PKPubkeyEncoder = 142, PKPubkeyExporter = 143,
+    PKPrivkeyDecoder = 144, PKPubkeyDecoder = 145,
 
     // Ciphergram Saving and Loading //
-    PKCtEncoder, PKSigEncoder, // Ct: Ciphertext
-    PKCtDecoder, PKSigDecoder, // Sig: Signature
+    PKCtEncoder = 146, // Ct: Cipher Transcript which can include
+    PKCtDecoder = 147, //     both ciphertexts and signatures.
 
     // Information macros evaluates to 0
     // for queries not applicable to them.
 
     // Private-Use Range //
-    qPrivateUseBegin = 128,
-    qPrivateUseEnd = 255,
+    qPrivateUseBegin = 20000, // above 2**14
+    qPrivateUseEnd = 29999, // below 2**15
 };
 
 // Aliases additions for PRNG/DRBG.

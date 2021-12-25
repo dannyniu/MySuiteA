@@ -107,3 +107,61 @@ added to:
    it's possible to calculate the maximum of 2 sizes, even though in most
    cases, they should be the same hash function. For more on this, see
    https://stackoverflow.com/q/68992622 ).
+
+---
+
+
+2021-12-24
+==========
+
+The queries for key-pair and ciphergram codec functions are separated from 
+the queries for public-key algorithm so as to allow one implementation of a 
+cryptosystem to interoperate with a variety of different applications that
+use different data formats. The provision is made, but the availability of
+codec functions for additional formats will depend on demand and on whether
+I can spare time to do it (or if someone is willing to fork MySuiteA and
+contribute their work).
+
+The codecs for key-pairs are associated with the key generation functions,
+for the obvious reason that key-pairs are the product of key-generation 
+function.
+
+What's not obvious is the associating of ciphergram codecs. 
+
+There are 4 ways a ciphergram codec function can be associated with a
+crypto object instance - 1) with the private-key function, 2) with the 
+public-key function, 3) with the producer function, and 4) with the consumer
+function. 
+
+After some consideration, the ciphergram encoder and decoder pair is associated
+with the public and private key operation functions of the PKC algorithm, as
+most elements in a public-key cryptosystem, such as keys, cipher operations,
+etc. all come in pairs.
+
+Finally, the rules for determining whether a set of codec functions are 
+usable with an algorithm. The rules are based on the rules of association 
+descirbed above.
+
+- A set of key-pair codec functions is usable with a PKC algorithm iff
+  the query object that returns them returns the same key generation function
+  as the query object that represents the PKC algorithm.
+
+- The ciphergram encoding and decoding functions is usable with a PKC algorithm
+  iff the query object that returns them returns the same public **and**
+  private key operation functions as the query object that represents the PKC
+  algorithm. For signature schemes, this means `PKSignFunc` and `PKVerifyFunc`
+  must match; for KEMs this means `PKEncFunc` and `PKDecFunc` must match.
+
+// (Key-pair Codec)
+//     |
+//     |
+// _assoc thru KeyGen function with_
+//     |
+//     |
+// (PKC Algo)
+//     |
+//     |
+// _assoc thru Pub/Priv operating functions with_
+//     |
+//     |
+// (Ciphergram Codec)

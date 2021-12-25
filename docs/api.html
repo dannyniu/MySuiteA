@@ -698,12 +698,366 @@
       identical corresponding numerical values.
     </p>
 
-    <h2>Still Developing</h2>
+    <h2>Key-Pair Encoding/Decoding Function Set</h2>
 
     <p>
-      Other cryptographic primitives are under development, and
-      uniform interfaces for them are still exploring.
+      The API for key-pair encoding and decoding is common to both PKE/KEM
+      and signature schemes, therefore it's described here in the first place.
     </p>
+
+    <p>The encoder functions have the prototype:</p>
+    <pre>IntPtr (*PKKeyEncoder_t)(
+      <span class="tab"></span>rdat any,
+      <span class="tab"></span>rbuf enc,
+      <span class="tab"></span>size_t enclen,
+      <span class="tab"></span>_param_);</pre>
+
+    <p>where as the decoder functions have the prototype:</p>
+    <pre>IntPtr (*PKKeyDecoder_t)(
+      <span class="tab"></span>rbuf any,
+      <span class="tab"></span>rdat enc,
+      <span class="tab"></span>size_t enclen,
+      <span class="tab"></span>_param_);</pre>
+
+    <p>
+      The <code>any</code> parameter points to the working context of the
+      PKC algorithm, which may be the public-key or the private-key
+      working context depending on the usage. The <code>enc</code> parameter
+      points to the buffer that holds the encoded key. The <code>enclen</code>
+      specifies the length of this buffer. The <code>_param_</code> parameter
+      specifies the instantiation parameters used for the algorithm, which will
+      be taken into account when estimating the size of the working context.
+    </p>
+
+    <p>
+      These functions have 2 passes. In the 1st pass, these functions returns
+      the estimated size of encoded key (encoder) or the working context
+      (decoder). If some error occurs, then -1 is returned. The actual
+      encoding/decoding is carried out in the 2nd pass. The return value in the
+      2nd pass is the same as that from the 1st pass.
+    </p>
+
+    <p>
+      Such setup is necessary, as some key formats (e.g. ASN.1 DER encoding of
+      RSA private keys) have variable encoded lengths depending on the values
+      of components of the key material, even when the parameters are otherwise
+      constant.
+    </p>
+
+    <p>
+      In pass 1, the <code>enc</code> and <code>enclen</code> should be
+      specified as <code>NULL</code> and 0 respectively for the encoder
+      (although <code>enclen</code> is ignored for now, it may have other
+      reserved meaning in future versions of MySuiteA); for the decoder,
+      <code>any</code> should be specified as <code>NULL</code>.
+    </p>
+
+    <p>
+      In pass 2, all of <code>any</code>, <code>enc</code>,
+      <code>enclen</code>, and <code>_param_</code> should be specified with
+      valid values.
+    </p>
+
+    <dl>
+      <dt><code>PKKengenFunc</code></dt>
+      <dd>
+        The key generation function with which this key-pair formatting
+        function set is associated.
+      </dd>
+      <dt><code>PKPrivkeyEncoder</code></dt>
+      <dd>
+        <code>PKKeyEncoder_t</code> where <code>any</code>
+        is the private-key working context
+      </dd>
+      <dt><code>PKPrivkeyDecoder</code></dt>
+      <dd>
+        <code>PKKeyDecoder_t</code> where <code>any</code>
+        is the private-key working context
+      </dd>
+      <dt><code>PKPubkeyExporter</code></dt>
+      <dd>
+        <code>PKKeyEncoder_t</code> where <code>any</code>
+        is the private-key working context
+      </dd>
+      <dt><code>PKPubkeyEncoder</code></dt>
+      <dd>
+        <code>PKKeyEncoder_t</code> where <code>any</code>
+        is the public-key working context
+      </dd>
+      <dt><code>PKPubkeyDecoder</code></dt>
+      <dd>
+        <code>PKKeyDecoder_t</code> where <code>any</code>
+        is the public-key working context
+      </dd>
+    </dl>
+
+    <h2>Ciphergram Encoding/Decoding Function Set</h2>
+
+    <p>
+      The interface for encoding and decoding is the same for both KEM/PKE
+      and digital signatures. They're associated with the PKC algorithm
+      through the public/private function pair.
+    </p>
+
+    <p>The encoder functions have the prototype:</p>
+    <pre>void *(*PKCiphergramEncoder_t)(
+      <span class="tab"></span>rbuf x,
+      <span class="tab"></span>rbuf c, size_t *len);</pre>
+
+    <p>
+      The encoder function saves the ciphergram (ciphertext or signature)
+      into <code>c</code>. It returns <code>c</code> on success and
+      <code>NULL</code> otherwise. If <code>c</code> is <code>NULL</code>
+      then <code>*len</code> is set to its length.
+    </p>
+
+    <p>
+      Such set up is necessary as some formats of some signatures (e.g. ECDSA
+      when encoding (r,s) using ASN.1 DER encoding, or the Falcon PQC digital
+      signature scheme) have lengths that're variable.
+    </p>
+
+    <p>The decoder functions have the prototype:</p>
+    <pre>void *(*PKCiphergramDecoder_t)(
+      <span class="tab"></span>rbuf x,
+      <span class="tab"></span>rdat c, size_t len);</pre>
+
+    <p>
+      The decoder function loads the ciphergram into the working context of
+      the PKC algorithm. It returns <code>x</code> on success and
+      <code>NULL</code> on failure.
+    </p>
+
+    <dl>
+      <dt><code>PKEncFunc</code> (KEM-specific)</dt>
+      <dd>The key encapsulating function with which the
+        ciphergram formatting function set is associated,</dd>
+
+      <dt><code>PKDecFunc</code> (KEM-specific)</dt>
+      <dd>The key decapsulating function with which the
+        ciphergram formatting function set is associated,</dd>
+
+      <dt><code>PKSignFunc</code> (signature scheme -specific)</dt>
+      <dd>The private-key signing function with which the
+        ciphergram formatting function set is associated,</dd>
+
+      <dt><code>PKVerifyFunc</code> (signature scheme -specific)</dt>
+      <dd>The public-key verification function with which the
+        ciphergram formatting function set is associated,</dd>
+
+      <dt><code>PKCtEncoder</code></dt>
+      <dd>The ciphergram encoding function of prototype
+        <code>PKCiphergramEncoder_t</code>.
+        <code>Ct</code> means cipher transcript.</dd>
+
+      <dt><code>PKCtDecoder</code></dt>
+      <dd>The ciphergram decoding function of prototype
+        <code>PKCiphergramDecoder_t</code>.
+        <code>Ct</code> means cipher transcript.</dd>
+    </dl>
+
+    <h2>KEM - Key Encapsulation Mechanisms</h2>
+
+    <dl>
+      <dt><p><code>isParamDetermByKey</code></p></dt>
+      <dd>
+        <p>
+          If the value of this query is 1, then the values of the queries
+          <code>bytesCtxPriv</code> and <code>bytesCtxPub</code> can only
+          be used for private contexts for generating keys, as the parameters
+          and the size of the working contexts are variable depending on the
+          key to be loaded.
+        </p>
+        <p>
+          On the other hand, if the value of this query is 0, then
+          <code>bytesCtxPriv</code> and <code>bytesCtxPub</code> can be
+          used to set parameters for the working context, as they're not
+          determined by the key. See "mysuitea-common.h" for more.
+        </p>
+      </dd>
+
+      <dt><code>bytesCtxPriv</code></dt>
+      <dd>The size of the private-key working context</dd>
+      <dt><code>bytesCtxPub</code></dt>
+      <dd>The size of the public-key working context</dd>
+
+      <dt><p><code>PKParamsFunc</code></p></dt>
+      <dd>
+        <p>
+          The instantiation of PKC algorithms involve parameters that're
+          more complex in structure. This is why a function that can be
+          queried of default, or recommended set of parameters is needed.
+        </p>
+        <p>
+          Such function is of prototype:
+          <code>int (*PKParamsFunc_t)(int index, CryptoParam_t *out);</code>.
+        </p>
+        <p>
+          When <code>index</code> is 0, the vector length of <code>out</code>
+          is returned. This is the number of <code>CryptoParam_t</code> objects
+          that needs to be allocated for out.
+        </p>
+        <p>
+          Each successive values of <code>index</code> returns a parameter set
+          in the parameter vector pointed to by <code>out</code> and the
+          estimated strength of security in bits in the return value.
+          The actual linking structure of <code>out</code> written by the
+          function may not necessarily be linear. When there's no more
+          parameter presets available, 0 is returned.
+        </p>
+      </dd>
+
+      <dt><p><code>PKKeygenFunc</code></p></dt>
+      <dd>
+        <p>The key generation function of prototype:</p>
+        <pre>IntPtr (*PKKeygenFunc_t)(
+          <span class="tab"></span>rbuf x, _param_,
+          <span class="tab"></span>GenFunc_t prng_gen, rbuf prng);</pre>
+        <p>where:</p>
+        <ul>
+          <li><code>x</code> points to the private-key working context,</li>
+          <li><code>_param_</code> specifies the parameter
+            for generating the new key,</li>
+          <li><code>prng_gen</code> is the PRNG
+            random bits generating function,</li>
+          <li><code>prng</code> is the working context for the PRNG.</li>
+        </ul>
+        <p>
+          This function generates a key-pair and save its internal
+          representation in the working context, which can be retrieved using
+          key encoder/exporter functions and loaded using decoder functions.
+        </p>
+      </dd>
+
+      <dt><p><code>PKEncFunc</code></p></dt>
+      <dd>
+        <p>The KEM secret encapsulation function of prototype:</p>
+        <pre>void *(*PKEncFunc_t)(
+          <span class="tab"></span>rbuf x,
+          <span class="tab"></span>rbuf ss, size_t *restrict sslen,
+          <span class="tab"></span>GenFunc_t prng_gen, rbuf prng);</pre>
+        <p>where:</p>
+        <ul>
+          <li><code>x</code> points to the public-key working context,</li>
+          <li><code>ss</code> points to the buffer that will
+            receives the shared secret,</li>
+          <li>
+            <code>sslen</code> points to a variable of type
+            <code>size_t</code>. If <code>ss</code> is <code>NULL</code>,
+            this variable will be set to the length of the shared secret.
+            If <code>ss</code> is non-<code>NULL</code>, the variable
+            indicates the size of the buffer pointed to by <code>ss</code>,
+            in which case, at most <code>*sslen</code> bytes will be written
+            to <code>ss</code>, and if there's excess space than needed to
+            store the shared secret, the result will be left-padded with
+            nul bytes.
+          </li>
+          <li><code>prng_gen</code> is the PRNG
+            random bits generating function,</li>
+          <li><code>prng</code> is the working context for the PRNG.</li>
+        </ul>
+        <p>
+          This function generates a shared secret and a ciphertext based on
+          the public key loaded into the public-key working context.
+          The shared secret is stored into <code>ss</code> while the ciphertext
+          is saved in a internal representation in the working context and
+          will be exported using a ciphergram encoding function.
+        </p>
+      </dd>
+
+      <dt><p><code>PKDecFunc</code></p></dt>
+      <dd>
+        <p>The KEM secret decapsulation function of prototype:</p>
+        <pre>void *(*PKDecFunc_t)(
+          <span class="tab"></span>rbuf x,
+          <span class="tab"></span>rbuf ss, size_t *restrict sslen);</pre>
+        <p>where:</p>
+        <ul>
+          <li><code>x</code> points to the private-key working context,</li>
+          <li><code>ss</code> points to the buffer that will
+            receives the shared secret,</li>
+          <li>
+            <code>sslen</code> points to a variable of type
+            <code>size_t</code>. If <code>ss</code> is <code>NULL</code>,
+            this variable will be set to the length of the shared secret.
+            If <code>ss</code> is non-<code>NULL</code>, the variable
+            indicates the size of the buffer pointed to by <code>ss</code>,
+            in which case, at most <code>*sslen</code> bytes will be written
+            to <code>ss</code>, and if there's excess space than needed to
+            store the shared secret, the result will be left-padded with
+            nul bytes.
+          </li>
+        </ul>
+        <p>
+          This function decapsulates the shared secret from the ciphertext
+          using the private key. The ciphertext and the private key are loaded
+          into the private-key working context using the private key decoder
+          function and the ciphertext decoder function.
+          For some cryptosystems, the ciphertext may be of variable length
+          (e.g. RSA PKE), as such, repeating the call returns the same
+          information unless a different ciphertext is loaded using the
+          ciphergram decoder function.
+        </p>
+      </dd>
+    </dl>
+
+    <h2>DSS - Digital Signature Schemes</h2>
+
+    <dl>
+      <dt><code>isParamDetermByKey</code></dt>
+      <dt><code>bytesCtxPriv</code></dt>
+      <dt><code>bytesCtxPub</code></dt>
+      <dt><code>PKParamsFunc</code></dt>
+      <dt><code>PKKeygenFunc</code></dt>
+      <dd><p>Same as that for KEMs'.</p></dd>
+
+      <dt><p><code>PKSignFunc</code></p></dt>
+      <dd>
+        <p>The digital signature signing function of prototype:</p>
+        <pre>void *(*PKSignFunc_t)(
+          <span class="tab"></span>rbuf x,
+          <span class="tab"></span>rdat msg, size_t msglen,
+          <span class="tab"></span>GenFunc_t prng_gen, rbuf prng);</pre>
+        <p>where:</p>
+        <ul>
+          <li><code>x</code> points to the private-key working context,</li>
+          <li><code>msg</code> is the buffer
+            holding the message to be signed,</li>
+          <li><code>msglen</code> is the length of the message in bytes,</li>
+          <li><code>prng_gen</code> is the PRNG
+            random bits generating function,</li>
+          <li><code>prng</code> is the working context for the PRNG.</li>
+        </ul>
+        <p>
+          The function signs the message <code>msg</code> and saves the
+          internal representation of the signature in <code>x</code> to be
+          exported using the ciphergram encoding function. It returns
+          <code>x</code> on success and <code>NULL</code> on failure.
+        </p>
+      </dd>
+
+      <dt><p><code>PKVerifyFunc</code></p></dt>
+      <dd>
+        <p>The digital signature signing function of prototype:</p>
+        <pre>void *(*PKVerifyFunc_t)(
+          <span class="tab"></span>rbuf x,
+          <span class="tab"></span>rdat msg, size_t msglen);</pre>
+        <p>where:</p>
+        <ul>
+          <li><code>x</code> points to the public-key working context,</li>
+          <li><code>msg</code> is the buffer
+            holding the message to be verified,</li>
+          <li><code>msglen</code> is the length of the message in bytes,</li>
+        </ul>
+        <p>
+          The function verifies the message <code>msg</code> with the
+          public key and the signature loaded into the public-key working
+          context using the public-key and ciphergram decoder function.
+          It returns <code>msg</code> if signature is valid, and
+          <code>NULL</code> otherwise.
+        </p>
+      </dd>
+    </dl>
 
   </body>
 </html>

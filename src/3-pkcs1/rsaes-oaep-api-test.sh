@@ -9,6 +9,7 @@ cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
 rsaes-oaep-api-test.c
+rsaes-oaep.c
 rsaes-oaep-dec.c
 rsaes-oaep-enc.c
 pkcs1.c

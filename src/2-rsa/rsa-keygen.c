@@ -5,7 +5,10 @@
 #include "../2-numbertheory/EGCD.h"
 #include "../0-exec/struct-delta.c.h"
 
-#define MR_ITERATIONS 8
+// 2021-12-25,
+// The number of iterations of Miller-Rabin tests changed from 8 to 5
+// per guidance in FIPS-186.
+#define MR_ITERATIONS 5
 #define PUB_EXPONENT 65537
 
 #ifdef KEYGEN_LOGF_STDIO
@@ -32,9 +35,17 @@ static vlong_t *gen_oddint_bits(
         w->v[t] &= (1 << m) - 1;
     }
 
-    bits = bits - 1;
     w->v[0] |= 1;
-    w->v[bits / 32] |= UINT32_C(1) << (bits % 32);
+
+    // 2021-12-25:
+    // To avoid multiplication bit shrinking, the top of the candidate integer
+    // is now or'd with 5 bits. This should be adequate when each prime factor
+    // of a 15380-bit modulus (256-bit security) is at least 1024 bits, or when
+    // each prime factor of a modulus of at most 7680 bits (192-bit security)
+    // is at least 512 bits. 
+    bits = bits - 1;
+    w->v[bits / 32 - 0] |= (UINT64_C(0x1f0000000) << (bits % 32)) >> 32;
+    w->v[bits / 32 - 1] |= (UINT64_C(0x1f0000000) << (bits % 32));
 
     return w;
 }

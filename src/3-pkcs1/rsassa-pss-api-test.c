@@ -11,6 +11,20 @@ static gimli_xof_t gx;
 #define NBITS 768
 #define MSGMAX 96
 
+#define PKC_CtAlgo iRSASSA_PSS_CtCodec
+
+#define PKC_Sign                                \
+    ((PKSignFunc_t)(PKC_CtAlgo(PKSignFunc)))
+
+#define PKC_Verify                                      \
+    ((PKVerifyFunc_t)(PKC_CtAlgo(PKVerifyFunc)))
+
+#define PKC_Encode_Signature                            \
+    ((PKCiphergramEncoder_t)(PKC_CtAlgo(PKCtEncoder)))
+
+#define PKC_Decode_Signature                            \
+    ((PKCiphergramDecoder_t)(PKC_CtAlgo(PKCtDecoder)))
+
 void *my_alloc(const char *s, size_t len)
 {
     printf("my_alloc: %s: %zd bytes\n", s, len);
@@ -44,8 +58,8 @@ int main(int argc, char *argv[])
 
         Gimli_XOF_Read(&gx, msg, msglen);
 
-        RSASSA_PSS_Sign(dex, msg, msglen, (GenFunc_t)Gimli_XOF_Read, &gx);
-        RSASSA_PSS_Encode_Signature(dex, NULL, &size);
+        PKC_Sign(dex, msg, msglen, (GenFunc_t)Gimli_XOF_Read, &gx);
+        PKC_Encode_Signature(dex, NULL, &size);
         
         if( !copy ) copy = malloc(size);
 
@@ -55,10 +69,10 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
 
-        RSASSA_PSS_Encode_Signature(dex, copy, &size);        
-        RSASSA_PSS_Decode_Signature(enx, copy, size);
+        PKC_Encode_Signature(dex, copy, &size);
+        PKC_Decode_Signature(enx, copy, size);
         
-        lret = (IntPtr)RSASSA_PSS_Verify(enx, msg, msglen);
+        lret = (IntPtr)PKC_Verify(enx, msg, msglen);
         if( !lret )
         {
             printf("%d: Signature Failure\n", i);
