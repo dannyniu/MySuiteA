@@ -11,8 +11,8 @@ static void p1305bn_add(p1305bn_t a, p1305bn_t const b)
     for(i=0; i<5; i++)
     {
         v = b[i];
-        if( (a[i] += u) < u ) u = 1; else u = 0;
-        if( (a[i] += v) < v ) u += 1;
+        u  = ((a[i] += u) - (uint64_t)u) >> 63;
+        u += ((a[i] += v) - (uint64_t)v) >> 63;
     }
 }
 
@@ -83,7 +83,7 @@ static inline void p1305bn_addto(p1305bn_t a, uint32_t x, int i)
     register uint32_t u = (uint32_t)x;
     for(; i<5 && u; i++)
     {
-        if( (a[i] += u) < u ) u = 1; else u = 0;
+        u = ((a[i] += u) - (uint64_t)u) >> 63;
     }
 }
 

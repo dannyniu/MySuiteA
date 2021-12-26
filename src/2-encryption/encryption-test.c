@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     if( !strcmp(argv[1], "192") ) aead=iGCM_AES192, bc=iAES192, mode=tGCM;
     if( !strcmp(argv[1], "256") ) aead=iGCM_AES256, bc=iAES256, mode=tGCM;
     if( !strcmp(argv[1], "20") ) aead=iChaCha_AEAD, bc=NULL, mode=NULL;
-    Bc.info = bc, Bc.aux = NULL;
+    Bc.info = bc, Bc.param = NULL;
 
     freopen(argv[2], "r", stdin);
     
