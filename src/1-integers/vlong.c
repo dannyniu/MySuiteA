@@ -90,24 +90,11 @@ vlong_t *vlong_muls(vlong_t *out, vlong_t const *a, uint32_t b, int accum)
     return out;
 }
 
-// MARK: == Generic Division ==
-
-static inline uint32_t vlong_word_shifted(
-    vlong_t const *b,
-    vlong_size_t i,
-    vlong_size_t s)
-{
-    vlong_size_t w = s/32, r = s%32;
-    uint32_t v = i-w < b->c ? b->v[i-w] : 0;
-    if( r ) v = (v << r) | (i-w-1 < b->c ? b->v[i-w-1] >> (32 - r) : 0);
-    return v;
-}
-
 // Returns
 // - 0 if a == b,
 // - 1 if a > b, and
 // - 2 if a < b.
-static int vlong_cmps(uint32_t a, uint32_t b)
+int vlong_cmps(uint32_t a, uint32_t b)
 {
     uint32_t x;
     uint64_t y;
@@ -130,7 +117,20 @@ static int vlong_cmps(uint32_t a, uint32_t b)
     return x | (y << 1);
 }
 
-// Same as above.
+// MARK: == Generic Division ==
+
+static inline uint32_t vlong_word_shifted(
+    vlong_t const *b,
+    vlong_size_t i,
+    vlong_size_t s)
+{
+    vlong_size_t w = s/32, r = s%32;
+    uint32_t v = i-w < b->c ? b->v[i-w] : 0;
+    if( r ) v = (v << r) | (i-w-1 < b->c ? b->v[i-w-1] >> (32 - r) : 0);
+    return v;
+}
+
+// Same as ``vlong_cmps'' above.
 static int vlong_cmpv_shifted(
     vlong_t const *a,
     vlong_t const *b,
@@ -210,7 +210,7 @@ vlong_t *vlong_divv(
     return rem;
 }
 
-vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b)
+vlong_t *vlong_remv_inplace(vlong_t *rem, const vlong_t *b)
 {
     vlong_size_t i;
     int cmp;
@@ -234,7 +234,7 @@ vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b)
     return rem;
 }
 
-vlong_t *vlong_imod_inplace(vlong_t *rem, vlong_t const *b)
+vlong_t *vlong_imod_inplace(vlong_t *rem, const vlong_t *b)
 {
     vlong_size_t i;
     uint32_t neg = -((rem->v[rem->c - 1] >> 31) & 1);
@@ -280,7 +280,7 @@ vlong_t *vlong_mulv_masked(
     vlong_t const *b,
     uint32_t mask,
     vlong_modfunc_t modfunc,
-    void *restrict mod_ctx)
+    const void *restrict mod_ctx)
 {
     vlong_size_t i;
 
@@ -315,7 +315,7 @@ vlong_t *vlong_modexpv(
     vlong_t *restrict tmp1, // temporary variables are
     vlong_t *restrict tmp2, // allocated by the caller
     vlong_modfunc_t modfunc,
-    void *restrict mod_ctx)
+    const void *restrict mod_ctx)
 {
     vlong_size_t f, i, j, n;
     

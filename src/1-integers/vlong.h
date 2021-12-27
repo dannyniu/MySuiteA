@@ -48,6 +48,12 @@ vlong_t *vlong_subv(
 vlong_t *vlong_mulx(vlong_t *out, vlong_t const *a);
 vlong_t *vlong_muls(vlong_t *out, vlong_t const *a, uint32_t b, int accum);
 
+// Returns
+// - 0 if a == b,
+// - 1 if a > b, and
+// - 2 if a < b.
+int vlong_cmps(uint32_t a, uint32_t b);
+
 // MARK: == Generic Division ==
 
 vlong_t *vlong_divv( // returns ``rem''. 
@@ -57,17 +63,17 @@ vlong_t *vlong_divv( // returns ``rem''.
     vlong_t const *b);
 
 // calculate rem (mod p) treating both as unsigned integers.
-vlong_t *vlong_remv_inplace(vlong_t *rem, vlong_t const *b);
+vlong_t *vlong_remv_inplace(vlong_t *rem, const vlong_t *b);
 
 // calculate rem (mod p) treating rem as 2's complement signed integer
 // with the (soft) restriction that rem must be longer than b.
-vlong_t *vlong_imod_inplace(vlong_t *rem, vlong_t const *b);
+vlong_t *vlong_imod_inplace(vlong_t *rem, const vlong_t *b);
 
 // MARK: == Multiplicative Expressions ==
 
 typedef void *(*vlong_modfunc_t)(
     vlong_t *restrict v,
-    void *restrict ctx);
+    const void *restrict ctx);
 
 // Multiply ``a'' and ``b'' and store the result into ``out''.
 // - ``mask'' shall be either 1 or 0, and is
@@ -81,7 +87,7 @@ vlong_t *vlong_mulv_masked(
     vlong_t const *b,
     uint32_t mask,
     vlong_modfunc_t modfunc,
-    void *restrict mod_ctx);
+    const void *restrict mod_ctx);
 
 // MAKR: == Modular Exponentiation ==
 
@@ -104,6 +110,6 @@ vlong_t *vlong_modexpv(
     vlong_t *restrict tmp1, // temporary variables are
     vlong_t *restrict tmp2, // allocated by the caller
     vlong_modfunc_t modfunc,
-    void *restrict mod_ctx);
+    const void *restrict mod_ctx);
 
 #endif /* MySuiteA_vlong_h */

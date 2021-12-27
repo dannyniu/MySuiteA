@@ -129,7 +129,7 @@ regen: // Generate b in ]1, w-1[.
             vlong_mulv_masked(
                 tmp2,
                 tmp, tmp1,
-                1, modfunc, (void *)w);
+                1, modfunc, w);
 
             for(j=0; j<n; j++) tmp->v[j] = tmp2->v[j];
         }
@@ -139,7 +139,7 @@ regen: // Generate b in ]1, w-1[.
         vlong_mulv_masked(
             tmp2,
             tmp1, tmp1,
-            1, modfunc, (void *)w);
+            1, modfunc, w);
 
         for(j=0; j<n; j++) tmp1->v[j] = tmp2->v[j];
 
@@ -160,7 +160,7 @@ regen: // Generate b in ]1, w-1[.
 
     for(j=1; j<a; j++)
     {
-        vlong_mulv_masked(tmp2, tmp, tmp, 1, modfunc, (void *)w);
+        vlong_mulv_masked(tmp2, tmp, tmp, 1, modfunc, w);
         for(i=0; i<n; i++) tmp->v[i] = tmp2->v[i];
 
         // if z === +1 (mod w): return COMPOSITE.

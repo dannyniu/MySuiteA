@@ -1,0 +1,88 @@
+func point-add # rfc-6090 page 8.
+arg vlong x1, y1, z1, x2, y2, z2
+ret vlong x, y, z
+begin
+stack vlong s, t, u, v
+# u := y2 * z1 - y1 * z2
+mulv u := y2 * z1
+mulv t := y1 * z2
+subv u := u - t | imod
+# v := x2 * z1 - x1 * z2
+mulv v := x2 * z1
+mulv t := x1 * z2
+subv v := v - t | imod
+# x = v * (z2 * (z1 * u^2 - 2 * x1 * v^2) - v^3)
+mulv t := u * u
+mulv x := t * z1
+mulv t := v * v
+mulv s := t * x1
+muls s := s * 2 | imod
+subv x := x - s | imod
+mulv t := x * z2
+mulv s := v * v
+mulv x := s * v
+subv t := t - x | imod
+mulv x := t * v
+# y = z2 * (3 * x1 * u * v^2 - y1 * v^3 - z1 * u^3) + u * v^3
+mulv t := v * v
+mulv s := t * u
+mulv y := s * x1
+muls y := y * 3 | imod
+mulv s := t * v
+copy v := s
+mulv t := v * y1
+subv y := y - t | imod
+mulv t := u * u
+mulv s := t * u
+mulv t := s * z1
+subv y := y - t | imod
+mulv t := y * z2
+mulv y := u * v
+addv y := t + y | imod
+# z = v &3 * z1 * z2
+mulv t := v * z1
+mulv z := t * z2
+return x, y, z
+end
+
+func point-dbl # rfc-6090 page 9.
+arg vlong x1, y1, z1
+ret vlong x, y, z
+begin
+stack s, t, w
+# w = 3 * x1^2 + a * z1^2
+mulv w := x1 * x1
+muls w := w * 3 | imod
+mulv t := z1 * z1
+mulv s := t * a # can be optimized with muls for most curves.
+adds w := w + s | imod
+# y = 4 * y1^2 * z1 * (3 * w * x1 - 2 * y1^2 * z1)
+# but not yet subtracting with w^3
+mulv y := w * x1
+muls y := y * 3 | imod
+mulv t := y1 * y1
+mulv s := t * z1
+muls s := s * 2 | imod
+subv y := y - s | imod
+mulv s := y * t
+mulv y := s * z1
+muls y := y * 4 | imod
+# x = 2 * y1 * z1 * (w^2 - 8 * x1 * y1^2 * z1)
+mulv s := t * z1
+mulv x := s * x1
+muls x := x * 8 | imod
+mulv s := w * w
+subv x := s - x | imod
+# now subtract w^3 from y
+mulv t := s * w
+subv y := y - t | imod
+# back to x
+mulv t := y1 * z1
+muls s := x * 2 | imod
+mulv x := t * s
+# z3 = 8 * (y1 * z1)^3
+mulv s := t * t
+mulv z := s * t
+muls z := z * 8 | imod
+return x, y, z
+end
