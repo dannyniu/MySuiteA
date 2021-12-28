@@ -18,32 +18,31 @@ typedef struct {
 
 typedef struct {
     vlong_modfunc_t modfunc;
-    const void *mod_ctx;
-} sec_Fp_remv_callback_ctx_t;
+    vlong_t const *mod_ctx;
+} sec_Fp_imod_aux_t;
+
+extern const sec_Fp_imod_aux_t *secp256r1_imod_aux;
+extern const sec_Fp_imod_aux_t *secp384r1_imod_aux;
 
 // this function is modelled after ``vlong_imod_inplace''.
-vlong_t *sec_Fp_imod_inplace(vlong_t *rem, sec_Fp_remv_callback_ctx_t *aux);
+vlong_t *sec_Fp_imod_inplace(vlong_t *rem, const sec_Fp_imod_aux_t *aux);
 
-// the ``*_remv_inplace'' functions are modelled after
-// ``vlong_remv_inplace'', except they ignore their divisor argument.
-vlong_t *secp256r1_remv_inplace(vlong_t *rem, void const *aux);
-vlong_t *secp384r1_remv_inplace(vlong_t *rem, void const *aux);
-
-extern const vlong_t *ptr_Fp_secp256r1, *ptr_Fp_secp384r1;
+//
+// SEC#1 Prime-Order Elliptic Curve Point Arithmetics.
 
 secp_xyz_t *secp_point_add(
     secp_xyz_t *out,
     secp_xyz_t const *p1,
     secp_xyz_t const *p2,
     secp_opctx_t *ctx,
-    sec_Fp_remv_callback_ctx_t *aux);
+    const sec_Fp_imod_aux_t *aux);
 
 secp_xyz_t *secp_point_dbl(
     secp_xyz_t *out,
     secp_xyz_t const *p1,
     int32_t a,
     secp_opctx_t *ctx,
-    sec_Fp_remv_callback_ctx_t *aux);
+    const sec_Fp_imod_aux_t *aux);
 
 typedef struct {
     secp_xyz_t header;

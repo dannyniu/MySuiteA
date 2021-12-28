@@ -31,10 +31,130 @@ static const VLONG_T(12) Fp_secp384r1 = {
     .v[0] = -1,
 };
 
-const vlong_t *ptr_Fp_secp256r1 = (const vlong_t *)&Fp_secp256r1;
-const vlong_t *ptr_Fp_secp384r1 = (const vlong_t *)&Fp_secp384r1;
+static vlong_t *secp256r1_remv_inplace(vlong_t *rem, void const *aux)
+{
+    static_assert(
+        sizeof(*rem->v) == sizeof(uint32_t),
+        "Data type assumption failed");
+    
+    vlong_size_t t;
+    int64_t b;
 
-vlong_t *sec_Fp_imod_inplace(vlong_t *rem, sec_Fp_remv_callback_ctx_t *aux)
+    VLONG_T(8) p = VLONG_INIT(8);
+    uint32_t u, v;
+    int res = 0, mask;
+
+    aux = NULL; // silence the unused argument warning.
+
+    // avoid redundand and potentially erroneous computation.
+    if( rem->c < 8 ) return rem;
+
+    for(t = rem->c; t-- > 8; )
+    {
+        b = rem->v[t];
+        rem->v[t] = 0;
+        vlong_adds(rem, rem, b, t-1);
+        vlong_adds(rem, rem, -b, t-2);
+        vlong_adds(rem, rem, -b, t-5);
+        vlong_adds(rem, rem, b, t-8);
+        
+        b = rem->v[t];
+        rem->v[t] = 0;
+        vlong_adds(rem, rem, b, t-1);
+        vlong_adds(rem, rem, -b, t-2);
+        vlong_adds(rem, rem, -b, t-5);
+        vlong_adds(rem, rem, b, t-8);
+    }
+
+    for(t=0; t<p.c; t++) p.v[t] = Fp_secp256r1.v[t];
+    for(t = rem->c; t--; )
+    {
+        u = rem->v[t];
+        v = t < p.c ? p.v[t] : 0;
+        mask = (1 & ((res >> 1) | res)) * 3;
+        mask = ~mask;
+        mask &= vlong_cmps(u, v);
+        res |= mask;
+    }
+
+    u = ((res ^ 1) - 1) >> 8;
+    u = -(u & 1);
+
+    for(t=0; t<p.c; t++) p.v[t] &= u;
+    vlong_subv(rem, rem, (void *)&p);
+
+    return rem;
+}
+
+static vlong_t *secp384r1_remv_inplace(vlong_t *rem, void const *aux)
+{
+    static_assert(
+        sizeof(*rem->v) == sizeof(uint32_t),
+        "Data type assumption failed");
+    
+    vlong_size_t t;
+    int64_t b;
+
+    VLONG_T(12) p = VLONG_INIT(12);
+    uint32_t u, v;
+    int res = 0, mask;
+
+    aux = NULL; // silence the unused argument warning.
+
+    // avoid redundand and potentially erroneous computation.
+    if( rem->c < 12 ) return rem;
+
+    for(t = rem->c; t-- > 12; )
+    {
+        b = rem->v[t];
+        rem->v[t] = 0;
+        vlong_adds(rem, rem, b, t-8);
+        vlong_adds(rem, rem, b, t-9);
+        vlong_adds(rem, rem, -b, t-11);
+        vlong_adds(rem, rem, b, t-12);
+        
+        b = rem->v[t];
+        rem->v[t] = 0;
+        vlong_adds(rem, rem, b, t-8);
+        vlong_adds(rem, rem, b, t-9);
+        vlong_adds(rem, rem, -b, t-11);
+        vlong_adds(rem, rem, b, t-12);
+    }
+
+    for(t=0; t<p.c; t++) p.v[t] = Fp_secp384r1.v[t];
+    for(t = rem->c; t--; )
+    {
+        u = rem->v[t];
+        v = t < p.c ? p.v[t] : 0;
+        mask = (1 & ((res >> 1) | res)) * 3;
+        mask = ~mask;
+        mask &= vlong_cmps(u, v);
+        res |= mask;
+    }
+
+    u = ((res ^ 1) - 1) >> 8;
+    u = -(u & 1);
+
+    for(t=0; t<p.c; t++) p.v[t] &= u;
+    vlong_subv(rem, rem, (void *)&p);
+
+    return rem;
+}
+
+static const sec_Fp_imod_aux_t secp256r1_remv_callback = {
+    .modfunc = (vlong_modfunc_t)secp256r1_remv_inplace,
+    .mod_ctx = (vlong_t *)&Fp_secp256r1,
+};
+
+static const sec_Fp_imod_aux_t secp384r1_remv_callback = {
+    .modfunc = (vlong_modfunc_t)secp384r1_remv_inplace,
+    .mod_ctx = (vlong_t *)&Fp_secp384r1,
+};
+
+const sec_Fp_imod_aux_t *secp256r1_imod_aux = &secp256r1_remv_callback;
+const sec_Fp_imod_aux_t *secp384r1_imod_aux = &secp384r1_remv_callback;
+
+vlong_t *sec_Fp_imod_inplace(vlong_t *rem, const sec_Fp_imod_aux_t *aux)
 {
     vlong_size_t i;
     uint32_t neg = -((rem->v[rem->c - 1] >> 31) & 1);
@@ -84,7 +204,7 @@ secp_xyz_t *secp_point_add(
     secp_xyz_t const *p1,
     secp_xyz_t const *p2,
     secp_opctx_t *ctx,
-    sec_Fp_remv_callback_ctx_t *aux)
+    const sec_Fp_imod_aux_t *aux)
 {
     vlong_t *x = DeltaTo(out, offset_x);
     vlong_t *y = DeltaTo(out, offset_y);
@@ -172,7 +292,7 @@ secp_xyz_t *secp_point_dbl(
     secp_xyz_t const *p1,
     int32_t a,
     secp_opctx_t *ctx,
-    sec_Fp_remv_callback_ctx_t *aux)
+    const sec_Fp_imod_aux_t *aux)
 {
     vlong_t *x = DeltaTo(out, offset_x);
     vlong_t *y = DeltaTo(out, offset_y);

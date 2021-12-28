@@ -22,7 +22,7 @@ int test1(
     secp_xyz_t *b,
     secp_xyz_t *c,
     secp_opctx_t *opctx,
-    sec_Fp_remv_callback_ctx_t *aux)
+    const sec_Fp_imod_aux_t *aux)
 {
     for(long n=0; n<128*128; n++)
     {
@@ -67,7 +67,7 @@ int main(void)
     secp384_xyz_t c;
     secp384_opctx_t opctx;
     
-    sec_Fp_remv_callback_ctx_t modaux;
+    const sec_Fp_imod_aux_t *imod_aux;
 
     // NIST P-256.
 
@@ -75,10 +75,7 @@ int main(void)
     *(secp256_xyz_t *)&b = SECP256_XYZ_INIT;
     *(secp256_xyz_t *)&c = SECP256_XYZ_INIT;
     *(secp256_opctx_t *)&opctx = SECP256_OPCTX_INIT;
-
-    modaux = (sec_Fp_remv_callback_ctx_t){
-        .modfunc = (vlong_modfunc_t)secp256r1_remv_inplace,
-        .mod_ctx = ptr_Fp_secp256r1, };
+    imod_aux = secp256r1_imod_aux;
     
     printf("ecc_asm.set_p(");
     printf("0x");
@@ -92,7 +89,7 @@ int main(void)
     printf("%08x", -1);
     printf(") or True\n");
 
-    test1((void *)&a, (void *)&b, (void *)&c, (void *)&opctx, &modaux);
+    test1((void *)&a, (void *)&b, (void *)&c, (void *)&opctx, imod_aux);
 
     // NIST P-384.
 
@@ -100,10 +97,7 @@ int main(void)
     *(secp384_xyz_t *)&b = SECP384_XYZ_INIT;
     *(secp384_xyz_t *)&c = SECP384_XYZ_INIT;
     *(secp384_opctx_t *)&opctx = SECP384_OPCTX_INIT;
-
-    modaux = (sec_Fp_remv_callback_ctx_t){
-        .modfunc = (vlong_modfunc_t)secp384r1_remv_inplace,
-        .mod_ctx = ptr_Fp_secp384r1, };
+    imod_aux = secp384r1_imod_aux;
     
     printf("ecc_asm.set_p(");
     printf("0x");
@@ -121,7 +115,7 @@ int main(void)
     printf("%08x", -1);
     printf(") or True\n");
 
-    test1((void *)&a, (void *)&b, (void *)&c, (void *)&opctx, &modaux);
+    test1((void *)&a, (void *)&b, (void *)&c, (void *)&opctx, imod_aux);
     
     return 0;
 }

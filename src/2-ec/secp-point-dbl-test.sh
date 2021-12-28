@@ -8,7 +8,6 @@ cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
 secp-point-dbl-test.c
-secp-remv-inplace.c
 secp-xyz.c
 1-integers/vlong.c
 "
