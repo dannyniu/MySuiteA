@@ -15,6 +15,7 @@ static_assert(CHAR_BIT == 8, "MySuiteA supports only octet-oriented systems!");
 
 #ifdef ENABLE_HOSTED_HEADERS
 #include <inttypes.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
