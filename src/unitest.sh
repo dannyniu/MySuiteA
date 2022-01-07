@@ -156,5 +156,9 @@ $cc -c -ffreestanding $cflags0 $cflags1 $cflags $srcfiles
 $ld $ld_opt $objfiles -o $bin
 set +e
 
-testfunc
+if testfunc
+then printf '\033[42m\033[33m%s\033[0m\n' passing
+else printf '033[41m\033[34%s\033[0m\n' failing
+fi
+
 #rm $objfiles $bin

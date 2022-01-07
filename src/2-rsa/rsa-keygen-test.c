@@ -82,5 +82,9 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    else return EXIT_SUCCESS;
+    else
+    {
+        printf("the test passed\n");
+        return EXIT_SUCCESS;
+    }
 }
