@@ -7,7 +7,7 @@
 
 static gimli_xof_t gx;
 
-#define DUMP_CONTEXT_WORDS 1
+#define DUMP_CONTEXT_WORDS 0
 
 void dump_ctx_words(const uint32_t *ctx, size_t size)
 {
@@ -19,6 +19,8 @@ void dump_ctx_words(const uint32_t *ctx, size_t size)
             "%08x%c", ctx[i],
             (4 - i % 4 == 1) ? '\n' : ' ');
     }
+#else /* DUMP_CONTEXT_WORDS */
+    size = 0;
 #endif /* DUMP_CONTEXT_WORDS */
 }
 
@@ -69,10 +71,16 @@ int main(int argc, char *argv[])
     // -- Result of the Compare --
 
     if( len != size )
+    {
         printf("Length Different\n");
-    
+        return EXIT_FAILURE;
+    }
+
     else if( memcmp(der1, der2, len) )
+    {
         printf("Encoding Different\n");
-    
-    return 0;
+        return EXIT_FAILURE;
+    }
+
+    else return EXIT_SUCCESS;
 }

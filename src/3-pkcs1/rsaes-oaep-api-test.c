@@ -79,5 +79,5 @@ int main(int argc, char *argv[])
     free(enx);
     free(dex);
     free(kgx);
-    return 0;
+    return failures == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

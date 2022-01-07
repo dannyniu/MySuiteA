@@ -63,8 +63,12 @@ int main(int argc, char *argv[])
     printf("1st pass encoding returned: %ld\n", size);
 
     size = ber_tlv_encode_RSAPrivateKey(ctx, buf2, len);
-    
-    printf("memcmp-1 returned %d\n", memcmp(buf, buf2, len));
+
+    if( memcmp(buf, buf2, len) )
+    {
+        printf("1st memcmp differs\n");
+        return EXIT_FAILURE;
+    }
 
     ber_tlv_decode_RSAPrivateKey(NULL, buf2, len);
     ber_tlv_decode_RSAPrivateKey(ctx, buf2, len);
@@ -72,7 +76,11 @@ int main(int argc, char *argv[])
     ber_tlv_encode_RSAPrivateKey(ctx, NULL, 0);
     ber_tlv_encode_RSAPrivateKey(ctx, buf, len);
 
-    printf("memcmp-2 returned %d\n", memcmp(buf, buf2, len));
+    if( memcmp(buf, buf2, len) )
+    {
+        printf("2nd memcmp differs\n");
+        return EXIT_FAILURE;
+    }
 
 #if 0
     FILE *od = popen("od -t x1", "w");
@@ -90,5 +98,6 @@ int main(int argc, char *argv[])
     putchar('\n');
 #endif
 
-    return 0;
+    printf("the test passed\n");
+    return EXIT_SUCCESS;
 }

@@ -10,7 +10,12 @@ testfunc() {
             $exec "$s" || fail=$((fail + 1))
         n=$((n + 1))
     done
+
     echo $fail of $total tests failed
+    if [ $fail -gt 0 ]
+    then return 1
+    else return 0
+    fi
 }
 
 cd "$(dirname "$0")"

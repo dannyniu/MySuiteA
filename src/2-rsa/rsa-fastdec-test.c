@@ -89,17 +89,22 @@ int main(int argc, char *argv[])
     vlong_size_t i = 0;
     if( M == DeltaTo((&ctx->base), offset_w2) ) printf("sane\n");
     
-    if( M->v[0] != 65535 ) printf("RSA Decipher Incorrect!\n"); else
+    if( M->v[0] != 65535 )
+    {
+        printf("RSA Decipher Incorrect!\n");
+        return EXIT_FAILURE;
+    }
+    else
     {
         for(i=1; i<M->c; i++)
             if( M->v[i] )
             {
                 printf("RSA Decipher Incorrect!\n");
-                break;
+                return EXIT_FAILURE;
             }
     }
 
     if( i == M->c ) printf("Textbook RSA Decipher Successful!\n");
     
-    return 0;
+    return EXIT_SUCCESS;
 }

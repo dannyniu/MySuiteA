@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     PKCS1_Decode_RSAPrivateKey(dex, copy, size, params);
     free(copy); copy = NULL;
 
-    int exitstat = 0;
+    int exitstat = EXIT_SUCCESS;
     
     size_t sslen = 0;
     void *ss = NULL;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     if( !lret )
     {
         printf("Decryption Failure. \n");
-        exitstat = 1;
+        exitstat = EXIT_FAILURE;
     }
 
     ss = realloc(ss, sslen);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     {
         printf("Reference Testing Failed Once, (ss=%zd,arg=%zd)%s\n",
                sslen, strlen(argv[1]), argv[1]);
-        exitstat = 1;
+        exitstat = EXIT_FAILURE;
     }
 
     free(copy);

@@ -64,7 +64,13 @@ int main(int argc, char *argv[])
 
     buf3 = malloc(len);
     len = ber_tlv_encode_RSAPublicKey(ctx, buf3, len);
-    printf("memcmp returned %d\n", memcmp(buf2, buf3, len));
     
-    return 0;
+    if( memcmp(buf2, buf3, len) )
+    {
+        printf("memcmp differs\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("the test passed\n");
+    return EXIT_SUCCESS;
 }

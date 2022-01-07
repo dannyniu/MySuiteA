@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     PKCS1_Decode_RSAPublicKey(enx, copy, size, params);
     free(copy); copy = NULL;
 
-    int exitstat = 0;
+    int exitstat = EXIT_SUCCESS;
     
     copy = malloc(NBITS / 8);
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     {
         printf("Reference Testing Failed Once, (%zd)%s\n",
                strlen(argv[1]), argv[1]);
-        exitstat = 1;
+        exitstat = EXIT_FAILURE;
     }
 
     free(copy);

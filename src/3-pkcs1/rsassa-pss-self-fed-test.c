@@ -72,5 +72,5 @@ int main(int argc, char *argv[])
 
     printf("\n%d of %d tests failed\n", failures, testcount);
     free(copy);
-    return 0;
+    return failures == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
