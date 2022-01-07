@@ -16,6 +16,8 @@ iCryptoObj_t drbg;
 typedef uint8_t buffer1024_t[128];
 buffer1024_t seed1, seed2, out, ref;
 
+int ret = EXIT_SUCCESS;
+
 void seeds_init(
     size_t nonce_offset, size_t nonce_len,
     size_t prsnl_offset, size_t prsnl_len)
@@ -86,6 +88,7 @@ void test_run1(
     }
 
     if( !fails ) printf("...... Test Succeeded ......\n");
+    else ret = EXIT_FAILURE;
 }
 
 void tests_runall()
@@ -163,5 +166,5 @@ void tests_runall()
 int main()
 {
     tests_runall();
-    return 0;
+    return ret;
 }
