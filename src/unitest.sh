@@ -157,8 +157,8 @@ $ld $ld_opt $objfiles -o $bin
 set +e
 
 if testfunc
-then printf '\033[42m\033[33m%s\033[0m\n' passing
-else printf '033[41m\033[34%s\033[0m\n' failing
+then printf '\033[42;33m%s\033[0m\n' passing
+else printf '\033[41;34m%s\033[0m\n' failing
 fi
 
 #rm $objfiles $bin
