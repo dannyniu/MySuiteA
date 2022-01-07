@@ -2,8 +2,8 @@
 
 import ecc_asm
 
-cnt = 0;
-fails = 0;
+cnt = 0
+fails = 0
 
 try:
     while True:
@@ -13,5 +13,8 @@ try:
         if not eval(s):
             fails += 1
             print("wrong: "+s);
-finally:
-    print("{} tested, {} failed. ".format(cnt, fails))
+except EOFError: pass
+
+print("{} tested, {} failed. ".format(cnt, fails))
+if fails == 0: raise SystemExit()
+else: raise SystemExit("Some Tests Failed")
