@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2020-07-10. Public Domain. */
+/* DannyNiu/NJF, 2021-07-22. Public Domain. */
 
 #define Define_CMAC_Blockcipher(algo,name)                      \
     void *CMAC_##algo##_Init(                                   \

@@ -9,6 +9,7 @@ qemu_exec() {
 # -- Begin: The following block may be customized. --
 
 systarget=linux-gnu
+
 if command -v scan-build >/dev/null ; then
     # scan-build installed. 
     scan_build=scan-build
@@ -22,11 +23,17 @@ else
     echo Try installing the \"scan-build\" pip package.
     exit 1
 fi
-cc="$scan_build $scan_build_opt clang"
+
+cc=clang
+if ! command -v $cc >/dev/null ; then
+    echo The \"clang\" compiler is not available, falling back to '"$CC"'
+    cc="$CC"
+fi
+
+cc="$scan_build $scan_build_opt $cc"
 cflags0="-Wall -Wextra -g -O0"
 [ X"$optimize" = Xdebug ] && cflags0="$cflags0 -D ENABLE_HOSTED_HEADERS"
 [ X"$optimize" = Xtrue ] && cflags0="-Wall -Wextra -O"
-
 
 # Note 2020-02-18 regarding removal of "-Weverything" option:
 # refer to the following excerpt from the Clang Compiler User's Manual:
@@ -53,25 +60,54 @@ sysarch=$(uname -m | sed s/arm64/aarch64/g)
 sysname=$(uname -s)
 hostname=$(uname -n)
 
-if
-    [ $sysarch != $arch ] && ! (
-        . /etc/os-release &&
-            echo $ID $ID_LIKE | fgrep -q ubuntu &&
-            dpkg -l clang gcc-${arch}-linux-gnu qemu-user
-    ) >/dev/null 2>&1
-then
+case $arch in
+    aarch64) arch_abbrev=arm64 ;;
+    powerpc64) arch_abbrev=ppc64 ;;
+    *) arch_abbrev=$arch
+esac
+
+if [ $sysarch = $arch ] ; then true
+elif ( . /etc/os-release && echo $ID $ID_LIKE | fgrep -q debian ) ; then
+    
+    if ! dpkg -l \
+         libgcc-\*-dev-${arch_abbrev}-cross \
+         libc-dev-${arch_abbrev}-cross \
+         qemu-user ; then false
+                          
+    elif command -v $arch-$systarget-ld
+    then ld=$arch-$systarget-ld ; true
+         
+    elif command -v ld.lld
+    then
+        ld=ld.lld
+        
+        if [ $arch = powerpc64 ] ; then
+            echo As of version 10.0.0:
+            echo LLVM LLD has not supported big-endian PowerPC64.
+            false
+            
+        elif [ $arch = sparc64 ] ; then
+            echo As of version 10.0.0:
+            echo LLVM LLD has not supported \"elf64-sparc\"
+            echo as an output format.
+            false
+            
+        else true ; fi
+    else false ; fi
+else false ; fi >/dev/null 2>&1
+
+if [ $? != 0 ] ; then
     echo Skipping 1 non-native architecture test.
-    exit
+    exit 0
 fi
 
 # routinal notification info.
-echo ======== Test Name: $bin ========
-echo "${arch} / ${srcset}"
+echo "======== Test Name: $bin ; ${arch} / ${srcset} ========"
 
 if [ $sysarch = $arch ] ; then
-    UsrArchIncPath=/usr/include
     cflags1=""
     ld=cc
+    ld_opt=""
     export exec=./$bin
 
 else
@@ -81,8 +117,8 @@ else
     UsrArchGccLibPath=$(last /usr/lib/gcc-cross/$arch-$systarget/*)
     
     cflags1="-target $arch-$systarget -isystem $UsrArchIncPath"
-    ld="
-      $arch-$systarget-ld
+    
+    ld_opt="
       -dynamic-linker
       $UsrArchLibPath/ld-*.so
       $UsrArchLibPath/crt[1in].o
@@ -117,7 +153,7 @@ cd "$(dirname $unitest_sh)"/../bin
 rm -f *.o *-test
 set -e
 $cc -c -ffreestanding $cflags0 $cflags1 $cflags $srcfiles
-$ld $objfiles -o $bin
+$ld $ld_opt $objfiles -o $bin
 set +e
 
 testfunc

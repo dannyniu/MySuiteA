@@ -1,12 +1,17 @@
 #!/bin/sh
 
 testfunc() {
+    e=0
     for b in 128 ; do
         for f in ../tests/KAT_SEED/ECB*${b}.rsp ; do
-            $exec $b < $f
-            echo "${bin##*/} $b < ${f##*/}: Exited: $?"
+            if ! $exec $b < $f ; then e=$((e+1)) ; echo fail: $b ; fi
         done
     done
+    echo "$e set(s) of test vectors failed."
+    if [ $e -gt 0 ]
+    then return 1
+    else return 0
+    fi
 }
 
 cd "$(dirname "$0")"

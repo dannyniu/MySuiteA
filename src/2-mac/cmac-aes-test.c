@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2020-11-30. Public Domain. */
+/* DannyNiu/NJF, 2021-07-22. Public Domain. */
 
 #include "cmac-aes.h"
 

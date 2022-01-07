@@ -1,54 +1,58 @@
-/* DannyNiu/NJF, 2018-01-31. Public Domain. */
+/* DannyNiu/NJF, 2021-07-19. Public Domain. */
 
-#include "aria.h"
-#include "../test-utils.c.h"
+#undef bc
+#define bc xARIA128
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc xARIA192
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc xARIA256
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc iARIA128
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc iARIA192
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc iARIA256
+#include "../1-symm/blockcipher-test.c.h"
 
 int main(int argc, char *argv[])
 {
-    static char line[256], word[256];
-    static uint8_t k[32], w[288], ct[16], pt[16], xt[16];
-    iCryptoObj_t bc = iARIA128;
-    int i, l=-1;
+    int ret = EXIT_SUCCESS;
 
-    if( argc < 2 ) return 1;
-    if( !strcmp(argv[1], "128") ) bc = iARIA128;
-    if( !strcmp(argv[1], "192") ) bc = iARIA192;
-    if( !strcmp(argv[1], "256") ) bc = iARIA256;
+    if( argc < 2 ) return EXIT_FAILURE;
     
-    while( fgets(line, sizeof(line), stdin) )
+    if( !strcmp(argv[1], "128") )
     {
-        *word = '\0'; sscanf(line, "%s", word);
-        
-        if( !strlen(word) && l>=0 ) {
-            ENC_FUNC(bc)(pt, xt, w);
-            if( memcmp(xt, ct, bc(blockBytes)) )
-                printf("Encryption Failure at Line %d\n", l);
-
-            DEC_FUNC(bc)(ct, xt, w);
-            if( memcmp(xt, pt, bc(blockBytes)) )
-                printf("Decryption Failure at Line %d\n", l);
-
-            l = -1;
-        }
-        
-        if( !strcmp(word, "COUNT") )
-            sscanf(line, "%s = %d", word, &l);
-
-        if( !strcmp(word, "KEY") ) {
-            sscanf(line, "%s = %n", word, &i);
-            scanhex(k, bc(keyBytes), line+i);
-            KSCHD_FUNC(bc)(k, w);
-        }
-
-        if( !strcmp(word, "CIPHERTEXT") ) {
-            sscanf(line, "%s = %n", word, &i);
-            scanhex(ct, bc(blockBytes), line+i);
-        }
-        if( !strcmp(word, "PLAINTEXT") ) {
-            sscanf(line, "%s = %n", word, &i);
-            scanhex(pt, bc(blockBytes), line+i);
-        }
+        ret =
+            blockcipher_test_xARIA128() == EXIT_SUCCESS &&
+            blockcipher_test_iARIA128() == EXIT_SUCCESS ?
+            EXIT_SUCCESS : EXIT_FAILURE;
     }
 
-    return 0;
+    if( !strcmp(argv[1], "192") )
+    {
+        ret =
+            blockcipher_test_xARIA192() == EXIT_SUCCESS &&
+            blockcipher_test_iARIA192() == EXIT_SUCCESS ?
+            EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+    if( !strcmp(argv[1], "256") )
+    {
+        ret =
+            blockcipher_test_xARIA256() == EXIT_SUCCESS &&
+            blockcipher_test_iARIA256() == EXIT_SUCCESS ?
+            EXIT_SUCCESS : EXIT_FAILURE;
+    }
+    
+    return ret;
 }

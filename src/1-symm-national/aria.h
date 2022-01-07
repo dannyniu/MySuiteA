@@ -10,9 +10,11 @@ void ARIA192_KeySched(void const *restrict key, void *restrict w);
 void ARIA256_KeySched(void const *restrict key, void *restrict w);
 
 void ARIA128_Encrypt(void const *in, void *out, void const *restrict w);
+void ARIA192_Encrypt(void const *in, void *out, void const *restrict w);
 void ARIA256_Encrypt(void const *in, void *out, void const *restrict w);
 
 void ARIA128_Decrypt(void const *in, void *out, void const *restrict w);
+void ARIA192_Decrypt(void const *in, void *out, void const *restrict w);
 void ARIA256_Decrypt(void const *in, void *out, void const *restrict w);
 
 #define cARIA(bits,q) (                                 \

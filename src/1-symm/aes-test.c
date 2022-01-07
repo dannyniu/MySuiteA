@@ -1,54 +1,58 @@
 /* DannyNiu/NJF, 2018-01-31. Public Domain. */
 
-#include "rijndael.h"
-#include "../test-utils.c.h"
+#undef bc
+#define bc xAES128
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc xAES192
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc xAES256
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc iAES128
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc iAES192
+#include "../1-symm/blockcipher-test.c.h"
+
+#undef bc
+#define bc iAES256
+#include "../1-symm/blockcipher-test.c.h"
 
 int main(int argc, char *argv[])
 {
-    static char line[256], word[256];
-    static uint8_t k[32], w[240], ct[16], pt[16], xt[16];
-    iCryptoObj_t bc = iAES128;
-    int i, l=-1;
+    int ret = EXIT_SUCCESS;
 
-    if( argc < 2 ) return 1;
-    if( !strcmp(argv[1], "128") ) bc = iAES128;
-    if( !strcmp(argv[1], "192") ) bc = iAES192;
-    if( !strcmp(argv[1], "256") ) bc = iAES256;
+    if( argc < 2 ) return EXIT_FAILURE;
     
-    while( fgets(line, sizeof(line), stdin) )
+    if( !strcmp(argv[1], "128") )
     {
-        *word = '\0'; sscanf(line, "%s", word);
-        
-        if( !strlen(word) && l>=0 ) {
-            ENC_FUNC(bc)(pt, xt, w);
-            if( memcmp(xt, ct, bc(blockBytes)) )
-                printf("Encryption Failure at Line %d\n", l);
-
-            DEC_FUNC(bc)(ct, xt, w);
-            if( memcmp(xt, pt, bc(blockBytes)) )
-                printf("Decryption Failure at Line %d\n", l);
-
-            l = -1;
-        }
-        
-        if( !strcmp(word, "COUNT") )
-            sscanf(line, "%s = %d", word, &l);
-
-        if( !strcmp(word, "KEY") ) {
-            sscanf(line, "%s = %n", word, &i);
-            scanhex(k, bc(keyBytes), line+i);
-            KSCHD_FUNC(bc)(k, w);
-        }
-
-        if( !strcmp(word, "CIPHERTEXT") ) {
-            sscanf(line, "%s = %n", word, &i);
-            scanhex(ct, bc(blockBytes), line+i);
-        }
-        if( !strcmp(word, "PLAINTEXT") ) {
-            sscanf(line, "%s = %n", word, &i);
-            scanhex(pt, bc(blockBytes), line+i);
-        }
+        ret =
+            blockcipher_test_xAES128() == EXIT_SUCCESS &&
+            blockcipher_test_iAES128() == EXIT_SUCCESS ?
+            EXIT_SUCCESS : EXIT_FAILURE;
     }
 
-    return 0;
+    if( !strcmp(argv[1], "192") )
+    {
+        ret =
+            blockcipher_test_xAES192() == EXIT_SUCCESS &&
+            blockcipher_test_iAES192() == EXIT_SUCCESS ?
+            EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+    if( !strcmp(argv[1], "256") )
+    {
+        ret =
+            blockcipher_test_xAES256() == EXIT_SUCCESS &&
+            blockcipher_test_iAES256() == EXIT_SUCCESS ?
+            EXIT_SUCCESS : EXIT_FAILURE;
+    }
+    
+    return ret;
 }

@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2018-02-06. Public Domain. */
+/* DannyNiu/NJF, 2021-07-20. Public Domain. */
 
 #include "sm3.h"
 

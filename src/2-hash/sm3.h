@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2018-02-05. Public Domain. */
+/* DannyNiu/NJF, 2021-07-20. Public Domain. */
 
 #ifndef MySuiteA_sm3_h
 #define MySuiteA_sm3_h 1

@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2018-02-05. Public Domain. */
+/* DannyNiu/NJF, 2021-07-20. Public Domain. */
 
 #include "../0-datum/endian.h"
 #include "../1-symm-national/gbt-32905.h"

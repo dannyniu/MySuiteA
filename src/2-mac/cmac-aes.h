@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2018-02-19. Public Domain. */
+/* DannyNiu/NJF, 2021-07-22. Public Domain. */
 
 #ifndef MySuiteA_cmac_aes_h
 #define MySuiteA_cmac_aes_h 1

@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2018-02-18. Public Domain. */
+/* DannyNiu/NJF, 2021-07-22. Public Domain. */
 
 #include "cmac.h"
 #include "../0-exec/struct-delta.c.h"
