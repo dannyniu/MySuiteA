@@ -8,6 +8,18 @@ static VLONG_T(9) p256, n256, c25519;
 static VLONG_T(33) rp, t1, t2, t3;
 static gimli_xof_t gx;
 
+static int ret = EXIT_SUCCESS;
+void PrintIf(intmax_t cond, const char *fmt, ...)
+{
+    va_list ap;
+
+    if( !cond ) return;
+    else ret = EXIT_FAILURE;
+    
+    va_start(ap, fmt);
+    vprintf(fmt, ap);
+}
+
 int main(int argc, char *argv[])
 {
     p256.c = 9;
@@ -79,23 +91,30 @@ int main(int argc, char *argv[])
 
     t1.c = t2.c = t3.c = 9;
     
-    printf("%d - tested{p256}\n", MillerRabin(
-               (void *)&p256, 12, (void *)&t1, (void *)&t2, (void *)&t3,
-               (GenFunc_t)Gimli_XOF_Read, &gx));
+    PrintIf(1 != MillerRabin(
+                (void *)&p256, 12, (void *)&t1, (void *)&t2, (void *)&t3,
+                (GenFunc_t)Gimli_XOF_Read, &gx),
+            "test-failed{p256}\n");
     
-    printf("%d - tested{n256}\n", MillerRabin(
-               (void *)&n256, 12, (void *)&t1, (void *)&t2, (void *)&t3,
-               (GenFunc_t)Gimli_XOF_Read, &gx));
+    PrintIf(1 != MillerRabin(
+                (void *)&n256, 12, (void *)&t1, (void *)&t2, (void *)&t3,
+                (GenFunc_t)Gimli_XOF_Read, &gx),
+            "test-failed{n256}\n");
     
-    printf("%d - tested{c25519}\n", MillerRabin(
-               (void *)&c25519, 12, (void *)&t1, (void *)&t2, (void *)&t3,
-               (GenFunc_t)Gimli_XOF_Read, &gx));
+    PrintIf(1 != MillerRabin(
+                (void *)&c25519, 12, (void *)&t1, (void *)&t2, (void *)&t3,
+                (GenFunc_t)Gimli_XOF_Read, &gx),
+            "test-failed{c25519}\n");
 
     t1.c = t2.c = t3.c = 33;
 
-    printf("%d - tested{rp}\n", MillerRabin(
-               (void *)&rp, 12, (void *)&t1, (void *)&t2, (void *)&t3,
-               (GenFunc_t)Gimli_XOF_Read, &gx));
+    PrintIf(1 != MillerRabin(
+                (void *)&rp, 12, (void *)&t1, (void *)&t2, (void *)&t3,
+                (GenFunc_t)Gimli_XOF_Read, &gx),
+            "test-failed{rp}\n");
 
-    return 0;
+    if( ret == EXIT_SUCCESS )
+        printf("All Tests Passed.\n");
+    
+    return ret;
 }

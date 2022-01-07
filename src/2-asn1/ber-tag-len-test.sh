@@ -1,7 +1,10 @@
 #!/bin/sh
 
 testfunc() {
-    $exec
+    if $exec
+    then echo test passed
+    else echo test failed
+    fi
 }
 
 cd "$(dirname "$0")"

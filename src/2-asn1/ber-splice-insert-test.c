@@ -11,6 +11,7 @@ int main()
     uint8_t verify[BUFLEN];
     size_t l1, o, l2;
     int i, j;
+    int ret = EXIT_SUCCESS;
 
     mysrand((unsigned long)time(NULL));
 
@@ -25,13 +26,20 @@ int main()
         ber_util_splice_insert(verify, l1, o, l2);
 
         if( memcmp(verify, buf + o, l2) )
+        {
+            ret = EXIT_FAILURE;
             printf("Src error: l1=%zd, o=%zd, l2=%zd. \n", l1, o, l2);
+        }
         
         if( memcmp(verify + l2, buf, l1) )
+        {
+            ret = EXIT_FAILURE;
             printf("Dst error: l1=%zd, o=%zd, l2=%zd. \n", l1, o, l2);
+        }
     }
 
-    printf("Test complete\n");
+    if( ret == EXIT_SUCCESS )
+        printf("All Tests Passed.\n");
     
-    return 0;
+    return ret;
 }

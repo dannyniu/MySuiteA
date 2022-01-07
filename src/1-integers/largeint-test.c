@@ -70,6 +70,6 @@ int main()
     }
 
     printf("%d failed test(s). \n", failed);
-    return 0;
+    return failed == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

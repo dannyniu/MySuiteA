@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-cnt = 0;
-fails = 0;
-coprime = 0;
+cnt = 0
+fails = 0
+coprime = 0
 
 def egcd(z, a):
     global coprime
@@ -30,5 +30,8 @@ try:
         if not eval(s):
             fails += 1
             print("wrong: "+s);
-finally:
-    print("{} tested, {} failed, {} coprime. ".format(cnt, fails, coprime))
+except EOFError: pass
+
+print("{} tested, {} failed, {} coprime. ".format(cnt, fails, coprime))
+if fails == 0: raise SystemExit()
+else: raise SystemExit("Some Tests Failed")
