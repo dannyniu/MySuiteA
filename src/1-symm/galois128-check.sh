@@ -8,7 +8,7 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
-src_common="galois128-test.c 0-datum/endian.c"
+src_common="galois128-check.c 0-datum/endian.c"
 bin=$(basename "$0" .sh)
 
 vsrc(){ src="$src_common galois128${1}.c" ; }

@@ -7,8 +7,8 @@ testfunc() {
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-chacha-test.c
-chacha.c
+keccak-check.c
+keccak-f-1600.c
 0-datum/endian.c
 "
 bin=$(basename "$0" .sh)
