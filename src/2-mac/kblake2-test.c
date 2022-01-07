@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     iCryptoObj_t h = NULL;
     FILE *kfp;
 
-    if( argc < 2 ) return 1;
+    if( argc < 2 ) return EXIT_FAILURE;
     else
     {
         switch( u4cc(argv[1]+6) )
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         case u4cc("s224"): h = ikBLAKE2s224; break;
         case u4cc("s256"): h = ikBLAKE2s256; break;
         
-        default: return 1; break;
+        default: return EXIT_FAILURE; break;
         }
     }
 
@@ -48,5 +48,5 @@ int main(int argc, char *argv[])
     x = NULL;
     
     for(int i=0; i<OUT_BYTES(h); i++) printf("%02x", buf[i]);
-    return 0;
+    return EXIT_SUCCESS;
 }

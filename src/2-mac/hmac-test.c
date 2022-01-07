@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     mysrand((unsigned long)time(NULL));
     
-    if( argc < 2 ) return 1;
+    if( argc < 2 ) return EXIT_FAILURE;
     else
     {
         switch( u8cc(argv[1]) )
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         case u8cc("sha3_384"): h = iHMAC_SHA3_384; break;
         case u8cc("sha3_512"): h = iHMAC_SHA3_512; break;
         
-        default: return 1; break;
+        default: return EXIT_FAILURE; break;
         }
     }
 
@@ -52,5 +52,5 @@ int main(int argc, char *argv[])
     x = NULL;
     
     for(int i=0; i<OUT_BYTES(h); i++) printf("%02x", buf[i]);
-    return 0;
+    return EXIT_SUCCESS;
 }
