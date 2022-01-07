@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2018-01-31. Public Domain. */
+/* DannyNiu/NJF, 2022-01-06. Public Domain. */
 
 #ifndef blockcipher_test_c_h
 #define blockcipher_test_c_h 1
@@ -10,14 +10,15 @@
 #include "../1-symm-national/sm4.h"
 
 #include "../test-utils.c.h"
+
+static char line[256], word[256];
+static uint8_t k[32], w[320], ct[16], pt[16], xt[16];
+
 #endif /* blockcipher_test_c_h */
 
 #ifndef bc
 #error The blockcipher query object ``bc'' is not defined!
 #endif /* bc */
-
-static char line[256], word[256];
-static uint8_t k[32], w[320], ct[16], pt[16], xt[16];
 
 int glue(blockcipher_test_,bc)(void)
 {

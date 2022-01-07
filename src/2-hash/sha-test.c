@@ -1,12 +1,92 @@
 /* DannyNiu/NJF, 2018-02-06. Public Domain. */
 
-#include "sha.h"
-#include "sha3.h"
-#include "../2-xof/shake.h"
+#undef h
+#define h xSHA1
+#include "hash-test.c.h"
 
-#include "../test-utils.c.h"
+#undef h
+#define h xSHA224
+#include "hash-test.c.h"
 
-// Call-once-wrong-ever-since test stubs. 
+#undef h
+#define h xSHA256
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA384
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA512
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA512t224
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA512t256
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA3_224
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA3_256
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA3_384
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA3_512
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA1
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA224
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA256
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA384
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA512
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA512t224
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA512t256
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA3_224
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA3_256
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA3_384
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA3_512
+#include "hash-test.c.h"
 
 void SHA3_128000_Final(void *restrict x, void *restrict out, size_t t)
 { SHAKE_Final(x); SHAKE_Read(x, out, t); }
@@ -25,7 +105,6 @@ IntPtr iSHA3_128000(int q){
         0);
 }
 
-IntPtr iSHA3_256000(int q);
 IntPtr iSHA3_256000(int q){
     return (
         q==outBytes ? 256 :
@@ -37,52 +116,56 @@ IntPtr iSHA3_256000(int q){
         0);
 }
 
-static unsigned char buf[4096];
+IntPtr (*xSHA3_128000)(int q) = iSHA3_128000;
+IntPtr (*xSHA3_256000)(int q) = iSHA3_256000;
+
+#undef h
+#define h xSHA3_128000
+#include "hash-test.c.h"
+
+#undef h
+#define h xSHA3_256000
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA3_128000
+#include "hash-test.c.h"
+
+#undef h
+#define h iSHA3_256000
+#include "hash-test.c.h"
 
 int main(int argc, char *argv[])
 {
-    size_t in_len = 0;
-    void *x = NULL;
+    if( argc < 2 ) return EXIT_FAILURE;
 
-    iCryptoObj_t h = NULL;
+    test1case(xSHA1);
+    test1case(xSHA224);
+    test1case(xSHA256);
+    test1case(xSHA384);
+    test1case(xSHA512);
+    test1case(xSHA512t224);
+    test1case(xSHA512t256);
+    test1case(xSHA3_224);
+    test1case(xSHA3_256);
+    test1case(xSHA3_384);
+    test1case(xSHA3_512);
+    test1case(xSHA3_128000);
+    test1case(xSHA3_256000);
 
-    mysrand((unsigned long)time(NULL));
+    test1case(iSHA1);
+    test1case(iSHA224);
+    test1case(iSHA256);
+    test1case(iSHA384);
+    test1case(iSHA512);
+    test1case(iSHA512t224);
+    test1case(iSHA512t256);
+    test1case(iSHA3_224);
+    test1case(iSHA3_256);
+    test1case(iSHA3_384);
+    test1case(iSHA3_512);
+    test1case(iSHA3_128000);
+    test1case(iSHA3_256000);
     
-    if( argc < 2 ) return 1;
-    else
-    {
-        switch( u8cc(argv[1]) )
-        {
-        case u8cc("sha1"): h = iSHA1; break;
-        case u8cc("sha224"): h = iSHA224; break;
-        case u8cc("sha256"): h = iSHA256; break;
-        case u8cc("sha384"): h = iSHA384; break;
-        case u8cc("sha512"): h = iSHA512; break;
-        case u8cc("s512t224"): h = iSHA512t224; break;
-        case u8cc("s512t256"): h = iSHA512t256; break;
-        case u8cc("sha3-224"): h = iSHA3_224; break;
-        case u8cc("sha3-256"): h = iSHA3_256; break;
-        case u8cc("sha3-384"): h = iSHA3_384; break;
-        case u8cc("sha3-512"): h = iSHA3_512; break;
-        case u8cc("shake128"): h = iSHA3_128000; break;
-        case u8cc("shake256"): h = iSHA3_256000; break;
-        
-        default: return 1; break;
-        }
-    }
-    
-    x = malloc(CTX_BYTES(h));
-    INIT_FUNC(h)(x);
-    
-    while( (in_len = fread(buf, 1, myrand()+1, stdin)) > 0 )
-    {
-        UPDATE_FUNC(h)(x, buf, in_len);
-    }
-    
-    FINAL_FUNC(h)(x, buf, OUT_BYTES(h));
-    free(x);
-    x = NULL;
-
-    for(int i=0; i<OUT_BYTES(h); i++) printf("%02x", buf[i]);
-    return 0;
+    return EXIT_SUCCESS;
 }

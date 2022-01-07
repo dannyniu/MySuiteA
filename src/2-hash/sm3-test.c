@@ -1,34 +1,19 @@
 /* DannyNiu/NJF, 2021-07-20. Public Domain. */
 
-#include "sm3.h"
+#undef h
+#define h xSM3
+#include "hash-test.c.h"
 
-#include "../test-utils.c.h"
-
-static unsigned char buf[4096];
+#undef h
+#define h iSM3
+#include "hash-test.c.h"
 
 int main(int argc, char *argv[])
 {
-    size_t in_len = 0;
-    void *x = NULL;
+    if( argc < 2 ) return EXIT_FAILURE;
 
-    iCryptoObj_t h = iSM3;
-
-    mysrand((unsigned long)time(NULL));
+    test1case(xSM3);
+    test1case(iSM3);
     
-    argc = 0, argv = NULL; // To silence the unused argument warning.
-    
-    x = malloc(CTX_BYTES(h));
-    INIT_FUNC(h)(x);
-    
-    while( (in_len = fread(buf, 1, myrand()+1, stdin)) > 0 )
-    {
-        UPDATE_FUNC(h)(x, buf, in_len);
-    }
-    
-    FINAL_FUNC(h)(x, buf, OUT_BYTES(h));
-    free(x);
-    x = NULL;
-
-    for(int i=0; i<OUT_BYTES(h); i++) printf("%02x", buf[i]);
-    return 0;
+    return EXIT_SUCCESS;
 }

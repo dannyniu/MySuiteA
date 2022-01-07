@@ -18,8 +18,9 @@ testfunc() {
         
         for b in 160 256 384 512 ; do
             ref=$(../src/2-hash/b2sum.py blake2b $b < $testvec)
-            res=$($exec blake2b$b < $testvec)
-            if ! [ "${ref%%[!a-zA-Z0-9]*}" = $res ] ; then
+            res=$($exec xBLAKE2b$b < $testvec)
+            ret=$($exec iBLAKE2b$b < $testvec)
+            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo BLAKE2b${b} failed with "$ref" != $res
                 n=$((n+1))
                 cp $testvec failed-blake2b${b}-$mlen.$arch.dat
@@ -28,8 +29,9 @@ testfunc() {
         
         for b in 128 160 224 256 ; do
             ref=$(../src/2-hash/b2sum.py blake2s $b < $testvec)
-            res=$($exec blake2s$b < $testvec)
-            if ! [ "${ref%%[!a-zA-Z0-9]*}" = $res ] ; then
+            res=$($exec xBLAKE2s$b < $testvec)
+            ret=$($exec iBLAKE2s$b < $testvec)
+            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo BLAKE2s${b} failed with "$ref" != $res
                 n=$((n+1))
                 cp $testvec failed-blake2s${b}-$mlen.$arch.dat
@@ -39,7 +41,12 @@ testfunc() {
         unlink $testvec
         mlen=$((mlen*2+32))
     done
+    
     printf "%u failed tests.\n" $n
+    if [ $n -gt 0 ]
+    then return 1
+    else return 0
+    fi
 }
 
 cd "$(dirname "$0")"

@@ -1,50 +1,90 @@
-/* DannyNiu/NJF, 2018-02-06. Public Domain. */
+/* DannyNiu/NJF, 2018-12-23. Public Domain. */
 
-#include "blake2.h"
+#undef h
+#define h xBLAKE2b160
+#include "hash-test.c.h"
 
-#include "../test-utils.c.h"
+#undef h
+#define h xBLAKE2b256
+#include "hash-test.c.h"
 
-static unsigned char buf[4096];
+#undef h
+#define h xBLAKE2b384
+#include "hash-test.c.h"
+
+#undef h
+#define h xBLAKE2b512
+#include "hash-test.c.h"
+
+#undef h
+#define h xBLAKE2s128
+#include "hash-test.c.h"
+
+#undef h
+#define h xBLAKE2s160
+#include "hash-test.c.h"
+
+#undef h
+#define h xBLAKE2s224
+#include "hash-test.c.h"
+
+#undef h
+#define h xBLAKE2s256
+#include "hash-test.c.h"
+
+#undef h
+#define h iBLAKE2b160
+#include "hash-test.c.h"
+
+#undef h
+#define h iBLAKE2b256
+#include "hash-test.c.h"
+
+#undef h
+#define h iBLAKE2b384
+#include "hash-test.c.h"
+
+#undef h
+#define h iBLAKE2b512
+#include "hash-test.c.h"
+
+#undef h
+#define h iBLAKE2s128
+#include "hash-test.c.h"
+
+#undef h
+#define h iBLAKE2s160
+#include "hash-test.c.h"
+
+#undef h
+#define h iBLAKE2s224
+#include "hash-test.c.h"
+
+#undef h
+#define h iBLAKE2s256
+#include "hash-test.c.h"
 
 int main(int argc, char *argv[])
 {
-    size_t in_len = 0;
-    void *x = NULL;
+    if( argc < 2 ) return EXIT_FAILURE;
 
-    iCryptoObj_t h = iBLAKE2b256;
-
-    mysrand((unsigned long)time(NULL));
+    test1case(xBLAKE2b160);
+    test1case(xBLAKE2b256);
+    test1case(xBLAKE2b384);
+    test1case(xBLAKE2b512);
+    test1case(xBLAKE2s128);
+    test1case(xBLAKE2s160);
+    test1case(xBLAKE2s224);
+    test1case(xBLAKE2s256);
     
-    if( argc < 2 ) return 1;
-    else
-    {
-        switch( u4cc(argv[1]+6) )
-        {
-        case u4cc("b160"): h = iBLAKE2b160; break;
-        case u4cc("b256"): h = iBLAKE2b256; break;
-        case u4cc("b384"): h = iBLAKE2b384; break;
-        case u4cc("b512"): h = iBLAKE2b512; break;
-        case u4cc("s128"): h = iBLAKE2s128; break;
-        case u4cc("s160"): h = iBLAKE2s160; break;
-        case u4cc("s224"): h = iBLAKE2s224; break;
-        case u4cc("s256"): h = iBLAKE2s256; break;
-        
-        default: return 1; break;
-        }
-    }
-
-    x = malloc(CTX_BYTES(h));
-    INIT_FUNC(h)(x);
+    test1case(iBLAKE2b160);
+    test1case(iBLAKE2b256);
+    test1case(iBLAKE2b384);
+    test1case(iBLAKE2b512);
+    test1case(iBLAKE2s128);
+    test1case(iBLAKE2s160);
+    test1case(iBLAKE2s224);
+    test1case(iBLAKE2s256);
     
-    while( (in_len = fread(buf, 1, myrand()+1, stdin)) > 0 )
-    {
-        UPDATE_FUNC(h)(x, buf, in_len);
-    }
-    
-    FINAL_FUNC(h)(x, buf, OUT_BYTES(h));
-    free(x);
-    x=NULL;
-
-    for(int i=0; i<OUT_BYTES(h); i++) { printf("%02x", buf[i]); } printf("\n");
-    return 0;
+    return EXIT_SUCCESS;
 }

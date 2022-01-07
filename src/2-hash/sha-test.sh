@@ -17,10 +17,11 @@ testfunc() {
         dd if=/dev/urandom bs=32 count=$((mlen/32)) of=$testvec 2>/dev/null
 
         for b in 1 224 256 384 512 ; do
-            ref="$(../src/2-hash/shasum.py sha$b < $testvec)"
-            res="$($exec sha$b < $testvec)"
-            if ! [ "$ref" = "$res" ] ; then
-                echo sha${b} failed with "$ref" != $res
+            ref=$(../src/2-hash/shasum.py sha$b < $testvec)
+            res=$($exec xSHA$b < $testvec)
+            ret=$($exec iSHA$b < $testvec)
+            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
+                echo sha${b} failed with $ref:$res:$ret
                 n=$((n+1))
                 datetime=$(date +%Y-%m-%d-%H%M%S)
                 cp $testvec failed-sha${b}-$mlen.$datetime.$arch.dat
@@ -28,30 +29,33 @@ testfunc() {
         done
 
         for b in 224 256; do
-            ref="$(../src/2-hash/shasum.py sha512_$b < $testvec)"
-            res="$($exec s512t${b} < $testvec)"
-            if ! [ "$ref" = "$res" ] ; then
-                echo sha512-${b} failed with "$ref" != $res
+            ref=$(../src/2-hash/shasum.py sha512_$b < $testvec)
+            res=$($exec xSHA512t${b} < $testvec)
+            ret=$($exec iSHA512t${b} < $testvec)
+            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
+                echo sha512-${b} failed with $ref:$res:$ret
                 n=$((n+1))
                 cp $testvec failed-sha512t-${b}-$mlen.$datetime.$arch.dat
             fi
         done
 
         for b in 224 256 384 512; do
-            ref="$(../src/2-hash/shasum.py sha3_$b < $testvec)"
-            res="$($exec sha3-$b < $testvec)"
-            if ! [ "$ref" = "$res" ] ; then
-                echo sha3-${b} failed with "$ref" != $res
+            ref=$(../src/2-hash/shasum.py sha3_$b < $testvec)
+            res=$($exec xSHA3_$b < $testvec)
+            ret=$($exec iSHA3_$b < $testvec)
+            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
+                echo sha3-${b} failed with $ref:$res:$ret
                 n=$((n+1))
                 cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
             fi
         done
 
         for b in 128 256; do
-            ref="$(../src/2-hash/shakesum.py shake_$b < $testvec)"
-            res="$($exec shake${b} < $testvec)"
-            if ! [ "$ref" = "$res" ] ; then
-                echo shake${b} failed with "$ref" != $res
+            ref=$(../src/2-hash/shakesum.py shake_$b < $testvec)
+            res=$($exec xSHA3_${b}000 < $testvec)
+            ret=$($exec iSHA3_${b}000 < $testvec)
+            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
+                echo shake${b} failed with $ref:$res:$ret
                 n=$((n+1))
                 cp $testvec failed-shake-${b}-$mlen.$datetime.$arch.dat
             fi
@@ -60,7 +64,12 @@ testfunc() {
         unlink $testvec
         mlen=$((mlen*2+32))
     done
+    
     printf "%u failed tests.\n" $n
+    if [ $n -gt 0 ]
+    then return 1
+    else return 0
+    fi
 }
 
 cd "$(dirname "$0")"
