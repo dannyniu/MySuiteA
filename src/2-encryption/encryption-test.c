@@ -10,6 +10,26 @@ static size_t len, alen;
 
 static gcm_aes256_t gcm;
 
+static int vflushed = false;
+
+static const char *vname;
+
+void PrintIf(intmax_t cond, const char *fmt, ...)
+{
+    va_list ap;
+
+    if( !cond ) return;
+    va_start(ap, fmt);
+
+    if( !vflushed )
+    {
+        printf("%s\n", vname);
+        vflushed = true;
+    }
+
+    vprintf(fmt, ap);
+}
+
 int main(int argc, char *argv[])
 {
     int i;
@@ -20,10 +40,19 @@ int main(int argc, char *argv[])
     CryptoParam_t Bc;
 
     if( argc < 3 ) return 1;
-    if( !strcmp(argv[1], "128") ) aead=iGCM_AES128, bc=iAES128, mode=tGCM;
-    if( !strcmp(argv[1], "192") ) aead=iGCM_AES192, bc=iAES192, mode=tGCM;
-    if( !strcmp(argv[1], "256") ) aead=iGCM_AES256, bc=iAES256, mode=tGCM;
-    if( !strcmp(argv[1], "20") ) aead=iChaCha_AEAD, bc=NULL, mode=NULL;
+    
+    if( !strcmp(argv[1], "GCM-AES-128") )
+        aead=iGCM_AES128, bc=iAES128, mode=tGCM;
+    
+    if( !strcmp(argv[1], "GCM-AES-192") )
+        aead=iGCM_AES192, bc=iAES192, mode=tGCM;
+    
+    if( !strcmp(argv[1], "GCM-AES-256") )
+        aead=iGCM_AES256, bc=iAES256, mode=tGCM;
+    
+    if( !strcmp(argv[1], "ChaCha20-Poly1305") )
+        aead=iChaCha_AEAD, bc=NULL, mode=NULL;
+    
     Bc.info = bc, Bc.param = NULL;
 
     freopen(argv[2], "r", stdin);
@@ -79,47 +108,48 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("%s\n", argv[2]);
+    vname = argv[2];
 
     KINIT_FUNC(aead)(
         &gcm, k, KEY_BYTES(aead));
     AENC_FUNC(aead)(
         (void *)&gcm, iv, alen, a, len, p, x, 16, s);
-    if( memcmp(s, t, 16) ) printf("Enc Fail: Tag Wrong!\n");
-    if( memcmp(c, x, len) ) printf("Enc Fail: Ciphertext Wrong!\n");
+    PrintIf(memcmp(s, t, 16), "Enc Fail: Tag Wrong!\n");
+    PrintIf(memcmp(c, x, len),"Enc Fail: Ciphertext Wrong!\n");
     ptr = ADEC_FUNC(aead)(
         (void *)&gcm, iv, alen, a, len, c, x, 16, t);
-    if( !ptr ) printf("Dec Errornously Returned FAIL\n");
-    if( memcmp(p, x, len) ) printf("Dec Fail: Plaintext Wrong!\n");
+    PrintIf(!ptr, "Dec Errornously Returned FAIL\n");
+    PrintIf(memcmp(p, x, len), "Dec Fail: Plaintext Wrong!\n");
 
     if( alen ) {
         ptr = ADEC_FUNC(aead)(
             (void *)&gcm, iv, alen-1, a+1, len, c, x, 16, t);
-        if( ptr ) printf("Dec Errornously Secceeded!\n");
+        PrintIf((intmax_t)ptr ,"Dec Errornously Secceeded!\n");
     }
 
-    if( mode && bc )
+    if( !mode || !bc )
     {
-        ((PKInitFunc_t)mode(&Bc, KInitFunc))(
-            &Bc, &gcm, k, mode(&Bc, keyBytes));
-        ((AEncFunc_t)mode(&Bc, AEncFunc))(
-            (void *)&gcm, iv, alen, a, len, p, x, 16, s);
-        if( memcmp(s, t, 16) ) printf("Enc Fail: Tag Wrong!\n");
-        if( memcmp(c, x, len) ) printf("Enc Fail: Ciphertext Wrong!\n");
-        ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
-                   (void *)&gcm, iv, alen, a, len, c, x, 16, t);
-        if( !ptr ) printf("Dec Errornously Returned FAIL\n");
-        if( memcmp(p, x, len) ) printf("Dec Fail: Plaintext Wrong!\n");
+        PrintIf(vflushed, "Test Over\n");
+        return vflushed ? EXIT_FAILURE : EXIT_SUCCESS;
+    }
+    
+    ((PKInitFunc_t)mode(&Bc, KInitFunc))(
+        &Bc, &gcm, k, mode(&Bc, keyBytes));
+    ((AEncFunc_t)mode(&Bc, AEncFunc))(
+        (void *)&gcm, iv, alen, a, len, p, x, 16, s);
+    PrintIf(memcmp(s, t, 16), "Enc Fail: Tag Wrong!\n");
+    PrintIf(memcmp(c, x, len), "Enc Fail: Ciphertext Wrong!\n");
+    ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
+        (void *)&gcm, iv, alen, a, len, c, x, 16, t);
+    PrintIf(!ptr, "Dec Errornously Returned FAIL\n");
+    PrintIf(memcmp(p, x, len), "Dec Fail: Plaintext Wrong!\n");
         
-        if( alen ) {
-            ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
-                (void *)&gcm, iv, alen-1, a+1, len, c, x, 16, t);
-            if( ptr ) printf("Dec Errornously Secceeded!\n");
-        }
-
+    if( alen ) {
+        ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
+            (void *)&gcm, iv, alen-1, a+1, len, c, x, 16, t);
+        PrintIf((intmax_t)ptr, "Dec Errornously Secceeded!\n");
     }
 
-    printf("Test Over\n");
-    
-    return 0;
+    PrintIf(vflushed, "Test Over\n");
+    return vflushed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

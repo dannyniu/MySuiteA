@@ -18,6 +18,8 @@ CryptoParam_t P[1];
 typedef uint8_t buffer512_t[64];
 buffer512_t key, msg, tag, mac;
 
+int ret = EXIT_SUCCESS;
+
 void test_run1(
     const char *tn,
     const char *k,
@@ -63,6 +65,7 @@ void test_run1(
     }
     
     if( !fails ) printf("...... Test Succeeded ......\n");
+    else ret = EXIT_FAILURE;
 }
 
 void tests_runall()
@@ -169,5 +172,5 @@ void tests_runall()
 int main()
 {
     tests_runall();
-    return 0;
+    return ret;
 }

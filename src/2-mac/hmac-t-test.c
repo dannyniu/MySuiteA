@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     H.info = h, H.param = NULL;
 
     kfp = fopen("mac-test-key", "rb");
-    x = malloc(CTX_BYTES(h));
+    x = malloc(m(&H, contextBytes));
     
     ((PKInitFunc_t)m(&H, KInitFunc))(&H, x, buf, fread(buf, 1, 512, kfp));
     fclose(kfp); kfp = NULL;

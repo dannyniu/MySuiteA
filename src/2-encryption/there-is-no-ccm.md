@@ -1,4 +1,5 @@
-2021-07=26: There is no CCM in MySuiteA.
+2021-07-26: There is no CCM in MySuiteA
+=======================================
 
 Much of the criticisms of CCM is available in "A Critique of CCM" by
 P. Rogway, D. Wagner published in Feb 2003, available at:

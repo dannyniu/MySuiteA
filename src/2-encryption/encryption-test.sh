@@ -1,23 +1,32 @@
 #!/bin/sh
 
 testfunc() {
-    $exec 20 $testdir2/vec-01.txt
-    $exec 20 $testdir2/vec-02.txt
+    e=0;
     
-    $exec 128 $testdir1/vec-01.txt
-    $exec 128 $testdir1/vec-02.txt
-    $exec 128 $testdir1/vec-03.txt
-    $exec 128 $testdir1/vec-04.txt
+    $exec ChaCha20-Poly1305 $testdir2/vec-01.txt || e=$((e+1))
+    $exec ChaCha20-Poly1305 $testdir2/vec-02.txt || e=$((e+1))
+    
+    $exec GCM-AES-128 $testdir1/vec-01.txt || e=$((e+1))
+    $exec GCM-AES-128 $testdir1/vec-02.txt || e=$((e+1))
+    $exec GCM-AES-128 $testdir1/vec-03.txt || e=$((e+1))
+    $exec GCM-AES-128 $testdir1/vec-04.txt || e=$((e+1))
 
-    $exec 192 $testdir1/vec-07.txt
-    $exec 192 $testdir1/vec-08.txt
-    $exec 192 $testdir1/vec-09.txt
-    $exec 192 $testdir1/vec-10.txt
+    $exec GCM-AES-192 $testdir1/vec-07.txt || e=$((e+1))
+    $exec GCM-AES-192 $testdir1/vec-08.txt || e=$((e+1))
+    $exec GCM-AES-192 $testdir1/vec-09.txt || e=$((e+1))
+    $exec GCM-AES-192 $testdir1/vec-10.txt || e=$((e+1))
 
-    $exec 256 $testdir1/vec-13.txt
-    $exec 256 $testdir1/vec-14.txt
-    $exec 256 $testdir1/vec-15.txt
-    $exec 256 $testdir1/vec-16.txt
+    $exec GCM-AES-256 $testdir1/vec-13.txt || e=$((e+1))
+    $exec GCM-AES-256 $testdir1/vec-14.txt || e=$((e+1))
+    $exec GCM-AES-256 $testdir1/vec-15.txt || e=$((e+1))
+    $exec GCM-AES-256 $testdir1/vec-16.txt || e=$((e+1))
+
+    echo "$e test(s) failed."
+
+    if [ $e -gt 0 ]
+    then return 1
+    else return 0
+    fi
 }
 
 cd "$(dirname "$0")"

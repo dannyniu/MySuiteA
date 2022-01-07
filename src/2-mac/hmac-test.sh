@@ -34,9 +34,12 @@ testfunc() {
         done 
     done | while
         if ! read algo klen mlen ; then
-            echo $failcount tests failed.
-            false
-        fi
+            echo "$failcount test(s) failed."
+            if [ $failcount -gt 0 ]
+            then return 1
+            else return 0
+            fi
+        else true ; fi
     do
         dd if=/dev/urandom bs=1 count=$klen \
            of=mac-test-key 2>/dev/null

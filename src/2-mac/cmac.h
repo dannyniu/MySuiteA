@@ -41,7 +41,7 @@ typedef struct cmac_context {
         .offset = sizeof(cmac_t),       \
         .kschd = KSCHD_FUNC(bc),        \
         .enc = ENC_FUNC(bc),            \
-    } : (cmac_t){0})
+    } : (cmac_t){})
 
 void *CMAC_SetKey(
     cmac_t *restrict cmac, const void *restrict key, size_t keylen);

@@ -40,9 +40,12 @@ testfunc() {
         done 
     done | while
         if ! read variant outlen klen mlen ; then
-            echo $failcount tests failed.
-            false
-        fi
+            echo "$failcount test(s) failed."
+            if [ $failcount -gt 0 ]
+            then return 1
+            else return 0
+            fi
+        else true ; fi
     do
         algo=${variant}${outlen}
         

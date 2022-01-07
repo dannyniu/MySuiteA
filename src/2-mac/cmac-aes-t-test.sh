@@ -32,11 +32,11 @@ arch=sparc64 cflags="" srcset="Plain C"
 vsrc ""
 ( . $unitest_sh )
 
-arch=x86_64 cflags="-maes" srcset="Plain C"
+arch=x86_64 cflags="-maes" srcset="x86 AESNI"
 vsrc "-x86"
 ( . $unitest_sh )
 
 arch=aarch64 cflags="-march=armv8-a+crypto"
-srcset="Plain C"
+srcset="ARM NEON Crypto"
 vsrc "-arm"
 ( . $unitest_sh )
