@@ -73,5 +73,5 @@ int main()
     }
     printf("Gimli-XOF %d failed %d passed\n", fail, pass);
     
-    return 0;
+    return fail == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
