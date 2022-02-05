@@ -1,7 +1,8 @@
 /* DannyNiu/NJF, 2021-12-27. Public Domain. */
 
 #define ENABLE_HOSTED_HEADERS
-#include "secp-xyz.h"
+#include "ecp-xyz.h"
+#include "secp-imod-aux.h"
 
 void printl(const vlong_t *x)
 {

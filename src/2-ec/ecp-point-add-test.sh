@@ -1,14 +1,15 @@
 #!/bin/sh
 
 testfunc() {
-    $exec < /dev/urandom | ../src/2-ec/secp-point-arith-test.py
+    $exec < /dev/urandom | ../src/2-ec/ecp-point-arith-test.py
 }
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-secp-point-add-test.c
-secp-xyz.c
+ecp-point-add-test.c
+ecp-xyz.c
+secp-imod-aux.c
 1-integers/vlong.c
 "
 bin=$(basename "$0" .sh)
