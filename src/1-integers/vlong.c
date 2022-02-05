@@ -2,6 +2,14 @@
 
 #include "vlong.h"
 
+vlong_t *vlong_cpy(vlong_t *restrict out, vlong_t const *restrict in)
+{
+    vlong_size_t i;
+    for(i=0; i<out->c; i++)
+        out->v[i] = in->v[i];
+    return out;
+}
+
 // MARK: == Additive Expressions ==
 
 // This kernel should be placed in a function with

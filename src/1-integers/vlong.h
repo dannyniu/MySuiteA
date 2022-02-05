@@ -24,6 +24,8 @@ typedef VLONG_T() vlong_t;
 // ``vlong_*'' functions return NULL when the parameters of
 // operands are invalid (e.g. lack space to hold full values).
 
+vlong_t *vlong_cpy(vlong_t *restrict out, vlong_t const *restrict in);
+
 // MARK: == Additive Expressions ==
 
 // These are intentionally not restrict-qualified.

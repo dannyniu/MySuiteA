@@ -37,7 +37,7 @@ int test1(
         randoml(y1);
         randoml(z1);
 
-        ecp_point_dbl(c, a, -3, opctx, aux);
+        ecp_point_dbl_fast(c, a, -3, opctx, aux);
 
         printf("ecc_asm.point_dbl_ref(");
         printl(x1); printf(", ");

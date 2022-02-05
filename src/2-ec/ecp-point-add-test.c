@@ -19,23 +19,25 @@ void randoml(vlong_t *ff)
 }
 
 int test1(
-    ecp_xyz_t *a,
-    ecp_xyz_t *b,
-    ecp_xyz_t *c,
+    ecp_xyz_t *p,
+    ecp_xyz_t *q,
+    ecp_xyz_t *r,
+    int32_t a,
+    vlong_t *b,
     ecp_opctx_t *opctx,
     const ecp_imod_aux_t *aux)
 {
     for(long n=0; n<128*128; n++)
     {
-        vlong_t *x1 = DeltaTo(a, offset_x);
-        vlong_t *y1 = DeltaTo(a, offset_y);
-        vlong_t *z1 = DeltaTo(a, offset_z);
-        vlong_t *x2 = DeltaTo(b, offset_x);
-        vlong_t *y2 = DeltaTo(b, offset_y);
-        vlong_t *z2 = DeltaTo(b, offset_z);
-        vlong_t *x3 = DeltaTo(c, offset_x);
-        vlong_t *y3 = DeltaTo(c, offset_y);
-        vlong_t *z3 = DeltaTo(c, offset_z);
+        vlong_t *x1 = DeltaTo(p, offset_x);
+        vlong_t *y1 = DeltaTo(p, offset_y);
+        vlong_t *z1 = DeltaTo(p, offset_z);
+        vlong_t *x2 = DeltaTo(q, offset_x);
+        vlong_t *y2 = DeltaTo(q, offset_y);
+        vlong_t *z2 = DeltaTo(q, offset_z);
+        vlong_t *x3 = DeltaTo(r, offset_x);
+        vlong_t *y3 = DeltaTo(r, offset_y);
+        vlong_t *z3 = DeltaTo(r, offset_z);
         
         randoml(x1);
         randoml(y1);
@@ -43,16 +45,19 @@ int test1(
         randoml(x2);
         randoml(y2);
         randoml(z2);
+        randoml(b);
 
-        ecp_point_add(c, a, b, opctx, aux);
+        ecp_point_add_rcb15(r, p, q, a, b, opctx, aux);
 
-        printf("ecc_asm.point_add_ref(");
+        printf("ecc_asm.point_add_rcb15_ref(");
         printl(x1); printf(", ");
         printl(y1); printf(", ");
         printl(z1); printf(", ");
         printl(x2); printf(", ");
         printl(y2); printf(", ");
-        printl(z2); printf(") == (");
+        printl(z2); printf(", ");
+        printf("%ld", (long)a); printf(", ");
+        printl(b); printf(") == (");
         printl(x3); printf(", ");
         printl(y3); printf(", ");
         printl(z3); printf(")\n");
@@ -63,20 +68,24 @@ int test1(
 
 int main(void)
 {
-    ecp384_xyz_t a;
-    ecp384_xyz_t b;
-    ecp384_xyz_t c;
+    ecp384_xyz_t p;
+    ecp384_xyz_t q;
+    ecp384_xyz_t r;
     ecp384_opctx_t opctx;
     
     const ecp_imod_aux_t *imod_aux;
+    int32_t a;
+    VLONG_T(14) b;
 
     // NIST P-256.
 
-    *(ecp256_xyz_t *)&a = ECP256_XYZ_INIT;
-    *(ecp256_xyz_t *)&b = ECP256_XYZ_INIT;
-    *(ecp256_xyz_t *)&c = ECP256_XYZ_INIT;
+    *(ecp256_xyz_t *)&p = ECP256_XYZ_INIT;
+    *(ecp256_xyz_t *)&q = ECP256_XYZ_INIT;
+    *(ecp256_xyz_t *)&r = ECP256_XYZ_INIT;
     *(ecp256_opctx_t *)&opctx = ECP256_OPCTX_INIT;
     imod_aux = secp256r1_imod_aux;
+    a = -3;
+    b.c = 10;
     
     printf("ecc_asm.set_p(");
     printf("0x");
@@ -90,15 +99,18 @@ int main(void)
     printf("%08x", -1);
     printf(") or True\n");
 
-    test1((void *)&a, (void *)&b, (void *)&c, (void *)&opctx, imod_aux);
+    test1((void *)&p, (void *)&q, (void *)&r,
+          a, (void *)&b, (void *)&opctx, imod_aux);
 
     // NIST P-384.
 
-    *(ecp384_xyz_t *)&a = ECP384_XYZ_INIT;
-    *(ecp384_xyz_t *)&b = ECP384_XYZ_INIT;
-    *(ecp384_xyz_t *)&c = ECP384_XYZ_INIT;
+    *(ecp384_xyz_t *)&p = ECP384_XYZ_INIT;
+    *(ecp384_xyz_t *)&q = ECP384_XYZ_INIT;
+    *(ecp384_xyz_t *)&r = ECP384_XYZ_INIT;
     *(ecp384_opctx_t *)&opctx = ECP384_OPCTX_INIT;
     imod_aux = secp384r1_imod_aux;
+    a = -3;
+    b.c = 14;
     
     printf("ecc_asm.set_p(");
     printf("0x");
@@ -116,7 +128,8 @@ int main(void)
     printf("%08x", -1);
     printf(") or True\n");
 
-    test1((void *)&a, (void *)&b, (void *)&c, (void *)&opctx, imod_aux);
+    test1((void *)&p, (void *)&q, (void *)&r,
+          a, (void *)&b, (void *)&opctx, imod_aux);
     
     return 0;
 }

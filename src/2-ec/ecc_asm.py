@@ -54,6 +54,67 @@ def point_add_ref(x1, y1, z1, x2, y2, z2):
     z = v ** 3 * z1 * z2 % p
     return (x,y,z)
 
+def point_add_rcb15_ref(x1, y1, z1, x2, y2, z2, a, b):
+    x1x2 = x1 * x2 % p
+    x1y2 = x1 * y2 % p
+    x1z2 = x1 * z2 % p
+    x2y1 = y1 * x2 % p
+    y1y2 = y1 * y2 % p
+    y1z2 = y1 * z2 % p
+    x2z1 = z1 * x2 % p
+    y2z1 = z1 * y2 % p
+    z1z2 = z1 * z2 % p
+    x = (x1y2 + x2y1) * (y1y2 - a*(x1z2 + x2z1) - 3*b*z1z2) 
+    x -= (y1z2 + y2z1) * (a*x1x2 + 3*b*(x1z2 + x2z1) - a*a*z1z2)
+    x %= p
+    y = (3*x1x2 + a*z1z2) * (a*x1x2 + 3*b*(x1z2 + x2z1) - a*a*z1z2)
+    y += (y1y2 + a*(x1z2 + x2z1) + 3*b*z1z2) * (y1y2 - a*(x1z2 + x2z1) - 3*b*z1z2)
+    y %= p
+    z = (y1z2 + y2z1) * (y1y2 + a*(x1z2 + x2z1) + 3*b*z1z2)
+    z += (x1y2 + x2y1) * (3*x1x2 + a*z1z2)
+    z %= p
+    #print("({0:x},{1:x},{2:x})".format(x, y, z));
+    return (x,y,z)
+
+def point_add_rcb15_original(X1, Y1, Z1, X2, Y2, Z2, a, b):
+    b3 = b*3
+    t0 = X1 * X2 ; t1 = Y1 * Y2 ; t2 = Z1 * Z2 ;
+    t3 = X1 + Y1 ; t4 = X2 + Y2 ; t3 = t3 * t4 ;
+    t4 = t0 + t1 ; t3 = t3 - t4 ; t4 = X1 + Z1 ;
+    t5 = X2 + Z2 ; t4 = t4 * t5 ; t5 = t0 + t2 ;
+    t4 = t4 - t5 ; t5 = Y1 + Z1 ; X3 = Y2 + Z2 ;
+    t5 = t5 * X3 ; X3 = t1 + t2 ; t5 = t5 - X3 ;
+    Z3 = a * t4 ; X3 = b3 * t2 ; Z3 = X3 + Z3 ;
+    X3 = t1 - Z3 ; Z3 = t1 + Z3 ; Y3 = X3 * Z3 ;
+    t1 = t0 + t0 ; t1 = t1 + t0 ; t2 = a * t2 ; # 25. 26. 27.
+    t4 = b3 * t4 ; t1 = t1 + t2 ; t2 = t0 - t2 ;
+    t2 = a * t2 ; t4 = t4 + t2 ; t0 = t1 * t4 ;
+    Y3 = Y3 + t0 ; t0 = t5 * t4 ; X3 = t3 * X3 ;
+    X3 = X3 - t0 ; t0 = t3 * t1 ; Z3 = t5 * Z3 ;
+    Z3 = Z3 + t0 ;
+    return (X3 , Y3 , Z3);
+
+def point_add_rcb15_ref_asm(X1, Y1, Z1, X2, Y2, Z2, a, b):
+    global p
+    b3 = b*3
+    t0 = (X1 * X2) %p ; t1 = (Y1 * Y2) %p ; t2 = (Z1 * Z2) %p ; # 1. 2. 3.
+    t3 = (X1 + Y1) %p ; t4 = (X2 + Y2) %p ; t3 = (t3 * t4) %p ; # 4. 5. 6.
+    t4 = (t0 + t1) %p ; t3 = (t3 - t4) %p ; t4 = (X1 + Z1) %p ; # 7. 8. 9.
+    t5 = (X2 + Z2) %p ; t4 = (t4 * t5) %p ; t5 = (t0 + t2) %p ; # 10. 11. 12.
+    t4 = (t4 - t5) %p ; t5 = (Y1 + Z1) %p ; X3 = (Y2 + Z2) %p ; # 13. 14. 15.
+    t5 = (t5 * X3) %p ; X3 = (t1 + t2) %p ; t5 = (t5 - X3) %p ; # 16. 17. 18.
+    Z3 = (a  * t4) %p ; X3 = (b3 * t2) %p ; Z3 = (X3 + Z3) %p ; # 19. 20. 21.
+    X3 = (t1 - Z3) %p ; Z3 = (t1 + Z3) %p ; Y3 = (X3 * Z3) %p ; # 22. 23. 24.
+    t1 = (t0 + t0) %p ; t1 = (t1 + t0) %p ; t2 = (a  * t2) %p ; # 25. 26. 27.
+    t1 = (t1 + t2) %p ; t2 = (t0 - t2) %p ;
+    t2 = (a  * t2) %p ;
+    t4 = (b3 * t4) %p ; t4 = (t4 + t2) %p ; 
+    t0 = (t1 * t4) %p ; Y3 = (Y3 + t0) %p ; print('p:'+hex(Y3));
+    t0 = (t5 * t4) %p ; X3 = (t3 * X3) %p ; X3 = (X3 - t0) %p ; print('p:'+hex(X3));
+    t0 = (t3 * t1) %p ; Z3 = (t5 * Z3) %p ; Z3 = (Z3 + t0) %p ; print('p:'+hex(Z3));
+    print("({0:x},{1:x},{2:x})".format(X3, Y3, Z3));
+    return (X3 , Y3 , Z3);
+
 def point_dbl_asm(x1, y1, z1):
     w = x1 * x1 %p
     w = w * 3 %p
