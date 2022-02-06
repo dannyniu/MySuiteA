@@ -16,14 +16,14 @@ curve-secp384r1.c
 bin=$(basename "$0" .sh)
 srcset="Plain C"
 
-arch=x86_64 cflags=""-DENABLE_HOSTED_HEADERS=
+arch=x86_64 cflags=""
 ( . $unitest_sh )
 
-arch=aarch64 cflags=""-DENABLE_HOSTED_HEADERS=
+arch=aarch64 cflags=""
 ( . $unitest_sh )
 
-arch=powerpc64 cflags=""-DENABLE_HOSTED_HEADERS=
+arch=powerpc64 cflags=""
 ( . $unitest_sh )
 
-arch=sparc64 cflags=""-DENABLE_HOSTED_HEADERS=
+arch=sparc64 cflags=""
 ( . $unitest_sh )
