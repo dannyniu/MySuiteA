@@ -3,6 +3,9 @@
 #ifndef MySuiteA_ecc_ecp_xyz_h
 #define MySuiteA_ecc_ecp_xyz_h 1
 
+// 'ecp' stands for "Elliptic Curve of Prime order".
+// it implements arithmetic common to curves of short Weierstrass form.
+
 #include "../1-integers/vlong.h"
 
 typedef struct {
@@ -23,24 +26,30 @@ typedef struct {
     vlong_t const *mod_ctx;
 } ecp_imod_aux_t;
 
-extern const ecp_imod_aux_t *secp256r1_imod_aux;
-extern const ecp_imod_aux_t *secp384r1_imod_aux;
+typedef struct {
+    int16_t plen;
+    int16_t h;
+    int32_t a;
+    vlong_t const *b;
+    vlong_t const *p;
+    vlong_t const *n;
+    vlong_t const *Gx;
+    vlong_t const *Gy;
+    ecp_imod_aux_t const *imod_aux;
+} ecp_curve_t;
 
 // this function is modelled after ``vlong_imod_inplace''.
 vlong_t *ecp_imod_inplace(vlong_t *rem, const ecp_imod_aux_t *aux);
 
-//
-// Short Weierstrass Prime-Order Elliptic Curve Point Arithmetics.
-
 // 2022-02-05: Based on
 // "Complete addition formulas for prime order elliptic curves"
-// Joost Renes, Craig Costello, and Lejla Batina, Oct 2015.
+// by Joost Renes, Craig Costello, and Lejla Batina, Oct 2015.
 ecp_xyz_t *ecp_point_add_rcb15(
     ecp_xyz_t *restrict out,
     ecp_xyz_t const *p1,
     ecp_xyz_t const *p2,
     int32_t a,
-    vlong_t *restrict b,
+    vlong_t const *restrict b,
     ecp_opctx_t *restrict ctx,
     const ecp_imod_aux_t *restrict aux);
 
@@ -52,39 +61,53 @@ ecp_xyz_t *ecp_point_dbl_fast(
     ecp_opctx_t *restrict ctx,
     const ecp_imod_aux_t *restrict aux);
 
-typedef struct {
-    ecp_xyz_t header;
-    VLONG_T(10) x;
-    VLONG_T(10) y;
-    VLONG_T(10) z;
-} ecp256_xyz_t; // for both random and Koblitz curves.
+//
+// helper functions.
 
-typedef struct {
-    ecp_xyz_t header;
-    VLONG_T(14) x;
-    VLONG_T(14) y;
-    VLONG_T(14) z;
-} ecp384_xyz_t; // even though no Koblitz curve defined for 384-bit fields.
+void ecp_xyz_copy(
+    ecp_xyz_t *restrict dst,
+    ecp_xyz_t const *restrict src);
 
-typedef struct {
-    ecp_opctx_t header;
-    VLONG_T(10) r;
-    VLONG_T(10) s;
-    VLONG_T(10) t;
-    VLONG_T(10) u;
-    VLONG_T(10) v;
-    VLONG_T(10) w;
-} ecp256_opctx_t;
+void ecp_xyz_inf(ecp_xyz_t *p);
 
-typedef struct {
-    ecp_opctx_t header;
-    VLONG_T(14) r;
-    VLONG_T(14) s;
-    VLONG_T(14) t;
-    VLONG_T(14) u;
-    VLONG_T(14) v;
-    VLONG_T(14) w;
-} ecp384_opctx_t;
+// naive double-and-add.
+ecp_xyz_t *ecp_point_scale_accumulate(
+    ecp_xyz_t *restrict accum,
+    ecp_xyz_t *restrict tmp1, // temporary variables are
+    ecp_xyz_t *restrict tmp2, // allocated by the caller
+    ecp_xyz_t const *restrict base,
+    vlong_t const *restrict scalar,
+    ecp_opctx_t *restrict opctx,
+    ecp_curve_t const *restrict curve);
+
+#define ECP_XYZ_T(l)                            \
+    struct {                                    \
+        ecp_xyz_t header;                       \
+        VLONG_T(l) x;                           \
+        VLONG_T(l) y;                           \
+        VLONG_T(l) z;                           \
+    }
+
+#define ECP_OPCTX_T(l)                          \
+    struct {                                    \
+        ecp_opctx_t header;                     \
+        VLONG_T(l) r;                           \
+        VLONG_T(l) s;                           \
+        VLONG_T(l) t;                           \
+        VLONG_T(l) u;                           \
+        VLONG_T(l) v;                           \
+        VLONG_T(l) w;                           \
+    }
+
+#define ECP_XYZ_SIZE(l) (                                       \
+        sizeof(ecp_xyz_t) +                                     \
+        (sizeof(vlong_size_t) + sizeof(uint32_t) * (l)) * 3     \
+        )
+
+#define ECP_OPCTX_SIZE(l) (                                     \
+        sizeof(ecp_opctx_t) +                                   \
+        (sizeof(vlong_size_t) + sizeof(uint32_t) * (l)) * 6     \
+        )
 
 #define ECP_XYZ_INIT(type,l) ((type){                           \
             .header.offset_x = sizeof(ecp_xyz_t) +              \
@@ -97,9 +120,6 @@ typedef struct {
             .y.c = l,                                           \
             .z.c = l,                                           \
         })
-
-#define ECP256_XYZ_INIT ECP_XYZ_INIT(ecp256_xyz_t,10)
-#define ECP384_XYZ_INIT ECP_XYZ_INIT(ecp384_xyz_t,14)
 
 #define ECP_OPCTX_INIT(type,l) ((type){                         \
             .header.offset_r = sizeof(ecp_opctx_t) +            \
@@ -121,6 +141,23 @@ typedef struct {
             .v.c = l,                                           \
             .w.c = l,                                           \
         })
+
+// 2 additional words for representation and computation overhead.
+typedef ECP_XYZ_T(10) ecp256_xyz_t;
+typedef ECP_XYZ_T(14) ecp384_xyz_t;
+
+// the same overhead reason.
+typedef ECP_OPCTX_T(10) ecp256_opctx_t;
+typedef ECP_OPCTX_T(14) ecp384_opctx_t;
+
+#define ECP256_XYZ_SIZE ECP_XYZ_SIZE(10)
+#define ECP384_XYZ_SIZE ECP_XYZ_SIZE(14)
+
+#define ECP256_OPCTX_SIZE ECP_OPCTX_SIZE(10)
+#define ECP384_OPCTX_SIZE ECP_OPCTX_SIZE(14)
+
+#define ECP256_XYZ_INIT ECP_XYZ_INIT(ecp256_xyz_t,10)
+#define ECP384_XYZ_INIT ECP_XYZ_INIT(ecp384_xyz_t,14)
 
 #define ECP256_OPCTX_INIT ECP_OPCTX_INIT(ecp256_opctx_t,10)
 #define ECP384_OPCTX_INIT ECP_OPCTX_INIT(ecp384_opctx_t,14)

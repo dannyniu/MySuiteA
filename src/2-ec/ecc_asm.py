@@ -4,6 +4,14 @@ global p, a
 p = 65537
 a = 2
 
+def set_p(new_p):
+    global p
+    p = new_p
+
+def set_a(new_a):
+    global a
+    a = new_a
+
 def point_add_asm(x1, y1, z1, x2, y2, z2):
     u = y2 * z1 %p
     t = y1 * z2 %p
@@ -73,7 +81,6 @@ def point_add_rcb15_ref(x1, y1, z1, x2, y2, z2, a, b):
     z = (y1z2 + y2z1) * (y1y2 + a*(x1z2 + x2z1) + 3*b*z1z2)
     z += (x1y2 + x2y1) * (3*x1x2 + a*z1z2)
     z %= p
-    #print("({0:x},{1:x},{2:x})".format(x, y, z));
     return (x,y,z)
 
 def point_add_rcb15_original(X1, Y1, Z1, X2, Y2, Z2, a, b):
@@ -109,10 +116,9 @@ def point_add_rcb15_ref_asm(X1, Y1, Z1, X2, Y2, Z2, a, b):
     t1 = (t1 + t2) %p ; t2 = (t0 - t2) %p ;
     t2 = (a  * t2) %p ;
     t4 = (b3 * t4) %p ; t4 = (t4 + t2) %p ; 
-    t0 = (t1 * t4) %p ; Y3 = (Y3 + t0) %p ; print('p:'+hex(Y3));
-    t0 = (t5 * t4) %p ; X3 = (t3 * X3) %p ; X3 = (X3 - t0) %p ; print('p:'+hex(X3));
-    t0 = (t3 * t1) %p ; Z3 = (t5 * Z3) %p ; Z3 = (Z3 + t0) %p ; print('p:'+hex(Z3));
-    print("({0:x},{1:x},{2:x})".format(X3, Y3, Z3));
+    t0 = (t1 * t4) %p ; Y3 = (Y3 + t0) %p ;
+    t0 = (t5 * t4) %p ; X3 = (t3 * X3) %p ; X3 = (X3 - t0) %p ;
+    t0 = (t3 * t1) %p ; Z3 = (t5 * Z3) %p ; Z3 = (Z3 + t0) %p ;
     return (X3 , Y3 , Z3);
 
 def point_dbl_asm(x1, y1, z1):
@@ -158,13 +164,17 @@ def point_dbl_ref(x1, y1, z1):
     z = 8 * (y1 * z1) ** 3 %p
     return (x,y,z)
 
-def set_p(new_p):
-    global p
-    p = new_p
-
-def set_a(new_a):
-    global a
-    a = new_a
+def point_scl(x1, y1, z1, d, a, b):
+    accum = (0, 1, 0)
+    tmp1 = (x1, y1, z1)
+    i=0
+    while d != 0:
+        mask = d & 1
+        if mask: accum = point_add_rcb15_ref_asm(*accum, *tmp1, a, b)
+        d = d >> 1
+        i = i + 1
+        tmp1 = point_dbl_asm(*tmp1)
+    return accum
 
 if __name__ == "__main__":
     print(repr(point_add_asm(1, 2, 3000, 4, 5000, 6)))

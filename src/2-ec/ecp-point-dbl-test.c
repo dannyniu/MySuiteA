@@ -2,21 +2,10 @@
 
 #define ENABLE_HOSTED_HEADERS
 #include "ecp-xyz.h"
-#include "secp-imod-aux.h"
+#include "curves-secp.h"
 
 #include "../0-exec/struct-delta.c.h"
-
-void printl(vlong_t *x)
-{
-    printf("0x");
-    for(vlong_size_t t = x->c; t--; ) printf("%08x", x->v[t]);
-}
-
-void randoml(vlong_t *ff)
-{
-    memset(ff->v, 0, sizeof(*ff->v) * ff->c);
-    fread(ff->v, 1, sizeof(*ff->v) * (ff->c - 2), stdin);
-}
+#include "../1-integers/vlong-dbg.c.h"
 
 int test1(
     ecp_xyz_t *a,
@@ -66,7 +55,7 @@ int main(void)
     *(ecp256_xyz_t *)&a = ECP256_XYZ_INIT;
     *(ecp256_xyz_t *)&c = ECP256_XYZ_INIT;
     *(ecp256_opctx_t *)&opctx = ECP256_OPCTX_INIT;
-    imod_aux = secp256r1_imod_aux;
+    imod_aux = secp256r1->imod_aux;
     
     printf("ecc_asm.set_p(");
     printf("0x");
@@ -87,7 +76,7 @@ int main(void)
     *(ecp384_xyz_t *)&a = ECP384_XYZ_INIT;
     *(ecp384_xyz_t *)&c = ECP384_XYZ_INIT;
     *(ecp384_opctx_t *)&opctx = ECP384_OPCTX_INIT;
-    imod_aux = secp384r1_imod_aux;
+    imod_aux = secp384r1->imod_aux;
 
     printf("ecc_asm.set_p(");
     printf("0x");

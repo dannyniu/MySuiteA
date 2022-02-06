@@ -2,7 +2,7 @@
 
 #define ENABLE_HOSTED_HEADERS
 #include "ecp-xyz.h"
-#include "secp-imod-aux.h"
+#include "curves-secp.h"
 
 void printl(const vlong_t *x)
 {
@@ -37,12 +37,12 @@ int main(void)
     VLONG_T(16) ff = VLONG_INIT(16);
 
     test1((void *)&ff,
-          secp256r1_imod_aux->mod_ctx,
-          secp256r1_imod_aux->modfunc, NULL);
+          secp256r1->imod_aux->mod_ctx,
+          secp256r1->imod_aux->modfunc, NULL);
 
     test1((void *)&ff,
-          secp384r1_imod_aux->mod_ctx,
-          secp384r1_imod_aux->modfunc, NULL);
+          secp384r1->imod_aux->mod_ctx,
+          secp384r1->imod_aux->modfunc, NULL);
 
     return 0;
 }

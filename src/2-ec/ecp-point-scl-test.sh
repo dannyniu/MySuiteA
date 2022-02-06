@@ -1,13 +1,13 @@
 #!/bin/sh
 
 testfunc() {
-    $exec < /dev/urandom | ../src/2-ec/ecp-remv-inplace-test.py
+    $exec < /dev/urandom | ../src/2-ec/ecp-point-arith-test.py
 }
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
 src="
-ecp-remv-inplace-test.c
+ecp-point-scl-test.c
 ecp-xyz.c
 curve-secp256r1.c
 curve-secp384r1.c

@@ -55,6 +55,10 @@ vlong_t *vlong_muls(vlong_t *out, vlong_t const *a, uint32_t b, int accum);
 // - 1 if a > b, and
 // - 2 if a < b.
 int vlong_cmps(uint32_t a, uint32_t b);
+int vlong_cmpv_shifted(
+    vlong_t const *a,
+    vlong_t const *b,
+    vlong_size_t s);
 
 // MARK: == Generic Division ==
 

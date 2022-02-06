@@ -6,7 +6,7 @@ vlong_t *vlong_cpy(vlong_t *restrict out, vlong_t const *restrict in)
 {
     vlong_size_t i;
     for(i=0; i<out->c; i++)
-        out->v[i] = in->v[i];
+        out->v[i] = i < in->c ? in->v[i] : 0;
     return out;
 }
 
@@ -139,7 +139,7 @@ static inline uint32_t vlong_word_shifted(
 }
 
 // Same as ``vlong_cmps'' above.
-static int vlong_cmpv_shifted(
+int vlong_cmpv_shifted(
     vlong_t const *a,
     vlong_t const *b,
     vlong_size_t s)

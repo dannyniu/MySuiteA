@@ -9,7 +9,8 @@ unitest_sh=../unitest.sh
 src="
 ecp-point-add-test.c
 ecp-xyz.c
-secp-imod-aux.c
+curve-secp256r1.c
+curve-secp384r1.c
 1-integers/vlong.c
 "
 bin=$(basename "$0" .sh)
