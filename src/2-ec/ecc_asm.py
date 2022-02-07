@@ -170,10 +170,10 @@ def point_scl(x1, y1, z1, d, a, b):
     i=0
     while d != 0:
         mask = d & 1
-        if mask: accum = point_add_rcb15_ref_asm(*accum, *tmp1, a, b)
+        if mask: accum = point_add_rcb15_ref(*accum, *tmp1, a, b)
         d = d >> 1
         i = i + 1
-        tmp1 = point_dbl_asm(*tmp1)
+        tmp1 = point_dbl_ref(*tmp1)
     return accum
 
 if __name__ == "__main__":

@@ -67,10 +67,8 @@ ecp_xyz_t *ecp_point_add_rcb15(
     ecp_xyz_t *restrict out,
     ecp_xyz_t const *p1,
     ecp_xyz_t const *p2,
-    int32_t a,
-    vlong_t const *restrict b,
-    ecp_opctx_t *restrict ctx,
-    const ecp_imod_aux_t *restrict aux)
+    ecp_opctx_t *restrict opctx,
+    ecp_curve_t const *restrict curve)
 {
     // Algorithm 1 of the paper.
     
@@ -83,12 +81,13 @@ ecp_xyz_t *ecp_point_add_rcb15(
     vlong_t const *x2 = DeltaTo(p2, offset_x);
     vlong_t const *y2 = DeltaTo(p2, offset_y);
     vlong_t const *z2 = DeltaTo(p2, offset_z);
-    vlong_t *t0 = DeltaTo(ctx, offset_r);
-    vlong_t *t1 = DeltaTo(ctx, offset_s);
-    vlong_t *t2 = DeltaTo(ctx, offset_t);
-    vlong_t *t3 = DeltaTo(ctx, offset_u);
-    vlong_t *t4 = DeltaTo(ctx, offset_v);
-    vlong_t *t5 = DeltaTo(ctx, offset_w);
+    vlong_t *t0 = DeltaTo(opctx, offset_r);
+    vlong_t *t1 = DeltaTo(opctx, offset_s);
+    vlong_t *t2 = DeltaTo(opctx, offset_t);
+    vlong_t *t3 = DeltaTo(opctx, offset_u);
+    vlong_t *t4 = DeltaTo(opctx, offset_v);
+    vlong_t *t5 = DeltaTo(opctx, offset_w);
+    ecp_imod_aux_t const *aux = curve->imod_aux;
 
     // 1. 2. 3. 
     vlong_mulv_masked(t0, x1, x2, 1, aux->modfunc, aux->mod_ctx);
@@ -135,9 +134,9 @@ ecp_xyz_t *ecp_point_add_rcb15(
     ecp_imod_inplace(t5, aux);
 
     // 19. 20. 21.
-    vlong_imuls(z, t4, a); // Z3 occupied.
+    vlong_imuls(z, t4, curve->a); // Z3 occupied.
     ecp_imod_inplace(z, aux);
-    vlong_mulv_masked(x, b, t2, 1, aux->modfunc, aux->mod_ctx);
+    vlong_mulv_masked(x, curve->b, t2, 1, aux->modfunc, aux->mod_ctx);
     vlong_imuls(x, x, 3);
     // no need to: aux->modfunc(x, aux->mod_ctx); as x'll be overwritten soon.
     vlong_addv(z, x, z);
@@ -152,7 +151,7 @@ ecp_xyz_t *ecp_point_add_rcb15(
     // 25. 26. 27.
     vlong_imuls(t1, t0, 3);
     aux->modfunc(t1, aux->mod_ctx);
-    vlong_imuls(t2, t2, a);
+    vlong_imuls(t2, t2, curve->a);
     ecp_imod_inplace(t2, aux);
 
     // skip 28. for now to spare a working variable.
@@ -161,11 +160,11 @@ ecp_xyz_t *ecp_point_add_rcb15(
     aux->modfunc(t1, aux->mod_ctx);
     vlong_subv(t2, t0, t2);
     ecp_imod_inplace(t2, aux);
-    vlong_imuls(t2, t2, a);
+    vlong_imuls(t2, t2, curve->a);
     ecp_imod_inplace(t2, aux);
 
     // 28. 32.
-    vlong_mulv_masked(t0, t4, b, 1, aux->modfunc, aux->mod_ctx);
+    vlong_mulv_masked(t0, t4, curve->b, 1, aux->modfunc, aux->mod_ctx);
     vlong_imuls(t4, t0, 3);
     vlong_addv(t4, t4, t2);
     aux->modfunc(t4, aux->mod_ctx);
@@ -196,9 +195,8 @@ ecp_xyz_t *ecp_point_add_rcb15(
 ecp_xyz_t *ecp_point_dbl_fast(
     ecp_xyz_t *restrict out,
     ecp_xyz_t const *p1,
-    int32_t a,
-    ecp_opctx_t *restrict ctx,
-    const ecp_imod_aux_t *restrict aux)
+    ecp_opctx_t *restrict opctx,
+    ecp_curve_t const *restrict curve)
 {
     vlong_t *x = DeltaTo(out, offset_x);
     vlong_t *y = DeltaTo(out, offset_y);
@@ -206,15 +204,16 @@ ecp_xyz_t *ecp_point_dbl_fast(
     vlong_t const *x1 = DeltaTo(p1, offset_x);
     vlong_t const *y1 = DeltaTo(p1, offset_y);
     vlong_t const *z1 = DeltaTo(p1, offset_z);
-    vlong_t *s = DeltaTo(ctx, offset_s);
-    vlong_t *t = DeltaTo(ctx, offset_t);
-    vlong_t *w = DeltaTo(ctx, offset_u);
+    vlong_t *s = DeltaTo(opctx, offset_s);
+    vlong_t *t = DeltaTo(opctx, offset_t);
+    vlong_t *w = DeltaTo(opctx, offset_u);
+    ecp_imod_aux_t const *aux = curve->imod_aux;
 
     vlong_mulv_masked(w, x1, x1, 1, aux->modfunc, aux->mod_ctx);
     vlong_muls(w, w, 3, false);
     ecp_imod_inplace(w, aux);
     vlong_mulv_masked(t, z1, z1, 1, aux->modfunc, aux->mod_ctx);
-    vlong_imuls(s, t, a);
+    vlong_imuls(s, t, curve->a);
     ecp_imod_inplace(s, aux);
     vlong_addv(w, w, s);
     aux->modfunc(w, aux->mod_ctx);
@@ -361,19 +360,12 @@ ecp_xyz_t *ecp_point_scale_accumulate(
         mask = scalar->v[i / 32] >> (i % 32);
         mask &= 1;
 
-        ecp_point_add_rcb15(
-            tmp2, tmp1, accum,
-            curve->a, curve->b,
-            opctx, curve->imod_aux);
-
+        ecp_point_add_rcb15(tmp2, tmp1, accum, opctx, curve);
         ecp_xyz_substitute(accum, tmp2, mask);
 
         if( ++i >= f ) break;
 
-        ecp_point_dbl_fast(
-            tmp2, tmp1, curve->a,
-            opctx, curve->imod_aux);
-
+        ecp_point_dbl_fast(tmp2, tmp1, opctx, curve);
         t = tmp2, tmp2 = tmp1, tmp1 = t;
 
         continue;
@@ -382,7 +374,8 @@ ecp_xyz_t *ecp_point_scale_accumulate(
     return accum;
 }
 
-static vlong_t *vlong_inv_c3m4( // modular inversion mod prime p with p === 3 mod 4.
+// modular square root mod prime p with p === 3 mod 4.
+static vlong_t *vlong_sqrt_c3m4(
     vlong_t *restrict out,
     vlong_t const *x,
     vlong_t *restrict tmp1, // temporary variables are

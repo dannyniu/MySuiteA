@@ -11,11 +11,13 @@ int test1(
     ecp_xyz_t *p,
     ecp_xyz_t *q,
     ecp_xyz_t *r,
-    int32_t a,
-    vlong_t *b,
     ecp_opctx_t *opctx,
-    const ecp_imod_aux_t *aux)
+    const ecp_curve_t *curve)
 {
+    printf("ecc_asm.set_p(");
+    printl(curve->p);
+    printf(") or True\n");
+
     for(long n=0; n<128*128; n++)
     {
         vlong_t *x1 = DeltaTo(p, offset_x);
@@ -34,9 +36,8 @@ int test1(
         randoml(x2);
         randoml(y2);
         randoml(z2);
-        randoml(b);
 
-        ecp_point_add_rcb15(r, p, q, a, b, opctx, aux);
+        ecp_point_add_rcb15(r, p, q, opctx, curve);
 
         printf("ecc_asm.point_add_rcb15_ref(");
         printl(x1); printf(", ");
@@ -45,8 +46,8 @@ int test1(
         printl(x2); printf(", ");
         printl(y2); printf(", ");
         printl(z2); printf(", ");
-        printf("%d", a); printf(", ");
-        printl(b); printf(") == (");
+        printf("%d", curve->a); printf(", ");
+        printl(curve->b); printf(") == (");
         printl(x3); printf(", ");
         printl(y3); printf(", ");
         printl(z3); printf(")\n");
@@ -61,10 +62,7 @@ int main(void)
     ecp384_xyz_t q;
     ecp384_xyz_t r;
     ecp384_opctx_t opctx;
-    
-    const ecp_imod_aux_t *imod_aux;
-    int32_t a;
-    VLONG_T(14) b;
+    ecp_curve_t const *curve;
 
     // NIST P-256.
 
@@ -72,24 +70,10 @@ int main(void)
     *(ecp256_xyz_t *)&q = ECP256_XYZ_INIT;
     *(ecp256_xyz_t *)&r = ECP256_XYZ_INIT;
     *(ecp256_opctx_t *)&opctx = ECP256_OPCTX_INIT;
-    imod_aux = secp256r1->imod_aux;
-    a = -3;
-    b.c = 10;
-    
-    printf("ecc_asm.set_p(");
-    printf("0x");
-    printf("%08x", -1);
-    printf("%08x", 1);
-    printf("%08x", 0);
-    printf("%08x", 0);
-    printf("%08x", 0);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf(") or True\n");
+    curve = secp256r1;
 
     test1((void *)&p, (void *)&q, (void *)&r,
-          a, (void *)&b, (void *)&opctx, imod_aux);
+          (void *)&opctx, curve);
 
     // NIST P-384.
 
@@ -97,28 +81,10 @@ int main(void)
     *(ecp384_xyz_t *)&q = ECP384_XYZ_INIT;
     *(ecp384_xyz_t *)&r = ECP384_XYZ_INIT;
     *(ecp384_opctx_t *)&opctx = ECP384_OPCTX_INIT;
-    imod_aux = secp384r1->imod_aux;
-    a = -3;
-    b.c = 14;
-    
-    printf("ecc_asm.set_p(");
-    printf("0x");
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -2);
-    printf("%08x", -1);
-    printf("%08x", 0);
-    printf("%08x", 0);
-    printf("%08x", -1);
-    printf(") or True\n");
+    curve = secp384r1;
 
     test1((void *)&p, (void *)&q, (void *)&r,
-          a, (void *)&b, (void *)&opctx, imod_aux);
+          (void *)&opctx, curve);
     
     return 0;
 }

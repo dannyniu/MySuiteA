@@ -48,18 +48,15 @@ ecp_xyz_t *ecp_point_add_rcb15(
     ecp_xyz_t *restrict out,
     ecp_xyz_t const *p1,
     ecp_xyz_t const *p2,
-    int32_t a,
-    vlong_t const *restrict b,
-    ecp_opctx_t *restrict ctx,
-    const ecp_imod_aux_t *restrict aux);
+    ecp_opctx_t *restrict opctx,
+    ecp_curve_t const *restrict curve);
 
 // Based on that from section 3.1. of RFC-6090.
 ecp_xyz_t *ecp_point_dbl_fast(
     ecp_xyz_t *restrict out,
     ecp_xyz_t const *p1,
-    int32_t a,
-    ecp_opctx_t *restrict ctx,
-    const ecp_imod_aux_t *restrict aux);
+    ecp_opctx_t *restrict opctx,
+    ecp_curve_t const *restrict curve);
 
 //
 // helper functions.

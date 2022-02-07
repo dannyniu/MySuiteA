@@ -16,6 +16,11 @@ int test1(
     ecp_opctx_t *opctx,
     const ecp_curve_t *curve)
 {
+    printf("ecc_asm.set_a(%d) or True\n", curve->a);
+    printf("ecc_asm.set_p(");
+    printl(curve->p);
+    printf(") or True\n");
+
     for(long n=0; n<16*16; n++)
     {
         vlong_t *rx = DeltaTo(r, offset_x);
@@ -60,7 +65,6 @@ int main(void)
     ecp384_xyz_t r;
     ecp384_xyz_t g;
     ecp384_opctx_t opctx;
-    
     const ecp_curve_t *curve;
     VLONG_T(14) b;
 
@@ -74,19 +78,6 @@ int main(void)
     curve = secp256r1;
     b.c = 10;
 
-    printf("ecc_asm.set_a(%d) or True\n", curve->a);
-    printf("ecc_asm.set_p(");
-    printf("0x");
-    printf("%08x", -1);
-    printf("%08x", 1);
-    printf("%08x", 0);
-    printf("%08x", 0);
-    printf("%08x", 0);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf(") or True\n");
-
     test1((void *)&p, (void *)&q, (void *)&r, (void *)&g,
           (void *)&b, (void *)&opctx, curve);
 
@@ -99,23 +90,6 @@ int main(void)
     *(ecp384_opctx_t *)&opctx = ECP384_OPCTX_INIT;
     curve = secp384r1;
     b.c = 14;
-
-    printf("ecc_asm.set_a(%d) or True\n", curve->a);    
-    printf("ecc_asm.set_p(");
-    printf("0x");
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -1);
-    printf("%08x", -2);
-    printf("%08x", -1);
-    printf("%08x", 0);
-    printf("%08x", 0);
-    printf("%08x", -1);
-    printf(") or True\n");
 
     test1((void *)&p, (void *)&q, (void *)&r, (void *)&g,
           (void *)&b, (void *)&opctx, curve);
