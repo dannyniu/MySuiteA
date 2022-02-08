@@ -884,9 +884,10 @@
       <dt><p><code>PKParamsFunc</code></p></dt>
       <dd>
         <p>
-          The instantiation of PKC algorithms involve parameters that're
-          more complex in structure. This is why a function that can be
-          queried of default, or recommended set of parameters is needed.
+          The parameter sets used for instantiating PKC algorithms are
+          more complex than that for symmetric-key algorithms. This is why
+          a function that can be queried of default, or recommended set of
+          parameters is needed.
         </p>
         <p>
           Such function is of prototype:
@@ -895,7 +896,7 @@
         <p>
           When <code>index</code> is 0, the vector length of <code>out</code>
           is returned. This is the number of <code>CryptoParam_t</code> objects
-          that needs to be allocated for out.
+          that needs to be allocated for <code>out</code>.
         </p>
         <p>
           Each successive values of <code>index</code> returns a parameter set
