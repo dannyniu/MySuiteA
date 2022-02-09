@@ -9,11 +9,11 @@ changed from "-" to "+"):
 
 + Somewhat memory-compact modular exponentiation for RSA.
 
-- Finite field implementation for ECC curves secp256r1 and secp384r1.
++ Finite field implementation for ECC curves secp256r1 and secp384r1.
 
-- Test suites for all finite field arithmetics.
++ Test suites for all finite field arithmetics.
 
-- Formallization of further plans.
++ Formallization of further plans.
 
 Post 2020-12-09, further plans:
 
@@ -47,3 +47,15 @@ Current RSA progress:
 + Full-scheme testing.
 
 + Uniform API.
+
+2022-02-08:
+
+- PKCS#1 v1.5 legacy RSA algorithms (will come later).
+
+- ECDSA (1st to come).
+
+- ECDH (KEM-based API, 2nd to come).
+
+- Chinese SM2 DSS and KEM.
+
+- Formaliization of yet further plans (i).
