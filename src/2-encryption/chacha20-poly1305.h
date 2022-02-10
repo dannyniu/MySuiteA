@@ -7,7 +7,9 @@
 #include "../1-symm/chacha.h"
 #include "../1-symm/poly1305.h"
 
-// Fixed-size in all environments. 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:        4 * 31       .
 typedef struct {
     uint32_t    state[16];
     poly1305_t  poly1305;

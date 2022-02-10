@@ -6,6 +6,9 @@
 #include "../2-hash/has-funcs-set.h"
 #include "../2-ec/ecp-xyz.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 4*11.5| 4 *15 | 8 *11
 typedef struct {
     // 4 32-bit words counted.
     uint32_t offset_d, offset_Q; // the entity keypair.

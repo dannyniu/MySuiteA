@@ -8,10 +8,16 @@
 
 #include "../1-integers/vlong.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:         4 * 3       .
 typedef struct {
     uint32_t offset_x, offset_y, offset_z;
 } ecp_xyz_t; // Homogeneous Coordinate Prime-Order Elliptic-Curve Point.
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:         4 * 6       .
 typedef struct {
     uint32_t offset_r;
     uint32_t offset_s;
@@ -21,11 +27,17 @@ typedef struct {
     uint32_t offset_w;
 } ecp_opctx_t; // Working Variables for Point Adding and Doubling.
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 2 * 2 | 4 * 2 | 8 * 2
 typedef struct {
     vlong_modfunc_t modfunc;
     vlong_t const *mod_ctx;
 } ecp_imod_aux_t;
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 4*4.5 | 4 * 7 | 8 * 6
 typedef struct {
     uint16_t plen;
     int16_t h;

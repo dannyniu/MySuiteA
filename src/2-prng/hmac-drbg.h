@@ -4,38 +4,38 @@
 #define MySuiteA_hmac_drbg_h 1
 
 #include "../mysuitea-common.h"
-/*
-typedef struct hmac_drbg_context {
-    size_t          ctx_len_total;
 
-    size_t          prf_outlen;
-    ptrdiff_t       offset_k;
-    ptrdiff_t       offset_v;
-    
-    ptrdiff_t       prf_ctx_offset;
-    KInitFunc_t     prf_init;
-    UpdateFunc_t    prf_update;
-    FinalFunc_t     prf_final;
-} hmac_drbg_t;
-*/
+/* was:
+ * typedef struct hmac_drbg_context {
+ * size_t          ctx_len_total;
+ *
+ * size_t          prf_outlen;
+ * ptrdiff_t       offset_k;
+ * ptrdiff_t       offset_v;
+ *
+ * ptrdiff_t       prf_ctx_offset;
+ * KInitFunc_t     prf_init;
+ * UpdateFunc_t    prf_update;
+ * FinalFunc_t     prf_final;
+ * } hmac_drbg_t;
+ */
+
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 16* 1 | 16* 2 | 16* 4
 typedef struct hmac_drbg_context {
-    union {
-        struct {
-            uint16_t        ctx_len_total;
-            uint16_t        prf_outlen;
-        };
-        size_t              pad;
-    };
-    const CryptoParam_t     *parameterization;
     ptrdiff_t       offset_k;
     ptrdiff_t       offset_v;
+    size_t          prf_outlen;
     
-    ptrdiff_t       prf_ctx_offset;
+    ptrdiff_t           prf_ctx_offset;
+    const CryptoParam_t *parameterization;
     union
     {
         KInitFunc_t     prf_init;
         PKInitFunc_t    prf_pinit;
     };
+    
     UpdateFunc_t    prf_update;
     FinalFunc_t     prf_final;
 } hmac_drbg_t;
@@ -45,10 +45,9 @@ typedef struct hmac_drbg_context {
 
 #define HMAC_DRBG_INIT(prf)                                             \
     ((hmac_drbg_t){                                                     \
-        .ctx_len_total = HMAC_DRBG_CTX_LEN(prf),                        \
-        .prf_outlen = OUT_BYTES(prf),                                   \
         .offset_k = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 0,           \
         .offset_v = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 1,           \
+        .prf_outlen = OUT_BYTES(prf),                                   \
         .prf_ctx_offset = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 2,     \
         .prf_init = KINIT_FUNC(prf),                                    \
         .prf_update = UPDATE_FUNC(prf),                                 \

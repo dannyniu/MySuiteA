@@ -25,6 +25,9 @@
 // suite describe ECDH as ECDH-KEM to emphasize that it's not implemented
 // in the form of a traditional key-agreement API.
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 4*8.5 | 4 * 9 | 8 * 5
 typedef struct {
     // 4 32-bit words counted.
     uint32_t offset_d, offset_Q; // the entity keypair.

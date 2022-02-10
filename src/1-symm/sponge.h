@@ -5,11 +5,17 @@
 
 #include "../mysuitea-common.h"
 
-// The structure size is a multiply of 8
-// under S16ILP32 and S16I32LP64 environments. 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 2 * 6 | 4 * 6 | 8 * 4
 typedef struct sponge {
     unsigned        rate;
-    short           lopad, hipad;
+    union {
+        struct {
+            uint8_t lopad, hipad;
+        };
+        int         struct_pad;
+    };
     int             finalized;
     unsigned        filled;
 

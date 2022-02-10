@@ -7,6 +7,9 @@
 
 // Definition for common data structure(s) for hash functions used in PKC.
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 2 * 4 | 4 * 4 | 8 * 4
 typedef struct {
     InitFunc_t          initfunc;
     UpdateFunc_t        updatefunc;

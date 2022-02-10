@@ -7,6 +7,9 @@
 #include "../1-symm/keccak.h"
 #include "../1-symm/sponge.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: Error | 8 *28 | 8 *29
 typedef struct sha3_context {
     sponge_t    sponge;
     union {

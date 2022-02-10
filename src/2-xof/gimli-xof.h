@@ -8,6 +8,9 @@
 #include "../mysuitea-common.h"
 #include "../1-symm/sponge.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 2 *30 | 4 *18 | 8 *10
 typedef struct gimli_xof_context {
     sponge_t    sponge;
     union {

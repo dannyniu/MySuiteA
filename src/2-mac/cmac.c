@@ -11,7 +11,7 @@ void *CMAC_SetKey(cmac_t *restrict cmac, const void *restrict key, size_t keylen
     size_t i;
     uint8_t b; // same size as R_blksize - 1 octet for now.
 
-    if( keylen != (unsigned)cmac->keylen_valid ) return NULL;
+    if( keylen != (cmac->flags & 077) ) return NULL;
     // Assume block size of the blockcipher is the supported 128-bit.
 
     if( !cmac->kschd ) return NULL; // static assertion from CMAC_INIT macro.
@@ -34,7 +34,7 @@ void *CMAC_SetKey(cmac_t *restrict cmac, const void *restrict key, size_t keylen
 
     // also done by CMAC_INIT, see note above tagged [2021-07-22].
     cmac->filled = 0;
-    cmac->finalized = false;
+    cmac->flags &= 0377;
     
     return cmac;
 }
@@ -68,7 +68,7 @@ void CMAC_Final(cmac_t *restrict cmac, void *restrict out, size_t t)
     void *aux = DeltaTo(cmac, offset);
     size_t i;
 
-    if( cmac->finalized ) goto finalized;
+    if( cmac->flags & 0400 ) goto finalized;
 
     if( cmac->filled >= CMAC_BLKSIZE )
     {
@@ -85,7 +85,7 @@ void CMAC_Final(cmac_t *restrict cmac, void *restrict out, size_t t)
         cmac->enc(cmac->T, cmac->T, aux);
     }
 
-    cmac->finalized = true;
+    cmac->flags |= 0400;
 
 finalized:
     for(i=0; i<t && i<CMAC_BLKSIZE; i++)

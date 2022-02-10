@@ -9,17 +9,20 @@
 #define CTR_DRBG_MAX_KEYSIZE 32
 #define CTR_DRBG_MAX_BLKSIZE 16
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 16* 1 | 16* 2 | 16* 4
 typedef struct ctr_drbg_context {
-    size_t          ctx_len_total;
-    
     size_t          bc_blksize;
     size_t          bc_keysize;
-    ptrdiff_t       kschd_offset;
 
     // K immediately preceds V,
     // V and K are consecutive so as to ease implementation.
     ptrdiff_t       offset_k;
     ptrdiff_t       offset_v;
+    
+    size_t          bc_kschdsize;
+    ptrdiff_t       kschd_offset;
     
     EncFunc_t       bc_enc;
     KschdFunc_t     bc_kschd;
@@ -32,14 +35,14 @@ typedef struct ctr_drbg_context {
 
 #define CTR_DRBG_INIT(bc)                       \
     ((ctr_drbg_t){                              \
-        .ctx_len_total = CTR_DRBG_CTX_LEN(bc),  \
         .bc_blksize = BLOCK_BYTES(bc),          \
         .bc_keysize = KEY_BYTES(bc),            \
-        .kschd_offset = sizeof(ctr_drbg_t),     \
         .offset_k = sizeof(ctr_drbg_t) + (      \
             KSCHD_BYTES(bc)),                   \
         .offset_v = sizeof(ctr_drbg_t) + (      \
             KSCHD_BYTES(bc) + KEY_BYTES(bc)),   \
+        .bc_kschdsize = KSCHD_BYTES(bc),        \
+        .kschd_offset = sizeof(ctr_drbg_t),     \
         .bc_enc = ENC_FUNC(bc),                 \
         .bc_kschd = KSCHD_FUNC(bc),             \
     })

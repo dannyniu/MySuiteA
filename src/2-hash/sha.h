@@ -5,7 +5,9 @@
 
 #include "../mysuitea-common.h"
 
-// sizeof(uint32_t) * (26 = 6.5 * 4) on ILP32 and I32LP64.
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 8*12.5| 8 *13 | 8 *13
 typedef struct sha1_context {
     int         finalized;
     unsigned    filled;
@@ -22,7 +24,9 @@ void SHA1_Init(sha1_t *restrict sha);
 void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len);
 void SHA1_Final(sha1_t *restrict sha, void *restrict out, size_t t);
 
-// sizeof(uint32_t) * (28 = 7 * 4) on ILP32 and I32LP64.
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 8*13.5| 8 *14 | 8 *14
 typedef struct sha256_context {
     int         finalized;
     unsigned    filled;
@@ -42,7 +46,9 @@ void SHA256_Init(sha256_t *restrict sha);
 void SHA224_Final(sha224_t *restrict sha, void *restrict out, size_t t);
 void SHA256_Final(sha256_t *restrict sha, void *restrict out, size_t t);
 
-// sizeof(uint32_t) * (52 = 13 * 4) on ILP32 and I32LP64.
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 8*25.5| 8 *26 | 8 *26
 typedef struct sha512_context {
     int         finalized;
     unsigned    filled;

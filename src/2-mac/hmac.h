@@ -5,8 +5,9 @@
 
 #include "../mysuitea-common.h"
 
-// The structure size is a multiply of 16
-// under ILP32 and I32LP64 environments. 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 16*21 | 16*22 | 16*23
 typedef struct hmac_context {
     uint8_t     K0[256];
     uint8_t     tag[64];

@@ -5,6 +5,9 @@
 
 #include "../mysuitea-common.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 8*13.5| 8 *14 | 8 *14
 typedef struct sm3_context {
     int         finalized;
     unsigned    filled;

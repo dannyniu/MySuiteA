@@ -11,7 +11,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-static_assert(CHAR_BIT == 8, "MySuiteA supports only octet-oriented systems!");
+static_assert(CHAR_BIT == 8, "MySuiteA supports only octet-oriented targets!");
+static_assert(sizeof(int) == 4, "Adaptation needed unless int's 32-bit!");
+static_assert(sizeof(void *) >= 4, "Short pointers are untested!");
 
 #ifdef ENABLE_HOSTED_HEADERS
 #include <inttypes.h>
@@ -19,7 +21,6 @@ static_assert(CHAR_BIT == 8, "MySuiteA supports only octet-oriented systems!");
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-static_assert(sizeof(int) == 4, "Some test scripts assume 32-bit int type!");
 #endif /* ENABLE_TRACE_STDIO */
 
 #define xglue(a,b) a##b

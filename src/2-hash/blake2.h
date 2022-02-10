@@ -5,6 +5,9 @@
 
 #include "../mysuitea-common.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:         8 *27       .
 typedef struct blake2b_context {
     uint8_t     b[128];
     uint64_t    h[8];
@@ -15,6 +18,9 @@ typedef struct blake2b_context {
     int32_t     finalized;
 } blake2b_t, blake2b160_t, blake2b256_t, blake2b384_t, blake2b512_t;
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:         8 *15       .
 typedef struct blake2s_context {
     uint8_t     b[64];
     uint32_t    h[8];

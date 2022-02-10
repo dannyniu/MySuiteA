@@ -5,6 +5,11 @@
 
 #include "../1-integers/vlong.h"
 
+// -- For *ALL* working context data structures defined in this file --
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:         4 * n       .
+
 // The structure is intentionally designed not in specification order,
 // this "array order" is intended to enable writing decryption/signing
 // operation in a single loop.

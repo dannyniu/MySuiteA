@@ -7,6 +7,9 @@
 #include "../2-rsa/pkcs1-padding.h"
 #include "../2-asn1/der-codec.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: Error | 4 *13 | 8 *11
 typedef struct {
     ptrdiff_t offset_rsa_privctx;
     pkcs1_padding_oracles_base_t po_base;
@@ -61,6 +64,9 @@ typedef CryptoParam_t PKCS1_RSA_Param_t[5];
         uint8_t payload[PKCS1_PRIV_CTX_PAYLOAD_SIZE(__VA_ARGS__)];      \
     }
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: Error | 4 *13 | 8 *11
 typedef struct {
     ptrdiff_t offset_rsa_pubctx;
     pkcs1_padding_oracles_base_t po_base;

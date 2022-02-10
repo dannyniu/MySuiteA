@@ -7,7 +7,9 @@
 
 typedef uint32_t p1305bn_t[5];
 
-// fixed-sized. 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:        4 * 15       .
 typedef struct
 {
     p1305bn_t   r, s, a;

@@ -5,7 +5,9 @@
 
 #include "../mysuitea-common.h"
 
-// Size being x8-bytes in ILP32, and x16-bytes in I32LP64. 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 4 * 5 | 4 * 6 | 8 * 4
 typedef struct gcm_context {
     uint32_t    H[4];
     

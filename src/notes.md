@@ -167,3 +167,67 @@ descirbed above.
 >     |
 > (Ciphergram Codec)
 ```
+
+---
+
+
+2022-02-10
+==========
+
+In MySuiteA, higher-level algorithm construction can take lower-level 
+algorithms as instantiation parameter(s). The working contexts of these 
+higher-level algorithms are called "nesting working context", whereas the
+bottom-level ones that doesn't take instantiation parameter are called
+"plain working contexts".
+
+To ensure lower-level working contexts can be correctly appended to the 
+higher-level working context without quirks such as padding bytes for alignment,
+it is decided that:
+
+- All nesting working context (including any intermediate nested ones)
+  must have sizes that're multiply of the sizes of machine word - i.e.
+  32-bit on ILP32, 64-bit on LP64, etc.
+
+- Optionally, nesting working contexts should have sizes that're multiply 
+  of 16 bytes whenever possible.
+
+- An assumption is made that, the compilation data type model is either 
+  ILP32 or LP64. Users wishing to compile the suite on targets of other models
+  (e.g. SIP16) will have to adapt the codes appropriately.
+
+- Each structure shall document how much of these requirements are met 
+  according to the "Sige and Alignment Conformity Statement Format" 
+  described below.
+
+- plain working contexts are exempt from the above requirements.
+
+Size and Alignment Conformity Statement Format:
+
+```
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:`({align-spec} "|"?)+`
+```
+
+Where `align-spec` has the following form:
+
+`{align-val} "*" {vec-len}` where:
+
+- `{align-val}` is the **SIZE** of the member with the widest integer or pointer
+  type _found recursively within_ the structure. 
+  
+  The reason size is used instead of the alignment of the type of the member, 
+  is that, the actual alignment is not always obvious or is inconsistent 
+  between different CPU architecture ABIs of the same data type model.
+  
+  The actual value documented is occasionally allowed to be greater than any
+  actual member _IF_ the size of the structure is a multiply of it and that
+  the value is a power of 2.
+
+- `{vec-len}` is the size of the structure divided by `{align-val}`. Decimals
+  are allowed as indicator that data structure packing may potentially have
+  complications and problems.
+
+In rare cases (SIP16 mostly), where the size of the structure cannot be
+consistently determined, `{align-spec}` can be set to the word "Error".
+This is allowed **ONLY** for plain working contexts.

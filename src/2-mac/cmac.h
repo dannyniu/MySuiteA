@@ -8,17 +8,20 @@
 #define CMAC_BLKSIZE 16
 
 // The structure size is a multiply of 16
-// under ILP32 and I32LP64 environments.
+// under ILP32 and LP64 environments.
 // [!A-E-D!]: only blockciphiers with 128-bit blocks are supported.
+
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 8 * 7 | 16* 4 | 16* 5
 typedef struct cmac_context {
     uint8_t     T[CMAC_BLKSIZE];
     uint8_t     K1[CMAC_BLKSIZE];
     uint8_t     K2[CMAC_BLKSIZE];
     union {
         struct {
-            int16_t    filled;
-            int8_t     finalized;
-            int8_t     keylen_valid;
+            uint8_t    filled;
+            uint8_t    flags; // (finalized << 7) | (keylen_valid & 077)
         };
         size_t         pad;
     };
@@ -36,8 +39,7 @@ typedef struct cmac_context {
      (cmac_t){                          \
         .T = {0}, .K1 = {0}, .K2 = {0}, \
         .filled = 0,                    \
-        .finalized = false,             \
-        .keylen_valid = KEY_BYTES(bc),  \
+        .flags = KEY_BYTES(bc) & 077,   \
         .offset = sizeof(cmac_t),       \
         .kschd = KSCHD_FUNC(bc),        \
         .enc = ENC_FUNC(bc),            \

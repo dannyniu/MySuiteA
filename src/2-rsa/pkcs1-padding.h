@@ -5,6 +5,9 @@
 
 #include "../2-hash/hash-funcs-set.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 4 * 8 | 4 *12 | 8 *10
 typedef struct {
     // For public-key encryption:
     // - 1: OK.
