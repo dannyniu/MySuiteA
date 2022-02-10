@@ -42,6 +42,6 @@ safety are left out of the suite and are to be handled by the user/caller.
 
 - **International.**
 
-Apart from US algorithms, a select few important national/regional from
-elsewhere around the globe are included in the suite. At the same time, 
+Apart from US algorithms, a select few important national/regional standards
+from elsewhere around the globe are included in the suite. At the same time, 
 an inclusion criteria is established to prevent scope creep.
