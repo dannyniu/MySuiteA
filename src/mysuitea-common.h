@@ -78,6 +78,19 @@ struct CryptoParam {
     };
 };
 
+struct dat_vec_elem {
+    union {
+        size_t  len;
+        IntPtr  info;
+    };
+    union {
+        void const      *ptr;
+        uint8_t const   *buf;
+    };
+};
+
+typedef struct dat_vec_elem *dat_vec_t;
+
 enum {
     //-- Symmetric-Key Cryptography --//
     

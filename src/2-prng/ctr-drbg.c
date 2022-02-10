@@ -119,15 +119,10 @@ void CTR_DRBG_Generate(
 
 #if ! CTR_DRBG_OMIT_DF
 
-struct bufelem {
-    size_t len;
-    uint8_t const *restrict buf;
-};
-
 static void BCC(
     ctr_drbg_t *restrict x,
     size_t n,
-    struct bufelem *restrict bufelems,
+    dat_vec_t restrict bufelems,
     void *restrict outblk)
 {
     uint8_t *buf = outblk;
@@ -171,7 +166,7 @@ static void BlockCipher_df(
     uint8_t key[CTR_DRBG_MAX_KEYSIZE + CTR_DRBG_MAX_BLKSIZE];
     uint8_t *blk = key + x->bc_keysize;
 
-    struct bufelem bufvec[3];
+    struct dat_vec_elem bufvec[3];
     
     size_t t, o;
 
