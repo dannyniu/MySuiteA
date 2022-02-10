@@ -27,14 +27,13 @@ typedef struct {
 } ecp_imod_aux_t;
 
 typedef struct {
-    int16_t plen;
+    uint16_t plen;
     int16_t h;
     int32_t a;
     vlong_t const *b;
     vlong_t const *p;
     vlong_t const *n;
-    vlong_t const *Gx;
-    vlong_t const *Gy;
+    ecp_xyz_t const *G;
     ecp_imod_aux_t const *imod_aux;
 } ecp_curve_t;
 
@@ -77,6 +76,30 @@ ecp_xyz_t *ecp_point_scale_accumulate(
     ecp_opctx_t *restrict opctx,
     ecp_curve_t const *restrict curve);
 
+// modular square root mod prime p with p === 3 mod 4.
+vlong_t *vlong_sqrt_c3m4(
+    vlong_t *restrict out,
+    vlong_t const *x,
+    vlong_t *restrict tmp1, // temporary variables are
+    vlong_t *restrict tmp2, // allocated by the caller
+    const ecp_imod_aux_t *restrict aux);
+
+// modular inversion over the finite field of the elliptic curve.
+vlong_t *vlong_inv_mod_p_fermat(
+    vlong_t *restrict out,
+    vlong_t const *x,
+    vlong_t *restrict tmp1,
+    vlong_t *restrict tmp2,
+    ecp_curve_t *restrict curve);
+
+// modular inversion over the order of the elliptic curve group.
+vlong_t *vlong_inv_mod_n_fermat(
+    vlong_t *restrict out,
+    vlong_t const *x,
+    vlong_t *restrict tmp1,
+    vlong_t *restrict tmp2,
+    ecp_curve_t *restrict curve);
+
 #define ECP_XYZ_T(l)                            \
     struct {                                    \
         ecp_xyz_t header;                       \
@@ -106,7 +129,7 @@ ecp_xyz_t *ecp_point_scale_accumulate(
         (sizeof(vlong_size_t) + sizeof(uint32_t) * (l)) * 6     \
         )
 
-#define ECP_XYZ_INIT(type,l) ((type){                           \
+#define ECP_XYZ_INIT(type,l,...) ((type){                       \
             .header.offset_x = sizeof(ecp_xyz_t) +              \
             (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 0,  \
             .header.offset_y = sizeof(ecp_xyz_t) +              \
@@ -116,6 +139,7 @@ ecp_xyz_t *ecp_point_scale_accumulate(
             .x.c = l,                                           \
             .y.c = l,                                           \
             .z.c = l,                                           \
+            __VA_ARGS__                                         \
         })
 
 #define ECP_OPCTX_INIT(type,l) ((type){                         \
@@ -153,10 +177,27 @@ typedef ECP_OPCTX_T(14) ecp384_opctx_t;
 #define ECP256_OPCTX_SIZE ECP_OPCTX_SIZE(10)
 #define ECP384_OPCTX_SIZE ECP_OPCTX_SIZE(14)
 
-#define ECP256_XYZ_INIT ECP_XYZ_INIT(ecp256_xyz_t,10)
-#define ECP384_XYZ_INIT ECP_XYZ_INIT(ecp384_xyz_t,14)
+#define ECP256_XYZ_INIT(...) ECP_XYZ_INIT(ecp256_xyz_t,10,__VA_ARGS__)
+#define ECP384_XYZ_INIT(...) ECP_XYZ_INIT(ecp384_xyz_t,14,__VA_ARGS__)
 
 #define ECP256_OPCTX_INIT ECP_OPCTX_INIT(ecp256_opctx_t,10)
 #define ECP384_OPCTX_INIT ECP_OPCTX_INIT(ecp384_opctx_t,14)
+
+enum {
+    ptrCurveDef = 20001,
+    bytesOpCtx = 20002,
+    bytesECXYZ = 20003,
+};
+
+#define c_Curve(q,bits) (                                       \
+        q==bytesOpCtx ? ECP_OPCTX_SIZE((bits + 95) / 32) :      \
+        q==bytesECXYZ ? ECP_XYZ_SIZE((bits + 95) / 32) :        \
+        0)
+
+#define x_Curve(q,bits,name_factory) (                  \
+        q==ptrCurveDef ? (IntPtr)name_factory(bits) :   \
+        c_Curve(q,bits) )
+
+#define NameFactory_SECP_R(bits) secp##bits##r1
 
 #endif /* MySuiteA_ecc_ecp_xyz_h */

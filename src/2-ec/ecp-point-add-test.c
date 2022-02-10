@@ -66,9 +66,9 @@ int main(void)
 
     // NIST P-256.
 
-    *(ecp256_xyz_t *)&p = ECP256_XYZ_INIT;
-    *(ecp256_xyz_t *)&q = ECP256_XYZ_INIT;
-    *(ecp256_xyz_t *)&r = ECP256_XYZ_INIT;
+    *(ecp256_xyz_t *)&p = ECP256_XYZ_INIT();
+    *(ecp256_xyz_t *)&q = ECP256_XYZ_INIT();
+    *(ecp256_xyz_t *)&r = ECP256_XYZ_INIT();
     *(ecp256_opctx_t *)&opctx = ECP256_OPCTX_INIT;
     curve = secp256r1;
 
@@ -77,9 +77,9 @@ int main(void)
 
     // NIST P-384.
 
-    *(ecp384_xyz_t *)&p = ECP384_XYZ_INIT;
-    *(ecp384_xyz_t *)&q = ECP384_XYZ_INIT;
-    *(ecp384_xyz_t *)&r = ECP384_XYZ_INIT;
+    *(ecp384_xyz_t *)&p = ECP384_XYZ_INIT();
+    *(ecp384_xyz_t *)&q = ECP384_XYZ_INIT();
+    *(ecp384_xyz_t *)&r = ECP384_XYZ_INIT();
     *(ecp384_opctx_t *)&opctx = ECP384_OPCTX_INIT;
     curve = secp384r1;
 

@@ -11,7 +11,6 @@ int test1(
     ecp_xyz_t *p,
     ecp_xyz_t *q,
     ecp_xyz_t *r,
-    ecp_xyz_t *g,
     vlong_t *b,
     ecp_opctx_t *opctx,
     const ecp_curve_t *curve)
@@ -26,26 +25,18 @@ int test1(
         vlong_t *rx = DeltaTo(r, offset_x);
         vlong_t *ry = DeltaTo(r, offset_y);
         vlong_t *rz = DeltaTo(r, offset_z);
-        vlong_t *gx = DeltaTo(g, offset_x);
-        vlong_t *gy = DeltaTo(g, offset_y);
-        vlong_t *gz = DeltaTo(g, offset_z);
 
-        ecp_xyz_inf(r);
-        ecp_xyz_inf(g);
-        vlong_cpy(gx, curve->Gx);
-        vlong_cpy(gy, curve->Gy);
-        gz->v[0] = 1;
-        
         randoml(b);
+        ecp_xyz_inf(r);
         
         ecp_point_scale_accumulate(
-            r, p, q, g, b,
+            r, p, q, curve->G, b,
             opctx, curve);
 
         printf("ecc_asm.point_scl(");
-        printl(gx); printf(", ");
-        printl(gy); printf(", ");
-        printl(gz); printf(", ");
+        printl(DeltaTo(curve->G, offset_x)); printf(", ");
+        printl(DeltaTo(curve->G, offset_y)); printf(", ");
+        printl(DeltaTo(curve->G, offset_z)); printf(", ");
         printl(b); printf(", ");
         printf("%d", curve->a); printf(", ");
         printl(curve->b); printf(") == (");
@@ -63,35 +54,32 @@ int main(void)
     ecp384_xyz_t p;
     ecp384_xyz_t q;
     ecp384_xyz_t r;
-    ecp384_xyz_t g;
     ecp384_opctx_t opctx;
     const ecp_curve_t *curve;
     VLONG_T(14) b;
 
     // NIST P-256.
 
-    *(ecp256_xyz_t *)&p = ECP256_XYZ_INIT;
-    *(ecp256_xyz_t *)&q = ECP256_XYZ_INIT;
-    *(ecp256_xyz_t *)&r = ECP256_XYZ_INIT;
-    *(ecp256_xyz_t *)&g = ECP256_XYZ_INIT;
+    *(ecp256_xyz_t *)&p = ECP256_XYZ_INIT();
+    *(ecp256_xyz_t *)&q = ECP256_XYZ_INIT();
+    *(ecp256_xyz_t *)&r = ECP256_XYZ_INIT();
     *(ecp256_opctx_t *)&opctx = ECP256_OPCTX_INIT;
     curve = secp256r1;
     b.c = 10;
 
-    test1((void *)&p, (void *)&q, (void *)&r, (void *)&g,
+    test1((void *)&p, (void *)&q, (void *)&r,
           (void *)&b, (void *)&opctx, curve);
 
     // NIST P-384.
 
-    *(ecp384_xyz_t *)&p = ECP384_XYZ_INIT;
-    *(ecp384_xyz_t *)&q = ECP384_XYZ_INIT;
-    *(ecp384_xyz_t *)&r = ECP384_XYZ_INIT;
-    *(ecp384_xyz_t *)&g = ECP384_XYZ_INIT;
+    *(ecp384_xyz_t *)&p = ECP384_XYZ_INIT();
+    *(ecp384_xyz_t *)&q = ECP384_XYZ_INIT();
+    *(ecp384_xyz_t *)&r = ECP384_XYZ_INIT();
     *(ecp384_opctx_t *)&opctx = ECP384_OPCTX_INIT;
     curve = secp384r1;
     b.c = 14;
 
-    test1((void *)&p, (void *)&q, (void *)&r, (void *)&g,
+    test1((void *)&p, (void *)&q, (void *)&r,
           (void *)&b, (void *)&opctx, curve);
     
     return 0;

@@ -3,23 +3,7 @@
 #ifndef MySuiteA_pkcs1_padding_h
 #define MySuiteA_pkcs1_padding_h 1
 
-#include "../mysuitea-common.h"
-
-typedef struct {
-    InitFunc_t          initfunc;
-    UpdateFunc_t        updatefunc;
-    XFinalFunc_t        xfinalfunc;
-    FinalFunc_t         hfinalfunc;
-} hash_funcs_set_t;
-
-#define HASH_FUNCS_SET_INIT(hash)               \
-    ((hash_funcs_set_t){                        \
-        .initfunc = INIT_FUNC(hash),            \
-        .updatefunc = UPDATE_FUNC(hash),        \
-        .xfinalfunc = XFINAL_FUNC(hash),        \
-        .hfinalfunc = XFINAL_FUNC(hash) ?       \
-        READ_FUNC(hash) : FINAL_FUNC(hash),     \
-    })
+#include "../2-hash/hash-funcs-set.h"
 
 typedef struct {
     // For public-key encryption:

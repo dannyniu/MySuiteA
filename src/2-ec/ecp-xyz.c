@@ -281,12 +281,12 @@ void ecp_xyz_inf(ecp_xyz_t *p)
     t = DeltaTo(p, offset_x);
     for(i=0; i<t->c; i++) t->v[i] = 0;
     
-    t = DeltaTo(p, offset_y);
-    for(i=0; i<t->c; i++) t->v[i] = 0;
-    t->v[0] = 1;
-    
     t = DeltaTo(p, offset_z);
     for(i=0; i<t->c; i++) t->v[i] = 0;
+    
+    t = DeltaTo(p, offset_y);
+    t->v[0] = 1;
+    for(i=1; i<t->c; i++) t->v[i] = 0;
 }
 
 static void ecp_xyz_substitute(
@@ -294,7 +294,7 @@ static void ecp_xyz_substitute(
     ecp_xyz_t const *restrict b,
     uint32_t mask)
 {
-    // it is assumed that mask is either 1 or 2.
+    // it is assumed that mask is either 1 or 0.
     // it uses the uint32_t type because of desiring its width.
     uint32_t bmask = -mask;
     uint32_t amask = ~bmask;
@@ -374,29 +374,31 @@ ecp_xyz_t *ecp_point_scale_accumulate(
     return accum;
 }
 
-// modular square root mod prime p with p === 3 mod 4.
-static vlong_t *vlong_sqrt_c3m4(
+// This function is used to implement various algorithms that're based on
+// modular exponentiation, such as modular square root over a prime mod p
+// such that p === 3 mod 4, and modular inversion mod a prime.
+static vlong_t *vlong_modexpv_shiftadded(
     vlong_t *restrict out,
     vlong_t const *x,
-    vlong_t *restrict tmp1, // temporary variables are
-    vlong_t *restrict tmp2, // allocated by the caller
-    const ecp_imod_aux_t *restrict aux)
+    vlong_t *restrict tmp1,
+    vlong_t *restrict tmp2,
+    vlong_modfunc_t modfunc,
+    vlong_t const *mod_ctx,
+    int32_t addend, // should be small.
+    short shift) // it's assumed that shift is (much) less than 32 bits.
 {
     vlong_size_t f, i, j, n;
     
-    vlong_t const *e = aux->mod_ctx;
-    uint64_t w = e->v[0] + 1;
+    vlong_t const *e = mod_ctx; // code layout eye candy.
+    uint64_t w = e->v[0] + addend;
     uint32_t mask;
-    
-    if( out->c != tmp1->c || tmp1->c != tmp2->c )
-        return NULL;
 
-    if( (e->v[0] & 3) != 3 )
+    if( out->c != tmp1->c || tmp1->c != tmp2->c )
         return NULL;
 
     f = e->c * 32;
     n = out->c;
-
+    
     for(i=0; i<n; i++)
     {
         // 2021-06-05:
@@ -408,7 +410,7 @@ static vlong_t *vlong_sqrt_c3m4(
         out->v[i] = i ? 0 : 1;
     }
     
-    for(i=2;;) // i=2 <= exponent divided by 4.
+    for(i=shift;;)
     {
         if( i % 32 == 0 ) w = (w >> 32) + e->v[i / 32];
         mask = (w >> (i % 32)) & 1;
@@ -416,7 +418,7 @@ static vlong_t *vlong_sqrt_c3m4(
         vlong_mulv_masked(
             tmp2,
             out, tmp1,
-            mask, aux->modfunc, aux->mod_ctx);
+            mask, modfunc, mod_ctx);
 
         for(j=0; j<n; j++) out->v[j] = tmp2->v[j];
 
@@ -425,7 +427,7 @@ static vlong_t *vlong_sqrt_c3m4(
         vlong_mulv_masked(
             tmp2,
             tmp1, tmp1,
-            1, aux->modfunc, aux->mod_ctx);
+            1, modfunc, mod_ctx);
 
         for(j=0; j<n; j++) tmp1->v[j] = tmp2->v[j];
 
@@ -433,4 +435,45 @@ static vlong_t *vlong_sqrt_c3m4(
     }
     
     return out;
+}
+
+vlong_t *vlong_sqrt_c3m4(
+    vlong_t *restrict out,
+    vlong_t const *x,
+    vlong_t *restrict tmp1, // temporary variables are
+    vlong_t *restrict tmp2, // allocated by the caller
+    const ecp_imod_aux_t *restrict aux)
+{
+    if( (aux->mod_ctx->v[0] & 3) != 3 )
+        return NULL;
+
+    return vlong_modexpv_shiftadded(
+        out, x, tmp1, tmp2,
+        aux->modfunc, aux->mod_ctx, 1, 2);
+}
+
+vlong_t *vlong_inv_mod_p_fermat(
+    vlong_t *restrict out,
+    vlong_t const *x,
+    vlong_t *restrict tmp1,
+    vlong_t *restrict tmp2,
+    ecp_curve_t *restrict curve)
+{
+    return vlong_modexpv_shiftadded(
+        out, x, tmp1, tmp2,
+        curve->imod_aux->modfunc,
+        curve->p, -2, 0);
+}
+
+vlong_t *vlong_inv_mod_n_fermat(
+    vlong_t *restrict out,
+    vlong_t const *x,
+    vlong_t *restrict tmp1,
+    vlong_t *restrict tmp2,
+    ecp_curve_t *restrict curve)
+{
+    return vlong_modexpv_shiftadded(
+        out, x, tmp1, tmp2,
+        (vlong_modfunc_t)vlong_remv_inplace,
+        curve->n, -2, 0);
 }

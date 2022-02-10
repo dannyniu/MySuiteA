@@ -98,40 +98,39 @@ static const VLONG_T(8) CrvParam_n = {
     .v[0] = 0xFC632551,
 };
 
-static const VLONG_T(8) Gx = {
-    .c = 8,
-    .v[7] = 0x6B17D1F2,
-    .v[6] = 0xE12C4247,
-    .v[5] = 0xF8BCE6E5,
-    .v[4] = 0x63A440F2,
-    .v[3] = 0x77037D81,
-    .v[2] = 0x2DEB33A0,
-    .v[1] = 0xF4A13945,
-    .v[0] = 0xD898C296,
-};
-
-static const VLONG_T(8) Gy = {
-    .c = 8,
-    .v[7] = 0x4FE342E2,
-    .v[6] = 0xFE1A7F9B,
-    .v[5] = 0x8EE7EB4A,
-    .v[4] = 0x7C0F9E16,
-    .v[3] = 0x2BCE3357,
-    .v[2] = 0x6B315ECE,
-    .v[1] = 0xCBB64068,
-    .v[0] = 0x37BF51F5,
-};
+static const ecp256_xyz_t G = ECP256_XYZ_INIT(
+    .x.v[7] = 0x6B17D1F2,
+    .x.v[6] = 0xE12C4247,
+    .x.v[5] = 0xF8BCE6E5,
+    .x.v[4] = 0x63A440F2,
+    .x.v[3] = 0x77037D81,
+    .x.v[2] = 0x2DEB33A0,
+    .x.v[1] = 0xF4A13945,
+    .x.v[0] = 0xD898C296,
+    
+    .y.v[7] = 0x4FE342E2,
+    .y.v[6] = 0xFE1A7F9B,
+    .y.v[5] = 0x8EE7EB4A,
+    .y.v[4] = 0x7C0F9E16,
+    .y.v[3] = 0x2BCE3357,
+    .y.v[2] = 0x6B315ECE,
+    .y.v[1] = 0xCBB64068,
+    .y.v[0] = 0x37BF51F5,
+    
+    .z.v[0] = 1,
+    );
 
 static const ecp_curve_t CurveDef = {
     .plen = 32,
     .h = 1,
     .a = -3,
-    .b  = (vlong_t *)&CrvEq_b,
-    .p  = (vlong_t *)&Fp,
-    .n  = (vlong_t *)&CrvParam_n,
-    .Gx = (vlong_t *)&Gx,
-    .Gy = (vlong_t *)&Gy,
+    .b = (vlong_t *)&CrvEq_b,
+    .p = (vlong_t *)&Fp,
+    .n = (vlong_t *)&CrvParam_n,
+    .G = (ecp_xyz_t *)&G,
     .imod_aux = &remv_callback,
 };
 
 const ecp_curve_t *secp256r1 = &CurveDef;
+
+IntPtr i_secp256r1(int q) { return x_secp256r1(q); }

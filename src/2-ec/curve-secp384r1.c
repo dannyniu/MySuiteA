@@ -110,48 +110,47 @@ static const VLONG_T(12) CrvParam_n = {
     .v[ 0] = 0xCCC52973,
 };
 
-static const VLONG_T(12) Gx = {
-    .c = 12,
-    .v[11] = 0xAA87CA22,
-    .v[10] = 0xBE8B0537,
-    .v[ 9] = 0x8EB1C71E,
-    .v[ 8] = 0xF320AD74,
-    .v[ 7] = 0x6E1D3B62,
-    .v[ 6] = 0x8BA79B98,
-    .v[ 5] = 0x59F741E0,
-    .v[ 4] = 0x82542A38,
-    .v[ 3] = 0x5502F25D,
-    .v[ 2] = 0xBF55296C,
-    .v[ 1] = 0x3A545E38,
-    .v[ 0] = 0x72760AB7,
-};
-
-static const VLONG_T(12) Gy = {
-    .c = 12,
-    .v[11] = 0x3617DE4A,
-    .v[10] = 0x96262C6F,
-    .v[ 9] = 0x5D9E98BF,
-    .v[ 8] = 0x9292DC29,
-    .v[ 7] = 0xF8F41DBD,
-    .v[ 6] = 0x289A147C,
-    .v[ 5] = 0xE9DA3113,
-    .v[ 4] = 0xB5F0B8C0,
-    .v[ 3] = 0x0A60B1CE,
-    .v[ 2] = 0x1D7E819D,
-    .v[ 1] = 0x7A431D7C,
-    .v[ 0] = 0x90EA0E5F,
-};
+static const ecp384_xyz_t G = ECP384_XYZ_INIT(
+    .x.v[11] = 0xAA87CA22,
+    .x.v[10] = 0xBE8B0537,
+    .x.v[ 9] = 0x8EB1C71E,
+    .x.v[ 8] = 0xF320AD74,
+    .x.v[ 7] = 0x6E1D3B62,
+    .x.v[ 6] = 0x8BA79B98,
+    .x.v[ 5] = 0x59F741E0,
+    .x.v[ 4] = 0x82542A38,
+    .x.v[ 3] = 0x5502F25D,
+    .x.v[ 2] = 0xBF55296C,
+    .x.v[ 1] = 0x3A545E38,
+    .x.v[ 0] = 0x72760AB7,
+    
+    .y.v[11] = 0x3617DE4A,
+    .y.v[10] = 0x96262C6F,
+    .y.v[ 9] = 0x5D9E98BF,
+    .y.v[ 8] = 0x9292DC29,
+    .y.v[ 7] = 0xF8F41DBD,
+    .y.v[ 6] = 0x289A147C,
+    .y.v[ 5] = 0xE9DA3113,
+    .y.v[ 4] = 0xB5F0B8C0,
+    .y.v[ 3] = 0x0A60B1CE,
+    .y.v[ 2] = 0x1D7E819D,
+    .y.v[ 1] = 0x7A431D7C,
+    .y.v[ 0] = 0x90EA0E5F,
+    
+    .z.v[0] = 1,
+    );
 
 static const ecp_curve_t CurveDef = {
     .plen = 48,
     .h = 1,
     .a = -3,
-    .b  = (vlong_t *)&CrvEq_b,
-    .p  = (vlong_t *)&Fp,
-    .n  = (vlong_t *)&CrvParam_n,
-    .Gx = (vlong_t *)&Gx,
-    .Gy = (vlong_t *)&Gy,
+    .b = (vlong_t *)&CrvEq_b,
+    .p = (vlong_t *)&Fp,
+    .n = (vlong_t *)&CrvParam_n,
+    .G = (ecp_xyz_t *)&G,
     .imod_aux = &remv_callback,
 };
 
 const ecp_curve_t *secp384r1 = &CurveDef;
+
+IntPtr i_secp384r1(int q) { return x_secp384r1(q); }
