@@ -266,19 +266,15 @@ IntPtr ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     // Because this function has no failure return values (yet),
     // caller may skip checking error for this function (for now).
 
-    // sizeof(uint32_t) * 3 because:
-    // - 1 for vlong_t::c,
-    // - 1 for computation overhead,
-    // - 1 for representation overhead.
-    IntPtr ret =
-        (enclen + sizeof(uint32_t) * 3) & (-sizeof(uint32_t));
+    // 2022-02-13: changed to use the macro fron "vlong.h".
+    IntPtr ret = VLONG_BYTES_SIZE(enclen);
     
     vlong_t *w = any;
     uint32_t i;
     
     if( !any ) return ret;
 
-    w->c = (enclen + sizeof(uint32_t)) / sizeof(uint32_t);
+    w->c = VLONG_BYTES_WCNT(enclen);
     
     for(i=0; i<w->c; i++) w->v[i] = 0;
 

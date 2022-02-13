@@ -3,7 +3,7 @@
 #ifndef MySuiteA_ecdh_kem_h
 #define MySuiteA_ecdh_kem_h 1
 
-#include "../2-ec/ecp-xyz.h"
+#include "sec1-common.h"
 
 // In a typical Diffie-Hellman-like key exchange, each peer operates
 // identically, i.e. that being peer-symmetric. However, some post-quantum
@@ -25,27 +25,6 @@
 // suite describe ECDH as ECDH-KEM to emphasize that it's not implemented
 // in the form of a traditional key-agreement API.
 
-// data model: SIP16 | ILP32 | LP64
-// ----------+-------+-------+------
-// align spec: 4*8.5 | 4 * 9 | 8 * 5
-typedef struct {
-    // 4 32-bit words counted.
-    uint32_t offset_d, offset_Q; // the entity keypair.
-    uint32_t offset_k, offset_R; // ephemeral keypair.
-
-    // 4 32-bit words counted.
-    uint32_t offset_Tmp1, offset_Tmp2; // for ec_point_scale_accumulate.
-    uint32_t offset_opctx;
-    int32_t status;
-    
-    // 1 machine word counted.
-    ecp_curve_t *curve;
-
-    // The above members are common to both ECDH-KEM and ECDSA.
-    // The key generation function assume such structure layout,
-    // as it's intended that keygen function be shared between
-    // ECDH-KEM and ECDSA.
-    // ---
-} ECDH_KEM_Priv_Ctx_Hdr_t;
+typedef SEC1_Common_Priv_Ctx_Hdr_t ECDH_KEM_Priv_Ctx_Hdr_t;
 
 #endif /* MySuiteA_ecdh_kem_h */

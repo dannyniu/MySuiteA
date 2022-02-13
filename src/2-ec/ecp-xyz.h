@@ -102,7 +102,7 @@ vlong_t *vlong_inv_mod_p_fermat(
     vlong_t const *x,
     vlong_t *restrict tmp1,
     vlong_t *restrict tmp2,
-    ecp_curve_t *restrict curve);
+    ecp_curve_t const *restrict curve);
 
 // modular inversion over the order of the elliptic curve group.
 vlong_t *vlong_inv_mod_n_fermat(
@@ -110,100 +110,111 @@ vlong_t *vlong_inv_mod_n_fermat(
     vlong_t const *x,
     vlong_t *restrict tmp1,
     vlong_t *restrict tmp2,
-    ecp_curve_t *restrict curve);
+    ecp_curve_t const *restrict curve);
 
-#define ECP_XYZ_T(l)                            \
+#define ECP_XYZ_T(bits)                         \
     struct {                                    \
         ecp_xyz_t header;                       \
-        VLONG_T(l) x;                           \
-        VLONG_T(l) y;                           \
-        VLONG_T(l) z;                           \
+        VLONG_T(VLONG_BITS_WCNT(bits)) x;       \
+        VLONG_T(VLONG_BITS_WCNT(bits)) y;       \
+        VLONG_T(VLONG_BITS_WCNT(bits)) z;       \
     }
 
-#define ECP_OPCTX_T(l)                          \
+#define ECP_OPCTX_T(bits)                       \
     struct {                                    \
         ecp_opctx_t header;                     \
-        VLONG_T(l) r;                           \
-        VLONG_T(l) s;                           \
-        VLONG_T(l) t;                           \
-        VLONG_T(l) u;                           \
-        VLONG_T(l) v;                           \
-        VLONG_T(l) w;                           \
+        VLONG_T(VLONG_BITS_WCNT(bits)) r;       \
+        VLONG_T(VLONG_BITS_WCNT(bits)) s;       \
+        VLONG_T(VLONG_BITS_WCNT(bits)) t;       \
+        VLONG_T(VLONG_BITS_WCNT(bits)) u;       \
+        VLONG_T(VLONG_BITS_WCNT(bits)) v;       \
+        VLONG_T(VLONG_BITS_WCNT(bits)) w;       \
     }
 
-#define ECP_XYZ_SIZE(l) (                                       \
-        sizeof(ecp_xyz_t) +                                     \
-        (sizeof(vlong_size_t) + sizeof(uint32_t) * (l)) * 3     \
+#define ECP_XYZ_SIZE(bits) (                    \
+        sizeof(ecp_xyz_t) +                     \
+        VLONG_BITS_SIZE(bits) * 3               \
         )
 
-#define ECP_OPCTX_SIZE(l) (                                     \
-        sizeof(ecp_opctx_t) +                                   \
-        (sizeof(vlong_size_t) + sizeof(uint32_t) * (l)) * 6     \
+#define ECP_OPCTX_SIZE(bits) (                  \
+        sizeof(ecp_opctx_t) +                   \
+        VLONG_BITS_SIZE(bits) * 6               \
         )
 
-#define ECP_XYZ_INIT(type,l,...) ((type){                       \
-            .header.offset_x = sizeof(ecp_xyz_t) +              \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 0,  \
-            .header.offset_y = sizeof(ecp_xyz_t) +              \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 1,  \
-            .header.offset_z = sizeof(ecp_xyz_t) +              \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 2,  \
-            .x.c = l,                                           \
-            .y.c = l,                                           \
-            .z.c = l,                                           \
-            __VA_ARGS__                                         \
+#define ECP_XYZ_HDR_INIT(bits) ((ecp_xyz_t){    \
+            .offset_x = sizeof(ecp_xyz_t) +     \
+            VLONG_BITS_SIZE(bits) * 0,          \
+            .offset_y = sizeof(ecp_xyz_t) +     \
+            VLONG_BITS_SIZE(bits) * 1,          \
+            .offset_z = sizeof(ecp_xyz_t) +     \
+            VLONG_BITS_SIZE(bits) * 2,          \
         })
 
-#define ECP_OPCTX_INIT(type,l) ((type){                         \
-            .header.offset_r = sizeof(ecp_opctx_t) +            \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 0,  \
-            .header.offset_s = sizeof(ecp_opctx_t) +            \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 1,  \
-            .header.offset_t = sizeof(ecp_opctx_t) +            \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 2,  \
-            .header.offset_u = sizeof(ecp_opctx_t) +            \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 3,  \
-            .header.offset_v = sizeof(ecp_opctx_t) +            \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 4,  \
-            .header.offset_w = sizeof(ecp_opctx_t) +            \
-            (sizeof(vlong_size_t) + sizeof(uint32_t) * l) * 5,  \
-            .r.c = l,                                           \
-            .s.c = l,                                           \
-            .t.c = l,                                           \
-            .u.c = l,                                           \
-            .v.c = l,                                           \
-            .w.c = l,                                           \
+#define ECP_XYZ_INIT(type,bits,...) ((type){            \
+            .header = ECP_XYZ_HDR_INIT(bits),           \
+            .x.c = VLONG_BITS_WCNT(bits),               \
+            .y.c = VLONG_BITS_WCNT(bits),               \
+            .z.c = VLONG_BITS_WCNT(bits),               \
+            __VA_ARGS__                                 \
         })
 
-// 2 additional words for representation and computation overhead.
-typedef ECP_XYZ_T(10) ecp256_xyz_t;
-typedef ECP_XYZ_T(14) ecp384_xyz_t;
+#define ECP_OPCTX_HDR_INIT(bits) ((ecp_opctx_t){        \
+            .offset_r = sizeof(ecp_opctx_t) +           \
+            VLONG_BITS_SIZE(bits) * 0,                  \
+            .offset_s = sizeof(ecp_opctx_t) +           \
+            VLONG_BITS_SIZE(bits) * 1,                  \
+            .offset_t = sizeof(ecp_opctx_t) +           \
+            VLONG_BITS_SIZE(bits) * 2,                  \
+            .offset_u = sizeof(ecp_opctx_t) +           \
+            VLONG_BITS_SIZE(bits) * 3,                  \
+            .offset_v = sizeof(ecp_opctx_t) +           \
+            VLONG_BITS_SIZE(bits) * 4,                  \
+            .offset_w = sizeof(ecp_opctx_t) +           \
+            VLONG_BITS_SIZE(bits) * 5,                  \
+        })
 
-// the same overhead reason.
-typedef ECP_OPCTX_T(10) ecp256_opctx_t;
-typedef ECP_OPCTX_T(14) ecp384_opctx_t;
+#define ECP_OPCTX_INIT(type,bits) ((type){              \
+            .header = ECP_OPCTX_HDR_INIT(bits),         \
+            .r.c = VLONG_BITS_WCNT(bits),               \
+            .s.c = VLONG_BITS_WCNT(bits),               \
+            .t.c = VLONG_BITS_WCNT(bits),               \
+            .u.c = VLONG_BITS_WCNT(bits),               \
+            .v.c = VLONG_BITS_WCNT(bits),               \
+            .w.c = VLONG_BITS_WCNT(bits),               \
+        })
 
-#define ECP256_XYZ_SIZE ECP_XYZ_SIZE(10)
-#define ECP384_XYZ_SIZE ECP_XYZ_SIZE(14)
+void  ecp_xyz_init(  ecp_xyz_t   *xyz, unsigned bits);
+void ecp_opctx_init(ecp_opctx_t *opctx, unsigned bits);
 
-#define ECP256_OPCTX_SIZE ECP_OPCTX_SIZE(10)
-#define ECP384_OPCTX_SIZE ECP_OPCTX_SIZE(14)
+typedef ECP_XYZ_T(256) ecp256_xyz_t;
+typedef ECP_XYZ_T(384) ecp384_xyz_t;
 
-#define ECP256_XYZ_INIT(...) ECP_XYZ_INIT(ecp256_xyz_t,10,__VA_ARGS__)
-#define ECP384_XYZ_INIT(...) ECP_XYZ_INIT(ecp384_xyz_t,14,__VA_ARGS__)
+typedef ECP_OPCTX_T(256) ecp256_opctx_t;
+typedef ECP_OPCTX_T(384) ecp384_opctx_t;
 
-#define ECP256_OPCTX_INIT ECP_OPCTX_INIT(ecp256_opctx_t,10)
-#define ECP384_OPCTX_INIT ECP_OPCTX_INIT(ecp384_opctx_t,14)
+#define ECP256_XYZ_SIZE ECP_XYZ_SIZE(256)
+#define ECP384_XYZ_SIZE ECP_XYZ_SIZE(384)
+
+#define ECP256_OPCTX_SIZE ECP_OPCTX_SIZE(256)
+#define ECP384_OPCTX_SIZE ECP_OPCTX_SIZE(384)
+
+#define ECP256_XYZ_INIT(...) ECP_XYZ_INIT(ecp256_xyz_t,256,__VA_ARGS__)
+#define ECP384_XYZ_INIT(...) ECP_XYZ_INIT(ecp384_xyz_t,384,__VA_ARGS__)
+
+#define ECP256_OPCTX_INIT ECP_OPCTX_INIT(ecp256_opctx_t,256)
+#define ECP384_OPCTX_INIT ECP_OPCTX_INIT(ecp384_opctx_t,384)
 
 enum {
     ptrCurveDef = 20001,
     bytesOpCtx = 20002,
     bytesECXYZ = 20003,
+    bytesVLong = 20004,
 };
 
-#define c_Curve(q,bits) (                                       \
-        q==bytesOpCtx ? ECP_OPCTX_SIZE((bits + 95) / 32) :      \
-        q==bytesECXYZ ? ECP_XYZ_SIZE((bits + 95) / 32) :        \
+#define c_Curve(q,bits) (                       \
+        q==bytesOpCtx ? ECP_OPCTX_SIZE(bits) :  \
+        q==bytesECXYZ ? ECP_XYZ_SIZE(bits) :    \
+        q==bytesVLong ? VLONG_BITS_SIZE(bits) : \
         0)
 
 #define x_Curve(q,bits,name_factory) (                  \

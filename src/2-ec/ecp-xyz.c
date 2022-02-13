@@ -412,7 +412,6 @@ static vlong_t *vlong_modexpv_shiftadded(
     
     for(i=shift;;)
     {
-        if( i % 32 == 0 ) w = (w >> 32) + e->v[i / 32];
         mask = (w >> (i % 32)) & 1;
 
         vlong_mulv_masked(
@@ -423,6 +422,7 @@ static vlong_t *vlong_modexpv_shiftadded(
         for(j=0; j<n; j++) out->v[j] = tmp2->v[j];
 
         if( ++i >= f ) break;
+        if( i % 32 == 0 ) w = (w >> 32) + e->v[i / 32];
         
         vlong_mulv_masked(
             tmp2,
@@ -457,12 +457,12 @@ vlong_t *vlong_inv_mod_p_fermat(
     vlong_t const *x,
     vlong_t *restrict tmp1,
     vlong_t *restrict tmp2,
-    ecp_curve_t *restrict curve)
+    ecp_curve_t const *restrict curve)
 {
     return vlong_modexpv_shiftadded(
         out, x, tmp1, tmp2,
         curve->imod_aux->modfunc,
-        curve->p, -2, 0);
+        curve->imod_aux->mod_ctx, -2, 0);
 }
 
 vlong_t *vlong_inv_mod_n_fermat(
@@ -470,10 +470,32 @@ vlong_t *vlong_inv_mod_n_fermat(
     vlong_t const *x,
     vlong_t *restrict tmp1,
     vlong_t *restrict tmp2,
-    ecp_curve_t *restrict curve)
+    ecp_curve_t const *restrict curve)
 {
     return vlong_modexpv_shiftadded(
         out, x, tmp1, tmp2,
         (vlong_modfunc_t)vlong_remv_inplace,
         curve->n, -2, 0);
+}
+
+void ecp_xyz_init(ecp_xyz_t *xyz, unsigned bits)
+{
+    *xyz = ECP_XYZ_HDR_INIT(bits);
+
+    ((vlong_t *)DeltaTo(xyz, offset_x))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(xyz, offset_y))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(xyz, offset_z))->c = VLONG_BITS_WCNT(bits);
+}
+
+void ecp_opctx_init(ecp_opctx_t *opctx, unsigned bits)
+{
+    *opctx = ECP_OPCTX_HDR_INIT(bits);
+
+    ((vlong_t *)DeltaTo(opctx, offset_r))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(opctx, offset_s))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(opctx, offset_t))->c = VLONG_BITS_WCNT(bits);
+    
+    ((vlong_t *)DeltaTo(opctx, offset_u))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(opctx, offset_v))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(opctx, offset_w))->c = VLONG_BITS_WCNT(bits);
 }

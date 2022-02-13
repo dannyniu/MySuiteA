@@ -58,8 +58,8 @@ IntPtr rsa_keygen(
     uint32_t bits_per_prime = param[0].aux / param[1].aux;
     uint32_t i, t;
 
-    vlong_size_t vlsize_modulus = (param[0].aux + 32 * 2 - 1) / 32;
-    vlong_size_t vlsize_factor = (bits_per_prime + 32 * 2 - 1) / 32;
+    vlong_size_t vlsize_modulus = VLONG_BITS_WCNT(param[0].aux);
+    vlong_size_t vlsize_factor = VLONG_BITS_WCNT(bits_per_prime);
     
     RSA_Priv_Base_Ctx_t *bx;
     RSA_OtherPrimeInfo_t *px;

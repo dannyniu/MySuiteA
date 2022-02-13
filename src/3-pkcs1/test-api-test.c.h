@@ -38,6 +38,7 @@ Gimli_XOF_Final(&gx);
 
 lret = PKC_Keygen(NULL, params, NULL, NULL);
 kgx = my_alloc("kgx", lret);
+size = lret;
 
 if( !kgx )
 {
@@ -59,7 +60,7 @@ void *copy;
 
 // recoding private key.
 lret = PKC_Encode_PrivateKey(kgx, NULL, 0, params);
-copy = malloc(lret);
+copy = my_alloc("dex", lret);
 PKC_Encode_PrivateKey(kgx, copy, lret, params);
 
 FILE *fp = fopen("./rsa-priv-768.key", "wb"); // in "bin/"

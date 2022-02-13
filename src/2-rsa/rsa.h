@@ -49,25 +49,18 @@ typedef RSA_PRIV_CTX_HDR_T() RSA_Priv_Ctx_Hdr_t;
 // The value of ${ [1].aux } is the number of primes. 
 typedef CryptoParam_t RSA_Priv_Param_t[2];
 
-// note-1:
-// 32 * 3 because:
-// see notes in "2-asn1/der-codec.c"
-// ``ber_tlv_decode_integer''
-//
-// note-2:
-// Assume sizeof(uint32_t) == 4.
-static_assert(sizeof(uint32_t) == 4, "Data type assumption failed");
-#define RSA_INTEGER_SIZE(bits) (4 * (((bits) + 32 * 3) / 32))
-
 // [!A-E-D!]: If c does not divide l, behavior is undefined.
 //
 // 2021-09-11:
 // The erroneous (2 + 4) is changed to (5 + 2).
-// (2 * 4) changed to RSA_INTEGER_SIZE(17)
+// (2 * 4) changed to VLONG_BITS_SIZE(17)
+//
+// 2022-02-13:
+// RSA_INTEGER_SIZE changed to VLONG_BITS_SIZE
 #define RSA_PRIV_CTX_PAYLOAD_SIZE_X(l,c) (              \
-        RSA_INTEGER_SIZE((l) / (c)) * (3 * (c) - 1) +   \
-        RSA_INTEGER_SIZE((l)) * (5 + 2) +               \
-        RSA_INTEGER_SIZE(17) )
+        VLONG_BITS_SIZE((l) / (c)) * (3 * (c) - 1) +    \
+        VLONG_BITS_SIZE((l)) * (5 + 2) +                \
+        VLONG_BITS_SIZE(17) )
 
 #define RSA_PRIV_CTX_PAYLOAD_SIZE(...)          \
     RSA_PRIV_CTX_PAYLOAD_SIZE_X(__VA_ARGS__)
@@ -95,11 +88,11 @@ typedef struct {
 typedef CryptoParam_t RSA_Pub_Param_t[1];
 
 #define RSA_PUB_CTX_PAYLOAD_SIZE(l) (           \
-        RSA_INTEGER_SIZE((l)) * (4 + 1) +       \
-        RSA_INTEGER_SIZE(17) )
+        VLONG_BITS_SIZE((l)) * (4 + 1) +        \
+        VLONG_BITS_SIZE(17) )
 
-#define RSA_PUB_CTX_SIZE(l) (           \
-        RSA_PUB_CTX_PAYLOAD_SIZE(l) +   \
+#define RSA_PUB_CTX_SIZE(l) (                   \
+        RSA_PUB_CTX_PAYLOAD_SIZE(l) +           \
         sizeof(RSA_Pub_Ctx_Hdr_t) )
 
 #define RSA_PUB_CTX_T(l)                                \

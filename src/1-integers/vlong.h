@@ -17,7 +17,28 @@
 typedef uint32_t vlong_size_t;
 
 #define VLONG_T(...) struct { vlong_size_t c; uint32_t v[__VA_ARGS__]; }
-#define VLONG_INIT(cnt) { .c = cnt }
+#define VLONG_INIT(cnt) { .c = cnt } // 2022-02-13: unusefullness observed.
+
+// 2022-02-13:
+//
+// the "RSA_INTEGER_SIZE" macro had been moved from "2-rsa/rsa.h" to here,
+// and is renamed to "VLONG_BITS_SIZE".
+//
+// These macros estimates the various parameters for vlong integers
+// including any/all representation and computation overhead.
+//
+// The RSA_INTEGER_SIZE macro from "2-rsa/rsa.h" had been removed, and
+// the ``ber_tlv_decode_integer'' function from "2-asn1/der-codec.c" had been
+// changed to use these macros.
+//
+static_assert(sizeof(uint32_t) == 4, "Unsupported Architecture?!");
+#define VLONG_BYTES_WCNT(len) (2 + ((len) + 4) / 4)
+#define VLONG_BYTES_SIZE(len) (4 * (VLONG_BYTES_WCNT(len) + 1))
+#define VLONG_BYTES_INIT(len) VLONG_INIT(VLONG_BYTES_WCNT(len))
+#define VLONG_BITS_BYTES(bits) ((bits + 7) / 8)
+#define VLONG_BITS_WCNT(bits) VLONG_BYTES_WCNT(VLONG_BITS_BYTES(bits))
+#define VLONG_BITS_SIZE(bits) VLONG_BYTES_SIZE(VLONG_BITS_BYTES(bits))
+#define VLONG_BITS_INIT(len) VLONG_INIT(VLONG_BITS_WCNT(len))
 
 typedef VLONG_T() vlong_t;
 

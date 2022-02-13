@@ -31,8 +31,11 @@ vlong_t *rsa_fastdec(RSA_Priv_Ctx_Hdr_t *restrict x)
     uint32_t modulus_bits = bx->modulus_bits;
     uint32_t bits_per_prime = modulus_bits / (bx->count_primes_other + 2);
     
-    vlong_size_t vlsize_modulus = (modulus_bits + 32 * 2 - 1) / 32;
-    vlong_size_t vlsize_factor = (bits_per_prime + 32 * 2 - 1) / 32;
+    vlong_size_t vlsize_modulus = VLONG_BITS_WCNT(modulus_bits);
+    vlong_size_t vlsize_factor = VLONG_BITS_WCNT(bits_per_prime);
+    // 2022-02-13: delete these 2 lines after testing.
+    //vlong_size_t vlsize_modulus = (modulus_bits + 32 * 2 - 1) / 32;
+    //vlong_size_t vlsize_factor = (bits_per_prime + 32 * 2 - 1) / 32;
     vlong_size_t a, b;
 
     int i, j;
