@@ -32,7 +32,7 @@ fi
 
 cc="$scan_build $scan_build_opt $cc"
 cflags0="-Wall -Wextra -g -O0"
-[ X"$optimize" = Xdebug ] && cflags0="$cflags0 -D ENABLE_HOSTED_HEADERS"
+[ X"$optimize" = Xdebug ] && cflags0="$cflags0 -D ENABLE_HOSTED_HEADERS="
 [ X"$optimize" = Xtrue ] && cflags0="-Wall -Wextra -O"
 
 # Note 2020-02-18 regarding removal of "-Weverything" option:
