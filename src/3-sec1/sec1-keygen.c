@@ -18,7 +18,6 @@ void SEC1_Keygen(
 
     ecp_xyz_t *Q = DeltaTo(x, offset_Q);
     vlong_t *d = DeltaTo(x, offset_d);
-    static const VLONG_T(1) one = { .c = 1, .v[0] = 1, };
 
     do
     {
@@ -28,7 +27,7 @@ void SEC1_Keygen(
         if( vlong_cmpv_shifted(d, x->curve->n, 0) != 2 )
             continue;
         
-        if( vlong_cmpv_shifted((const vlong_t *)&one, d, 0) == 1 )
+        if( vlong_cmpv_shifted(vlong_one, d, 0) == 1 )
             continue;
 
         ecp_xyz_inf(Q);
@@ -38,4 +37,33 @@ void SEC1_Keygen(
         break;
     }
     while( true );
+
+    // canonicalize.
+    
+    vlong_inv_mod_p_fermat(
+        DeltaTo(opctx, offset_w),
+        DeltaTo(Q,     offset_z),
+        DeltaTo(opctx, offset_u),
+        DeltaTo(opctx, offset_v),
+        x->curve);
+
+    vlong_mulv_masked(
+        DeltaTo(opctx, offset_u),
+        DeltaTo(Q,     offset_x),
+        DeltaTo(opctx, offset_w), 1,
+        (vlong_modfunc_t)
+        x->curve->imod_aux->modfunc,
+        x->curve->imod_aux->mod_ctx);
+
+    vlong_mulv_masked(
+        DeltaTo(opctx, offset_v),
+        DeltaTo(Q,     offset_y),
+        DeltaTo(opctx, offset_w), 1,
+        (vlong_modfunc_t)
+        x->curve->imod_aux->modfunc,
+        x->curve->imod_aux->mod_ctx);
+
+    vlong_cpy(DeltaTo(Q, offset_x), DeltaTo(opctx, offset_u));
+    vlong_cpy(DeltaTo(Q, offset_y), DeltaTo(opctx, offset_v));
+    vlong_cpy(DeltaTo(Q, offset_z), vlong_one);
 }

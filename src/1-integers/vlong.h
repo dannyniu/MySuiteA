@@ -42,6 +42,8 @@ static_assert(sizeof(uint32_t) == 4, "Unsupported Architecture?!");
 
 typedef VLONG_T() vlong_t;
 
+extern const vlong_t *vlong_one;
+
 // ``vlong_*'' functions return NULL when the parameters of
 // operands are invalid (e.g. lack space to hold full values).
 

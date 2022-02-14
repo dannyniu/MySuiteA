@@ -2,6 +2,9 @@
 
 #include "vlong.h"
 
+const static VLONG_T(1) One = { .c = 1, .v[0] = 1, };;
+const vlong_t *vlong_one = (const vlong_t *)&One;
+
 vlong_t *vlong_cpy(vlong_t *restrict out, vlong_t const *restrict in)
 {
     vlong_size_t i;
