@@ -1,5 +1,8 @@
 #!/bin/sh
 
+testdir1=../tests/gcm-test-vectors
+testdir2=../tests/chacha20-poly1305
+
 testfunc() {
     e=0;
     
@@ -31,6 +34,8 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+
+ret=0
 src_common="
 encryption-test.c
 chacha20-poly1305.c
@@ -42,31 +47,33 @@ gcm.c
 "
 bin=$(basename "$0" .sh)
 
-testdir1=../tests/gcm-test-vectors
-testdir2=../tests/chacha20-poly1305
+cflags=""
+srcset="Plain C"
+src="
+1-symm/rijndael.c
+1-symm/galois128.c
+"
 
-vsrc(){ src="$src_common 1-symm/rijndael${1}.c 1-symm/galois128${1}.c" ; }
+arch=x86_64
+( . $unitest_sh ) || ret=1
 
-arch=x86_64 cflags="" srcset="Plain C"
-vsrc ""
+arch=aarch64
+( . $unitest_sh ) || ret=1
+
+arch=powerpc64
+( . $unitest_sh ) || ret=1
+
+arch=sparc64
+( . $unitest_sh ) || ret=1
+
+arch=x86_64
+cflags="-maes -mpclmul"
+srcset="x86 AESNI+PCLMUL"
+src="1-symm/rijndael-x86.c 1-symm/galois128-x86.c"
 ( . $unitest_sh )
 
-arch=aarch64 cflags="" srcset="Plain C"
-vsrc ""
-( . $unitest_sh )
-
-arch=powerpc64 cflags="" srcset="Plain C"
-vsrc ""
-( . $unitest_sh )
-
-arch=sparc64 cflags="" srcset="Plain C"
-vsrc ""
-( . $unitest_sh )
-
-arch=x86_64 cflags="-maes -mpclmul" srcset="x86 AESNI+PCLMUL"
-vsrc "-x86"
-( . $unitest_sh )
-
-arch=aarch64 cflags="-march=armv8-a+crypto" srcset="ARM NEON Crypto"
-vsrc "-arm"
+arch=aarch64
+cflags="-march=armv8-a+crypto"
+srcset="ARM NEON Crypto"
+src="1-symm/rijndael-arm.c 1-symm/galois128-arm.c"
 ( . $unitest_sh )

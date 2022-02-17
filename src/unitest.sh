@@ -51,9 +51,23 @@ cflags0="-Wall -Wextra -g -O0"
 
 # -- End; --
 
+# 2022-02-14: 2 notes.
+#
+# 1. The "src_common" variable had been imported here so that test scripts can
+#    avoid using function commands such as "vsrc". The source code files set is
+#    assembled from "src_common" (when available) and "src", which would define
+#    additional source code files when "src_common" is already defined.
+#
+# 2. The "cflags_common" variable is imported whenever test scripts define one.
+#    This variable contain compilation flags that is intended to be repeated
+#    among all test variants within a test script. The "cflags" flag now serves
+#    the purpose of defining variant-specific compilation flags for a test.
+
+: ${src_common:=""}
 : ${src:?Variable unspecified: src}
 : ${bin:?Variable unspecified: bin}
 : ${arch:?Variable unspecified: arch}
+: ${cflags_common:=""}
 : ${cflags:=""}
 
 sysarch=$(uname -m | sed s/arm64/aarch64/g)
@@ -141,7 +155,7 @@ srcdir=../src
 basedir=$srcdir/$(basename "$PWD")
 srcfiles=""
 objfiles=""
-for s in $src ; do
+for s in $src_common $src ; do
     b=$(basename $s)
     if [ $s = $b ]
     then srcfiles="$srcfiles $basedir/$s"
@@ -152,13 +166,13 @@ done
 cd "$(dirname $unitest_sh)"/../bin
 rm -f *.o *-test
 set -e
-$cc -c -ffreestanding $cflags0 $cflags1 $cflags $srcfiles
+$cc -c -ffreestanding $cflags0 $cflags1 $cflags_common $cflags $srcfiles
 $ld $ld_opt $objfiles -o $bin
 set +e
 
 if testfunc
-then printf '\033[42;33m%s\033[0m\n' passing
-else printf '\033[41;34m%s\033[0m\n' failing
+then printf '\033[42;33m%s\033[0m\n' passing ; true
+else printf '\033[41;34m%s\033[0m\n' failing ; false
 fi
 
 #rm $objfiles $bin

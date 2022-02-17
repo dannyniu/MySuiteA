@@ -20,6 +20,8 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+
+ret=0
 src="
 rsaes-oaep-ref-test.c
 rsaes-oaep-dec.c
@@ -38,21 +40,24 @@ pkcs1.c
 1-symm/fips-180.c
 0-datum/endian.c
 "
+
 bin=$(basename "$0" .sh)
 srcset="Plain C"
-variant="-D PKC_OMIT_PUB_OPS -D PKC_OMIT_KEYGEN"
 optimize=true
 
 keygen_log="" # "-D KEYGEN_LOGF_STDIO"
+cflags_common="-D PKC_OMIT_PUB_OPS -D PKC_OMIT_KEYGEN $keygen_log"
 
-arch=x86_64 cflags="$variant $keygen_log"
-( . $unitest_sh )
+arch=x86_64
+( . $unitest_sh ) || ret=1
 
-arch=aarch64 cflags="$variant $keygen_log"
-( . $unitest_sh )
+arch=aarch64
+( . $unitest_sh ) || ret=1
 
-arch=powerpc64 cflags="$variant $keygen_log"
-( . $unitest_sh )
+arch=powerpc64
+( . $unitest_sh ) || ret=1
 
-arch=sparc64 cflags="$variant $keygen_log"
-( . $unitest_sh )
+arch=sparc64
+( . $unitest_sh ) || ret=1
+
+exit $ret

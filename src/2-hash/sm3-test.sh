@@ -19,7 +19,7 @@ testfunc() {
 
     for x in 1 2 3 4
     do for y in 1 2 3 4 ; do printf "abcd" ; done ; done > $testvec
-    mlen=64
+    mlen=4
     ref=debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732
     res=$($exec xSM3 < $testvec)
     ret=$($exec iSM3 < $testvec)
@@ -39,23 +39,28 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+
+ret=0
 src="
 sm3-test.c
 sm3.c
 1-symm-national/gbt-32905.c
 0-datum/endian.c
 "
+
 bin=$(basename "$0" .sh)
 srcset="Plain C"
 
-arch=x86_64 cflags=""
-( . $unitest_sh )
+arch=x86_64
+( . $unitest_sh ) || ret=1
 
-arch=aarch64 cflags=""
-( . $unitest_sh )
+arch=aarch64
+( . $unitest_sh ) || ret=1
 
-arch=powerpc64 cflags=""
-( . $unitest_sh )
+arch=powerpc64
+( . $unitest_sh ) || ret=1
 
-arch=sparc64 cflags=""
-( . $unitest_sh )
+arch=sparc64
+( . $unitest_sh ) || ret=1
+
+exit $ret

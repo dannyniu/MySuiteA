@@ -8,10 +8,10 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+
+ret=0
 src_common="galois128-check.c 0-datum/endian.c"
 bin=$(basename "$0" .sh)
-
-vsrc(){ src="$src_common galois128${1}.c" ; }
 
 testnum="01 02 03 04 05 06"
 for n in $testnum
@@ -20,30 +20,34 @@ done 2>/dev/null
 
 srctype=c
 
-arch=x86_64 cflags="" srcset="Plain C"
-vsrc ""
+cflags=""
+srcset="Plain C"
+src="galois128.c"
+
+arch=x86_64
 ( . $unitest_sh )
 
-arch=aarch64 cflags="" srcset="Plain C"
-vsrc ""
+arch=aarch64
 ( . $unitest_sh )
 
-arch=powerpc64 cflags="" srcset="Plain C"
-vsrc ""
+arch=powerpc64
 ( . $unitest_sh )
 
-arch=sparc64 cflags="" srcset="Plain C"
-vsrc ""
+arch=sparc64
 ( . $unitest_sh )
 
 srctype=x
 
-arch=x86_64 cflags="-mpclmul" srcset="x86 PCLMUL"
-vsrc "-x86"
+arch=x86_64
+cflags="-mpclmul"
+srcset="x86 PCLMUL"
+src="galois128-x86.c"
 ( . $unitest_sh )
 
-arch=aarch64 cflags="-march=armv8-a+crypto" srcset="ARM NEON Crypto"
-vsrc "-arm"
+arch=aarch64
+cflags="-march=armv8-a+crypto"
+srcset="ARM NEON Crypto"
+src="galois128-arm.c"
 ( . $unitest_sh )
 
 cd ../../bin
