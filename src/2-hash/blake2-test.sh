@@ -12,34 +12,45 @@ testfunc() {
     rm -f failed-*.dat success-*.dat
     n=0
     testvec=testblob.dat
-    mlen=0;
-    while [ $mlen -lt 1000000 ] ; do
-        dd if=/dev/urandom bs=32 count=$((mlen/32)) of=$testvec 2>/dev/null
+    mcnt=0
+    mmax=17
+    while [ $mcnt -lt $mmax ] ; do
+        mlen=$(shortrand)
+        rm -f $testvec
+        randblob $mlen > $testvec
         
         for b in 160 256 384 512 ; do
-            ref=$(../src/2-hash/b2sum.py blake2b $b < $testvec)
-            res=$($exec xBLAKE2b$b < $testvec)
-            ret=$($exec iBLAKE2b$b < $testvec)
+            ../src/2-hash/b2sum.py blake2b $b < $testvec > hash-ref.dat &
+            $exec xBLAKE2b$b < $testvec > hash-res.dat &
+            $exec iBLAKE2b$b < $testvec > hash-ret.dat &
+            wait
+            
+            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo BLAKE2b${b} failed with "$ref" != $res
                 n=$((n+1))
                 cp $testvec failed-blake2b${b}-$mlen.$arch.dat
             fi
+            rm hash-re[fst].dat
         done
         
         for b in 128 160 224 256 ; do
-            ref=$(../src/2-hash/b2sum.py blake2s $b < $testvec)
-            res=$($exec xBLAKE2s$b < $testvec)
-            ret=$($exec iBLAKE2s$b < $testvec)
+            ../src/2-hash/b2sum.py blake2s $b < $testvec > hash-ref.dat &
+            $exec xBLAKE2s$b < $testvec > hash-res.dat &
+            $exec iBLAKE2s$b < $testvec > hash-ret.dat &
+            wait
+            
+            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo BLAKE2s${b} failed with "$ref" != $res
                 n=$((n+1))
                 cp $testvec failed-blake2s${b}-$mlen.$arch.dat
             fi
+            rm hash-re[fst].dat
         done
 
         unlink $testvec
-        mlen=$((mlen*2+32))
+        mcnt=$((mcnt + 1))
     done
     
     printf "%u failed tests.\n" $n
@@ -51,28 +62,16 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src="
+src="\
 blake2-test.c
 blake2.c
 1-symm/chacha.c
 0-datum/endian.c
 "
 
-bin=$(basename "$0" .sh)
+arch_family=defaults
 srcset="Plain C"
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
-
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-exit $ret
+tests_run

@@ -43,7 +43,7 @@ int main()
     y.p = (void *)&c;
     z.p = (void *)&d;
     
-    for(int i=0; i<200*200; i++) {
+    for(int i=0; i<75*75; i++) {
         fread(&a, 1, sizeof(a), stdin);
         fread(&b, 1, sizeof(b), stdin);
 

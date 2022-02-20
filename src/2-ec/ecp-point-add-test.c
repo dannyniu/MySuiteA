@@ -18,7 +18,7 @@ int test1(
     printl(curve->p);
     printf(") or True\n");
 
-    for(long n=0; n<128*128; n++)
+    for(long n=0; n<75*75; n++)
     {
         vlong_t *x1 = DeltaTo(p, offset_x);
         vlong_t *y1 = DeltaTo(p, offset_y);

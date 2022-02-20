@@ -12,57 +12,76 @@ testfunc() {
     rm -f failed-*.dat success-*.dat
     n=0
     testvec=testblob.dat
-    mlen=0;
-    while [ $mlen -lt 1000000 ] ; do
-        dd if=/dev/urandom bs=32 count=$((mlen/32)) of=$testvec 2>/dev/null
+    mcnt=0;
+    mmax=17
+    while [ $mcnt -lt $mmax ] ; do
+        mlen=$(shortrand)
+        rm -f $testvec
+        randblob $mlen > $testvec
 
         for b in 1 224 256 384 512 ; do
-            ref=$(../src/2-hash/shasum.py sha$b < $testvec)
-            res=$($exec xSHA$b < $testvec)
-            ret=$($exec iSHA$b < $testvec)
+            ../src/2-hash/shasum.py sha$b < $testvec > hash-ref.dat &
+            $exec xSHA$b < $testvec > hash-res.dat &
+            $exec iSHA$b < $testvec > hash-ret.dat &
+            wait
+
+            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo sha${b} failed with $ref:$res:$ret
                 n=$((n+1))
                 datetime=$(date +%Y-%m-%d-%H%M%S)
                 cp $testvec failed-sha${b}-$mlen.$datetime.$arch.dat
             fi
+            rm hash-re[fst].dat
         done
 
         for b in 224 256; do
-            ref=$(../src/2-hash/shasum.py sha512_$b < $testvec)
-            res=$($exec xSHA512t${b} < $testvec)
-            ret=$($exec iSHA512t${b} < $testvec)
+            ../src/2-hash/shasum.py sha512_$b < $testvec > hash-ref.dat &
+            $exec xSHA512t${b} < $testvec > hash-res.dat &
+            $exec iSHA512t${b} < $testvec > hash-ret.dat &
+            wait
+            
+            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo sha512-${b} failed with $ref:$res:$ret
                 n=$((n+1))
                 cp $testvec failed-sha512t-${b}-$mlen.$datetime.$arch.dat
             fi
+            rm hash-re[fst].dat
         done
 
         for b in 224 256 384 512; do
-            ref=$(../src/2-hash/shasum.py sha3_$b < $testvec)
-            res=$($exec xSHA3_$b < $testvec)
-            ret=$($exec iSHA3_$b < $testvec)
+            ../src/2-hash/shasum.py sha3_$b < $testvec > hash-ref.dat &
+            $exec xSHA3_$b < $testvec > hash-res.dat &
+            $exec iSHA3_$b < $testvec > hash-ret.dat &
+            wait
+            
+            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo sha3-${b} failed with $ref:$res:$ret
                 n=$((n+1))
                 cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
             fi
+            rm hash-re[fst].dat
         done
 
         for b in 128 256; do
-            ref=$(../src/2-hash/shakesum.py shake_$b < $testvec)
-            res=$($exec xSHA3_${b}000 < $testvec)
-            ret=$($exec iSHA3_${b}000 < $testvec)
+            ../src/2-hash/shakesum.py shake_$b < $testvec > hash-ref.dat &
+            $exec xSHA3_${b}000 < $testvec > hash-res.dat &
+            $exec iSHA3_${b}000 < $testvec > hash-ret.dat &
+            wait
+            
+            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo shake${b} failed with $ref:$res:$ret
                 n=$((n+1))
                 cp $testvec failed-shake-${b}-$mlen.$datetime.$arch.dat
             fi
+            rm hash-re[fst].dat
         done
 
         unlink $testvec
-        mlen=$((mlen*2+32))
+        mcnt=$((mcnt + 1))
     done
     
     printf "%u failed tests.\n" $n
@@ -74,9 +93,9 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src="
+src="\
 sha-test.c
 sha.c
 sha3.c
@@ -87,19 +106,7 @@ sha3.c
 0-datum/endian.c
 "
 
-bin=$(basename "$0" .sh)
+arch_family=defaults
 srcset="Plain C"
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
-
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-exit $ret
+tests_run

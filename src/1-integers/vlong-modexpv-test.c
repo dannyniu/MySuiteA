@@ -11,7 +11,7 @@ int main(void)
 {
     a.c = base.c = e.c = mod.c = t1.c = t2.c = 4;
     
-    for(long n=0; n<50*50; n++)
+    for(long n=0; n<15*15; n++)
     {
         memset(base.v, 0, 16);
         memset(e.v,    0, 16);

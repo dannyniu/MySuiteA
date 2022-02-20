@@ -34,9 +34,9 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src_common="
+src_common="\
 encryption-test.c
 chacha20-poly1305.c
 gcm-aes.c
@@ -45,8 +45,8 @@ gcm.c
 1-symm/poly1305.c
 0-datum/endian.c
 "
-bin=$(basename "$0" .sh)
 
+arch_family=defaults
 cflags=""
 srcset="Plain C"
 src="
@@ -54,26 +54,18 @@ src="
 1-symm/galois128.c
 "
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
+tests_run
 
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-arch=x86_64
+arch_family=x86
 cflags="-maes -mpclmul"
 srcset="x86 AESNI+PCLMUL"
 src="1-symm/rijndael-x86.c 1-symm/galois128-x86.c"
-( . $unitest_sh )
 
-arch=aarch64
+tests_run
+
+arch_family=arm
 cflags="-march=armv8-a+crypto"
 srcset="ARM NEON Crypto"
 src="1-symm/rijndael-arm.c 1-symm/galois128-arm.c"
-( . $unitest_sh )
+
+tests_run

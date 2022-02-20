@@ -20,7 +20,7 @@ int test1(
     printl(curve->p);
     printf(") or True\n");
 
-    for(long n=0; n<16*16; n++)
+    for(long n=0; n<15*15; n++)
     {
         vlong_t *rx = DeltaTo(r, offset_x);
         vlong_t *ry = DeltaTo(r, offset_y);

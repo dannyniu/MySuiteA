@@ -21,24 +21,26 @@ blake2s-256
 
 testfunc() {
     failcount=0
+    kmax=5
+    mmax=13
     for algo in $hash_algos ; do
-        klen=0
+        kcnt=0
         variant=${algo%-*}
         outlen=${algo#*-}
-        while
-            if [ $variant = blake2b ]
-            then [ $klen -lt 64 ]
-            else [ $klen -lt 32 ]
-            fi
-        do
-            mlen=0
-            while [ $mlen -lt 32768 ] ; do
-                echo $variant $outlen $klen $mlen
-                mlen=$((mlen*3+251))
+        while [ $kcnt -lt $kmax ] ; do
+            mcnt=0
+            while [ $mcnt -lt $mmax ] ; do
+                if [ $variant = blake2b ]
+                then klen=$(($(shortrand) % 64))
+                else klen=$(($(shortrand) % 32))
+                fi
+                echo $variant $outlen $klen $(shortrand)
+                mcnt=$((mcnt + 1))
             done
-            klen=$((klen*2+3))
+            kcnt=$((kcnt+1))
         done 
     done | while
+        rm -f mac-test-ref mac-test-result mac-test-key mac-test-data
         if ! read variant outlen klen mlen ; then
             echo "$failcount test(s) failed."
             if [ $failcount -gt 0 ]
@@ -49,54 +51,39 @@ testfunc() {
     do
         algo=${variant}${outlen}
         
-        dd if=/dev/urandom bs=1 count=$klen \
-           of=mac-test-key 2>/dev/null
-
-        dd if=/dev/urandom bs=1 count=$mlen \
-           of=mac-test-data 2>/dev/null
+        randblob $klen > mac-test-key
+        randblob $mlen > mac-test-data
 
         ../src/2-mac/kblake2-test.py \
             $variant $outlen \
-            < mac-test-data > kblake2-test-ref &
-        $exec $algo < mac-test-data > kblake2-test-result &
+            < mac-test-data > mac-test-ref &
+        $exec $algo < mac-test-data > mac-test-result &
         wait
         
-        if [ "$(cat kblake2-test-ref)" = "$(cat kblake2-test-result)" ] ; then
+        if [ "$(cat mac-test-ref)" = "$(cat mac-test-result)" ] ; then
             : echo Test succeeded for $algo klen=$klen mlen=$mlen
         else
             echo Test failed for $algo klen=$klen mlen=$mlen!
             failcount=$((failcount+1))
             suffix=$(date +%Y-%m-%d-%H%M%S)-$failcount
-            mv kblake2-test-key kblake2-test-key-$suffix
-            mv kblake2-test-data kblake2-test-data-$suffix
+            mv mac-test-key mac-test-key-$suffix
+            mv mac-test-data mac-test-data-$suffix
         fi
     done
 }
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src="
+src="\
 kblake2-test.c
 2-hash/blake2.c
 1-symm/chacha.c
 0-datum/endian.c
 "
 
-bin=$(basename "$0" .sh)
+arch_family=defaults
 srcset="Plain C"
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
-
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-exit $ret
+tests_run

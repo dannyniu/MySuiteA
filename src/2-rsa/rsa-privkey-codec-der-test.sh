@@ -1,14 +1,15 @@
 #!/bin/sh
 
+optimize=true
 testfunc() {
     $exec ../tests/rsa-1440-3primes.der
 }
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src="
+src="\
 rsa-privkey-codec-der-test.c
 rsa-privkey-parser-der.c
 rsa-privkey-writer-der.c
@@ -16,20 +17,7 @@ rsa-privkey-writer-der.c
 1-integers/vlong-dat.c
 "
 
-bin=$(basename "$0" .sh)
+arch_family=defaults
 srcset="Plain C"
-optimize=true
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
-
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-exit $ret
+tests_run

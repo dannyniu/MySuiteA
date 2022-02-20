@@ -16,37 +16,30 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src_common="aes-test.c 0-datum/endian.c"
-bin=$(basename "$0" .sh)
+src_common="\
+aes-test.c
+0-datum/endian.c
+"
 
+arch_family=defaults
 cflags=""
 srcset="Plain C"
 src="rijndael.c"
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
+tests_run
 
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-arch=x86_64
+arch_family=x86
 cflags="-maes"
 srcset="AESNI"
 src="rijndael-x86.c"
-( . $unitest_sh ) || ret=1
 
-arch=aarch64
+tests_run
+
+arch_family=arm
 cflags="-march=armv8-a+crypto"
 srcset="ARM NEON Crypto"
 src="rijndael-arm.c"
-( . $unitest_sh ) || ret=1
 
-exit $ret
+tests_run

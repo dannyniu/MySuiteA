@@ -5,6 +5,7 @@ testfunc() {
     n=0
     testvec=testblob.dat
 
+    rm -f $testvec
     printf "abc" > $testvec
     mlen=3
     ref=66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0
@@ -17,6 +18,7 @@ testfunc() {
         cp $testvec failed-sm3-$mlen.$datetime.$arch.dat
     fi
 
+    rm -f $testvec
     for x in 1 2 3 4
     do for y in 1 2 3 4 ; do printf "abcd" ; done ; done > $testvec
     mlen=4
@@ -39,28 +41,16 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src="
+src="\
 sm3-test.c
 sm3.c
 1-symm-national/gbt-32905.c
 0-datum/endian.c
 "
 
-bin=$(basename "$0" .sh)
+arch_family=defaults
 srcset="Plain C"
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
-
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-exit $ret
+tests_run

@@ -16,7 +16,7 @@ int test1(
     vlong_modfunc_t modfunc,
     void const *mod_ctx)
 {
-    for(long n=0; n<128*128; n++)
+    for(long n=0; n<75*75; n++)
     {
         memset(ff->v, 0, sizeof(*ff->v) * ff->c);
         fread(ff->v, 1, sizeof(*ff->v) * ff->c, stdin);

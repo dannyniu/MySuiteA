@@ -41,7 +41,7 @@ int main()
 {
     u.c = v.c = w.c = x.c = 4;
 
-    for(long n=0; n<200*200; n++)
+    for(long n=0; n<75*75; n++)
     {
         fread(&a, 1, sizeof(a), stdin);
         fread(&b, 1, sizeof(b), stdin);

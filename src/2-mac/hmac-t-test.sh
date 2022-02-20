@@ -22,17 +22,20 @@ sha3_512
 
 testfunc() {
     failcount=0
+    kmax=5
+    mmax=13
     for algo in $hash_algos ; do
-        klen=0
-        while [ $klen -lt 64 ] ; do
-            mlen=0
-            while [ $mlen -lt 32768 ] ; do
-                echo $algo $klen $mlen
-                mlen=$((mlen*3+251))
+        kcnt=0
+        while [ $kcnt -lt $kmax ] ; do
+            mcnt=0
+            while [ $mcnt -lt $mmax ] ; do
+                echo $algo $(($(shortrand) % 64)) $(shortrand)
+                mcnt=$((mcnt + 1))
             done
-            klen=$((klen*2+3))
-        done 
+            kcnt=$((kcnt+1))
+        done
     done | while
+        rm -f mac-test-ref mac-test-result mac-test-key mac-test-data
         if ! read algo klen mlen ; then
             echo "$failcount test(s) failed."
             if [ $failcount -gt 0 ]
@@ -41,33 +44,30 @@ testfunc() {
             fi
         else true ; fi
     do
-        dd if=/dev/urandom bs=1 count=$klen \
-           of=mac-test-key 2>/dev/null
+        randblob $klen > mac-test-key
+        randblob $mlen > mac-test-data
 
-        dd if=/dev/urandom bs=1 count=$mlen \
-           of=mac-test-data 2>/dev/null
-
-        ../src/2-mac/hmac-test.py $algo < mac-test-data > hmac-test-ref &
-        $exec $algo < mac-test-data > hmac-test-result &
+        ../src/2-mac/hmac-test.py $algo < mac-test-data > mac-test-ref &
+        $exec $algo < mac-test-data > mac-test-result &
         wait
-        
-        if [ "$(cat hmac-test-ref)" = "$(cat hmac-test-result)" ] ; then
+
+        if [ "$(cat mac-test-ref)" = "$(cat mac-test-result)" ] ; then
             : echo Test succeeded for $algo klen=$klen mlen=$mlen
         else
             echo Test failed for $algo klen=$klen mlen=$mlen!
             failcount=$((failcount+1))
             suffix=$(date +%Y-%m-%d-%H%M%S)-$failcount
-            mv mac-test-key hmac-test-key-$suffix
-            mv mac-test-data hmac-test-data-$suffix
+            mv mac-test-key mac-test-key-$suffix
+            mv mac-test-data mac-test-data-$suffix
         fi
     done
 }
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src="
+src="\
 hmac-t-test.c
 hmac-sha.c
 hmac-sha3.c
@@ -80,19 +80,7 @@ hmac.c
 0-datum/endian.c
 "
 
-bin=$(basename "$0" .sh)
+arch_family=defaults
 srcset="Plain C"
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
-
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-exit $ret
+tests_run

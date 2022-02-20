@@ -1,5 +1,6 @@
 #!/bin/sh
 
+optimize=true
 testfunc() {
     #lldb \
         $exec "$(date)"
@@ -7,9 +8,9 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
-
+. $unitest_sh
 ret=0
-src="
+src="\
 rsaes-oaep-api-test.c
 rsaes-oaep.c
 rsaes-oaep-dec.c
@@ -37,21 +38,8 @@ pkcs1.c
 0-datum/endian.c
 "
 
-bin=$(basename "$0" .sh)
+arch_family=defaults
 srcset="Plain C"
-optimize=true
 cflags_common="-D KEYGEN_LOGF_STDIO"
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
-
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-exit $ret
+tests_run

@@ -1,5 +1,6 @@
 #!/bin/sh
 
+optimize=true
 testfunc() {
     n=0
     fail=0
@@ -20,9 +21,9 @@ testfunc() {
 
 cd "$(dirname "$0")"
 unitest_sh=../unitest.sh
+. $unitest_sh
 
-ret=0
-src="
+src="\
 rsassa-pss-ref-test.c
 rsassa-pss-verify.c
 pkcs1.c
@@ -40,23 +41,10 @@ pkcs1.c
 0-datum/endian.c
 "
 
-bin=$(basename "$0" .sh)
+arch_family=defaults
 srcset="Plain C"
-optimize=true
 
 keygen_log="" # "-D KEYGEN_LOGF_STDIO"
 cflags_common="-D PKC_OMIT_PRIV_OPS $keygen_log"
 
-arch=x86_64
-( . $unitest_sh ) || ret=1
-
-arch=aarch64
-( . $unitest_sh ) || ret=1
-
-arch=powerpc64
-( . $unitest_sh ) || ret=1
-
-arch=sparc64
-( . $unitest_sh ) || ret=1
-
-exit $ret
+tests_run
