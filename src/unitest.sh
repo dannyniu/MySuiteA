@@ -82,7 +82,8 @@ test_arch_canrun()
     esac
 
     if [ $sysarch = $arch ] ; then true
-    elif ( . /etc/os-release && echo $ID $ID_LIKE | fgrep -q debian ) ; then
+    elif ( . /etc/os-release >/dev/null 2>&1 &&
+               echo $ID $ID_LIKE | fgrep -q debian ) ; then
         
         if ! dpkg -l \
              libgcc-\*-dev-${arch_abbrev}-cross \
