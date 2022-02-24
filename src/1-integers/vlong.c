@@ -101,6 +101,22 @@ vlong_t *vlong_muls(vlong_t *out, vlong_t const *a, uint32_t b, int accum)
     return out;
 }
 
+vlong_t *vlong_imuls(vlong_t *out, vlong_t const *a, int64_t b, int accum)
+{
+    vlong_size_t i;
+    uint64_t x;
+
+    for(i=0, x=0; i<out->c; i++)
+    {
+        x += i < a->c ? a->v[i] * (uint64_t)b : 0;
+        if( accum ) x += out->v[i];
+        out->v[i] = (uint32_t)x;
+        x = (uint64_t)(int64_t)(int32_t)(x >> 32);
+    }
+
+    return out;
+}
+
 // Returns
 // - 0 if a == b,
 // - 1 if a > b, and

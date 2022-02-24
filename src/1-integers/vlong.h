@@ -72,6 +72,7 @@ vlong_t *vlong_subv(
 // These are intentially not restrict-qualified.
 vlong_t *vlong_mulx(vlong_t *out, vlong_t const *a);
 vlong_t *vlong_muls(vlong_t *out, vlong_t const *a, uint32_t b, int accum);
+vlong_t *vlong_imuls(vlong_t *out, vlong_t const *a, int64_t b, int accum);
 
 // Returns
 // - 0 if a == b,

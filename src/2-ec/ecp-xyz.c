@@ -45,21 +45,6 @@ vlong_t *ecp_imod_inplace(vlong_t *rem, const ecp_imod_aux_t *aux)
     return rem;
 }
 
-static vlong_t *vlong_imuls(vlong_t *out, vlong_t const *a, int64_t b)
-{
-    vlong_size_t i;
-    uint64_t x;
-
-    for(i=0, x=0; i<out->c; i++)
-    {
-        x += i < a->c ? a->v[i] * (uint64_t)b : 0;
-        out->v[i] = (uint32_t)x;
-        x = (uint64_t)(int64_t)(int32_t)(x >> 32);
-    }
-
-    return out;
-}
-
 // 2022-02-05:
 // Rewritten based on https://ia.cr/2015/1060
 
@@ -134,10 +119,10 @@ ecp_xyz_t *ecp_point_add_rcb15(
     ecp_imod_inplace(t5, aux);
 
     // 19. 20. 21.
-    vlong_imuls(z, t4, curve->a); // Z3 occupied.
+    vlong_imuls(z, t4, curve->a, false); // Z3 occupied.
     ecp_imod_inplace(z, aux);
     vlong_mulv_masked(x, curve->b, t2, 1, aux->modfunc, aux->mod_ctx);
-    vlong_imuls(x, x, 3);
+    vlong_imuls(x, x, 3, false);
     // no need to: aux->modfunc(x, aux->mod_ctx); as x'll be overwritten soon.
     vlong_addv(z, x, z);
     aux->modfunc(z, aux->mod_ctx);
@@ -149,9 +134,9 @@ ecp_xyz_t *ecp_point_add_rcb15(
     vlong_mulv_masked(y, x, z, 1, aux->modfunc, aux->mod_ctx); // Y3 occupied.
 
     // 25. 26. 27.
-    vlong_imuls(t1, t0, 3);
+    vlong_imuls(t1, t0, 3, false);
     aux->modfunc(t1, aux->mod_ctx);
-    vlong_imuls(t2, t2, curve->a);
+    vlong_imuls(t2, t2, curve->a, false);
     ecp_imod_inplace(t2, aux);
 
     // skip 28. for now to spare a working variable.
@@ -160,12 +145,12 @@ ecp_xyz_t *ecp_point_add_rcb15(
     aux->modfunc(t1, aux->mod_ctx);
     vlong_subv(t2, t0, t2);
     ecp_imod_inplace(t2, aux);
-    vlong_imuls(t2, t2, curve->a);
+    vlong_imuls(t2, t2, curve->a, false);
     ecp_imod_inplace(t2, aux);
 
     // 28. 32.
     vlong_mulv_masked(t0, t4, curve->b, 1, aux->modfunc, aux->mod_ctx);
-    vlong_imuls(t4, t0, 3);
+    vlong_imuls(t4, t0, 3, false);
     vlong_addv(t4, t4, t2);
     aux->modfunc(t4, aux->mod_ctx);
 
@@ -213,7 +198,7 @@ ecp_xyz_t *ecp_point_dbl_fast(
     vlong_muls(w, w, 3, false);
     ecp_imod_inplace(w, aux);
     vlong_mulv_masked(t, z1, z1, 1, aux->modfunc, aux->mod_ctx);
-    vlong_imuls(s, t, curve->a);
+    vlong_imuls(s, t, curve->a, false);
     ecp_imod_inplace(s, aux);
     vlong_addv(w, w, s);
     aux->modfunc(w, aux->mod_ctx);
@@ -390,7 +375,7 @@ static vlong_t *vlong_modexpv_shiftadded(
     vlong_size_t f, i, j, n;
     
     vlong_t const *e = mod_ctx; // code layout eye candy.
-    uint64_t w = e->v[0] + addend;
+    uint64_t w = (uint64_t)e->v[0] + addend;
     uint32_t mask;
 
     if( out->c != tmp1->c || tmp1->c != tmp2->c )
@@ -446,7 +431,7 @@ vlong_t *vlong_sqrt_c3m4(
 {
     if( (aux->mod_ctx->v[0] & 3) != 3 )
         return NULL;
-
+    
     return vlong_modexpv_shiftadded(
         out, x, tmp1, tmp2,
         aux->modfunc, aux->mod_ctx, 1, 2);
