@@ -103,8 +103,6 @@ typedef struct {
         uint8_t payload[PKCS1_PUB_CTX_PAYLOAD_SIZE(__VA_ARGS__)];       \
     }
 
-// Same notes as rsa_keygen in "rsa.h",
-// as this function is a wrapper of it.
 IntPtr PKCS1_Keygen(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
     CryptoParam_t *restrict param,

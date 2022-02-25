@@ -11,8 +11,9 @@ unitest_sh=../unitest.sh
 src="\
 ecdsa-sign-test.c
 ecdsa.c
-sec1-keygen.c
+sec1-common.c
 2-ec/ecp-xyz.c
+2-ec/ecp-pubkey-codec.c
 2-ec/curve-secp256r1.c
 2-ec/curve-secp384r1.c
 2-hash/sha.c

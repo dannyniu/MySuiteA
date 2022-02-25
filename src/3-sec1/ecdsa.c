@@ -1,6 +1,7 @@
 /* DannyNiu/NJF. 2022-02-09. Public Domain. */
 
 #include "ecdsa.h"
+#include "../2-ec/ecp-pubkey-codec.h"
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
@@ -9,33 +10,71 @@ IntPtr ECDSA_Keygen(
     CryptoParam_t *restrict param,
     GenFunc_t prng_gen, void *restrict prng)
 {
-    const ecp_curve_t *curve = (const void *)param[0].info(ptrCurveDef);
+    IntPtr ret = SEC1_Keygen((SEC1_Base_Ctx_Hdr_t *)x, param, prng_gen, prng);
 
     if( x )
     {
-        unsigned bits = curve->plen * 8;
-        
-        *x = ECDSA_CTX_INIT(
-            param[0].info,
-            param[1].info);
+        x->hlen = param[1].info(outBytes);
+        x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
+        x->context_type = 2;
+        x->offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t);
+    }
 
-        ((vlong_t *)DeltaTo(x, offset_d))->c = VLONG_BYTES_WCNT(curve->plen);
-        ((vlong_t *)DeltaTo(x, offset_k))->c = VLONG_BYTES_WCNT(curve->plen);
+    return ret;
+}
 
-        ecp_xyz_init(DeltaTo(x, offset_R), bits);
-        ecp_xyz_init(DeltaTo(x, offset_Q), bits);
-        ecp_xyz_init(DeltaTo(x, offset_Tmp1), bits);
-        ecp_xyz_init(DeltaTo(x, offset_Tmp2), bits);
-        ecp_opctx_init(DeltaTo(x, offset_opctx), bits);
+IntPtr ECDSA_Encode_PrivateKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
+{
+    return SEC1_Encode_PrivateKey(any, enc, enclen, param);
+}
 
-        SEC1_Keygen((SEC1_Common_Priv_Ctx_Hdr_t *)x, prng_gen, prng);
-        return (IntPtr)x;
+IntPtr ECDSA_Decode_PrivateKey(
+    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param)
+{
+    IntPtr ret = SEC1_Decode_PrivateKey(any, enc, enclen, param);
+    
+    if( any )
+    {
+        ECDSA_Ctx_Hdr_t *x = any;
+
+        x->hlen = param[1].info(outBytes);
+        x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
+        x->context_type = 2;
+        x->offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t);
     }
     
-    else
+    return ret;
+}
+
+IntPtr ECDSA_Export_PublicKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
+{
+    return SEC1_Encode_PublicKey(any, enc, enclen, param);
+}
+
+IntPtr ECDSA_Encode_PublicKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
+{
+    return SEC1_Encode_PublicKey(any, enc, enclen, param);
+}
+
+IntPtr ECDSA_Decode_PublicKey(
+    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param)
+{
+    IntPtr ret = SEC1_Decode_PublicKey(any, enc, enclen, param);
+    
+    if( any )
     {
-        return ECDSA_CTX_SIZE(param[0].info, param[1].info);
+        ECDSA_Ctx_Hdr_t *x = any;
+
+        x->hlen = param[1].info(outBytes);
+        x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
+        x->context_type = 2;
+        x->offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t);
     }
+    
+    return ret;
 }
 
 void *ECDSA_Sign(
@@ -44,7 +83,7 @@ void *ECDSA_Sign(
     GenFunc_t prng_gen, void *restrict prng)
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
-    uint8_t H[64] = {0}; // assumes no hash function has >512-bit output.
+    uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
     
     void *restrict hashctx = DeltaTo(x, offset_hashctx);
     hash_funcs_set_t *hx = &x->hfuncs;
@@ -68,8 +107,11 @@ start:
 
     do
     {
-        prng_gen(prng, H, slen);
-        vlong_OS2IP(k, H, slen);
+        prng_gen(prng, H, x->curve->plen);
+        vlong_OS2IP(k, H, x->curve->plen);
+        topword_modmask(
+            (x->curve->plen - 1) / 4 + k->v,
+            (x->curve->plen - 1) / 4 + x->curve->p->v);
 
         if( vlong_cmpv_shifted(k, x->curve->n, 0) != 2 )
             continue;
@@ -173,7 +215,7 @@ void const *ECDSA_Verify(
     void const *restrict msg, size_t msglen)
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
-    uint8_t H[64] = {0}; // assumes no hash function has >512-bit output.
+    uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
     
     void *restrict hashctx = DeltaTo(x, offset_hashctx);
     hash_funcs_set_t *hx = &x->hfuncs;

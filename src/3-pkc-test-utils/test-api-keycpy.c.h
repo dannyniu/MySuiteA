@@ -1,6 +1,6 @@
-/* DannyNiu/NJF, 2021-10-30. Public Domain. */
+/* DannyNiu/NJF, 2022-02-25. Public Domain. */
 
-#define PKC_KeyAlgo iPKCS1_KeyCodec
+// Expects: PKC_KeyAlgo
 
 #define PKC_Keygen                                      \
     ((PKKeygenFunc_t)(PKC_KeyAlgo(PKKeygenFunc)))
@@ -20,21 +20,11 @@
 #define PKC_Decode_PublicKey                            \
     ((PKKeyDecoder_t)(PKC_KeyAlgo(PKPubkeyDecoder)))
 
-PKCS1_RSA_Param_t params = {
-    [0] = { .info = iSHA256, .param = NULL, },
-    [1] = { .info = iSHA256, .param = NULL, },
-    [2] = { .info = NULL, .aux = 32, },
-    [3] = { .info = NULL, .aux = NBITS, },
-    [4] = { .info = NULL, .aux = 2, },
-};
+void *kgx = NULL;
 
-PKCS1_Priv_Ctx_Hdr_t *kgx = NULL;
-
-Gimli_XOF_Init(&gx);
-Gimli_XOF_Write(&gx, "Hello World!", 12);
-if( argc >= 2 )
-    Gimli_XOF_Write(&gx, argv[1], strlen(argv[1]));
-Gimli_XOF_Final(&gx);
+PKC_PRNG_Init(
+    argc>=2 ? argv[1] : NULL,
+    argc>=2 ? strlen(argv[1]) : 0);
 
 lret = PKC_Keygen(NULL, params, NULL, NULL);
 kgx = my_alloc("kgx", lret);
@@ -46,16 +36,16 @@ if( !kgx )
     exit(EXIT_FAILURE);
 }
     
-lret = PKC_Keygen(kgx, params, (GenFunc_t)Gimli_XOF_Read, &gx);
+lret = PKC_Keygen(kgx, params, PKC_PRNG_Gen, prng);
 
 if( !lret )
 {
-    perror("MySuiteA RSA Key Generation 1");
+    perror("Key Generation 1");
     exit(EXIT_FAILURE);
 }
 else printf("keygen.lret: %lx, %p\n", lret, kgx);
 
-PKCS1_Priv_Ctx_Hdr_t *dex = NULL;
+void *dex = NULL;
 void *copy;
 
 // recoding private key.
@@ -63,7 +53,7 @@ lret = PKC_Encode_PrivateKey(kgx, NULL, 0, params);
 copy = my_alloc("dex", lret);
 PKC_Encode_PrivateKey(kgx, copy, lret, params);
 
-FILE *fp = fopen("./rsa-priv-768.key", "wb"); // in "bin/"
+FILE *fp = fopen("./privkey", "wb"); // in "bin/"
 fwrite(copy, 1, lret, fp);
 fclose(fp);
 
@@ -80,7 +70,7 @@ free(copy); copy = NULL;
 
 // transfer public key to encryption working context.
 lret = PKC_Export_PublicKey(dex, NULL, 0, NULL);
-copy = my_alloc("pubkey.der", lret);
+copy = my_alloc("pubkey.bin", lret);
 
 if( !copy )
 {
@@ -90,7 +80,7 @@ if( !copy )
 
 PKC_Export_PublicKey(kgx, copy, lret, NULL);
 
-PKCS1_Pub_Ctx_Hdr_t *enx = NULL;
+void *enx = NULL;
 size = lret;
 lret = PKC_Decode_PublicKey(NULL, copy, size, params);
 if( lret < 0 )

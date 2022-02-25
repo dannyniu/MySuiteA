@@ -9,7 +9,7 @@
 #include "../test-utils.c.h"
 
 typedef struct {
-    ECDSA_Ctx_Hdr_t x_hdr;
+    SEC1_Hash_Ctx_Hdr_t x_hdr;
     sha384_t hash;
     ecp384_opctx_t opctx;
     ecp384_xyz_t Points[4];

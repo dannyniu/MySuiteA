@@ -406,7 +406,7 @@ static vlong_t *vlong_modexpv_shiftadded(
 
         for(j=0; j<n; j++) out->v[j] = tmp2->v[j];
 
-        if( ++i >= f ) break;
+        if( ++i >= f ) break; // 2022-02-24: this could be a false assumption.
         if( i % 32 == 0 ) w = (w >> 32) + e->v[i / 32];
         
         vlong_mulv_masked(

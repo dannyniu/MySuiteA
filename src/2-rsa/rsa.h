@@ -108,20 +108,7 @@ IntPtr rsa_keygen(
     CryptoParam_t *restrict param,
     GenFunc_t prng_gen, void *restrict prng);
 
-// 2021-05-15:
-// ## Intended API usage: ##
-//
-// uint8_t rsa_priv_ctx[RSA_PRIVATE_CONTEXT_SIZE(2048,2)];
-// RSA_Private_Param_t param_keygen = RSA_PRIVATE_PARAM_ENTUPLE(2048,2);
-// rsa_keygen(&rsa_priv_ctx, *param_keygen, HMAC_DRBG_Generate, prng);
-//
-// ## or: ##
-//
-// RSA_Private_Param *param_keygen = ...;
-// void *rsa_priv_ctx = malloc(rsa_keygen(NULL, &param_keygen, NULL, NULL));
-// rsa_keygen(rsa_priv_ctx, param_keygen, SHAKE_Read, &xof);
-//
-
+// 2022-02-25: remove 1 obsolete note from 2021-05-15.
 vlong_t *rsa_enc(RSA_Pub_Ctx_Hdr_t *restrict x);
 
 vlong_t *rsa_fastdec(RSA_Priv_Ctx_Hdr_t *restrict x);

@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2021-09-11. Public Domain. */
 
 #include "rsassa-pss.h"
-#include "../2-rsa/rsa-codec-der.h"
 #include "../2-hash/sha.h"
 
 #include "../test-utils.c.h"
