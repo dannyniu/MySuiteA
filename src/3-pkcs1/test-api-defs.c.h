@@ -3,7 +3,6 @@
 #define PKC_KeyAlgo iPKCS1_KeyCodec
 
 #define NBITS 768
-#define MSGMAX 96
 
 PKCS1_RSA_Param_t params = {
     [0] = { .info = iSHA256, .param = NULL, },
