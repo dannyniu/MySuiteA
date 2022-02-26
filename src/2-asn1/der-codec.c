@@ -281,7 +281,7 @@ IntPtr ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
     for(i=0; i<enclen; i++)
     {
         w->v[i / sizeof(uint32_t)] |=
-            enc[enclen - i - 1] << ((i % sizeof(uint32_t)) * 8);
+            (uint32_t)enc[enclen - i - 1] << ((i % sizeof(uint32_t)) * 8);
     }
 
     return ret;
