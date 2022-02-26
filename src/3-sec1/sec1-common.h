@@ -61,8 +61,15 @@ typedef struct {
     hash_funcs_set_t hfuncs;
 } SEC1_Hash_Ctx_Hdr_t;
 
+// This macro is defined for use
+// in *_SIZE and *_INIT macros
+// indicating that the subject is
+// ``SEC_Base_Ctx_Hdr_t'' rather than
+// ``SEC_Hash_Ctx_Hdr_t''.
+#define ECDH_HASH_NULL(q) (0)
+
 #define SEC1_SIZE_OF_CTX_HDR(hash)              \
-    (hash ?                                     \
+    (hash(contextBytes) ?                       \
      sizeof(SEC1_Hash_Ctx_Hdr_t) :              \
      sizeof(SEC1_Base_Ctx_Hdr_t))
 
@@ -70,7 +77,7 @@ typedef struct {
         crv(bytesOpCtx) +                       \
         crv(bytesECXYZ) * 4 +                   \
         crv(bytesVLong) * 2 +                   \
-        (hash ? hash(contextBytes) : 0) +       \
+        hash(contextBytes) +                    \
         SEC1_SIZE_OF_CTX_HDR(hash) )
 
 #define SEC1_CTX_SIZE(...) SEC1_CTX_SIZE_X(__VA_ARGS__)
@@ -80,30 +87,30 @@ typedef struct {
         .curve = (const void *)crv(ptrCurveDef),        \
         .status = 0,                                    \
         .offset_opctx = SEC1_SIZE_OF_CTX_HDR(hash) +    \
-        (hash ? hash(contextBytes) : 0),                \
+        hash(contextBytes),                             \
         .offset_Q    = SEC1_SIZE_OF_CTX_HDR(hash) +     \
-        (hash ? hash(contextBytes) : 0) +               \
+        hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 0,                            \
         .offset_R    = SEC1_SIZE_OF_CTX_HDR(hash) +     \
-        (hash ? hash(contextBytes) : 0) +               \
+        hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 1,                            \
         .offset_Tmp1 = SEC1_SIZE_OF_CTX_HDR(hash) +     \
-        (hash ? hash(contextBytes) : 0) +               \
+        hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 2,                            \
         .offset_Tmp2 = SEC1_SIZE_OF_CTX_HDR(hash) +     \
-        (hash ? hash(contextBytes) : 0) +               \
+        hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 3,                            \
         .offset_d    = SEC1_SIZE_OF_CTX_HDR(hash) +     \
-        (hash ? hash(contextBytes) : 0) +               \
+        hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 4 +                           \
         crv(bytesVLong) * 0,                            \
         .offset_k    = SEC1_SIZE_OF_CTX_HDR(hash) +     \
-        (hash ? hash(contextBytes) : 0) +               \
+        hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 4 +                           \
         crv(bytesVLong) * 1,                            \
@@ -111,6 +118,18 @@ typedef struct {
     })
 
 #define SEC1_CTX_INIT(...) SEC1_CTX_INIT_X(__VA_ARGS__)
+
+#define SEC1_BASE_CTX_T(...)                            \
+    union {                                             \
+        SEC1_Base_Ctx_Hdr_t header;                     \
+        uint8_t blob[SEC1_CTX_SIZE(__VA_ARGS__)];       \
+    }
+
+#define SEC1_HASH_CTX_T(...)                            \
+    union {                                             \
+        SEC1_Hash_Ctx_Hdr_t header;                     \
+        uint8_t blob[SEC1_CTX_SIZE(__VA_ARGS__)];       \
+    }
 
 void topword_modmask(uint32_t *x, uint32_t const *m);
 IntPtr SEC1_Keygen(

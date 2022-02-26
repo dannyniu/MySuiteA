@@ -2,6 +2,9 @@
 
 #include "ecdsa.h"
 #include "../2-ec/ecp-pubkey-codec.h"
+#include "../2-ec/curves-secp.h"
+#include "../2-hash/sha.h"
+#include "../2-asn1/der-codec.h"
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
@@ -76,6 +79,8 @@ IntPtr ECDSA_Decode_PublicKey(
     
     return ret;
 }
+
+IntPtr iECDSA_KeyCodec(int q) { return xECDSA_KeyCodec(q); }
 
 void *ECDSA_Sign(
     ECDSA_Ctx_Hdr_t *restrict x,
@@ -261,6 +266,10 @@ void const *ECDSA_Verify(
         DeltaTo(opctx, offset_w), // {w} == e
         H, slen);
 
+    vlong_I2OSP( // save signature component 'r' for a moment.
+        DeltaTo(opctx, offset_r),
+        H, x->curve->plen);
+
     vlong_inv_mod_n_fermat(
         DeltaTo(opctx, offset_t), // {t} == s^{-1}
         DeltaTo(opctx, offset_s),
@@ -318,6 +327,10 @@ void const *ECDSA_Verify(
         x->curve->imod_aux->modfunc,
         x->curve->imod_aux->mod_ctx);
 
+    vlong_OS2IP( // restore signature component 'r'.
+        DeltaTo(opctx, offset_r),
+        H, x->curve->plen);
+
     if( vlong_cmpv_shifted(
             DeltaTo(opctx, offset_t),
             DeltaTo(opctx, offset_r),
@@ -331,3 +344,185 @@ reject:
     x->status = -1;
     return NULL;
 }
+
+static IntPtr ber_tlv_encode_ecdsa_signature(BER_TLV_ENCODING_FUNC_PARAMS)
+{
+    int pass = enc ? 2 : 1;
+    IntPtr ret = 0, subret;
+
+    uint8_t *stack = NULL;
+    uint8_t *ptr = enc;
+    size_t remain = enclen;
+    //- not used -// uint32_t i;
+
+    size_t taglen;
+    
+    const ECDSA_Ctx_Hdr_t *ctx = any;
+    const ecp_opctx_t *opctx = DeltaTo(ctx, offset_opctx);
+
+    //
+    // Ecdsa-Sig-Value ::= SEQUENCE {
+
+    //
+    // r INTEGER, 
+    subret = ber_tlv_encode_integer(DeltaTo(opctx, offset_r), ptr, remain);
+    ret += subret;
+
+    if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
+    taglen = 0;
+    taglen += ber_push_len(&stack, subret);
+    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
+    
+    if( pass == 2 )
+    {
+        ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
+    }
+    ret += taglen;
+    if( enc ) ptr += subret + taglen; remain -= subret + taglen;
+    
+    //
+    // s INTEGER, 
+    subret = ber_tlv_encode_integer(DeltaTo(opctx, offset_s), ptr, remain);
+    ret += subret;
+
+    if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
+    taglen = 0;
+    taglen += ber_push_len(&stack, subret);
+    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
+    
+    if( pass == 2 )
+    {
+        ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
+    }
+    ret += taglen;
+    if( enc ) ptr += subret + taglen; remain -= subret + taglen;
+    
+    //
+    // } -- End of "Ecdsa-Sig-Value ::= SEQUENCE".
+    
+    if( pass == 2 ) stack = enc + enclen;
+    taglen = 0;
+    taglen += ber_push_len(&stack, ret);
+    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(16), 1);
+
+    if( pass == 2 )
+    {
+        ber_util_splice_insert(enc, ret, (stack - enc), taglen);
+    }
+    ret += taglen;
+
+    return ret;
+}
+
+#define BER_HDR ber_get_hdr(&ptr, &remain, &tag, &len)
+
+#include <stdio.h> // debuge code remember to remove.
+static int ber_tlv_decode_ecdsa_signature(BER_TLV_DECODING_FUNC_PARAMS)
+{
+    // 2021-02-13: refer to
+    // [ber-int-err-chk:2021-02-13] in "2-asn1/der-codec.c".
+
+    // int pass = any ? 2 : 1; // not used.
+    // IntPtr ret = 0; // not used.
+    
+    const uint8_t *ptr = enc;
+    size_t remain = enclen;
+
+    uint32_t tag;
+    size_t len;
+
+    ECDSA_Ctx_Hdr_t *ctx = any;
+    ecp_opctx_t *opctx = DeltaTo(ctx, offset_opctx);
+
+    //
+    // Ecdsa-Sig-Value ::= SEQUENCE {
+    if( -1 == BER_HDR ) return -1;
+    if( tag != BER_TLV_TAG_UNI(16) ) return -1;
+
+    //
+    // r INTEGER, 
+    if( -1 == BER_HDR ) return -1;
+    if( tag != BER_TLV_TAG_UNI(2) ) return -1;
+
+    vlong_OS2IP(DeltaTo(opctx, offset_r), ptr, len);
+    ptr += len; remain -= len;
+    
+    //
+    // s INTEGER,
+    if( -1 == BER_HDR ) return -1;
+    if( tag != BER_TLV_TAG_UNI(2) ) return -1;
+
+    vlong_OS2IP(DeltaTo(opctx, offset_s), ptr, len);
+    ptr += len; remain -= len;
+
+    //
+    // } -- End of "Ecdsa-Sig-Value ::= SEQUENCE".
+
+    // The size of working context for ECDSA
+    // cannot be estimated from its signatures.
+    return 0;
+}
+
+void *ECDSA_Encode_Signature(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    void *restrict sig, size_t *siglen)
+{
+    IntPtr minlen = ber_tlv_encode_ecdsa_signature(x, NULL, 0);
+
+    if( !sig )
+    {
+        *siglen = minlen;
+        return NULL;
+    }
+
+    if( *siglen < (size_t)minlen ) return NULL;
+
+    ber_tlv_encode_ecdsa_signature(x, sig, *siglen);
+    return sig;
+}
+
+void *ECDSA_Decode_Signature(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    void *restrict sig, size_t siglen)
+{
+    int subret = ber_tlv_decode_ecdsa_signature(x, sig, siglen);
+
+    if( subret == -1 ) return NULL;
+    else return x;
+}
+
+int ECDSA_PKParams(int index, CryptoParam_t *out)
+{
+    switch( index )
+    {
+    case 0:
+        return 2;
+        break;
+
+    case 1:
+        out[0].info = i_secp256r1;
+        out[1].info = iSHA256;
+        out[0].param = NULL;
+        out[1].param = NULL;
+        return 128;
+        break;
+
+    case 2:
+        out[0].info = i_secp384r1;
+        out[1].info = iSHA384;
+        out[0].param = NULL;
+        out[1].param = NULL;
+        return 192;
+        break;
+
+    default:
+        return 0;
+    }
+}
+
+IntPtr tECDSA(const CryptoParam_t *P, int q)
+{
+    return xECDSA(P[0].info, P[1].info, q);
+}
+
+IntPtr iECDSA_CtCodec(int q) { return xECDSA_CtCodec(q); }

@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     uint32_t dword; // data word that receives output from PRNG.
     size_t msglen = MSGMAX;
     void *msg = malloc(msglen);
-    // void *sig = copy;
+    void *sig;
 
     for(int i=0; i<testcount; i++)
     {
@@ -45,14 +45,13 @@ int main(int argc, char *argv[])
 
         PKC_Sign(dex, msg, msglen, PKC_PRNG_Gen, prng);
         PKC_Encode_Signature(dex, NULL, &size);
-        
-        if( !copy ) copy = malloc(size);
 
-        if( !copy )
+        if( !(sig = realloc(copy, size)) )
         {
             perror("malloc 3");
             exit(EXIT_FAILURE);
         }
+        else copy = sig;
 
         PKC_Encode_Signature(dex, copy, &size);
         PKC_Decode_Signature(&enx.header, copy, size);
