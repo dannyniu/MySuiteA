@@ -163,4 +163,4 @@ int PKCS1_PKParams(int index, CryptoParam_t *out)
 
 #if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
 IntPtr iPKCS1_KeyCodec(int q) { return xPKCS1_KeyCodec(q); }
-#endif
+#endif /* ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS) */
