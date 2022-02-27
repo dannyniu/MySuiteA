@@ -25,6 +25,81 @@
 // suite describe ECDH as ECDH-KEM to emphasize that it's not implemented
 // in the form of a traditional key-agreement API.
 
-typedef SEC1_Common_Priv_Ctx_Hdr_t ECDH_KEM_Priv_Ctx_Hdr_t;
+// ${ [0].* } are that for curve domain parameters.
+typedef CryptoParam_t ECDH_KEM_Param_t[1];
+
+typedef SEC1_Base_Ctx_Hdr_t ECDH_KEM_Ctx_Hdr_t;
+
+IntPtr ECDH_KEM_Keygen(
+    ECDH_KEM_Ctx_Hdr_t *restrict x,
+    CryptoParam_t *restrict param,
+    GenFunc_t prng_gen, void *restrict prng);
+
+IntPtr ECDH_KEM_Encode_PrivateKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
+
+IntPtr ECDH_KEM_Decode_PrivateKey(
+    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param);
+
+IntPtr ECDH_KEM_Export_PublicKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
+
+IntPtr ECDH_KEM_Encode_PublicKey(
+    void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
+
+IntPtr ECDH_KEM_Decode_PublicKey(
+    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param);
+
+void *ECDH_KEM_Enc(
+    ECDH_KEM_Ctx_Hdr_t *restrict x,
+    void *restrict ss, size_t *restrict sslen,
+    GenFunc_t prng_gen, void *restrict prng);
+
+void *ECDH_KEM_Dec(
+    ECDH_KEM_Ctx_Hdr_t *restrict x,
+    void *restrict ss, size_t *restrict sslen);
+
+void *ECDH_KEM_Encode_Ciphertext(
+    ECDH_KEM_Ctx_Hdr_t *restrict x,
+    void *restrict ct, size_t *ctlen);
+
+void *ECDH_KEM_Decode_Ciphertext(
+    ECDH_KEM_Ctx_Hdr_t *restrict x,
+    void *restrict ct, size_t ctlen);
+
+int ECDH_KEM_PKParams(int index, CryptoParam_t *out);
+
+#define xECDH_KEM_KeyCodec(q) (                                         \
+        q==PKKeygenFunc ? (IntPtr)ECDH_KEM_Keygen :                     \
+        q==PKPrivkeyEncoder ? (IntPtr)ECDH_KEM_Encode_PrivateKey :      \
+        q==PKPrivkeyDecoder ? (IntPtr)ECDH_KEM_Decode_PrivateKey :      \
+        q==PKPubkeyExporter ? (IntPtr)ECDH_KEM_Export_PublicKey :       \
+        q==PKPubkeyEncoder ? (IntPtr)ECDH_KEM_Encode_PublicKey :        \
+        q==PKPubkeyDecoder ? (IntPtr)ECDH_KEM_Decode_PublicKey :        \
+        0)
+
+#define cECDH_KEM(crv,q) (                                      \
+        q==bytesCtxPriv ? SEC1_CTX_SIZE(crv,ECDH_HASH_NULL) :   \
+        q==bytesCtxPub ? SEC1_CTX_SIZE(crv,ECDH_HASH_NULL) :    \
+        q==isParamDetermByKey ? 0 :                             \
+        0)
+
+#define xECDH_KEM(crv,q) (                              \
+        q==PKParamsFunc ? (IntPtr)ECDH_KEM_PKParams :   \
+        q==PKKeygenFunc ? (IntPtr)ECDH_KEM_Keygen :     \
+        q==PKEncFunc ? (IntPtr)ECDH_KEM_Enc :           \
+        q==PKDecFunc ? (IntPtr)ECDH_KEM_Dec :           \
+        cECDH_KEM(crv,q) )
+
+#define xECDH_KEM_CtCodec(q) (                                  \
+        q==PKEncFunc ? (IntPtr)ECDH_KEM_Enc :                   \
+        q==PKDecFunc ? (IntPtr)ECDH_KEM_Dec :                   \
+        q==PKCtEncoder ? (IntPtr)ECDH_KEM_Encode_Ciphertext :   \
+        q==PKCtDecoder ? (IntPtr)ECDH_KEM_Decode_Ciphertext :   \
+        0)
+
+IntPtr iECDH_KEM_KeyCodec(int q);
+IntPtr tECDH_KEM(const CryptoParam_t *P, int q);
+IntPtr iECDH_KEM_CtCodec(int q);
 
 #endif /* MySuiteA_ecdh_kem_h */

@@ -5,6 +5,8 @@
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
+IntPtr iECDH_Hash_Null(int q) { return q=0, ECDH_HASH_NULL(q); }
+
 void topword_modmask(uint32_t *x, uint32_t const *m)
 {
     uint32_t w = *m;
@@ -16,10 +18,11 @@ void topword_modmask(uint32_t *x, uint32_t const *m)
     *x &= w;
 }
 
-static void sec1_canon_pubkey(SEC1_Base_Ctx_Hdr_t *restrict x)
+void sec1_canon_pubkey(
+    SEC1_Base_Ctx_Hdr_t *restrict x,
+    ecp_xyz_t *restrict Q)
 {
     ecp_opctx_t *opctx = DeltaTo(x, offset_opctx);
-    ecp_xyz_t *Q = DeltaTo(x, offset_Q);
 
     // canonicalize.
     
@@ -109,7 +112,7 @@ static void sec1_gen_privkey(
     }
     while( true );
 
-    sec1_canon_pubkey(x);
+    sec1_canon_pubkey(x, DeltaTo(x, offset_Q));
 }
 
 static void *sec1_dec_privkey(
@@ -144,7 +147,7 @@ static void *sec1_dec_privkey(
         Q, Tmp1, Tmp2, x->curve->G,
         d, opctx, x->curve);
 
-    sec1_canon_pubkey(x);
+    sec1_canon_pubkey(x, DeltaTo(x, offset_Q));
 
     return x;
 }

@@ -14,6 +14,8 @@ ecp_xyz_t *ecp_point_decode(
     ecp_opctx_t *restrict opctx,
     ecp_curve_t const *restrict curve)
 {
+    int tinf_eq_Q = false;
+    
     uint8_t const *os = enc;
     vlong_t
         *x = DeltaTo(Q, offset_x),
@@ -28,28 +30,32 @@ ecp_xyz_t *ecp_point_decode(
 
     vlong_size_t i;
 
+start:
     // copy z.
     vlong_cpy(z, vlong_one);
 
     // decode x.
     vlong_OS2IP(x, os+1, curve->plen);
 
-    // calculate {u} = x^3 + ax + b for later verification.
-    vlong_mulv_masked(
-        v, x, x, 1,
-        curve->imod_aux->modfunc,
-        curve->imod_aux->mod_ctx);
-    vlong_mulv_masked(
-        u, x, v, 1,
-        curve->imod_aux->modfunc,
-        curve->imod_aux->mod_ctx);
+    if( !tinf_eq_Q )
+    {
+        // calculate {u} = x^3 + ax + b for later verification.
+        vlong_mulv_masked(
+            v, x, x, 1,
+            curve->imod_aux->modfunc,
+            curve->imod_aux->mod_ctx);
+        vlong_mulv_masked(
+            u, x, v, 1,
+            curve->imod_aux->modfunc,
+            curve->imod_aux->mod_ctx);
 
-    vlong_imuls(u, x, curve->a, true);
-    ecp_imod_inplace(u, curve->imod_aux);
+        vlong_imuls(u, x, curve->a, true);
+        ecp_imod_inplace(u, curve->imod_aux);
         
-    vlong_addv(u, u, curve->b);
-    curve->imod_aux->modfunc(
-        u, curve->imod_aux->mod_ctx);
+        vlong_addv(u, u, curve->b);
+        curve->imod_aux->modfunc(
+            u, curve->imod_aux->mod_ctx);
+    }
 
     // obtain y.
     if( *os == 0x04 && enclen == 1 + curve->plen * 2 )
@@ -66,6 +72,8 @@ ecp_xyz_t *ecp_point_decode(
         }
     }
     else return NULL;
+
+    if( tinf_eq_Q ) return Q;
 
     // verify curve equation.
     vlong_mulv_masked(
@@ -87,6 +95,13 @@ ecp_xyz_t *ecp_point_decode(
     for(i=0; i<z->c; i++)
         if( z->v[i] )
             return NULL;
+
+    // accommondation for 'ECDH_KEM_Decode_Ciphertext'.
+    if( tinf == Q )
+    {
+        tinf_eq_Q = true;
+        goto start;
+    }
 
     // successful completion.
     return Q;

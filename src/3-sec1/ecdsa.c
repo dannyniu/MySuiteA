@@ -8,6 +8,8 @@
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
+#if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS)
+
 IntPtr ECDSA_Keygen(
     ECDSA_Ctx_Hdr_t *restrict x,
     CryptoParam_t *restrict param,
@@ -25,6 +27,10 @@ IntPtr ECDSA_Keygen(
 
     return ret;
 }
+
+#endif /* ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS) */
+
+#if ! PKC_OMIT_PRIV_OPS
 
 IntPtr ECDSA_Encode_PrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
@@ -56,6 +62,10 @@ IntPtr ECDSA_Export_PublicKey(
     return SEC1_Encode_PublicKey(any, enc, enclen, param);
 }
 
+#endif /* ! PKC_OMIT_PRIV_OPS */
+
+#if ! PKC_OMIT_PUB_OPS
+
 IntPtr ECDSA_Encode_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
@@ -80,7 +90,9 @@ IntPtr ECDSA_Decode_PublicKey(
     return ret;
 }
 
-IntPtr iECDSA_KeyCodec(int q) { return xECDSA_KeyCodec(q); }
+#endif /* ! PKC_OMIT_PUB_OPS */
+
+#if ! PKC_OMIT_PRIV_OPS
 
 void *ECDSA_Sign(
     ECDSA_Ctx_Hdr_t *restrict x,
@@ -134,7 +146,6 @@ start:
         if( w ) break;
     }
     while( true );
-
 
     // hash the message.
 
@@ -214,6 +225,10 @@ start:
 
     goto start;
 }
+
+#endif /* ! PKC_OMIT_PRIV_OPS */
+
+#if ! PKC_OMIT_PUB_OPS
 
 void const *ECDSA_Verify(
     ECDSA_Ctx_Hdr_t *restrict x,
@@ -345,6 +360,10 @@ reject:
     return NULL;
 }
 
+#endif /* ! PKC_OMIT_PUB_OPS */
+
+#if ! PKC_OMIT_PRIV_OPS
+
 static IntPtr ber_tlv_encode_ecdsa_signature(BER_TLV_ENCODING_FUNC_PARAMS)
 {
     int pass = enc ? 2 : 1;
@@ -414,9 +433,30 @@ static IntPtr ber_tlv_encode_ecdsa_signature(BER_TLV_ENCODING_FUNC_PARAMS)
     return ret;
 }
 
+void *ECDSA_Encode_Signature(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    void *restrict sig, size_t *siglen)
+{
+    IntPtr minlen = ber_tlv_encode_ecdsa_signature(x, NULL, 0);
+
+    if( !sig )
+    {
+        *siglen = minlen;
+        return NULL;
+    }
+
+    if( *siglen < (size_t)minlen ) return NULL;
+
+    ber_tlv_encode_ecdsa_signature(x, sig, *siglen);
+    return sig;
+}
+
+#endif /* ! PKC_OMIT_PRIV_OPS */
+
+#if ! PKC_OMIT_PUB_OPS
+
 #define BER_HDR ber_get_hdr(&ptr, &remain, &tag, &len)
 
-#include <stdio.h> // debuge code remember to remove.
 static int ber_tlv_decode_ecdsa_signature(BER_TLV_DECODING_FUNC_PARAMS)
 {
     // 2021-02-13: refer to
@@ -463,33 +503,18 @@ static int ber_tlv_decode_ecdsa_signature(BER_TLV_DECODING_FUNC_PARAMS)
     return 0;
 }
 
-void *ECDSA_Encode_Signature(
-    ECDSA_Ctx_Hdr_t *restrict x,
-    void *restrict sig, size_t *siglen)
-{
-    IntPtr minlen = ber_tlv_encode_ecdsa_signature(x, NULL, 0);
-
-    if( !sig )
-    {
-        *siglen = minlen;
-        return NULL;
-    }
-
-    if( *siglen < (size_t)minlen ) return NULL;
-
-    ber_tlv_encode_ecdsa_signature(x, sig, *siglen);
-    return sig;
-}
-
 void *ECDSA_Decode_Signature(
     ECDSA_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t siglen)
 {
     int subret = ber_tlv_decode_ecdsa_signature(x, sig, siglen);
+    x->status = 0;
 
     if( subret == -1 ) return NULL;
     else return x;
 }
+
+#endif /* ! PKC_OMIT_PUB_OPS */
 
 int ECDSA_PKParams(int index, CryptoParam_t *out)
 {
@@ -520,9 +545,15 @@ int ECDSA_PKParams(int index, CryptoParam_t *out)
     }
 }
 
+#if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
+
+IntPtr iECDSA_KeyCodec(int q) { return xECDSA_KeyCodec(q); }
+
 IntPtr tECDSA(const CryptoParam_t *P, int q)
 {
     return xECDSA(P[0].info, P[1].info, q);
 }
 
 IntPtr iECDSA_CtCodec(int q) { return xECDSA_CtCodec(q); }
+
+#endif /* ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS) */

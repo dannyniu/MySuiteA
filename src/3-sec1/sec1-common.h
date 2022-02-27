@@ -67,6 +67,7 @@ typedef struct {
 // ``SEC_Base_Ctx_Hdr_t'' rather than
 // ``SEC_Hash_Ctx_Hdr_t''.
 #define ECDH_HASH_NULL(q) (0)
+IntPtr iECDH_Hash_Null(int q);
 
 #define SEC1_SIZE_OF_CTX_HDR(hash)              \
     (hash(contextBytes) ?                       \
@@ -132,6 +133,11 @@ typedef struct {
     }
 
 void topword_modmask(uint32_t *x, uint32_t const *m);
+
+void sec1_canon_pubkey(
+    SEC1_Base_Ctx_Hdr_t *restrict x,
+    ecp_xyz_t *restrict Q);
+
 IntPtr SEC1_Keygen(
     SEC1_Base_Ctx_Hdr_t *restrict x,
     CryptoParam_t *restrict param,
