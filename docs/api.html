@@ -955,7 +955,7 @@
             indicates the size of the buffer pointed to by <code>ss</code>,
             in which case, at most <code>*sslen</code> bytes will be written
             to <code>ss</code>, and if there's excess space than needed to
-            store the shared secret, the result will be left-padded with
+            store the shared secret, the result will be right-padded with
             nul bytes.
           </li>
           <li><code>prng_gen</code> is the PRNG
@@ -990,7 +990,7 @@
             indicates the size of the buffer pointed to by <code>ss</code>,
             in which case, at most <code>*sslen</code> bytes will be written
             to <code>ss</code>, and if there's excess space than needed to
-            store the shared secret, the result will be left-padded with
+            store the shared secret, the result will be right-padded with
             nul bytes.
           </li>
         </ul>
