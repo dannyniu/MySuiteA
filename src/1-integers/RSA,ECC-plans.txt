@@ -52,10 +52,22 @@ Current RSA progress:
 
 - PKCS#1 v1.5 legacy RSA algorithms (will come later).
 
-- ECDSA (1st to come).
++ ECDSA (1st to come).
 
-- ECDH (KEM-based API, 2nd to come).
++ ECDH (KEM-based API, 2nd to come).
 
 - Chinese SM2 DSS and KEM.
 
 - Formaliization of yet further plans (i).
+
+2022-02-27:
+
+SM2 DSS has a signer identity parameter that must be supported. It will be
+supported through a "initialization with a vector of data buffers" API,
+which will be explored through implementing a subset of algorithms from the
+
+> NIST-SP-800-185 SHA-3 Derived Functions:
+> cSHAKE, KMAC, TupleHash and ParallelHash
+
+As an aside, implementations for some KDFs will be considered, with support
+through the said vector buffer API.

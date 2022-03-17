@@ -205,10 +205,10 @@ typedef ECP_OPCTX_T(384) ecp384_opctx_t;
 #define ECP384_OPCTX_INIT ECP_OPCTX_INIT(ecp384_opctx_t,384)
 
 enum {
-    ptrCurveDef = 20001,
-    bytesOpCtx = 20002,
-    bytesECXYZ = 20003,
-    bytesVLong = 20004,
+    ptrCurveDef = qPrivateUseBegin + 1,
+    bytesOpCtx = qPrivateUseBegin + 2,
+    bytesECXYZ = qPrivateUseBegin + 3,
+    bytesVLong = qPrivateUseBegin + 4,
 };
 
 #define c_Curve(q,bits) (                       \
