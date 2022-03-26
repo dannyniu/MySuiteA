@@ -65,7 +65,7 @@ void *RSAES_OAEP_Dec(
             from += k - *sslen;
             to = ss;
             
-            for(i=0; i<*sslen && i<po->status; i++)
+            for(i=0; i<(IntPtr)*sslen && i<po->status; i++)
             {
                 // if po->status is negative, this block
                 // will not be executed.
