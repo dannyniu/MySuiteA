@@ -5,7 +5,7 @@
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
-IntPtr iECDH_Hash_Null(int q) { return q=0, ECDH_HASH_NULL(q); }
+IntPtr iECDH_Hash_Null(int q) { (void)q; return ECDH_HASH_NULL(q); }
 
 void topword_modmask(uint32_t *x, uint32_t const *m)
 {
@@ -169,7 +169,7 @@ IntPtr SEC1_Encode_PrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     SEC1_Base_Ctx_Hdr_t const *x = any;
-    param = NULL;
+    (void)param;
     
     if( enc )
     {
@@ -198,7 +198,7 @@ IntPtr SEC1_Encode_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     SEC1_Base_Ctx_Hdr_t const *x = any;
-    param = NULL;
+    (void)param;
     
     if( enc )
     {

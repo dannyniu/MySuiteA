@@ -42,7 +42,7 @@ IntPtr PKCS1_Encode_RSAPrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     const PKCS1_Priv_Ctx_Hdr_t *x = any;
-    param = NULL;
+    (void)param;
 
     return ber_tlv_encode_RSAPrivateKey(
         DeltaTo(x, offset_rsa_privctx), enc, enclen);
@@ -81,7 +81,7 @@ IntPtr PKCS1_Export_RSAPublicKey(
     // from a private context. A fix had been applied.
 
     const PKCS1_Priv_Ctx_Hdr_t *x = any;
-    param = NULL;
+    (void)param;
 
     return ber_tlv_export_RSAPublicKey(
         DeltaTo(x, offset_rsa_privctx), enc, enclen);
@@ -100,7 +100,7 @@ IntPtr PKCS1_Encode_RSAPublicKey(
     // from a private context. A fix had been applied.
 
     const PKCS1_Pub_Ctx_Hdr_t *x = any;
-    param = NULL;
+    (void)param;
 
     return ber_tlv_encode_RSAPublicKey(
         DeltaTo(x, offset_rsa_pubctx), enc, enclen);

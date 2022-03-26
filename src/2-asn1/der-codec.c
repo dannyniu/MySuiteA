@@ -298,7 +298,7 @@ IntPtr ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS)
     const vlong_t *w = any;
 
     // silence 2 unused variable warnings.
-    enclen = 0;
+    (void)enclen;
 
     // This function handles only unsigned integers.
     ret = w->c * sizeof(uint32_t) + 1;

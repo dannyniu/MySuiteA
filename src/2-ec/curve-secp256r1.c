@@ -27,7 +27,7 @@ static vlong_t *remv_inplace(vlong_t *rem, void const *aux)
     uint32_t u, v;
     int res = 0, mask;
 
-    aux = NULL; // silence the unused argument warning.
+    (void)aux; // silence the unused argument warning.
 
     // avoid redundand and potentially erroneous computation.
     if( rem->c < 8 ) return rem;
