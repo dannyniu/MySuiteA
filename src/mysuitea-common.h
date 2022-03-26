@@ -21,7 +21,7 @@ static_assert(sizeof(void *) >= 4, "Short pointers are untested!");
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#endif /* ENABLE_TRACE_STDIO */
+#endif /* ENABLE_HOSTED_HEADERS */
 
 #define xglue(a,b) a##b
 #define glue(a,b) xglue(a,b)
@@ -78,21 +78,25 @@ struct CryptoParam {
     };
 };
 
-struct dat_vec_elem {
+typedef struct {
     union {
         size_t  len;
         IntPtr  info;
     };
     union {
-        void const      *ptr;
-        uint8_t const   *buf;
+        void const  *dat;
+        void        *buf;
     };
-};
-
-typedef struct dat_vec_elem *dat_vec_t;
+} bufvec_t;
 
 enum {
     //-- Symmetric-Key Cryptography --//
+    // 1-19: compile-time queries,
+    // 21-39: link-time queries,
+    // 41-59: additional compile-time queries.
+    // 61-79: additional link-time queries.
+    // 81-89: rare-use compile-time queries.
+    // 91-99: rare-use link-time queries.
     
     // Applicable to
     // 1.) Primitives whose output length are fixed and constant.
@@ -157,6 +161,10 @@ enum {
     AEncFunc = 31, ADecFunc = 32,
 
     //-- Public-Key Cryptography --//
+    // 101-119: compile-time queries.
+    // 121-139: link-time algorithmic subroutines' queries.
+    // 141-160: link-time format encoding subroutines' queries.
+    
     bytesCtxPriv = 101, bytesCtxPub = 102,
 
     // e.g.
@@ -197,10 +205,15 @@ enum {
     PKCtEncoder = 146, // Ct: Cipher Transcript which can include
     PKCtDecoder = 147, //     both ciphertexts and signatures.
 
+    // 2022-03-17 Additions: Miscellaneous //
+    XctrlFunc = 201, // algorithm-specific working context control function.
+    PubXctrlFunc = 202, // for public-key working contexts.
+    PrivXctrlFunc = 203, // for private-key working contexts.
+
     // Information macros evaluates to 0
     // for queries not applicable to them.
 
-    // Private-Use Range //
+    //-- Private-Use Range --//
     qPrivateUseBegin = 20000, // above 2**14
     qPrivateUseEnd = 29999, // below 2**15
 };
@@ -319,6 +332,13 @@ typedef void *(*PKCiphergramEncoder_t)(void *restrict x,
 typedef void *(*PKCiphergramDecoder_t)(void *restrict x,
                                        void const *restrict c, size_t len);
 
+// 2022-03-17 Additions: 1 function prototype.
+typedef void *(*XctrlFunc_t)(void *restrict x,
+                             int cmd,
+                             const bufvec_t *restrict bufvec,
+                             int veclen,
+                             int flags);
+
 // Because `obj' can be an identifier naming a macro
 // as well as a pointer to a function , we have to
 // make sure that `obj' is not parenthesized so that
@@ -354,6 +374,8 @@ typedef void *(*PKCiphergramDecoder_t)(void *restrict x,
 
 #define AENC_FUNC(obj)      ((AEncFunc_t)(obj(AEncFunc)))
 #define ADEC_FUNC(obj)      ((ADecFunc_t)(obj(ADecFunc)))
+
+#define VINIT_FUNC(obj)     ((VInitFunc_t)(obj(VInitFunc)))
 
 // Aliases additions for PRNG/DRBG.
 #define SEED_BYTES(obj)     ((IntPtr)(obj(seedBytes)))

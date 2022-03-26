@@ -122,7 +122,7 @@ void CTR_DRBG_Generate(
 static void BCC(
     ctr_drbg_t *restrict x,
     size_t n,
-    dat_vec_t restrict bufelems,
+    bufvec_t *restrict bufelems,
     void *restrict outblk)
 {
     uint8_t *buf = outblk;
@@ -134,7 +134,7 @@ static void BCC(
     {
         while( t < x->bc_blksize && o < bufelems->len )
         {
-            buf[t++] ^= bufelems->buf[o++];
+            buf[t++] ^= ((const uint8_t *)bufelems->buf)[o++];
 
             if( t >= x->bc_blksize )
             {
@@ -166,7 +166,7 @@ static void BlockCipher_df(
     uint8_t key[CTR_DRBG_MAX_KEYSIZE + CTR_DRBG_MAX_BLKSIZE];
     uint8_t *blk = key + x->bc_keysize;
 
-    struct dat_vec_elem bufvec[3];
+    bufvec_t bufvec[3];
     
     size_t t, o;
 
@@ -186,11 +186,11 @@ static void BlockCipher_df(
 
     // set buffers vector.
     bufvec[0].len = x->bc_blksize;
-    bufvec[0].buf = buf;
+    bufvec[0].dat = buf;
     bufvec[1].len = sizeof(LN);
-    bufvec[1].buf = LN;
+    bufvec[1].dat = LN;
     bufvec[2].len = inlen;
-    bufvec[2].buf = in;
+    bufvec[2].dat = in;
     
     // condition is the simplified form of: b + k >= t + b
     for(t = 0; t <= x->bc_keysize; t += x->bc_blksize)
