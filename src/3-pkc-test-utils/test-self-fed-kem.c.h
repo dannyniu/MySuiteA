@@ -40,6 +40,10 @@ int main(int argc, char *argv[])
         printf("\t""test %d of %d\r", i, testcount);
         fflush(NULL);
 
+#ifdef PKC_Prologue
+        if( i % 2 ) { PKC_Prologue(); }
+#endif /* PKC_Epilogue */
+
         PKC_Enc(
             &enx.header, ss1, &sslen,
             (GenFunc_t)Gimli_XOF_Read, &gx);
@@ -63,6 +67,10 @@ int main(int argc, char *argv[])
             printf("seed: %s\n", argv[1]);
             failures ++;
         }
+        
+#ifdef PKC_Epilogue
+        if( i % 2 ) { PKC_Epilogue(); }
+#endif /* PKC_Epilogue */
     }
 
     printf("\n%d of %d tests failed\n", failures, testcount);

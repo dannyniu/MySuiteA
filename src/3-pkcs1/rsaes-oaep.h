@@ -16,6 +16,13 @@ void *RSAES_OAEP_Dec(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void *restrict ss, size_t *restrict sslen);
 
+void *RSAES_OAEP_Dec_Xctrl(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
 // returns ct on success and NULL on failure.
 // if ct is NULL, *ctlen is set to its length.
 void *RSAES_OAEP_Encode_Ciphertext(
@@ -31,13 +38,22 @@ void *RSAES_OAEP_Enc(
     void *restrict ss, size_t *restrict sslen,
     GenFunc_t prng_gen, void *restrict prng);
 
+void *RSAES_OAEP_Enc_Xctrl(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
 #define cRSAES_OAEP cRSA_PKCS1
 
-#define xRSAES_OAEP(hmsg,hmgf,slen,bits,primes,q) (     \
-        q==PKParamsFunc ? (IntPtr)PKCS1_PKParams :      \
-        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :        \
-        q==PKEncFunc ? (IntPtr)RSAES_OAEP_Enc :         \
-        q==PKDecFunc ? (IntPtr)RSAES_OAEP_Dec :         \
+#define xRSAES_OAEP(hmsg,hmgf,slen,bits,primes,q) (             \
+        q==PKParamsFunc ? (IntPtr)PKCS1_PKParams :              \
+        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                \
+        q==PKEncFunc ? (IntPtr)RSAES_OAEP_Enc :                 \
+        q==PKDecFunc ? (IntPtr)RSAES_OAEP_Dec :                 \
+        q==PubXctrlFunc ? (IntPtr)RSAES_OAEP_Enc_Xctrl :        \
+        q==PrivXctrlFunc ? (IntPtr)RSAES_OAEP_Dec_Xctrl :       \
         cRSAES_OAEP(hmsg,hmgf,slen,bits,primes,q) )
 
 #define xRSAES_OAEP_CtCodec(q) (                                \
@@ -49,5 +65,11 @@ void *RSAES_OAEP_Enc(
 
 IntPtr tRSAES_OAEP(const CryptoParam_t *P, int q);
 IntPtr iRSAES_OAEP_CtCodec(int q);
+
+enum {
+    RSAES_OAEP_cmd_null     = 0,
+    RSAES_OAEP_label_set    = 1,
+    RSAES_OAEP_label_test   = 2,
+};
 
 #endif /* MySuiteA_RSAES_OAEP_h */

@@ -32,12 +32,30 @@ void *RSAES_OAEP_Dec(
     uint8_t *ptr;
 
     int32_t err = 0;
+    IntPtr ret;
 
     if( po->status )
     {
     finish:
-        if( po->status < 0 ) return NULL;
+        
+        // assumes decryption failures result in status being exactly -1.
+        err = po->status ^ (int32_t)-1;
+        err = ~err;
+        err &= err >> 16;
+        err &= err >> 8;
+        err &= err >> 4;
+        err &= err >> 2;
+        err &= err >> 1;
+        err &= 1;
+        
+        // assumer err is either 1 or 0 at this point.
+        ret = (IntPtr)x & ((IntPtr)0 - (err ^ 1));
 
+        // If caller wishes to verify label in constant-time,
+        // then they may
+        // 1. call RSAES_OAEP_Dec with the ss argument set to NULL,
+        // 2. call context control function to verify the label,
+        // 3. call RSAES_OAEP_Dec again to retrieve the shared secret.
         if( !ss ) *sslen = po->status; else
         {
             size_t i;
@@ -56,7 +74,7 @@ void *RSAES_OAEP_Dec(
             }
         }
         
-        return x;
+        return (void *)ret;
     }
 
     if( k < 2 * po->hlen_msg + 2 )
@@ -109,9 +127,10 @@ void *RSAES_OAEP_Dec(
     err |= 1 & ~((*ptr - 1) >> 8);
     
     // x2 to ignore lHash as RSA encryption label is
-    // unsupported in the MySuiteA implementation.
+    // unsupported during decryption - it's tested
+    // separately in the context control function.
     ptr += 1 + po->hlen_msg * 2;
-    k -= 1 + po->hlen_msg * 2;
+    k   -= 1 + po->hlen_msg * 2;
 
     // if there is no octet with value 0x01 to
     // separate PS from M, ... output "decryption error".
@@ -120,15 +139,91 @@ void *RSAES_OAEP_Dec(
     // against buffer overrun.
     for(t=0; t<k-1; t++) if( ptr[t] ) break;
     err |= 1 & ~(((ptr[t] ^ 0x01) - 1) >> 8);
-
-    // copy message to reading buffer.
+    
+    // set the value of po->status the length.
     po->status = -err;
-    for(t++; t<k; t++)
-    {
-        // casting needed to avoid unsigned overflow.
-        ptr[(long)t - 1 - (long)po->hlen_msg * 2] = ptr[t];
-        po->status += err ^ 1;
-    }
+    for(t++; t<k; t++) po->status += err ^ 1;
 
+    k += 1 + po->hlen_msg * 2;
     goto finish;
+}
+
+static void *RSAES_OAEP_TestLabel(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    void const *label, size_t len)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
+    
+    vlong_size_t t;
+    void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
+
+    uint8_t *ptr;
+
+    uint8_t digest[64];
+    int32_t err = 0;
+    uint16_t c = 0;
+    IntPtr ret;
+
+    // assumes decryption failures result in status being exactly -1.
+    err = po->status ^ (int32_t)-1;
+    err = ~err;
+    err &= err >> 16;
+    err &= err >> 8;
+    err &= err >> 4;
+    err &= err >> 2;
+    err &= err >> 1;
+    err &= 1;
+
+    //
+    // EME-OAEP encoding.
+    
+    ptr = DeltaTo(dx, offset_w1);
+    ptr = (void *)((vlong_t *)ptr)->v;
+    
+    // label.
+    
+    po->hfuncs_msg.initfunc(hx);
+    
+    if( label )
+        po->hfuncs_msg.updatefunc(hx, label, len);
+    
+    if( po->hfuncs_msg.xfinalfunc )
+        po->hfuncs_msg.xfinalfunc(hx);
+    po->hfuncs_msg.hfinalfunc(hx, digest, po->hlen_msg);
+
+    // compare label.
+    
+    for(t=0; t<po->hlen_msg; t++)
+        c |= ptr[t + 1 + po->hlen_msg] ^ digest[t];
+
+    c |= c >> 4;
+    c |= c >> 2;
+    c |= c >> 1;
+    err |= c & 1;
+
+    po->status = -err;
+
+    ret = (IntPtr)x & ((IntPtr)0 - (err ^ 1));
+    return (void *)ret;
+}
+
+void *RSAES_OAEP_Dec_Xctrl(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags)
+{
+    (void)veclen;
+    (void)flags;
+    
+    switch( cmd )
+    {
+    case RSAES_OAEP_label_test:
+        return RSAES_OAEP_TestLabel(x, bufvec[0].dat, bufvec[0].len);
+
+    default:
+        return NULL;
+    }
 }

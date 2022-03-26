@@ -62,6 +62,10 @@ int main(int argc, char *argv[])
         printf("\t""test %d of %d\r", i+1, testcount);
         fflush(NULL);
 
+#ifdef PKC_Prologue
+        PKC_Prologue();
+#endif /* PKC_Epilogue */
+        
         PKC_Enc(enx, ss1, &sslen, PKC_PRNG_Gen, prng);
         PKC_Encode_Ciphertext(enx, NULL, &size);
 
@@ -82,6 +86,10 @@ int main(int argc, char *argv[])
             printf("Cipher Failure, %zd, %ld\n", sslen, (long)lret);
             failures ++;
         }
+        
+#ifdef PKC_Epilogue
+        PKC_Epilogue();
+#endif /* PKC_Epilogue */
     }
 
     printf("\n%d of %d tests failed\n", failures, testcount);

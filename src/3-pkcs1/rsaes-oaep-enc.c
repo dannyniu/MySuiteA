@@ -24,6 +24,40 @@ void *RSAES_OAEP_Encode_Ciphertext(
     return ct;
 }
 
+static void *RSAES_OAEP_SetLabel(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    void const *label, size_t len)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
+    
+    vlong_size_t t;
+    void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
+
+    vlong_size_t k = (ex->modulus_bits + 0) / 8; // UD if mod_bits % 7 != 0.
+    uint8_t *ptr;
+
+    //
+    // po->status = 0;
+
+    //
+    // EME-OAEP encoding.
+    
+    ptr = DeltaTo(ex, offset_w2);
+    ptr = (void *)((vlong_t *)ptr)->v;
+    for(t=0; t<k; t++) ptr[t] = 0;
+    
+    // label.
+    po->hfuncs_msg.initfunc(hx);
+    po->hfuncs_msg.updatefunc(hx, label, len);
+    if( po->hfuncs_msg.xfinalfunc )
+        po->hfuncs_msg.xfinalfunc(hx);
+    po->hfuncs_msg.hfinalfunc(hx, ptr + 1 + po->hlen_msg, po->hlen_msg);
+
+    po->status = 2;
+    return x;
+}
+
 void *RSAES_OAEP_Enc(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void *restrict ss, size_t *restrict sslen,
@@ -38,6 +72,10 @@ void *RSAES_OAEP_Enc(
     vlong_size_t k = (ex->modulus_bits + 0) / 8; // UD if mod_bits % 7 != 0.
     uint8_t *ptr;
 
+    ptr = DeltaTo(ex, offset_w2);
+    ptr = (void *)((vlong_t *)ptr)->v;
+
+    if( po->status == 2 ) goto postlabel;
     po->status = 0;
 
     // length checking.
@@ -51,8 +89,6 @@ void *RSAES_OAEP_Enc(
     //
     // EME-OAEP encoding.
     
-    ptr = DeltaTo(ex, offset_w2);
-    ptr = (void *)((vlong_t *)ptr)->v;
     for(t=0; t<k; t++) ptr[t] = 0;
     
     // empty label.
@@ -61,6 +97,7 @@ void *RSAES_OAEP_Enc(
         po->hfuncs_msg.xfinalfunc(hx);
     po->hfuncs_msg.hfinalfunc(hx, ptr + 1 + po->hlen_msg, po->hlen_msg);
 
+postlabel:
     // 0x01 byte.
     ptr[k - *sslen - 1] = 0x01;
 
@@ -94,4 +131,24 @@ void *RSAES_OAEP_Enc(
     
     po->status = 1;
     return ss;
+}
+
+void *RSAES_OAEP_Enc_Xctrl(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags)
+{
+    (void)veclen;
+    (void)flags;
+    
+    switch( cmd )
+    {
+    case RSAES_OAEP_label_set:
+        return RSAES_OAEP_SetLabel(x, bufvec[0].dat, bufvec[0].len);
+
+    default:
+        return NULL;
+    }
 }
