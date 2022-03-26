@@ -64,11 +64,14 @@ void *RSAES_OAEP_Dec(
             from = (void *)((vlong_t *)from)->v;
             from += k - *sslen;
             to = ss;
-            
-            for(i=0; i<(IntPtr)*sslen && i<po->status; i++)
+
+            // In case a negative status is assigned to *sslen,
+            // casting it back to a signed integer will cause
+            // the for block to not be executed.
+            for(i=0; i<(IntPtr)*sslen; i++)
             {
-                // if po->status is negative, this block
-                // will not be executed.
+                // if po->status is negative, the load expression
+                // will not be executed, access overflow will not happen.
                 to[i] = i < (IntPtr)po->status ? from[i] : 0;
             }
         }
