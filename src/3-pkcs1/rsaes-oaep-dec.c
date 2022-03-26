@@ -58,19 +58,18 @@ void *RSAES_OAEP_Dec(
         // 3. call RSAES_OAEP_Dec again to retrieve the shared secret.
         if( !ss ) *sslen = po->status; else
         {
-            size_t i;
+            IntPtr i;
             uint8_t *from, *to;
             from = DeltaTo(dx, offset_w1);
             from = (void *)((vlong_t *)from)->v;
             from += k - *sslen;
             to = ss;
             
-            for(i=0; i<*sslen; i++)
+            for(i=0; i<*sslen && i<po->status; i++)
             {
-                // po->status is known to be positive at this point.
-                // cast it to size_t to silence a comparison of
-                // differently signed integers warning.
-                to[i] = i < (size_t)po->status ? from[i] : 0;
+                // if po->status is negative, this block
+                // will not be executed.
+                to[i] = i < (IntPtr)po->status ? from[i] : 0;
             }
         }
         
