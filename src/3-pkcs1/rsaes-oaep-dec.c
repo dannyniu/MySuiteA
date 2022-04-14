@@ -217,12 +217,12 @@ void *RSAES_OAEP_Dec_Xctrl(
     int veclen,
     int flags)
 {
-    (void)veclen;
     (void)flags;
     
     switch( cmd )
     {
     case RSAES_OAEP_label_test:
+        if( veclen < 1 ) return NULL;
         return RSAES_OAEP_TestLabel(x, bufvec[0].dat, bufvec[0].len);
 
     default:

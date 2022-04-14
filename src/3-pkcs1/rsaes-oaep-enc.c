@@ -140,12 +140,12 @@ void *RSAES_OAEP_Enc_Xctrl(
     int veclen,
     int flags)
 {
-    (void)veclen;
     (void)flags;
     
     switch( cmd )
     {
     case RSAES_OAEP_label_set:
+        if( veclen < 1 ) return NULL;
         return RSAES_OAEP_SetLabel(x, bufvec[0].dat, bufvec[0].len);
 
     default:
