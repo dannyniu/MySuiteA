@@ -19,31 +19,40 @@ typedef struct sponge {
     int             finalized;
     unsigned        filled;
 
-    // `offset' is the offset of the state buffer
-    // from the beginning of the `sponge_t' structure.
-    // Usually, the state buffer is directly appended
-    // to the `sponge_t' struct, plus the struct being
-    // correctly aligned, the value is usually the
-    // size of the `sponge_t' struct.
+    PermuteFunc_t   permute;
+    
+    // `blksize' is the block size of the permutation.
+    // 2 blocks are directly appended to the sponge
+    // working context - the 1st one is the one used in
+    // absorb and squeeze phases, the 2nd one is used
+    // for saving the "finalized" state after absorb
+    // and before the squeeze phase. The value of this
+    // member is used to calculate the offset (from the
+    // beginning of the `sponge_t' struct) to the
+    // permutation block.
     //
     // The state buffer is initialized by
     // functions or macros associated with
     // the structure that embeds `sponge_t'.
     //
-    ptrdiff_t       offset;
-    PermuteFunc_t   permute;
+    size_t          blksize;
 } sponge_t;
 
-#define SPONGE_INIT(r,lo,hi,p)                  \
-    ((sponge_t){                                \
-        .rate = r, .lopad = lo, .hipad = hi,    \
-        .finalized = false, .filled = 0,        \
-        .offset = sizeof(sponge_t),             \
-        .permute = PERMUTE_FUNC(p),             \
-    })
+#define SPONGE_INIT(r,lo,hi,p) ((sponge_t){             \
+            .rate = r, .lopad = lo, .hipad = hi,        \
+            .finalized = false, .filled = 0,            \
+            .permute = PERMUTE_FUNC(p),                 \
+            .blksize = BLOCK_BYTES(p),                  \
+        })
 
 void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len);
 void Sponge_Final(sponge_t *restrict s);
 void Sponge_Read(sponge_t *restrict s, void *restrict data, size_t len);
+
+// copies the content of the 1st state block to the 2nd.
+void Sponge_Save(sponge_t *restrict s);
+
+// copies the content of the 2nd state block back to the 1st.
+void Sponge_Restore(sponge_t *restrict s);
 
 #endif /* MySuiteA_sponge_h */

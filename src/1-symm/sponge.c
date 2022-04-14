@@ -6,13 +6,20 @@
 void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
 {
     uint8_t const *buffer = data;
-    uint8_t *state = DeltaTo(s, offset);
+    uint8_t *state = DeltaAdd(s, sizeof(*s) + s->blksize * 0);
 
-    if( !data && len )
+    if( !data && len && s->filled )
     {
-        // 2018-02-09: Old note, may be relevant in future. 
+        // 2018-02-09: Old note, may be relevant in future.
         // Pads the block and invoke 1 permutation.
         // See cSHAKE[128|256]_Init.
+        //
+        // 2022-04-14:
+        // The note proved relevant. Also that, the condition
+        // for invoking the permutation had been changed to
+        // adapt for the definition of "bytepad" function in
+        // NIST-SP-800-185.
+        //
         s->filled = s->rate;
         len = 0;
         goto permute;
@@ -33,7 +40,7 @@ void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
 
 void Sponge_Final(sponge_t *restrict s)
 {
-    uint8_t *state = DeltaTo(s, offset);
+    uint8_t *state = DeltaAdd(s, sizeof(*s) + s->blksize * 0);
     
     if( s->finalized ) return;
 
@@ -53,7 +60,7 @@ void Sponge_Final(sponge_t *restrict s)
 void Sponge_Read(sponge_t *restrict s, void *restrict data, size_t len)
 {
     uint8_t *ptr = data;
-    uint8_t *state = DeltaTo(s, offset);
+    uint8_t *state = DeltaAdd(s, sizeof(*s) + s->blksize * 0);
     
     while( len-- )
     {
@@ -64,4 +71,24 @@ void Sponge_Read(sponge_t *restrict s, void *restrict data, size_t len)
             s->filled = 0;
         }
     }
+}
+
+void Sponge_Save(sponge_t *restrict s)
+{
+    uint8_t *state = DeltaAdd(s, sizeof(*s) + s->blksize * 0);
+    uint8_t *saved = DeltaAdd(s, sizeof(*s) + s->blksize * 1);
+    size_t t;
+
+    for(t=0; t<s->blksize; t++)
+        saved[t] = state[t];
+}
+
+void Sponge_Restore(sponge_t *restrict s)
+{
+    uint8_t *state = DeltaAdd(s, sizeof(*s) + s->blksize * 0);
+    uint8_t *saved = DeltaAdd(s, sizeof(*s) + s->blksize * 1);
+    size_t t;
+
+    for(t=0; t<s->blksize; t++)
+        state[t] = saved[t];
 }

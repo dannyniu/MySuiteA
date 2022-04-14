@@ -9,7 +9,7 @@
     {                                                                   \
         *x = (sha3_t){                                                  \
             .sponge = SPONGE_INIT(rate, 0x06, 0x80, xKeccakF1600),      \
-            .state.u64 = {0},                                           \
+            .state = {0},                                           \
         };                                                              \
     }
 
@@ -27,23 +27,22 @@ void SHA3_Update(sha3_t *restrict x, void const *restrict data, size_t len)
 // It's very fortunate that SHA3 hash lengths don't exceed
 // the sponge rate parameters (1 block).
 
-#define Define_SHA3_Final(name,out_len)                         \
-    void name(sha3_t *restrict x, void *restrict out, size_t t) \
-    {                                                           \
-        uint8_t *ptr = out;                                     \
-        size_t i;                                               \
-        Sponge_Final(&x->sponge);                               \
-        if( out )                                               \
-        {                                                       \
-            for(i=0; i<t; i++)                                  \
-                ptr[i] = i<out_len ? x->state.u8[i] : 0;        \
-        }                                                       \
+void SHA3_Final(sha3_t *restrict x, void *restrict out, size_t t)
+{
+    size_t hlen = (200 - x->sponge.rate) / 2;
+    
+    if( !x->sponge.finalized )
+    {
+        Sponge_Final(&x->sponge);
+        Sponge_Save(&x->sponge);
     }
 
-Define_SHA3_Final(SHA3_224_Final, 28);
-Define_SHA3_Final(SHA3_256_Final, 32);
-Define_SHA3_Final(SHA3_384_Final, 48);
-Define_SHA3_Final(SHA3_512_Final, 64);
+    Sponge_Restore(&x->sponge);
+    Sponge_Read(&x->sponge, out, t < hlen ? t : hlen);
+
+    for(; hlen < t; hlen++)
+        ((uint8_t *)out)[hlen] = 0;
+}
 
 IntPtr iSHA3_224(int q){ return xSHA3(224,q); }
 IntPtr iSHA3_256(int q){ return xSHA3(256,q); }

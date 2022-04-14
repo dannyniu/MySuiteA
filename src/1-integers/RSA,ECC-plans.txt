@@ -60,7 +60,7 @@ Current RSA progress:
 
 - Formaliization of yet further plans (i).
 
-2022-02-27:
+2022-04-14:
 
 SM2 DSS has a signer identity parameter that must be supported. It will be
 supported through a "initialization with a vector of data buffers" API,
@@ -69,5 +69,14 @@ which will be explored through implementing a subset of algorithms from the
 > NIST-SP-800-185 SHA-3 Derived Functions:
 > cSHAKE, KMAC, TupleHash and ParallelHash
 
-As an aside, implementations for some KDFs will be considered, with support
-through the said vector buffer API.
+Implementations for some KDFs would have been considered, through the said
+vector buffer API. But due to the proliferation of application-specific KDFs,
+this had been indefinitely postponed.
+
+After implementing the following algorithms, MySuiteA development will
+enter hibernation, until the publication of NIST PQC standard(s):
+
+- cSHAKE, KMAC.
+- SM2 KEM and DSS.
+- PKCS #1 v1.5 encryption and signature,
+- CCM blockcipher-based AEAD,

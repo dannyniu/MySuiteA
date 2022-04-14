@@ -9,13 +9,13 @@
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: Error | 8 *28 | 8 *29
+// align spec: Error | 8 *53 | 8 *54
 typedef struct sha3_context {
     sponge_t    sponge;
     union {
         uint8_t     u8[200];
         uint64_t    u64[25]; // for alignment. 
-    } state;
+    } state[2];
 } sha3_t, sha3_224_t, sha3_256_t, sha3_384_t, sha3_512_t;
 
 void SHA3_224_Init(sha3_t *restrict x);
@@ -29,10 +29,11 @@ void SHA3_Update(sha3_t *restrict x, void const *restrict data, size_t len);
 #define SHA3_384_Update SHA3_Update
 #define SHA3_512_Update SHA3_Update
 
-void SHA3_224_Final(sha3_t *restrict x, void *restrict out, size_t t);
-void SHA3_256_Final(sha3_t *restrict x, void *restrict out, size_t t);
-void SHA3_384_Final(sha3_t *restrict x, void *restrict out, size_t t);
-void SHA3_512_Final(sha3_t *restrict x, void *restrict out, size_t t);
+void SHA3_Final(sha3_t *restrict x, void *restrict out, size_t t);
+#define SHA3_224_Final SHA3_Final
+#define SHA3_256_Final SHA3_Final
+#define SHA3_384_Final SHA3_Final
+#define SHA3_512_Final SHA3_Final
 
 #define cSHA3(bits,q) (                                 \
         q==outBytes ? bits/8 :                          \
