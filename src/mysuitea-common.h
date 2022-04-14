@@ -102,6 +102,9 @@ enum {
     // 1.) Primitives whose output length are fixed and constant.
     //
     // - For hash functions, this is the length of the digest in bytes.
+    // - [2022-04-14]: For random oracles that supports domain separation
+    //   for fixed-length and arbitrary-length output, the value of
+    //   this query is -1.
     //
     outBytes = 1,
 
@@ -152,6 +155,12 @@ enum {
     // Hash & XOF Functions //
     // 2021-03-20 addition for ``InitFunc'':
     // applicable to both instances and parameterized instance templates.
+    //
+    // - [2022-04-14]: For random oracles that supports domain separation
+    //   for fixed-length and arbitrary-length output, the FinalFunc
+    //   provides for fixed-length output, whereas the XofFinalFunc and
+    //   ReadFunc provides for arbitrary-length output.
+    //
     InitFunc = 26,
     UpdateFunc = 27, WriteFunc=UpdateFunc,
     FinalFunc = 28, XofFinalFunc = 29,

@@ -9,8 +9,9 @@ unitest_sh=../unitest.sh
 . $unitest_sh
 
 src="\
-cshake-test.c
-shake.c
+kmac-test.c
+kmac.c
+2-xof/shake.c
 1-symm/sponge.c
 1-symm/keccak-f-1600.c
 0-datum/endian.c

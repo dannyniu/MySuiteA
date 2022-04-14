@@ -95,15 +95,13 @@ void *SHAKE_Xctrl(
     int flags)
 {
     unsigned rate;
-    
-    (void)veclen;
     (void)flags;
     
     switch( cmd )
     {
     case SHAKE_cSHAKE_customize:
         // run-time error.
-        if( !bufvec || !veclen ) return NULL;
+        if( !bufvec || veclen < 2 ) return NULL;
 
         rate = x->sponge.rate;
         
@@ -128,6 +126,7 @@ void *SHAKE_Xctrl(
         cshake_encode_string(x, bufvec[1].dat, bufvec[1].len);
         Sponge_Update(&x->sponge, NULL, 1); // indirect invocation of bytepad.
         return x;
+        break;
 
     default:
         return NULL;

@@ -76,7 +76,8 @@ this had been indefinitely postponed.
 After implementing the following algorithms, MySuiteA development will
 enter hibernation, until the publication of NIST PQC standard(s):
 
-- cSHAKE, KMAC.
-- SM2 KEM and DSS.
-- PKCS #1 v1.5 encryption and signature,
-- CCM blockcipher-based AEAD,
++ cSHAKE, KMAC;
+- SM2 KEM and DSS;
+- X25519, X448, Ed25519, and Ed448;
+- PKCS #1 v1.5 encryption and signature;
+- CCM blockcipher-based AEAD.
