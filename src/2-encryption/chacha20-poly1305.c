@@ -15,9 +15,9 @@ void *ChaCha_AEAD_Init(
 
 static inline size_t min(size_t a, size_t b) { return a<b ? a : b; }
 
-void ChaCha_AEAD_Encrypt(
+void *ChaCha_AEAD_Encrypt(
     chacha_aead_t *restrict x,
-    void const *iv,
+    size_t ivlen, void const *iv,
     size_t alen, void const *aad,
     size_t len, void const *in, void *out,
     size_t tlen, void *T)
@@ -26,6 +26,13 @@ void ChaCha_AEAD_Encrypt(
     const uint8_t *iptr=in; uint8_t *optr=out;
     size_t i, j;
     
+    // values taken from
+    // https://www.rfc-editor.org/rfc/rfc8439.html#section-2.8
+    if( ivlen != 12 ||
+        // alen >= (uint128_t)1 << 64 || // essentially impossible to exceed.
+        len >= (uint64_t)1 << 38 )
+        return NULL;
+
     chacha20_set_state(x->state, NULL, iv);
     chacha20_block(x->state, 0, 32, NULL, words);
     poly1305_init(&x->poly1305, words);
@@ -58,7 +65,7 @@ void ChaCha_AEAD_Encrypt(
 
 void *ChaCha_AEAD_Decrypt(
     chacha_aead_t *restrict x,
-    void const *iv,
+    size_t ivlen, void const *iv,
     size_t alen, void const *aad,
     size_t len, void const *in, void *out,
     size_t tlen, void const *T)
@@ -67,6 +74,15 @@ void *ChaCha_AEAD_Decrypt(
     const uint8_t *iptr=in; uint8_t *optr=out;
     size_t i, j;
     int b;
+
+    if( ivlen != 12 ) return NULL;
+
+    // values taken from
+    // https://www.rfc-editor.org/rfc/rfc8439.html#section-2.8
+    if( ivlen != 12 ||
+        // alen >= (uint128_t)1 << 64 || // essentially impossible to exceed.
+        len >= (uint64_t)1 << 38 )
+        return NULL;
 
     chacha20_set_state(x->state, NULL, iv);
     chacha20_block(x->state, 0, 32, NULL, words);

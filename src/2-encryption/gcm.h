@@ -25,17 +25,17 @@ typedef struct gcm_context {
         .enc = ENC_FUNC(bc),                    \
     })
 
-void GCM_Encrypt(gcm_t *restrict gcm,
-                 const void *iv, // fixed, 12 bytes. 
-                 size_t alen, const void *aad,
-                 size_t len, const void *in, void *out,
-                 size_t tlen, void *T); // zeros tail if tlen>16. 
+void *GCM_Encrypt(gcm_t *restrict gcm,
+                  size_t ivlen, void const *iv, // fixed, 12 bytes. 
+                  size_t alen, void const *aad,
+                  size_t len, void const *in, void *out,
+                  size_t tlen, void *T); // zeros tail if tlen>16. 
 
 void *GCM_Decrypt(gcm_t *restrict gcm,
-                  const void *iv,
-                  size_t alen, const void *aad,
-                  size_t len, const void *in, void *out,
-                  size_t tlen, const void *T);
+                  size_t ivlen, void const *iv,
+                  size_t alen, void const *aad,
+                  size_t len, void const *in, void *out,
+                  size_t tlen, void const *T);
 
 #define Declare_GCM_Blockcipher(algo,name)      \
     typedef struct {                            \

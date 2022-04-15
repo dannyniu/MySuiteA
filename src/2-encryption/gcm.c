@@ -5,11 +5,11 @@
 #include "../0-exec/struct-delta.c.h"
 #include "../0-datum/endian.h"
 
-void GCM_Encrypt(gcm_t *restrict gcm,
-                 void const *iv,
-                 size_t alen, const void *aad,
-                 size_t len, const void *in, void *out,
-                 size_t tlen, void *T)
+void *GCM_Encrypt(gcm_t *restrict gcm,
+                  size_t ivlen, void const *iv,
+                  size_t alen, void const *aad,
+                  size_t len, void const *in, void *out,
+                  size_t tlen, void *T)
 {
     size_t i, j;
     
@@ -21,6 +21,13 @@ void GCM_Encrypt(gcm_t *restrict gcm,
     const uint8_t *iptr = in; uint8_t *optr = out;
 
     void *kschd = DeltaTo(gcm, offset);
+
+    // values taken from
+    // https://www.rfc-editor.org/rfc/rfc5116.html#section-5.3
+    if( ivlen != 12 ||
+        alen >= (uint64_t)1 << 61 ||
+        len >= (uint64_t)1 << 36 - 31 )
+        return NULL;
 
     // Prepare J0. 
     for(i=0; i<3; i++){ J0[i] = ((const uint32_t *)iv)[i]; } J0[3] = htobe32(1);
@@ -58,13 +65,15 @@ void GCM_Encrypt(gcm_t *restrict gcm,
     gcm->enc(J0, X, kschd);
     for(i=0; i<4; i++) ((uint32_t *)X)[i] ^= S[i];
     for(i=0; i<tlen; i++) ((uint8_t *)T)[i] = i<16 ? X[i] : 0;
+
+    return out;
 }
 
 void *GCM_Decrypt(gcm_t *restrict gcm,
-                  void const *iv,
-                  size_t alen, const void *aad,
-                  size_t len, const void *in, void *out,
-                  size_t tlen, const void *T)
+                  size_t ivlen, void const *iv,
+                  size_t alen, void const *aad,
+                  size_t len, void const *in, void *out,
+                  size_t tlen, void const *T)
 {
     size_t i, j;
     int b;
@@ -77,6 +86,13 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     const uint8_t *iptr = in; uint8_t *optr = out;
 
     void *kschd = DeltaTo(gcm, offset);
+
+    // values taken from
+    // https://www.rfc-editor.org/rfc/rfc5116.html#section-5.3
+    if( ivlen != 12 ||
+        alen >= (uint64_t)1 << 61 ||
+        len >= (uint64_t)1 << 36 - 31 )
+        return NULL;
 
     // Prepare J0. 
     for(i=0; i<3; i++)

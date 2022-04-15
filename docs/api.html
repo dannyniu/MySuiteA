@@ -402,8 +402,9 @@
           <li><code>klen</code> is length of the key input. </li>
         </ul>
         If the key length is invalid for the MAC function, or some other
-        (yet-to-be-specified) error occurs, the function returns NULL.
-        Otherwise, everything succeeds, and <code>x</code> is returned.
+        (yet-to-be-specified) error occurs, the function returns
+        <code>NULL</code>. Otherwise, everything succeeds, and
+        <code>x</code> is returned.
       </dd>
 
       <dt><code>UpdateFunc</code></dt>
@@ -549,21 +550,24 @@
           <li><code>klen</code> is length of the key input. </li>
         </ul>
         If the key length is invalid for the algorithm instance, or some other
-        (yet-to-be-specified) error occurs, the function returns NULL.
-        Otherwise, everything succeeds, and <code>x</code> is returned.
+        (yet-to-be-specified) error occurs, the function returns
+        <code>NULL</code>. Otherwise, everything succeeds, and
+        <code>x</code> is returned.
       </dd>
 
       <dt><code>AEncFunc</code></dt>
       <dd>
         The authenticated encryption function of prototype
-        <pre>void (*)(
-          <span class="tab"></span>rbuf x, dat iv,
+        <pre>void *(*)(
+          <span class="tab"></span>rbuf x,
+          <span class="tab"></span>size_t ivlen, dat iv,
           <span class="tab"></span>size_t alen, dat aad,
           <span class="tab"></span>size_t len, dat in, buf out,
           <span class="tab"></span>size_t tlen, buf T);
         </pre> where
         <ul>
           <li><code>x</code> is the cipher working context, </li>
+          <li><code>ivlen</code> is the byte length of <code>iv</code>, </li>
           <li><code>iv</code> points to the initialization vector, </li>
           <li><code>alen</code> is the byte length of <code>aad</code>, </li>
           <li><code>aad</code>
@@ -582,19 +586,24 @@
             is the buffer in which the tag will be stored.
           </li>
         </ul>
+        Upon successful encryption, <code>out</code> will be returned.
+        Otherwise, if there's unsupported/invalid parameter(s) or
+        any other kind of error, <code>NULL</code> will be returned.
       </dd>
 
       <dt><code>ADecFunc</code></dt>
       <dd>
         The authenticated encryption function of prototype
         <pre>void *(*)(
-          <span class="tab"></span>rbuf x, dat iv,
+          <span class="tab"></span>rbuf x,
+          <span class="tab"></span>size_t ivlen, dat iv,
           <span class="tab"></span>size_t alen, dat aad,
           <span class="tab"></span>size_t len, dat in, buf out,
           <span class="tab"></span>size_t tlen, dat T);
         </pre> where
         <ul>
           <li><code>x</code> is the cipher working context, </li>
+          <li><code>ivlen</code> is the byte length of <code>iv</code>, </li>
           <li><code>iv</code> points to the initialization vector, </li>
           <li><code>alen</code> is the byte length of <code>aad</code>, </li>
           <li><code>aad</code>
@@ -615,9 +624,10 @@
             is the buffer that stores the MAC tag.
           </li>
         </ul>
-        Upon successful decryption, out will be returned.
-        Otherwise, if there is decryption failure or
-        any other kind of error, NULL will be returned.
+        Upon successful decryption, <code>out</code> will be returned.
+        Otherwise, if there's decryption failure, unsupported/invalid
+        parameter(s) or any other kind of error, <code>NULL</code>
+        will be returned.
       </dd>
     </dl>
 
@@ -650,8 +660,8 @@
           <li><code>len</code> is the length of the seed in bytes, </li>
         </ul>
         If the seed length is unsupported, or some other (yet-to-be-speciied)
-        error, the function returns NULL. Otherwise, everything succeeds, and
-        <code>x</code> is returned.
+        error, the function returns <code>NULL</code>. Otherwise, everything
+        succeeds, and <code>x</code> is returned.
       </dd>
 
       <dt><code>ReseedFunc</code></dt>

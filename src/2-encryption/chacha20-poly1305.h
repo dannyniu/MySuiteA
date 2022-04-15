@@ -22,14 +22,14 @@ void *ChaCha_AEAD_Init(
 
 void ChaCha_AEAD_Encrypt(
     chacha_aead_t *restrict x,
-    void const *iv,
+    size_t ivlen, void const *iv,
     size_t alen, void const *aad,
     size_t len, void const *in, void *out,
     size_t tlen, void *T);
 
 void *ChaCha_AEAD_Decrypt(
     chacha_aead_t *restrict x,
-    void const *iv,
+    size_t ivlen, void const *iv,
     size_t alen, void const *aad,
     size_t len, void const *in, void *out,
     size_t tlen, void const *T);
