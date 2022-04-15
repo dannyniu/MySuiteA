@@ -80,4 +80,4 @@ enter hibernation, until the publication of NIST PQC standard(s):
 - SM2 KEM and DSS;
 - X25519, X448, Ed25519, and Ed448;
 - PKCS #1 v1.5 encryption and signature;
-- CCM blockcipher-based AEAD.
++ CCM blockcipher-based AEAD.
