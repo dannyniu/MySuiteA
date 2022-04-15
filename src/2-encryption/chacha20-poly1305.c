@@ -29,7 +29,7 @@ void *ChaCha_AEAD_Encrypt(
     // values taken from
     // https://www.rfc-editor.org/rfc/rfc8439.html#section-2.8
     if( ivlen != 12 ||
-        // alen >= (uint128_t)1 << 64 || // essentially impossible to exceed.
+        // alen > UINT64_MAX || // essentially impossible to exceed.
         len >= (uint64_t)1 << 38 )
         return NULL;
 
@@ -61,6 +61,8 @@ void *ChaCha_AEAD_Encrypt(
         // Zero-extends if tlen>16. 
         ((uint8_t *)T)[i] = i<16 ? words[i] : 0;
     }
+
+    return out;
 }
 
 void *ChaCha_AEAD_Decrypt(
@@ -80,7 +82,7 @@ void *ChaCha_AEAD_Decrypt(
     // values taken from
     // https://www.rfc-editor.org/rfc/rfc8439.html#section-2.8
     if( ivlen != 12 ||
-        // alen >= (uint128_t)1 << 64 || // essentially impossible to exceed.
+        // alen > UINT64_MAX || // essentially impossible to exceed.
         len >= (uint64_t)1 << 38 )
         return NULL;
 

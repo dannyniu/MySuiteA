@@ -24,9 +24,9 @@ void PrintIf(intmax_t cond, const char *fmt, ...)
     if( !vflushed )
     {
         printf("%s\n", vname);
-        vflushed = true;
     }
 
+    vflushed = true;
     vprintf(fmt, ap);
 }
 
@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
     
     Bc.info = bc, Bc.param = NULL;
 
+    vname = argv[2];
     freopen(argv[2], "r", stdin);
     
     while( fgets(line, sizeof(line), stdin) )
@@ -108,22 +109,20 @@ int main(int argc, char *argv[])
         }
     }
 
-    vname = argv[2];
-
     KINIT_FUNC(aead)(
         &gcm, k, KEY_BYTES(aead));
     AENC_FUNC(aead)(
-        (void *)&gcm, iv, alen, a, len, p, x, 16, s);
+        (void *)&gcm, 12, iv, alen, a, len, p, x, 16, s);
     PrintIf(memcmp(s, t, 16), "Enc Fail: Tag Wrong!\n");
     PrintIf(memcmp(c, x, len),"Enc Fail: Ciphertext Wrong!\n");
     ptr = ADEC_FUNC(aead)(
-        (void *)&gcm, iv, alen, a, len, c, x, 16, t);
+        (void *)&gcm, 12, iv, alen, a, len, c, x, 16, t);
     PrintIf(!ptr, "Dec Errornously Returned FAIL\n");
     PrintIf(memcmp(p, x, len), "Dec Fail: Plaintext Wrong!\n");
 
     if( alen ) {
         ptr = ADEC_FUNC(aead)(
-            (void *)&gcm, iv, alen-1, a+1, len, c, x, 16, t);
+            (void *)&gcm, 12, iv, alen-1, a+1, len, c, x, 16, t);
         PrintIf((intmax_t)ptr ,"Dec Errornously Secceeded!\n");
     }
 
@@ -136,17 +135,17 @@ int main(int argc, char *argv[])
     ((PKInitFunc_t)mode(&Bc, KInitFunc))(
         &Bc, &gcm, k, mode(&Bc, keyBytes));
     ((AEncFunc_t)mode(&Bc, AEncFunc))(
-        (void *)&gcm, iv, alen, a, len, p, x, 16, s);
+        (void *)&gcm, 12, iv, alen, a, len, p, x, 16, s);
     PrintIf(memcmp(s, t, 16), "Enc Fail: Tag Wrong!\n");
     PrintIf(memcmp(c, x, len), "Enc Fail: Ciphertext Wrong!\n");
     ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
-        (void *)&gcm, iv, alen, a, len, c, x, 16, t);
+        (void *)&gcm, 12, iv, alen, a, len, c, x, 16, t);
     PrintIf(!ptr, "Dec Errornously Returned FAIL\n");
     PrintIf(memcmp(p, x, len), "Dec Fail: Plaintext Wrong!\n");
         
     if( alen ) {
         ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
-            (void *)&gcm, iv, alen-1, a+1, len, c, x, 16, t);
+            (void *)&gcm, 12, iv, alen-1, a+1, len, c, x, 16, t);
         PrintIf((intmax_t)ptr, "Dec Errornously Secceeded!\n");
     }
 

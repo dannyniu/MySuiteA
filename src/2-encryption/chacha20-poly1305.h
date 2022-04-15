@@ -20,7 +20,7 @@ void *ChaCha_AEAD_Init(
     void const *restrict K,
     size_t klen);
 
-void ChaCha_AEAD_Encrypt(
+void *ChaCha_AEAD_Encrypt(
     chacha_aead_t *restrict x,
     size_t ivlen, void const *iv,
     size_t alen, void const *aad,
