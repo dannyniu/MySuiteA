@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2018-02-08. Public Domain. */
 
-#ifndef MySuiteA_gimli_hash_h
-#define MySuiteA_gimli_hash_h 1
+#ifndef MySuiteA_gimli_xof_h
+#define MySuiteA_gimli_xof_h 1
 
 // See 2021-05-16 note in "1-symm/gimli.h" for security consideration.
 
@@ -41,4 +41,4 @@ void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len);
 
 IntPtr iGimli_XOF(int q);
 
-#endif /* MySuiteA_gimli_hash_h */
+#endif /* MySuiteA_gimli_xof_h */
