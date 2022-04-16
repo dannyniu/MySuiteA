@@ -6,7 +6,9 @@
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
-#if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS)
+#if ! PKC_OMIT_PRIV_OPS
+
+#if ! PKC_OMIT_KEYGEN
 
 IntPtr ECDH_KEM_Keygen(
     ECDH_KEM_Ctx_Hdr_t *restrict x,
@@ -18,34 +20,32 @@ IntPtr ECDH_KEM_Keygen(
         [1] = { .info = iECDH_Hash_Null, .param = NULL, },
     };
 
-    return SEC1_Keygen((SEC1_Base_Ctx_Hdr_t *)x, kgparams, prng_gen, prng);
+    return ECC_Keygen((ECC_Base_Ctx_Hdr_t *)x, kgparams, prng_gen, prng);
 }
 
-#endif /* ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS) */
-
-#if ! PKC_OMIT_PRIV_OPS
+#endif /* ! PKC_OMIT_KEYGEN */
 
 IntPtr ECDH_KEM_Encode_PrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
-    return SEC1_Encode_PrivateKey(any, enc, enclen, param);
+    return ECC_Encode_PrivateKey(any, enc, enclen, param);
 }
 
 IntPtr ECDH_KEM_Decode_PrivateKey(
-    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param)
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     CryptoParam_t kgparams[2] = {
         [0] = param[0],
         [1] = { .info = iECDH_Hash_Null, .param = NULL, },
     };
 
-    return SEC1_Decode_PrivateKey(any, enc, enclen, kgparams);
+    return ECC_Decode_PrivateKey(any, enc, enclen, kgparams);
 }
 
 IntPtr ECDH_KEM_Export_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
-    return SEC1_Encode_PublicKey(any, enc, enclen, param);
+    return ECC_Encode_PublicKey(any, enc, enclen, param);
 }
 
 #endif /* ! PKC_OMIT_PRIV_OPS */
@@ -55,18 +55,18 @@ IntPtr ECDH_KEM_Export_PublicKey(
 IntPtr ECDH_KEM_Encode_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
-    return SEC1_Encode_PublicKey(any, enc, enclen, param);
+    return ECC_Encode_PublicKey(any, enc, enclen, param);
 }
 
 IntPtr ECDH_KEM_Decode_PublicKey(
-    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param)
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     CryptoParam_t kgparams[2] = {
         [0] = param[0],
         [1] = { .info = iECDH_Hash_Null, .param = NULL, },
     };
 
-    return SEC1_Decode_PublicKey(any, enc, enclen, kgparams);
+    return ECC_Decode_PublicKey(any, enc, enclen, kgparams);
 }
 
 void *ECDH_KEM_Enc(
@@ -161,7 +161,7 @@ void *ECDH_KEM_Enc(
         R, Tmp1, Tmp2, x->curve->G,
         k, opctx, x->curve);
 
-    sec1_canon_pubkey(x, DeltaTo(x, offset_R));
+    ecc_canon_pubkey(x, DeltaTo(x, offset_R));
     return ss;
 }
 

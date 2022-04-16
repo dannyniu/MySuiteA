@@ -3,7 +3,7 @@
 #ifndef MySuiteA_ecdh_kem_h
 #define MySuiteA_ecdh_kem_h 1
 
-#include "sec1-common.h"
+#include "../3-ecc-common/ecc-common.h"
 
 // In a typical Diffie-Hellman-like key exchange, each peer operates
 // identically, i.e. that being peer-symmetric. However, some post-quantum
@@ -28,7 +28,7 @@
 // ${ [0].* } are that for curve domain parameters.
 typedef CryptoParam_t ECDH_KEM_Param_t[1];
 
-typedef SEC1_Base_Ctx_Hdr_t ECDH_KEM_Ctx_Hdr_t;
+typedef ECC_Base_Ctx_Hdr_t ECDH_KEM_Ctx_Hdr_t;
 
 IntPtr ECDH_KEM_Keygen(
     ECDH_KEM_Ctx_Hdr_t *restrict x,
@@ -39,7 +39,7 @@ IntPtr ECDH_KEM_Encode_PrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 IntPtr ECDH_KEM_Decode_PrivateKey(
-    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param);
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 IntPtr ECDH_KEM_Export_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
@@ -48,7 +48,7 @@ IntPtr ECDH_KEM_Encode_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 IntPtr ECDH_KEM_Decode_PublicKey(
-    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param);
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 void *ECDH_KEM_Enc(
     ECDH_KEM_Ctx_Hdr_t *restrict x,
@@ -79,8 +79,8 @@ int ECDH_KEM_PKParams(int index, CryptoParam_t *out);
         0)
 
 #define cECDH_KEM(crv,q) (                                      \
-        q==bytesCtxPriv ? SEC1_CTX_SIZE(crv,ECDH_HASH_NULL) :   \
-        q==bytesCtxPub ? SEC1_CTX_SIZE(crv,ECDH_HASH_NULL) :    \
+        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,ECDH_HASH_NULL) :    \
+        q==bytesCtxPub ? ECC_CTX_SIZE(crv,ECDH_HASH_NULL) :     \
         q==isParamDetermByKey ? 0 :                             \
         0)
 

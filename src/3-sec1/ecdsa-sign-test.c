@@ -9,12 +9,14 @@
 #include "../test-utils.c.h"
 
 typedef struct {
-    SEC1_Hash_Ctx_Hdr_t x_hdr;
+    ECC_Hash_Ctx_Hdr_t x_hdr;
     sha384_t hash;
     ecp384_opctx_t opctx;
     ecp384_xyz_t Points[4];
     VLONG_T(14) Scalars[2];
 } ECDSA_Ctx_t;
+
+ECDSA_Ctx_t ecdsaCtx, ecdsaSavedCtx;
 
 typedef struct {
     char *k, *d, *r, *s, *msg;
@@ -87,7 +89,6 @@ void FixedPRNG(void const *restrict randstr, void *restrict out, size_t len)
 
 int main(void) // (int argc, char *argv[])
 {
-    ECDSA_Ctx_t ecdsaCtx;
     ecp_opctx_t *opctx;
     uint8_t h1[64], h2[64];
     int fails = 0;
@@ -127,11 +128,16 @@ int main(void) // (int argc, char *argv[])
             fails ++;
         }
 
+        ecdsaCtx.x_hdr.status = 0;
+        memcpy(&ecdsaSavedCtx, &ecdsaCtx, sizeof(ECDSA_Ctx_t));
+
         if( ECDSA_Verify(&ecdsaCtx.x_hdr, "", 0) )
         {
             printf("forgery undetected: P%u!\n", plen * 8);
             fails ++;
         }
+
+        memcpy(&ecdsaSavedCtx, &ecdsaCtx, sizeof(ECDSA_Ctx_t));
 
         if( ECDSA_Verify(
                 &ecdsaCtx.x_hdr,

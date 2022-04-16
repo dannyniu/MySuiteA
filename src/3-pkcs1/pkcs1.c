@@ -4,7 +4,9 @@
 #include "../2-rsa/rsa-codec-der.h"
 #include "../0-exec/struct-delta.c.h"
 
-#if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS)
+#if ! PKC_OMIT_PRIV_OPS
+
+#if ! PKC_OMIT_KEYGEN
 
 IntPtr PKCS1_Keygen(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
@@ -34,9 +36,7 @@ IntPtr PKCS1_Keygen(
     }
 }
 
-#endif /* ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS) */
-
-#if ! PKC_OMIT_PRIV_OPS
+#endif /* PKC_OMIT_KEYGEN */
 
 IntPtr PKCS1_Encode_RSAPrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)

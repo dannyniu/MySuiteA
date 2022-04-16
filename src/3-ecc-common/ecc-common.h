@@ -1,10 +1,11 @@
 /* DannyNiu/NJF, 2022-02-11. Public Domain. */
 
-#ifndef MySuiteA_sec1_common_h
-#define MySuiteA_sec1_common_h 1
+#ifndef MySuiteA_ecc_common_h
+#define MySuiteA_ecc_common_h 1
 
 #include "../2-ec/ecp-xyz.h"
 #include "../2-hash/hash-funcs-set.h"
+#include "../2-asn1/der-codec.h"
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
@@ -28,11 +29,11 @@ typedef struct {
     // as it's intended that keygen function be shared between
     // ECDH-KEM and ECDSA.
     // ---
-} SEC1_Base_Ctx_Hdr_t;
+} ECC_Base_Ctx_Hdr_t;
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 4 *12 | 4 *16 | 8 *12
+// align spec: 4 *28 | 4 *32 | 8 *20
 typedef struct {
     // 4 32-bit words counted.
     uint32_t offset_d, offset_Q; // the entity keypair.
@@ -52,14 +53,20 @@ typedef struct {
     // as it's intended that keygen function be shared between
     // ECDH-KEM and ECDSA.
     // ---
-    
+
+    // 2022-04-16:
+    // As of now (date of the note), the only purpose of this field is
+    // to hold the hash Z of SM2 DSS, which contain per-user info, which
+    // is set through the Xctrl context-control function.
+    uint8_t uinfo[64]; // Counted in align-spec as of 2022-04-16 14:50 p.m.
+
     // 2 machine words counted.
     size_t hlen;
     ptrdiff_t offset_hashctx;
     
     // 4 machine words counted.
     hash_funcs_set_t hfuncs;
-} SEC1_Hash_Ctx_Hdr_t;
+} ECC_Hash_Ctx_Hdr_t;
 
 // This macro is defined for use
 // in *_SIZE and *_INIT macros
@@ -69,48 +76,48 @@ typedef struct {
 #define ECDH_HASH_NULL(q) (0)
 IntPtr iECDH_Hash_Null(int q);
 
-#define SEC1_SIZE_OF_CTX_HDR(hash)              \
+#define ECC_SIZE_OF_CTX_HDR(hash)               \
     (hash(contextBytes) ?                       \
-     sizeof(SEC1_Hash_Ctx_Hdr_t) :              \
-     sizeof(SEC1_Base_Ctx_Hdr_t))
+     sizeof(ECC_Hash_Ctx_Hdr_t) :               \
+     sizeof(ECC_Base_Ctx_Hdr_t))
 
-#define SEC1_CTX_SIZE_X(crv,hash) (             \
+#define ECC_CTX_SIZE_X(crv,hash) (              \
         crv(bytesOpCtx) +                       \
         crv(bytesECXYZ) * 4 +                   \
         crv(bytesVLong) * 2 +                   \
         hash(contextBytes) +                    \
-        SEC1_SIZE_OF_CTX_HDR(hash) )
+        ECC_SIZE_OF_CTX_HDR(hash) )
 
-#define SEC1_CTX_SIZE(...) SEC1_CTX_SIZE_X(__VA_ARGS__)
+#define ECC_CTX_SIZE(...) ECC_CTX_SIZE_X(__VA_ARGS__)
 
-#define SEC1_CTX_INIT_X(type,crv,hash,...)              \
+#define ECC_CTX_INIT_X(type,crv,hash,...)               \
     ((type){                                            \
         .curve = (const void *)crv(ptrCurveDef),        \
         .status = 0,                                    \
-        .offset_opctx = SEC1_SIZE_OF_CTX_HDR(hash) +    \
+        .offset_opctx = ECC_SIZE_OF_CTX_HDR(hash) +     \
         hash(contextBytes),                             \
-        .offset_Q    = SEC1_SIZE_OF_CTX_HDR(hash) +     \
+        .offset_Q     = ECC_SIZE_OF_CTX_HDR(hash) +     \
         hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 0,                            \
-        .offset_R    = SEC1_SIZE_OF_CTX_HDR(hash) +     \
+        .offset_R     = ECC_SIZE_OF_CTX_HDR(hash) +     \
         hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 1,                            \
-        .offset_Tmp1 = SEC1_SIZE_OF_CTX_HDR(hash) +     \
+        .offset_Tmp1  = ECC_SIZE_OF_CTX_HDR(hash) +     \
         hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 2,                            \
-        .offset_Tmp2 = SEC1_SIZE_OF_CTX_HDR(hash) +     \
+        .offset_Tmp2  = ECC_SIZE_OF_CTX_HDR(hash) +     \
         hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 3,                            \
-        .offset_d    = SEC1_SIZE_OF_CTX_HDR(hash) +     \
+        .offset_d     = ECC_SIZE_OF_CTX_HDR(hash) +     \
         hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 4 +                           \
         crv(bytesVLong) * 0,                            \
-        .offset_k    = SEC1_SIZE_OF_CTX_HDR(hash) +     \
+        .offset_k     = ECC_SIZE_OF_CTX_HDR(hash) +     \
         hash(contextBytes) +                            \
         crv(bytesOpCtx) +                               \
         crv(bytesECXYZ) * 4 +                           \
@@ -118,41 +125,44 @@ IntPtr iECDH_Hash_Null(int q);
         __VA_ARGS__                                     \
     })
 
-#define SEC1_CTX_INIT(...) SEC1_CTX_INIT_X(__VA_ARGS__)
+#define ECC_CTX_INIT(...) ECC_CTX_INIT_X(__VA_ARGS__)
 
-#define SEC1_BASE_CTX_T(...)                            \
+#define ECC_BASE_CTX_T(...)                             \
     union {                                             \
-        SEC1_Base_Ctx_Hdr_t header;                     \
-        uint8_t blob[SEC1_CTX_SIZE(__VA_ARGS__)];       \
+        ECC_Base_Ctx_Hdr_t header;                      \
+        uint8_t blob[ECC_CTX_SIZE(__VA_ARGS__)];        \
     }
 
-#define SEC1_HASH_CTX_T(...)                            \
+#define ECC_HASH_CTX_T(...)                             \
     union {                                             \
-        SEC1_Hash_Ctx_Hdr_t header;                     \
-        uint8_t blob[SEC1_CTX_SIZE(__VA_ARGS__)];       \
+        ECC_Hash_Ctx_Hdr_t header;                      \
+        uint8_t blob[ECC_CTX_SIZE(__VA_ARGS__)];        \
     }
 
 void topword_modmask(uint32_t *x, uint32_t const *m);
 
-void sec1_canon_pubkey(
-    SEC1_Base_Ctx_Hdr_t *restrict x,
+void ecc_canon_pubkey(
+    ECC_Base_Ctx_Hdr_t *restrict x,
     ecp_xyz_t *restrict Q);
 
-IntPtr SEC1_Keygen(
-    SEC1_Base_Ctx_Hdr_t *restrict x,
+IntPtr ber_tlv_ecc_encode_dss_signature(BER_TLV_ENCODING_FUNC_PARAMS);
+int    ber_tlv_ecc_decode_dss_signature(BER_TLV_DECODING_FUNC_PARAMS);
+
+IntPtr ECC_Keygen(
+    ECC_Base_Ctx_Hdr_t *restrict x,
     CryptoParam_t *restrict param,
     GenFunc_t prng_gen, void *restrict prng);
 
-IntPtr SEC1_Encode_PrivateKey(
+IntPtr ECC_Encode_PrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
 
-IntPtr SEC1_Decode_PrivateKey(
+IntPtr ECC_Decode_PrivateKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
 
-IntPtr SEC1_Encode_PublicKey(
+IntPtr ECC_Encode_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
 
-IntPtr SEC1_Decode_PublicKey(
+IntPtr ECC_Decode_PublicKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
 
-#endif /* MySuiteA_sec1_common_h */
+#endif /* MySuiteA_ecc_common_h */

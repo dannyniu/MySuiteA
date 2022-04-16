@@ -3,16 +3,16 @@
 #ifndef MySuiteA_ecdsa_h
 #define MySuiteA_ecdsa_h 1
 
-#include "sec1-common.h"
+#include "../3-ecc-common/ecc-common.h"
 #include "../2-hash/hash-funcs-set.h"
 
 // ${ [0].* } are that for curve domain parameters.
 // ${ [1].* } are that for the hash function.
 typedef CryptoParam_t ECDSA_Param_t[2];
 
-typedef SEC1_Hash_Ctx_Hdr_t ECDSA_Ctx_Hdr_t;
+typedef ECC_Hash_Ctx_Hdr_t ECDSA_Ctx_Hdr_t;
 
-#define ECDSA_CTX_INIT_X(crv,hash) SEC1_CTX_INIT_X(     \
+#define ECDSA_CTX_INIT_X(crv,hash) ECC_CTX_INIT_X(      \
         ECDSA_Ctx_Hdr_t,                                \
         crv, hash,                                      \
         .hlen = hash(outBytes),                         \
@@ -31,7 +31,7 @@ IntPtr ECDSA_Encode_PrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 IntPtr ECDSA_Decode_PrivateKey(
-    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param);
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 IntPtr ECDSA_Export_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
@@ -40,7 +40,7 @@ IntPtr ECDSA_Encode_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 IntPtr ECDSA_Decode_PublicKey(
-    void *any, void const *enc, size_t enclen, CryptoParam_t *restrict param);
+    void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
 
 void *ECDSA_Sign(
     ECDSA_Ctx_Hdr_t *restrict x,
@@ -71,8 +71,8 @@ int ECDSA_PKParams(int index, CryptoParam_t *out);
         0)
 
 #define cECDSA(crv,hash,q) (                            \
-        q==bytesCtxPriv ? SEC1_CTX_SIZE(crv,hash) :     \
-        q==bytesCtxPub ? SEC1_CTX_SIZE(crv,hash) :      \
+        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :      \
+        q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :       \
         q==isParamDetermByKey ? 0 :                     \
         0)
 

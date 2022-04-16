@@ -25,17 +25,17 @@ ECDH_KEM_Param_t params = {
     [0] = { .info = iTestCurve, .param = NULL, },
 };
 
-#define kgx_decl SEC1_BASE_CTX_T(cTestCurve, ECDH_HASH_NULL)
-#define enx_decl SEC1_BASE_CTX_T(cTestCurve, ECDH_HASH_NULL)
+#define kgx_decl ECC_BASE_CTX_T(cTestCurve, ECDH_HASH_NULL)
+#define enx_decl ECC_BASE_CTX_T(cTestCurve, ECDH_HASH_NULL)
 
 #define kgx_init {                              \
-        .header = SEC1_CTX_INIT(                \
-            SEC1_Base_Ctx_Hdr_t,                \
+        .header = ECC_CTX_INIT(                 \
+            ECC_Base_Ctx_Hdr_t,                 \
             xTestCurve, ECDH_HASH_NULL), }
 
 #define enx_init {                              \
-        .header = SEC1_CTX_INIT(                \
-            SEC1_Base_Ctx_Hdr_t,                \
+        .header = ECC_CTX_INIT(                 \
+            ECC_Base_Ctx_Hdr_t,                 \
             xTestCurve, ECDH_HASH_NULL), }
 
 #include "../3-pkc-test-utils/test-self-fed-kem.c.h"

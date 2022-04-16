@@ -1,5 +1,8 @@
 /* DannyNiu/NJF, 2022-02-06. Public Domain. */
 
+#include <stdio.h>
+#include <string.h>
+
 void printl(vlong_t const *x)
 {
     printf("0x");

@@ -33,7 +33,7 @@ static vlong_t *remv_inplace(vlong_t *rem, void const *aux)
 
     (void)aux; // silence the unused argument warning.
 
-    // avoid redundand and potentially erroneous computation.
+    // avoid redundant and potentially erroneous computation.
     if( rem->c < 12 ) return rem;
 
     for(t = rem->c; t-- > 12; )

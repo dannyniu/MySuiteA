@@ -1,23 +1,23 @@
 /* DannyNiu/NJF, 2021-09-11. Public Domain. */
 
-#include "ecdsa.h"
-#include "../2-ec/curves-secp.h"
-#include "../2-hash/sha.h"
+#include "sm2sig.h"
+#include "../2-ec/curveSM2.h"
+#include "../2-hash/sm3.h"
 
-#define PKC_Algo_Prefix ECDSA
+#define PKC_Algo_Prefix SM2SIG
 #define MSGMAX 96
 
-#define PKC_Keygen ECDSA_Keygen
+#define PKC_Keygen SM2SIG_Keygen
 
-#define PKC_Encode_PrivateKey ECDSA_Encode_PrivateKey
-#define PKC_Decode_PrivateKey ECDSA_Decode_PrivateKey
-#define PKC_Export_PublicKey ECDSA_Export_PublicKey
-#define PKC_Encode_PublicKey ECDSA_Encode_PublicKey
-#define PKC_Decode_PublicKey ECDSA_Decode_PublicKey
+#define PKC_Encode_PrivateKey SM2SIG_Encode_PrivateKey
+#define PKC_Decode_PrivateKey SM2SIG_Decode_PrivateKey
+#define PKC_Export_PublicKey SM2SIG_Export_PublicKey
+#define PKC_Encode_PublicKey SM2SIG_Encode_PublicKey
+#define PKC_Decode_PublicKey SM2SIG_Decode_PublicKey
 
 #include "test-param-defs.c.h"
 
-ECDSA_Param_t params = {
+SM2SIG_Param_t params = {
     [0] = { .info = iTestCurve, .param = NULL, },
     [1] = { .info = iTestHash,  .param = NULL, },
 };
