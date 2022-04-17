@@ -166,6 +166,15 @@
         </tr>
 
         <tr>
+          <td>SHAKE / cSHAKE</td>
+          <td>Extendable-Output Functions (XOF)</td>
+          <td>
+            Sponge Mode of Operation of
+            Permutation
+          </td>
+        </tr>
+
+        <tr>
           <td>CMAC</td>
           <td>MAC</td>
           <td>Mode of Operation of Block Cipher</td>
@@ -175,6 +184,15 @@
           <td>HMAC</td>
           <td>MAC</td>
           <td>Specialized Construction</td>
+        </tr>
+
+        <tr>
+          <td>KMAC</td>
+          <td>MAC</td>
+          <td>
+            Sponge Mode of Operation of
+            Permutation
+          </td>
         </tr>
 
         <tr>
@@ -225,6 +243,15 @@
             Public-Key Cryptography
             (Public-Key Encryption / Key Encapsulation Mechanism,
             Digital Signature Scheme)
+          </td>
+          <td>Construction based on Elliptic-Curve Discrete Logarithm</td>
+        </tr>
+
+        <tr>
+          <td>SM2</td>
+          <td>
+            Public-Key Cryptography
+            (With only digital signature implemented in the suite)
           </td>
           <td>Construction based on Elliptic-Curve Discrete Logarithm</td>
         </tr>
@@ -372,7 +399,7 @@
         </tr>
 
         <tr>
-          <td>SHA3 / Keccak</td> <td>Normative</td>
+          <td>SHA3 / SHAKE / Keccak</td> <td>Normative</td>
           <td>
             [FIPS-202] SHA-3 Standard:
             Permutation-Based Hash and Extendable-Output Functions
@@ -385,7 +412,7 @@
         </tr>
 
         <tr>
-          <td>SHA3 / Keccak</td> <td>Informative</td>
+          <td>SHA3 / etc. / Keccak</td> <td>Informative</td>
           <td>The Keccak Reference</td>
           <td>Guido Bertoni, Joan Daemen, Michael Peeters, Gilles Van Assche</td>
           <td>2011-01-14</td>
@@ -493,6 +520,32 @@
           <td><a href="https://cseweb.ucsd.edu/~mihir/papers/kmd5.pdf">
             [1]
           </a></td>
+        </tr>
+
+        <tr>
+          <td>KMAC</td> <td>Normative</td>
+          <td>
+            [NIST-SP-800-185]
+            SHA-3 Derived Functions:
+            cSHAKE, KMAC, TupleHash and ParallelHash
+          </td>
+          <td></td>
+          <td>2016-12</td>
+          <td><a href="https://doi.org/10.6028/NIST.SP.800-185">[1]</a></td>
+        </tr>
+
+        <tr>
+          <td>CCM - CTR with CBC-MAC</td> <td>Normative</td>
+          <td>
+            [NIST-SP-800-38C]
+            Recommendation for Block Cipher Modes of Operation:
+            The CCM Mode for authentication and Confidentiality
+          </td>
+          <td></td>
+          <td>2004-05</td>
+          <td>
+            <a href="http://doi.org/10.6028/NIST.SP.800-38C">[1]</a>,
+          </td>
         </tr>
 
         <tr>
@@ -627,6 +680,17 @@
           <td>D. McGrew, K. Igoe, M. Salter</td>
           <td>2011-02</td>
           <td><a href="https://tools.ietf.org/html/rfc6090">[1]</a></td>
+        </tr>
+
+        <tr>
+          <td>SM2</td> <td>Normative</td>
+          <td>
+            [GB/T 32918.*]
+            <small>Link is the Search Result of a 5-Part Standard</small>
+          </td>
+          <td></td>
+          <td>2016~2017</td>
+          <td><a href="http://www.gb688.cn/bzgk/gb/std_list_type?p.p2=GB%2FT%2032918">[1]</a></td>
         </tr>
 
       </tbody>

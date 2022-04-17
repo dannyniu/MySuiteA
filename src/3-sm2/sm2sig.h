@@ -59,6 +59,25 @@ void *SM2SIG_Decode_Signature(
     SM2SIG_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t siglen);
 
+void *SM2SIG_Sign_Xctrl(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
+void *SM2SIG_Verify_Xctrl(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
+enum {
+    SM2SIG_cmd_null         = 0,
+    SM2SIG_set_signer_id    = 1,
+};
+
 int SM2SIG_PKParams(int index, CryptoParam_t *out);
 
 #define xSM2SIG_KeyCodec(q) (                                           \
@@ -81,6 +100,8 @@ int SM2SIG_PKParams(int index, CryptoParam_t *out);
         q==PKKeygenFunc ? (IntPtr)SM2SIG_Keygen :       \
         q==PKSignFunc ? (IntPtr)SM2SIG_Sign :           \
         q==PKVerifyFunc ? (IntPtr)SM2SIG_Verify :       \
+        q==PubXctrlFunc ? (IntPtr)SM2SIG_Verify_Xctrl : \
+        q==PrivXctrlFunc ? (IntPtr)SM2SIG_Sign_Xctrl :  \
         cSM2SIG(crv,hash,q) )
 
 #define xSM2SIG_CtCodec(q) (                                    \

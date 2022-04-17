@@ -491,6 +491,28 @@ void *SM2SIG_Encode_Signature(
     return sig;
 }
 
+void *SM2SIG_Sign_Xctrl(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags)
+{
+    (void)flags;
+    
+    switch( cmd )
+    {
+    case SM2SIG_set_signer_id:
+        if( !bufvec || veclen < 1 ) return NULL;
+        sm2sig_setZ(x, bufvec[0].dat, bufvec[0].len);
+        return x;
+        break;
+
+    default:
+        return NULL;
+    }
+}
+
 #endif /* ! PKC_OMIT_PRIV_OPS */
 
 #if ! PKC_OMIT_PUB_OPS
@@ -504,6 +526,28 @@ void *SM2SIG_Decode_Signature(
 
     if( subret == -1 ) return NULL;
     else return x;
+}
+
+void *SM2SIG_Verify_Xctrl(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags)
+{
+    (void)flags;
+    
+    switch( cmd )
+    {
+    case SM2SIG_set_signer_id:
+        if( !bufvec || veclen < 1 ) return NULL;
+        sm2sig_setZ(x, bufvec[0].dat, bufvec[0].len);
+        return x;
+        break;
+
+    default:
+        return NULL;
+    }
 }
 
 #endif /* ! PKC_OMIT_PUB_OPS */

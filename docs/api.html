@@ -1075,5 +1075,61 @@
       </dd>
     </dl>
 
+    <h2>Miscellaneous Context Control Function</h2>
+
+    <p>
+      Context control functions are a class of catch-all functions that
+      performs operations that're <em>algorithm-specific</em>.
+      Generally, these operations involve additional parameters that
+      can't be passed using other uniform APIs.
+    </p>
+
+    <dl>
+      <dt><code>XctrlFunc</code></dt>
+      <dt><code>PubXctrlFunc</code></dt>
+      <dt><code>PrivXctrlFunc</code></dt>
+      <dd>
+        <p>The context control function of prototype:</p>
+        <pre>void *(*XctrlFunc_t)(
+          <span class="tab"></span>rbuf x,
+          <span class="tab"></span>int cmd,
+          <span class="tab"></span>const bufvec_t *restrict bufvec,
+          <span class="tab"></span>int veclen,
+          <span class="tab"></span>int flags);</pre>
+
+        <p>where:</p>
+        <ul>
+          <li><code>x</code> points to the
+            working context of the algorithm,</li>
+          <li><code>cmd</code> specifies the sub-function to perform,</li>
+          <li><code>bufvec</code> is the array of data buffer elements
+            passed to the sub-function</li>
+          <li><code>veclen</code> specifies the length of the array,</li>
+          <li><code>flags</code> specifies additional information
+            for the sub-function, with 0 as a reserved default,</li>
+        </ul>
+
+        <p>
+          The query <code>XctrlFunc</code> generally apply to symmetric-key
+          algorithms,
+          whereas <code>PubXctrlFunc</code> and <code>PrivXctrlFunc</code>
+          apply to the public and private working contexts of the
+          asymmetric-key algorithm. And the type definition for
+          <code>bufvec_t</code> is:
+        </p>
+
+        <pre>typedef struct {
+          <span class="tab"></span>union {
+          <span class="tab"></span><span class="tab"></span>size_t len;
+          <span class="tab"></span><span class="tab"></span>IntPtr info;
+          <span class="tab"></span>};
+          <span class="tab"></span>union {
+          <span class="tab"></span><span class="tab"></span>void const *dat;
+          <span class="tab"></span><span class="tab"></span>void *buf;
+          <span class="tab"></span>};
+        } bufvec_t;</pre>
+      </dd>
+    </dl>
+
   </body>
 </html>
