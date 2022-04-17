@@ -31,11 +31,11 @@ void test_run1(const char *tn, const char *exp1, const char *exp2)
 {
     size_t seedlen = SEED_BYTES(drbg);
     int fails = 0;
-    
+
     printf("...... Test Name: %s ......\n", tn);
 
     INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen);
-    
+
     RESEED_FUNC(drbg)(&ctx.x, seed2, seedlen);
 
     scanhex(ref, seedlen, exp1);
@@ -50,13 +50,13 @@ void test_run1(const char *tn, const char *exp1, const char *exp2)
             ((uint8_t *)&ctx.x + ctx.x.offset_k),
             seedlen);
     }
-    
+
     INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen);
 
     // -3 to test incomplete blocks' code path
     GEN_FUNC(drbg)(&ctx.x, out, 32 - 3);
     out[29] ^= 4;
-    
+
     scanhex(ref, 32, exp2);
     if( memcmp(ref, out, 32 - 3) )
     {

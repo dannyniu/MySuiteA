@@ -10,8 +10,8 @@
 // align spec: 4 * 5 | 4 * 6 | 8 * 4
 typedef struct gcm_context {
     uint32_t    H[4];
-    
-    // Similar to that in "sponge.h". 
+
+    // Similar to that in "sponge.h".
     ptrdiff_t   offset;
     EncFunc_t   enc;
 } gcm_t;
@@ -26,10 +26,10 @@ typedef struct gcm_context {
     })
 
 void *GCM_Encrypt(gcm_t *restrict gcm,
-                  size_t ivlen, void const *iv, // fixed, 12 bytes. 
+                  size_t ivlen, void const *iv, // fixed, 12 bytes.
                   size_t alen, void const *aad,
                   size_t len, void const *in, void *out,
-                  size_t tlen, void *T); // zeros tail if tlen>16. 
+                  size_t tlen, void *T); // zeros tail if tlen>16.
 
 void *GCM_Decrypt(gcm_t *restrict gcm,
                   size_t ivlen, void const *iv,

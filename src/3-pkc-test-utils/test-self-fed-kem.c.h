@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
             printf("seed: %s\n", argv[1]);
             failures ++;
         }
-        
+
 #ifdef PKC_Epilogue
         if( i % 2 ) { PKC_Epilogue(); }
 #endif /* PKC_Epilogue */

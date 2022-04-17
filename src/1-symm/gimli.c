@@ -1,6 +1,6 @@
 /* DannyNiu/NJF, 2018-04-20. Public Domain. */
 
-// Adapted from: 
+// Adapted from:
 // "https://github.com/peterferrie/gimli/blob/master/c-ref/gimli.c"
 
 #include "gimli.h"

@@ -4,12 +4,12 @@ testdir1=../tests/ccmtestvectors
 
 testfunc() {
     e=0;
-    
+
     for s in 128 192 256 ; do
         for f in "$testdir1"/*$s.rsp
         do $exec CCM-AES-$s $f || e=$((e+1)) ; done
     done
-    
+
     echo "$e test(s) failed."
 
     if [ $e -gt 0 ]

@@ -28,7 +28,7 @@ int test1(
 
         randoml(b);
         ecp_xyz_inf(r);
-        
+
         ecp_point_scale_accumulate(
             r, p, q, curve->G, b,
             opctx, curve);
@@ -81,6 +81,6 @@ int main(void)
 
     test1((void *)&p, (void *)&q, (void *)&r,
           (void *)&b, (void *)&opctx, curve);
-    
+
     return 0;
 }

@@ -15,7 +15,7 @@ void PrintIf(intmax_t cond, const char *fmt, ...)
 
     if( !cond ) return;
     else ret = EXIT_FAILURE;
-    
+
     va_start(ap, fmt);
     vprintf(fmt, ap);
 }
@@ -90,17 +90,17 @@ int main(int argc, char *argv[])
     Gimli_XOF_Final(&gx);
 
     t1.c = t2.c = t3.c = 9;
-    
+
     PrintIf(1 != MillerRabin(
                 (void *)&p256, 12, (void *)&t1, (void *)&t2, (void *)&t3,
                 (GenFunc_t)Gimli_XOF_Read, &gx),
             "test-failed{p256}\n");
-    
+
     PrintIf(1 != MillerRabin(
                 (void *)&n256, 12, (void *)&t1, (void *)&t2, (void *)&t3,
                 (GenFunc_t)Gimli_XOF_Read, &gx),
             "test-failed{n256}\n");
-    
+
     PrintIf(1 != MillerRabin(
                 (void *)&c25519, 12, (void *)&t1, (void *)&t2, (void *)&t3,
                 (GenFunc_t)Gimli_XOF_Read, &gx),
@@ -115,6 +115,6 @@ int main(int argc, char *argv[])
 
     if( ret == EXIT_SUCCESS )
         printf("All Tests Passed.\n");
-    
+
     return ret;
 }

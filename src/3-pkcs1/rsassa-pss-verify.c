@@ -42,7 +42,7 @@ void const *RSASSA_PSS_Verify(
         if( po->status < 0 ) return NULL;
         else return msg;
     }
-    
+
     if( emLen < po->hlen_msg + po->slen + 2 )
     {
         po->status = -1;
@@ -56,7 +56,7 @@ void const *RSASSA_PSS_Verify(
     vp1 = DeltaTo(ex, offset_w1);
     vp2 = DeltaTo(ex, offset_n);
     t = vp1->c > vp2->c ? vp1->c : vp2->c;
-    
+
     while( t-- )
     {
         uint32_t u, v;
@@ -124,7 +124,7 @@ void const *RSASSA_PSS_Verify(
     if( po->hfuncs_msg.xfinalfunc )
         po->hfuncs_msg.xfinalfunc(hashctx);
     po->hfuncs_msg.hfinalfunc(hashctx, vp2->v, po->hlen_msg);
-    
+
     // Compute H'.
     po->hfuncs_msg.initfunc(hashctx);
     po->hfuncs_msg.updatefunc(hashctx, nul, 8);
@@ -147,7 +147,7 @@ void const *RSASSA_PSS_Verify(
             goto finish;
         }
     }
-    
+
     // Finishing.
     po->status = 1;
     goto finish;

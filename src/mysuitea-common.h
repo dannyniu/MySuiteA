@@ -97,7 +97,7 @@ enum {
     // 61-79: additional link-time queries.
     // 81-89: rare-use compile-time queries.
     // 91-99: rare-use link-time queries.
-    
+
     // Applicable to
     // 1.) Primitives whose output length are fixed and constant.
     //
@@ -173,7 +173,7 @@ enum {
     // 101-119: compile-time queries.
     // 121-139: link-time algorithmic subroutines' queries.
     // 141-160: link-time format encoding subroutines' queries.
-    
+
     bytesCtxPriv = 101, bytesCtxPub = 102,
 
     // e.g.

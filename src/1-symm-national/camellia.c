@@ -136,7 +136,7 @@ static inline void Camellia_KeySched128( // Left half of the key schedule.
     camellia128_kschd_t *restrict kw)
 {
     uint64_t l, r;
-    
+
     kw->K_LL = be64toh(k_l[0]);
     kw->K_LR = be64toh(k_l[1]);
     l = be64toh(k[0]);
@@ -206,7 +206,7 @@ void Camellia128_Encrypt(void const *in, void *out, void const *restrict w)
 {
     // Camellia is a horrible cipher. Implementing it is like constipation.
     // So many subroutine primitives, so many exception cases.
-    
+
     const camellia128_kschd_t *kw = w;
     uint64_t l, r;
 
@@ -225,7 +225,7 @@ void Camellia128_Encrypt(void const *in, void *out, void const *restrict w)
 
     l = func_FL(l, kw->K_AL << 30 | kw->K_AR >> 34);
     r = invf_FL(r, kw->K_AR << 30 | kw->K_AL >> 34);
-    
+
     r ^= func_F(l, kw->K_LL << 45 | kw->K_LR >> 19);
     l ^= func_F(r, kw->K_LR << 45 | kw->K_LL >> 19);
     r ^= func_F(l, kw->K_AL << 45 | kw->K_AR >> 19);
@@ -235,10 +235,10 @@ void Camellia128_Encrypt(void const *in, void *out, void const *restrict w)
 
     l = func_FL(l, kw->K_LR << 13 | kw->K_LL >> 51); // 13 = 77 - 64.
     r = invf_FL(r, kw->K_LL << 13 | kw->K_LR >> 51);
-    
+
     r ^= func_F(l, kw->K_LR << 30 | kw->K_LL >> 34); // 30 = 94 - 64.
     l ^= func_F(r, kw->K_LL << 30 | kw->K_LR >> 34);
-    r ^= func_F(l, kw->K_AR << 30 | kw->K_AL >> 34); 
+    r ^= func_F(l, kw->K_AR << 30 | kw->K_AL >> 34);
     l ^= func_F(r, kw->K_AL << 30 | kw->K_AR >> 34);
     r ^= func_F(l, kw->K_LR << 47 | kw->K_LL >> 17); // 47 = 111 - 64.
     l ^= func_F(r, kw->K_LL << 47 | kw->K_LR >> 17);
@@ -260,17 +260,17 @@ void Camellia128_Decrypt(void const *in, void *out, void const *restrict w)
 
     l ^= kw->K_AL << 47 | kw->K_AR >> 17;
     r ^= kw->K_AR << 47 | kw->K_AL >> 17;
-    
+
     l ^= func_F(r, kw->K_LL << 47 | kw->K_LR >> 17);
     r ^= func_F(l, kw->K_LR << 47 | kw->K_LL >> 17); // 47 = 111 - 64.
     l ^= func_F(r, kw->K_AL << 30 | kw->K_AR >> 34);
-    r ^= func_F(l, kw->K_AR << 30 | kw->K_AL >> 34); 
+    r ^= func_F(l, kw->K_AR << 30 | kw->K_AL >> 34);
     l ^= func_F(r, kw->K_LL << 30 | kw->K_LR >> 34);
     r ^= func_F(l, kw->K_LR << 30 | kw->K_LL >> 34); // 30 = 94 - 64.
 
     r = func_FL(r, kw->K_LL << 13 | kw->K_LR >> 51);
     l = invf_FL(l, kw->K_LR << 13 | kw->K_LL >> 51); // 13 = 77 - 64.
-    
+
     l ^= func_F(r, kw->K_AR << 60 | kw->K_AL >>  4);
     r ^= func_F(l, kw->K_AL << 60 | kw->K_AR >>  4);
     l ^= func_F(r, kw->K_LR << 60 | kw->K_LL >>  4);
@@ -315,7 +315,7 @@ void Camellia256_Encrypt(void const *in, void *out, void const *restrict w)
 
     l = func_FL(l, kw->K_RL << 30 | kw->K_RR >> 34);
     r = invf_FL(r, kw->K_RR << 30 | kw->K_RL >> 34);
-    
+
     r ^= func_F(l, kw->K_BL << 30 | kw->K_BR >> 34);
     l ^= func_F(r, kw->K_BR << 30 | kw->K_BL >> 34);
     r ^= func_F(l, kw->K_LL << 45 | kw->K_LR >> 19);
@@ -325,7 +325,7 @@ void Camellia256_Encrypt(void const *in, void *out, void const *restrict w)
 
     l = func_FL(l, kw->K_LL << 60 | kw->K_LR >>  4);
     r = invf_FL(r, kw->K_LR << 60 | kw->K_LL >>  4);
-    
+
     r ^= func_F(l, kw->K_RL << 60 | kw->K_RR >>  4);
     l ^= func_F(r, kw->K_RR << 60 | kw->K_RL >>  4);
     r ^= func_F(l, kw->K_BL << 60 | kw->K_BR >>  4);
@@ -370,7 +370,7 @@ void Camellia256_Decrypt(void const *in, void *out, void const *restrict w)
 
     r = func_FL(r, kw->K_AL << 13 | kw->K_AR >> 51);
     l = invf_FL(l, kw->K_AR << 13 | kw->K_AL >> 51);
-    
+
     l ^= func_F(r, kw->K_LL << 13 | kw->K_LR >> 51);
     r ^= func_F(l, kw->K_LR << 13 | kw->K_LL >> 51); // 13 = 77 - 64.
     l ^= func_F(r, kw->K_BR << 60 | kw->K_BL >>  4);
@@ -380,7 +380,7 @@ void Camellia256_Decrypt(void const *in, void *out, void const *restrict w)
 
     r = func_FL(r, kw->K_LR << 60 | kw->K_LL >>  4);
     l = invf_FL(l, kw->K_LL << 60 | kw->K_LR >>  4);
-    
+
     l ^= func_F(r, kw->K_AR << 45 | kw->K_AL >> 19);
     r ^= func_F(l, kw->K_AL << 45 | kw->K_AR >> 19);
     l ^= func_F(r, kw->K_LR << 45 | kw->K_LL >> 19);

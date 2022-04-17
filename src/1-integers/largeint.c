@@ -79,10 +79,10 @@ void li_sub(
         x += getword32(a, i);
         x -= getword32(b, i);
         setword32(out, i, (uint32_t)x);
-        x = (uint64_t)(int64_t)(int32_t)(x>>32); // sign-extending. 
+        x = (uint64_t)(int64_t)(int32_t)(x>>32); // sign-extending.
     }
 }
-    
+
 void li_mul(
     const struct intdesc out,
     const struct intdesc a,
@@ -92,7 +92,7 @@ void li_mul(
     unsigned i, j;
 
     for(i=0; i<out.len; i++) setword32(out, i, 0);
-    
+
     for(i=0; i<a.len; i++)
     {
         x = 0;
@@ -113,11 +113,11 @@ static inline uint32_t getword32s(const struct intview intv, unsigned t)
 {
     // get word shifted.
 
-    // exotic sign extension on unsigned integer. 
+    // exotic sign extension on unsigned integer.
     const static unsigned m = UINT_MAX ^ UINT_MAX >> 5;
     const static unsigned b = UINT_MAX ^ INT_MAX;
     unsigned i = t >> 5 | ( t&b ? m : 0 );
-        
+
     if( t & 31 )
     {
         unsigned s = t & 31;
@@ -135,7 +135,7 @@ static inline uint32_t getword32s(const struct intview intv, unsigned t)
 static int shifted_ge(const struct intview a, const struct intview b, unsigned t)
 {
     // evaluates the expression: a >= (b << t)
-    
+
     unsigned m = a.len, n = b.len + (t+31)/32;
     unsigned i;
 
@@ -144,7 +144,7 @@ static int shifted_ge(const struct intview a, const struct intview b, unsigned t
         uint32_t
             u = getword32(a, i),
             v = getword32s(b, i*32-t);
-        
+
         if( u < v ) return 0; else if( u > v ) break;
     }
 
@@ -164,7 +164,7 @@ static void shifted_sub(
         x += getword32(a, i);
         x -= getword32s(b, i*32-t);
         setword32(out, i, (uint32_t)x);
-        x = (uint64_t)(int64_t)(int32_t)(x>>32); // sign-extending. 
+        x = (uint64_t)(int64_t)(int32_t)(x>>32); // sign-extending.
     }
 }
 
@@ -184,7 +184,7 @@ void li_div(
     if( rem.p ) for(i=0; i<rem.len; i++) setword32(rem, i, 0);
 
     // design decision:
-    // work on variables truncated to the shortest of all provided intdesc. 
+    // work on variables truncated to the shortest of all provided intdesc.
     n = 0;
     if( !n || quo.len < n ) n = quo.len;
     if( !n || rem.len < n ) n = rem.len;
@@ -201,12 +201,12 @@ void li_div(
 
     d.intd = b;
     d.base = 0; d.len = n;
-    
+
     for(i=0; i<n; i++)
         setword32(r, i, getword32(a, i));
-    
+
     h = g = 0;
-    
+
     for(i=n*32; i--; )
     {
         if( shifted_ge(r, d, i) )
@@ -214,7 +214,7 @@ void li_div(
             shifted_sub(r, r, d, i);
             h |= UINT32_C(1) << i%32;
         }
-        
+
         if( i & 31 ) continue;
 
         if( g == 0 )
@@ -232,7 +232,7 @@ void li_div(
 
     if( rem.p )
     {
-        for(i=0; i<r.len; i++) // must not erase quotient yet. 
+        for(i=0; i<r.len; i++) // must not erase quotient yet.
             setword32(rem, i, getword32(r, i));
     }
 

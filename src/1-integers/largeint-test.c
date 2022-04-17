@@ -42,7 +42,7 @@ int main()
     x.p = (void *)&b;
     y.p = (void *)&c;
     z.p = (void *)&d;
-    
+
     for(int i=0; i<75*75; i++) {
         fread(&a, 1, sizeof(a), stdin);
         fread(&b, 1, sizeof(b), stdin);
@@ -60,10 +60,10 @@ int main()
             li_div(y, z, w, x);
             if( c != a/b ) { wrong("div:quo", a/b, c); failed++; }
             if( d != a%b ) { wrong("div:rem", a%b, c); failed++; }
-            
+
             li_div(y, nid, w, x);
             if( c != a/b ) { wrong("div:quo", a/b, c); failed++; }
-            
+
             li_div(nid, z, w, x);
             if( d != a%b ) { wrong("div:rem", a%b, d); failed++; }
         }

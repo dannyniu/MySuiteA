@@ -46,7 +46,7 @@ typedef struct {
 typedef RSA_PRIV_CTX_HDR_T() RSA_Priv_Ctx_Hdr_t;
 
 // The value of ${ [0].aux } is the size of modulus in bits.
-// The value of ${ [1].aux } is the number of primes. 
+// The value of ${ [1].aux } is the number of primes.
 typedef CryptoParam_t RSA_Priv_Param_t[2];
 
 // [!A-E-D!]: If c does not divide l, behavior is undefined.

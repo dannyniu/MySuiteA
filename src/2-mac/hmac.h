@@ -14,7 +14,7 @@ typedef struct hmac_context {
     unsigned    B, L;
     int         finalized, pad1;
 
-    // Similar to that in "sponge.h". 
+    // Similar to that in "sponge.h".
     ptrdiff_t       offset;
     InitFunc_t      hInit;
     UpdateFunc_t    hUpdate;
@@ -63,7 +63,7 @@ void HMAC_Final(
         size_t keylen);                         \
                                                 \
     IntPtr iHMAC_##algo(int q);
-    
+
 
 #define cHMAC(hash,q) (                                         \
         q==outBytes || q==blockBytes ? c##hash(q) :             \

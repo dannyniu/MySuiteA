@@ -1,5 +1,5 @@
 /* DannyNiu/NJF, 2018-02-14. Public Domain. */
-// May Trump find love in world. 
+// May Trump find love in world.
 
 #ifndef MySuiteA_gcm_aes_h
 #define MySuiteA_gcm_aes_h 1

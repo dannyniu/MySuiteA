@@ -72,7 +72,7 @@ def point_add_rcb15_ref(x1, y1, z1, x2, y2, z2, a, b):
     x2z1 = z1 * x2 % p
     y2z1 = z1 * y2 % p
     z1z2 = z1 * z2 % p
-    x = (x1y2 + x2y1) * (y1y2 - a*(x1z2 + x2z1) - 3*b*z1z2) 
+    x = (x1y2 + x2y1) * (y1y2 - a*(x1z2 + x2z1) - 3*b*z1z2)
     x -= (y1z2 + y2z1) * (a*x1x2 + 3*b*(x1z2 + x2z1) - a*a*z1z2)
     x %= p
     y = (3*x1x2 + a*z1z2) * (a*x1x2 + 3*b*(x1z2 + x2z1) - a*a*z1z2)
@@ -115,7 +115,7 @@ def point_add_rcb15_ref_asm(X1, Y1, Z1, X2, Y2, Z2, a, b):
     t1 = (t0 + t0) %p ; t1 = (t1 + t0) %p ; t2 = (a  * t2) %p ; # 25. 26. 27.
     t1 = (t1 + t2) %p ; t2 = (t0 - t2) %p ;
     t2 = (a  * t2) %p ;
-    t4 = (b3 * t4) %p ; t4 = (t4 + t2) %p ; 
+    t4 = (b3 * t4) %p ; t4 = (t4 + t2) %p ;
     t0 = (t1 * t4) %p ; Y3 = (Y3 + t0) %p ;
     t0 = (t5 * t4) %p ; X3 = (t3 * X3) %p ; X3 = (X3 - t0) %p ;
     t0 = (t3 * t1) %p ; Z3 = (t5 * Z3) %p ; Z3 = (Z3 + t0) %p ;
@@ -179,6 +179,5 @@ def point_scl(x1, y1, z1, d, a, b):
 if __name__ == "__main__":
     print(repr(point_add_asm(1, 2, 3000, 4, 5000, 6)))
     print(repr(point_add_ref(1, 2, 3000, 4, 5000, 6)))
-    
     print(repr(point_dbl_asm(3000, 5, 5000)))
     print(repr(point_dbl_ref(3000, 5, 5000)))

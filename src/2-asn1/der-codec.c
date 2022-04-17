@@ -13,7 +13,7 @@ uint32_t ber_get_tag(const uint8_t **buf, size_t *len)
     // [2021-02-12:presumption-failure]:
     // may have to check ``remain'' at this point.
     // but assuming len >= 1 for now.
-    
+
     cls = *p >> 6;
     tag = *p & 31;
     p++; remain--;
@@ -31,7 +31,7 @@ uint32_t ber_get_tag(const uint8_t **buf, size_t *len)
         remain--;
         tag <<= 7;
         tag |= *p & 0x7F;
-        
+
         if( !(*p++ & 0x80) )
         {
             tag |= 0x80000000 | cls << 29;
@@ -54,7 +54,7 @@ size_t ber_get_len(const uint8_t **buf, size_t *len)
     size_t ret = 0, s = 0;
 
     // see [2021-02-12:presumption-failure].
-    
+
     ret = *p;
     p++; remain--;
 
@@ -103,7 +103,7 @@ size_t ber_push_len(uint8_t **stack, size_t val)
         }
         return 1;
     }
-    
+
     else
     {
         size_t ret = 0;
@@ -113,7 +113,7 @@ size_t ber_push_len(uint8_t **stack, size_t val)
             val >>= 8;
             ret++;
         }
-        
+
         if( *stack ) *(--(*stack)) = 0x80 | ret;
         return ret + 1;
     }
@@ -123,7 +123,7 @@ size_t ber_push_tag(uint8_t **stack, uint32_t val, int pc)
 {
     uint8_t tagflags = ((6 & (val >> 28)) | (pc & 1)) << 5;
     val &= BER_TLV_TAG_MAX;
-    
+
     if( val < (uint32_t)1 << 5 )
     {
         if( *stack )
@@ -241,7 +241,7 @@ loop:
         base += copy_remain;
         len1 -= copy_remain;
     }
-    
+
     else // len1 <= len2.
     {
         // next source segment:
@@ -268,14 +268,14 @@ IntPtr ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS)
 
     // 2022-02-13: changed to use the macro fron "vlong.h".
     IntPtr ret = VLONG_BYTES_SIZE(enclen);
-    
+
     vlong_t *w = any;
     uint32_t i;
-    
+
     if( !any ) return ret;
 
     w->c = VLONG_BYTES_WCNT(enclen);
-    
+
     for(i=0; i<w->c; i++) w->v[i] = 0;
 
     for(i=0; i<enclen; i++)

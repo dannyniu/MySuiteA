@@ -1,7 +1,7 @@
 The following is a list of DRBG features mentioned in NIST-SP-800-90A-rev1.
 "T" indicates that the feature is supported and implemented.
 "F" indicates that the feature is unsupported and not implemented.
-"Y" indicates that the feature is subsumed elsewhere. 
+"Y" indicates that the feature is subsumed elsewhere.
 
 ## DRBG algorithms ##
 
@@ -12,7 +12,7 @@ T: CTR_DRBG # instantiated with AES, with & without 'df'.
 T: Instantiation
 T: Reseeding
 T: Generate
-Y: Uninstantiate # the ERASE_STATES(buf,len) macro. 
+Y: Uninstantiate # the ERASE_STATES(buf,len) macro.
 
 ## DRBG inputs ##
 

@@ -54,12 +54,12 @@ void test_run1(
 
     P[0].info = bc;
     P[0].param = NULL;
-    
+
     printf("...... Test Name: %s ......\n", tn);
 
     ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen1);
     kvlen = ctx.x.bc_blksize + ctx.x.bc_keysize;
-    
+
     ((ReseedFunc_t)drbg(P, ReseedFunc))(&ctx.x, seed2, seedlen2);
 
     scanhex(ref, kvlen, exp1);
@@ -74,13 +74,13 @@ void test_run1(
             ((uint8_t *)&ctx.x + ctx.x.offset_k),
             kvlen);
     }
-    
+
     ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen1);
 
     // -3 to test incomplete blocks' code path
     ((GenFunc_t)drbg(P, GenFunc))(&ctx.x, out, 32 - 3);
     out[29] ^= 4;
-    
+
     scanhex(ref, 32, exp2);
     if( memcmp(ref, out, 32 - 3) )
     {

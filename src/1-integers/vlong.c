@@ -132,15 +132,15 @@ int vlong_cmps(uint32_t a, uint32_t b)
 
     // (attempted) constant-time implementation.
     y = (y >> 32) & 1;
-    
-    // Per suggestion by @fgrieu at https://crypto.stackexchange.com/q/88233 
+
+    // Per suggestion by @fgrieu at https://crypto.stackexchange.com/q/88233
     x = x | (x >> 16);
     x &= 0xffffU;
     x = -(1 ^ ((x ^ (x - 1)) >> 31));
 
     x &= 1;
     x &= ~y;
-    
+
     return x | (y << 1);
 }
 
@@ -222,7 +222,7 @@ vlong_t *vlong_divv(
     // an optional argument. Formmatted accordingly.
     for(i=0;        i<rem->c; i++) rem->v[i] = 0;
     for(i=0; quo && i<quo->c; i++) quo->v[i] = 0;
-    
+
     i = a->c * 32;
 
     while( i-- )
@@ -241,7 +241,7 @@ vlong_t *vlong_remv_inplace(vlong_t *rem, const vlong_t *b)
 {
     vlong_size_t i;
     int cmp;
-    
+
     if( rem->c < b->c ) return NULL;
 
     // 2021-06-05:
@@ -269,14 +269,14 @@ vlong_t *vlong_imod_inplace(vlong_t *rem, const vlong_t *b)
     uint64_t x = 0;
 
     // imod(x,p) := x >= 0 ? x % p : (p - (-x % p));
-    
+
     for(i=0; i<rem->c; i++) rem->v[i] ^= neg;
     vlong_adds(rem, rem, neg&1, 0);
 
     vlong_remv_inplace(rem, b);
 
     for(i=0; i<rem->c; i++) z |= rem->v[i];
-    
+
     // Per suggestion by @fgrieu at https://crypto.stackexchange.com/q/88233
     z |= z >> 16;
     z &= 0xffffU;
@@ -288,11 +288,11 @@ vlong_t *vlong_imod_inplace(vlong_t *rem, const vlong_t *b)
         uint32_t u, v;
         u = i < rem->c ? rem->v[i] : 0;
         v = i <   b->c ?   b->v[i] : 0;
-        
+
         x += (~neg & u) | (neg & v);
         x -= (neg & u);
         rem->v[i] = (uint32_t)x;
-        
+
         x >>= 32;
         x = (uint64_t)(int64_t)(int32_t)x;
     }
@@ -319,10 +319,10 @@ vlong_t *vlong_mulv_masked(
     {
         uint32_t bv = i ? 0 : 1;
         bv = (bv & umask) | (b->v[i] & bmask);
-        
+
         vlong_muls(out, a, bv, true);
         if( modfunc && !modfunc(out, mod_ctx) ) return NULL;
-        
+
         if( i )
         {
             vlong_mulx(out, out);
@@ -345,7 +345,7 @@ vlong_t *vlong_modexpv(
     const void *restrict mod_ctx)
 {
     vlong_size_t f, i, j, n;
-    
+
     if( out->c != tmp1->c || tmp1->c != tmp2->c )
         return NULL;
 
@@ -360,7 +360,7 @@ vlong_t *vlong_modexpv(
         tmp1->v[i] = i < base->c ? base->v[i] : 0;
         out->v[i] = i ? 0 : 1;
     }
-    
+
     for(i=0;;)
     {
         uint32_t mask = (e->v[i / 32] >> (i % 32)) & 1;
@@ -373,7 +373,7 @@ vlong_t *vlong_modexpv(
         for(j=0; j<n; j++) out->v[j] = tmp2->v[j];
 
         if( ++i >= f ) break;
-        
+
         vlong_mulv_masked(
             tmp2,
             tmp1, tmp1,
@@ -383,6 +383,6 @@ vlong_t *vlong_modexpv(
 
         continue;
     }
-    
+
     return out;
 }

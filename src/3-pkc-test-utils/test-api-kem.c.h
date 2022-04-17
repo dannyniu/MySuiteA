@@ -49,10 +49,10 @@ int main(int argc, char *argv[])
 #include "test-api-keycpy.c.h"
 
     printf("tests start\n");
-    
+
     int failures = 0;
     int testcount = 80 / 5;
-    
+
     size_t sslen = SSLEN;
     void *ss1 = malloc(sslen);
     void *ss2 = malloc(sslen);
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 #ifdef PKC_Prologue
         PKC_Prologue();
 #endif /* PKC_Epilogue */
-        
+
         PKC_Enc(enx, ss1, &sslen, PKC_PRNG_Gen, prng);
         PKC_Encode_Ciphertext(enx, NULL, &size);
 
@@ -79,14 +79,14 @@ int main(int argc, char *argv[])
 
         PKC_Encode_Ciphertext(enx, copy, &size);
         PKC_Decode_Ciphertext(dex, copy, size);
-        
+
         lret = (IntPtr)PKC_Dec(dex, ss2, &sslen);
         if( memcmp(ss1, ss2, sslen) || !lret )
         {
             printf("Cipher Failure, %zd, %ld\n", sslen, (long)lret);
             failures ++;
         }
-        
+
 #ifdef PKC_Epilogue
         PKC_Epilogue();
 #endif /* PKC_Epilogue */

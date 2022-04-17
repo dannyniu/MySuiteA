@@ -56,7 +56,7 @@ void test_run1(
     P[0].param = P+1;
     P[1].info = hash;
     P[1].param = NULL;
-    
+
     printf("...... Test Name: %s ......\n", tn);
 
     ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen1);
@@ -76,13 +76,13 @@ void test_run1(
             ((uint8_t *)&ctx.x + ctx.x.offset_k),
             kvlen);
     }
-    
+
     ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen1);
 
     // -3 to test incomplete blocks' code path
     ((GenFunc_t)drbg(P, GenFunc))(&ctx.x, out, ctx.x.prf_outlen * 2 - 3);
     out[ctx.x.prf_outlen * 2 - 3] ^= 4;
-    
+
     scanhex(ref, ctx.x.prf_outlen * 2, exp2);
     if( memcmp(ref, out, ctx.x.prf_outlen * 2 - 3) )
     {
@@ -135,7 +135,7 @@ void tests_runall()
         "B3BD0524 6CBA12A6 4735A4E3 FDE599BC"
         "1BE30F43 9BD06020 8EEA7D71 F9D123DF"
         "47B3CE06 9D98EDE6",
-        115, 55); 
+        115, 55);
 
     hash = iSHA256;
     seeds_init(55, 8, 63, 55);

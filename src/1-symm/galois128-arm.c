@@ -8,25 +8,25 @@
 static inline poly128_t bytes_mirror(poly128_t x)
 {
     poly128_t mask;
-    
+
     mask = 0xaaaa;
     mask = mask<<16 | mask;
     mask = mask<<32 | mask;
     mask = mask<<64 | mask;
     x = (x & mask)>>1 | (x & mask>>1)<<1;
-    
+
     mask = 0xcccc;
     mask = mask<<16 | mask;
     mask = mask<<32 | mask;
     mask = mask<<64 | mask;
     x = (x & mask)>>2 | (x & mask>>2)<<2;
-    
+
     mask = 0xf0f0;
     mask = mask<<16 | mask;
     mask = mask<<32 | mask;
     mask = mask<<64 | mask;
     x = (x & mask)>>4 | (x & mask>>4)<<4;
-    
+
     return x;
 }
 
@@ -42,7 +42,7 @@ static poly128_t galois128_mul_arm(poly128_t x, poly128_t y)
     b = vmull_p64((poly64_t)x, (poly64_t)(y>>64));
     b ^= vmull_p64((poly64_t)(x>>64), (poly64_t)y);
     a ^= b<<64;
-    
+
     c = vmull_p64(p, (poly64_t)(b>>64));
     a ^= c;
 

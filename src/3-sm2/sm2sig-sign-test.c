@@ -26,11 +26,11 @@ typedef struct {
 SM2SIG_Test_Vector_t testvecs[] =
 {
     {
-        .k = 
+        .k =
         "59276E27 D506861A 16680F3A D9C02DCC"
         "EF3CC1FA 3CDBE4CE 6D54B80D EAC1BC21",
 
-        .d = 
+        .d =
         "3945208F 7B2144B1 3F36E38A C6D39F95"
         "88939369 2860B51A 42FB81EF 4DF7C5B8",
 
@@ -38,7 +38,7 @@ SM2SIG_Test_Vector_t testvecs[] =
         "F5A03B06 48D2C463 0EEAC513 E1BB81A1"
         "5944DA38 27D5B741 43AC7EAC EEE720B3",
 
-        .s = 
+        .s =
         "B1B6AA29 DF212FD8 763182BC 0D421CA1"
         "BB9038FD 1F7F42D4 840B69C4 85BBC1AA",
 
@@ -49,7 +49,7 @@ SM2SIG_Test_Vector_t testvecs[] =
         .params[0].aux = 0,
         .params[1].aux = 0,
     },
-    
+
     {0},
 };
 
@@ -71,7 +71,7 @@ int main(void) // (int argc, char *argv[])
     {
         plen = ((ecp_curve_t *)testvec->params[0].info(ptrCurveDef))->plen;
         plen = plen < 64 ? plen : 64;
-        
+
         SM2SIG_Keygen(
             &sm2sigCtx.x_hdr, testvec->params,
             (GenFunc_t)FixedPRNG, testvec->d);

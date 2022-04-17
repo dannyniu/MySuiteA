@@ -26,11 +26,11 @@ typedef struct {
 ECDSA_Test_Vector_t testvecs[] =
 {
     {
-        .k = 
+        .k =
         "7A1A7E52797FC8CAAA435D2A4DACE391"
         "58504BF204FBE19F14DBB427FAEE50AE",
 
-        .d = 
+        .d =
         "C477F9F65C22CCE20657FAA5B2D1D812"
         "2336F851A508A1ED04E479C34985BF96",
 
@@ -38,7 +38,7 @@ ECDSA_Test_Vector_t testvecs[] =
         "2B42F576D07F4165FF65D1F3B1500F81"
         "E44C316F1F0B3EF57325B69ACA46104F",
 
-        .s = 
+        .s =
         "DC42C2122D6392CD3E3A993A89502A81"
         "98C1886FE69D262C4B329BDB6B63FAF1",
 
@@ -49,14 +49,14 @@ ECDSA_Test_Vector_t testvecs[] =
         .params[0].aux = 0,
         .params[1].aux = 0,
     },
-    
+
     {
-        .k = 
+        .k =
         "2E44EF1F8C0BEA8394E3DDA81EC6A784"
         "2A459B534701749E2ED95F054F013768"
         "0878E0749FC43F85EDCAE06CC2F43FEF",
 
-        .d = 
+        .d =
         "F92C02ED629E4B48C0584B1C6CE3A3E3"
         "B4FAAE4AFC6ACB0455E73DFC392E6A0A"
         "E393A8565E6B9714D1224B57D83F8A08",
@@ -66,7 +66,7 @@ ECDSA_Test_Vector_t testvecs[] =
         "DA9F66A3B40EA3B313D040D9B57DD41A"
         "332795D02CC7D507FCEF9FAF01A27088",
 
-        .s = 
+        .s =
         "CC808E504BE414F46C9027BCBF78ADF0"
         "67A43922D6FCAA66C4476875FBB7B94E"
         "FD1F7D5DBE620BFB821C46D549683AD8",
@@ -100,7 +100,7 @@ int main(void) // (int argc, char *argv[])
     {
         plen = ((ecp_curve_t *)testvec->params[0].info(ptrCurveDef))->plen;
         plen = plen < 64 ? plen : 64;
-        
+
         ECDSA_Keygen(
             &ecdsaCtx.x_hdr, testvec->params,
             (GenFunc_t)FixedPRNG, testvec->d);

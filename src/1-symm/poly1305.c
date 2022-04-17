@@ -31,8 +31,8 @@ static void p1305bn_modp(p1305bn_t x)
 
 static inline void p1305bn_scl(p1305bn_t out, p1305bn_t a, uint64_t x)
 {
-    // Multiply a by x and store the result of partial reduction in a. 
-    
+    // Multiply a by x and store the result of partial reduction in a.
+
     uint64_t w[5] = {0};
     int i;
 
@@ -50,7 +50,7 @@ static void p1305bn_mul(p1305bn_t a, p1305bn_t b)
 {
     int i, j;
     p1305bn_t m = {0}, n = {0};
-    
+
     for(i=5; i-->0; )
     {
         p1305bn_scl(m, a, b[i]);
@@ -58,7 +58,7 @@ static void p1305bn_mul(p1305bn_t a, p1305bn_t b)
         p1305bn_add(n, m);
     }
     p1305bn_modp(n);
-    
+
     for(i=0; i<5; i++) a[i] = n[i];
 }
 
@@ -66,7 +66,7 @@ void poly1305_init(poly1305_t *restrict poly1305, void const *restrict key)
 {
     int i;
     const uint32_t *k = key;
-    
+
     for(i=0; i<5; i++) poly1305->r[i] = poly1305->s[i] = poly1305->a[i] = 0;
     for(i=0; i<4; i++) {
         poly1305->r[i] = le32toh(k[i]);
@@ -91,21 +91,21 @@ void poly1305_1block(poly1305_t *restrict poly1305, void const *restrict data)
 {
     if( data )
     {
-        // data should be block-aligned, or word-aligned at least. 
+        // data should be block-aligned, or word-aligned at least.
         p1305bn_addto(poly1305->a, le32toh(((const uint32_t *)data)[0]), 0);
         p1305bn_addto(poly1305->a, le32toh(((const uint32_t *)data)[1]), 1);
         p1305bn_addto(poly1305->a, le32toh(((const uint32_t *)data)[2]), 2);
         p1305bn_addto(poly1305->a, le32toh(((const uint32_t *)data)[3]), 3);
         p1305bn_addto(poly1305->a, 1, 4);
     }
-    
+
     p1305bn_mul(poly1305->a, poly1305->r);
 }
 
 void poly1305_final(poly1305_t *restrict poly1305)
 {
     register int i;
-    
+
     p1305bn_add(poly1305->a, poly1305->s);
 
     for(i=0; i<5; i++) poly1305->r[i] = poly1305->s[i] = 0;

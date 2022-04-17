@@ -56,7 +56,7 @@ int main()
         Gimli_XOF_Write(&gh, testptr->testvec, strlen(testptr->testvec));
         Gimli_XOF_Final(&gh);
         Gimli_XOF_Read(&gh, bin, HASH_LEN);
-    
+
         for(i=0; i<HASH_LEN; i++)
         {
             sprintf(out + i * 2, "%02x", bin[i]);
@@ -68,10 +68,10 @@ int main()
             fail++;
         }
         else pass++;
-        
+
         testptr++;
     }
     printf("Gimli-XOF %d failed %d passed\n", fail, pass);
-    
+
     return fail == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

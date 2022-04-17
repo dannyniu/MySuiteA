@@ -27,7 +27,7 @@ void PrintIf(intmax_t cond, const char *fmt, ...)
     {
         //printf("%s\n", vname);
     }
-    
+
     vflushed = true;
     vprintf(fmt, ap);
 }
@@ -43,22 +43,22 @@ int main(int argc, char *argv[])
     CryptoParam_t Bc;
 
     if( argc < 3 ) return 1;
-    
+
     if( !strcmp(argv[1], "CCM-AES-128") )
         aead=iCCM_AES128, bc=iAES128, mode=tCCM;
-    
+
     if( !strcmp(argv[1], "CCM-AES-192") )
         aead=iCCM_AES192, bc=iAES192, mode=tCCM;
-    
+
     if( !strcmp(argv[1], "CCM-AES-256") )
         aead=iCCM_AES256, bc=iAES256, mode=tCCM;
-    
+
     Bc.info = bc, Bc.param = NULL;
 
     vname = argv[2];
     printf("%s\n", vname);
     freopen(argv[2], "r", stdin);
-    
+
     while( fgets(line, sizeof(line), stdin) )
     {
         *word = '\0'; sscanf(line, "%s", word);
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
                 dumphex(c, clen); }
             vflushed_saved = vflushed;
             vflushed = false;
-            
+
             tested++;
             l = -1;
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
                 vflushed = vflushed_saved || vflushed;
                 continue;
             }
-    
+
             ((PKInitFunc_t)mode(&Bc, KInitFunc))(
                 &Bc, &ccm, k, mode(&Bc, keyBytes));
             ((AEncFunc_t)mode(&Bc, AEncFunc))(
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
                 (void *)&ccm, ivlen, iv, alen, a, len, c, x, tlen, c+len);
             PrintIf(!ptr, "Dec Errornously Returned FAIL\n");
             PrintIf(memcmp(p, x, len), "Dec Fail: Plaintext Wrong!\n");
-        
+
             if( alen && pass ) {
                 ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
                     (void *)&ccm, ivlen, iv, alen-1, a+1, len, c, x, tlen, t);
@@ -154,22 +154,22 @@ int main(int argc, char *argv[])
         if( !strcmp(word, "Nonce") ) {
             sscanf(line, "%s = %n", word, &i);
             ivlen = (size_t)((uint8_t *)scanhex(iv, ivlen, line+i) - iv);
-            
+
             if( out2("Nonce\n") ) dumphex(iv, ivlen);
         }
-        
+
         if( !strcmp(word, "Adata") ) {
             sscanf(line, "%s = %n", word, &i);
             alen = (size_t)((uint8_t *)scanhex(a, alen, line+i) - a);
-            
+
             if( out2("Adata\n") ) dumphex(a, alen);
         }
-        
+
         if( !strcmp(word, "CT") ) {
             sscanf(line, "%s = %n", word, &i);
             clen = (size_t)((uint8_t *)scanhex(c, clen, line+i) - c);
             if( len >= 0 ) tlen = clen - len;
-            
+
             if( out2("CT\n") ) dumphex(c, clen);
         }
 
@@ -177,14 +177,14 @@ int main(int argc, char *argv[])
             sscanf(line, "%s = %n", word, &i);
             len = (size_t)((uint8_t *)scanhex(p, len, line+i) - p);
             if( clen > 0 ) tlen = clen - len;
-            
+
             if( out2("Payload\n") ) dumphex(p, len);
         }
 
         if( !strcmp(word, "Result") ) {
             sscanf(line, "%s = %n", word, &i);
             if( strncmp(line+i, "Pass", 4) ) pass = false; else pass = true;
-            
+
             out2("Testcase: %s\n", pass ? "Pass" : "Fail");
         }
     }

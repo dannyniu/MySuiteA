@@ -20,7 +20,7 @@ typedef struct sponge {
     unsigned        filled;
 
     PermuteFunc_t   permute;
-    
+
     // `blksize' is the block size of the permutation.
     // 2 blocks are directly appended to the sponge
     // working context - the 1st one is the one used in

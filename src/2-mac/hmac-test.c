@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     FILE *kfp;
 
     mysrand((unsigned long)time(NULL));
-    
+
     if( argc < 2 ) return EXIT_FAILURE;
     else
     {
@@ -31,14 +31,14 @@ int main(int argc, char *argv[])
         case u8cc("sha3_256"): h = iHMAC_SHA3_256; break;
         case u8cc("sha3_384"): h = iHMAC_SHA3_384; break;
         case u8cc("sha3_512"): h = iHMAC_SHA3_512; break;
-        
+
         default: return EXIT_FAILURE; break;
         }
     }
 
     kfp = fopen("mac-test-key", "rb");
     x = malloc(CTX_BYTES(h));
-    
+
     KINIT_FUNC(h)(x, buf, fread(buf, 1, 512, kfp));
     fclose(kfp); kfp = NULL;
 
@@ -46,11 +46,11 @@ int main(int argc, char *argv[])
     {
         UPDATE_FUNC(h)(x, buf, in_len);
     }
-    
+
     FINAL_FUNC(h)(x, buf, OUT_BYTES(h));
     free(x);
     x = NULL;
-    
+
     for(int i=0; i<OUT_BYTES(h); i++) printf("%02x", buf[i]);
     return EXIT_SUCCESS;
 }

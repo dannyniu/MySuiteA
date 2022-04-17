@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     fread(buf, 1, len, fp);
 
     // decoding test.
-    
+
     size = ber_tlv_decode_RSAPrivateKey(NULL, buf, len);
     printf("1st pass decoding returned: %ld\n", size);
 
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     vlong_t *M = rsa_fastdec(ctx);
     vlong_size_t i = 0;
     if( M == DeltaTo((&ctx->base), offset_w2) ) printf("sane\n");
-    
+
     if( M->v[0] != 65535 )
     {
         printf("RSA Decipher Incorrect!\n");
@@ -105,6 +105,6 @@ int main(int argc, char *argv[])
     }
 
     if( i == M->c ) printf("Textbook RSA Decipher Successful!\n");
-    
+
     return EXIT_SUCCESS;
 }

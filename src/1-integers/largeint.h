@@ -9,7 +9,7 @@ struct intdesc
 {
     // word count,
     // most-significant byte first,
-    // most-significant word first. 
+    // most-significant word first.
     unsigned len; // Recommended maximum: 256
     unsigned short msb, msw;
 
@@ -50,7 +50,7 @@ void li_sub(
     const struct intdesc out,
     const struct intdesc a,
     const struct intdesc b);
-    
+
 void li_mul(
     const struct intdesc out,
     const struct intdesc a,

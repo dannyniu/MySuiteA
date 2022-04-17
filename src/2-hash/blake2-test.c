@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     test1case(xBLAKE2s160);
     test1case(xBLAKE2s224);
     test1case(xBLAKE2s256);
-    
+
     test1case(iBLAKE2b160);
     test1case(iBLAKE2b256);
     test1case(iBLAKE2b384);
@@ -85,6 +85,6 @@ int main(int argc, char *argv[])
     test1case(iBLAKE2s160);
     test1case(iBLAKE2s224);
     test1case(iBLAKE2s256);
-    
+
     return EXIT_SUCCESS;
 }

@@ -13,7 +13,7 @@ int main(void)
 {
     vlong_t *subret;
     x.c = p.c = quo.c = rem.c = y1.c = y2.c = 4;
-    
+
     for(long n=0; n<50*50; n++)
     {
         memset(x.v, 0, 16);

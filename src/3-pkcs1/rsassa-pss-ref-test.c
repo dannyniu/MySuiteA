@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Missing message input.\n");
         return 1;
     }
-    
+
     IntPtr lret;
     size_t size;
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     free(copy); copy = NULL;
 
     int exitstat = EXIT_SUCCESS;
-    
+
     copy = malloc(NBITS / 8);
 
     if( !copy )
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
     fread(copy, 1, NBITS / 8, stdin);
     RSASSA_PSS_Decode_Signature(enx, copy, NBITS / 8);
-        
+
     lret = (IntPtr)RSASSA_PSS_Verify(enx, argv[1], strlen(argv[1]));
     if( !lret )
     {

@@ -31,7 +31,7 @@ testfunc() {
         datetime=$(date +%Y-%m-%d-%H%M%S)
         cp $testvec failed-sm3-$mlen.$datetime.$arch.dat
     fi
-    
+
     printf "%u failed tests.\n" $n
     if [ $n -gt 0 ]
     then return 1

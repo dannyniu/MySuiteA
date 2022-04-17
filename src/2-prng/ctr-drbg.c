@@ -43,7 +43,7 @@ static void CTR_DRBG_Update(
         while( t < x->bc_keysize + x->bc_blksize )
             seed[t++] = blk[o++];
     }
-    
+
     // mix with provided data.
     if( str )
     {
@@ -68,7 +68,7 @@ void CTR_DRBG_Seed(
 {
     uint8_t *seed = DeltaTo(x, offset_k);
     size_t t;
-    
+
     for(t = 0; t < x->bc_blksize + x->bc_keysize; t++)
         seed[t] = 0;
 
@@ -129,7 +129,7 @@ static void BCC(
     size_t t, o;
 
     for(t=0; t<x->bc_blksize; t++) buf[t] = 0;
-    
+
     for(t=o=0; n; o=0, bufelems++, n--)
     {
         while( t < x->bc_blksize && o < bufelems->len )
@@ -143,7 +143,7 @@ static void BCC(
             }
         }
     }
-    
+
     buf[t++] ^= 0x80;
     x->bc_enc(buf, buf, KSCHD_PTR);
 
@@ -162,12 +162,12 @@ static void BlockCipher_df(
     uint8_t LN[8]; // Variables L and N, 32-bits each.
     uint8_t buf[CTR_DRBG_MAX_BLKSIZE];
     uint8_t tmp[CTR_DRBG_MAX_BLKSIZE];
-    
+
     uint8_t key[CTR_DRBG_MAX_KEYSIZE + CTR_DRBG_MAX_BLKSIZE];
     uint8_t *blk = key + x->bc_keysize;
 
     bufvec_t bufvec[3];
-    
+
     size_t t, o;
 
     // set lengths prefix.
@@ -191,7 +191,7 @@ static void BlockCipher_df(
     bufvec[1].dat = LN;
     bufvec[2].len = inlen;
     bufvec[2].dat = in;
-    
+
     // condition is the simplified form of: b + k >= t + b
     for(t = 0; t <= x->bc_keysize; t += x->bc_blksize)
     {
@@ -202,7 +202,7 @@ static void BlockCipher_df(
                 key[t + o] = tmp[o];
             else break;
         }
-        
+
         // increment.
         inc(buf + 4); // ctr_len == 32 in bits.
     }
@@ -235,7 +235,7 @@ static void BlockCipher_df(
             else break;
         }
     }
-    
+
     // 2021-09-12:
     // This function BlockCipher_df had been verified as correct
     // manually against "CTR_DRBG_withDF.pdf" section:
@@ -263,13 +263,13 @@ void CTR_DRBG_Reseed_WithDF(
 {
     uint8_t seed_material[CTR_DRBG_MAX_KEYSIZE + CTR_DRBG_MAX_BLKSIZE];
     size_t seedlen = x->bc_blksize + x->bc_keysize;
-    
+
     BlockCipher_df(x, seedstr, len, seed_material, seedlen);
 
     // 2021-09-11:
     // forgetting to reset key schedule was a cause of inconsistency.
     x->bc_kschd(DeltaTo(x, offset_k), KSCHD_PTR);
-    
+
     CTR_DRBG_Update(x, seed_material, seedlen);
 }
 

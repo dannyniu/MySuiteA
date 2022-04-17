@@ -19,7 +19,7 @@
 #endif
 
 static vlong_t *gen_oddint_bits(
-    vlong_t *w, uint32_t bits, 
+    vlong_t *w, uint32_t bits,
     GenFunc_t rng, void *restrict rng_ctx)
 {
     uint32_t t, m;
@@ -42,7 +42,7 @@ static vlong_t *gen_oddint_bits(
     // is now or'd with 5 bits. This should be adequate when each prime factor
     // of a 15380-bit modulus (256-bit security) is at least 1024 bits, or when
     // each prime factor of a modulus of at most 7680 bits (192-bit security)
-    // is at least 512 bits. 
+    // is at least 512 bits.
     bits = bits - 1;
     w->v[bits / 32 - 0] |= (UINT64_C(0x1f0000000) << (bits % 32)) >> 32;
     w->v[bits / 32 - 1] |= (UINT64_C(0x1f0000000) << (bits % 32));
@@ -60,10 +60,10 @@ IntPtr rsa_keygen(
 
     vlong_size_t vlsize_modulus = VLONG_BITS_WCNT(param[0].aux);
     vlong_size_t vlsize_factor = VLONG_BITS_WCNT(bits_per_prime);
-    
+
     RSA_Priv_Base_Ctx_t *bx;
     RSA_OtherPrimeInfo_t *px;
-    
+
     vlong_t *vl, *t1, *t2, *t3, *t4, *t5, *t6;
     uint32_t *ul;
 
@@ -79,11 +79,11 @@ IntPtr rsa_keygen(
     bx->modulus_bits = param[0].aux;
 
 restart:
-    ul = DeltaAdd( 
+    ul = DeltaAdd(
         x,
         sizeof(RSA_Priv_Base_Ctx_t) +
         sizeof(RSA_OtherPrimeInfo_t) * bx->count_primes_other);
-    
+
     // e -- public exponent.
     vl = (vlong_t *)ul;
     vl->c = 1;
@@ -99,7 +99,7 @@ restart:
     t2 = DeltaAdd(vl, (vl->c + 1) * 4 * 2);
     t3 = DeltaAdd(vl, (vl->c + 1) * 4 * 3);
     t1->c = t2->c = t3->c = vl->c;
-    
+
     while(1)
     {
         gen_oddint_bits(vl, bits_per_prime, prng_gen, prng);
@@ -107,7 +107,7 @@ restart:
             break;
     }
     LOGF("Generated - p\n");
-    
+
     bx->offset_p = DeltaOf(x, vl);
     ul += vl->c + 1;
 
@@ -127,7 +127,7 @@ restart:
             break;
     }
     LOGF("Generated - q\n");
-    
+
     bx->offset_q = DeltaOf(x, vl);
     ul += vl->c + 1;
 
@@ -153,11 +153,11 @@ restart:
         px[t].offset_r = DeltaOf(x, vl);
         ul += vl->c + 1;
     }
-    
+
     // d -- private exponent.
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
-    
+
     vl->v[0] = 1;
     for(i=1; i<vl->c; i++) vl->v[i] = 0;
 
@@ -184,7 +184,7 @@ restart:
         DeltaTo(bx, offset_p),
         +1, 0);
     for(i=0; i<vl->c; i++) vl->v[i] = t1->v[i];
-    
+
     LOGF("Computing - d - mult (p - 1)\n");
 
     // -- mult (q - 1) --
@@ -200,7 +200,7 @@ restart:
         DeltaTo(bx, offset_q),
         +1, 0);
     for(i=0; i<vl->c; i++) vl->v[i] = t1->v[i];
-    
+
     LOGF("Computing - d - mult (q - 1)\n");
 
     // -- mult (r_i - 1) --
@@ -218,14 +218,14 @@ restart:
             DeltaAdd(bx, px[t].offset_r),
             +1, 0);
         for(i=0; i<vl->c; i++) vl->v[i] = t1->v[i];
-        
+
         LOGF("Computing - d - mult (r_%u - 1)\n", (unsigned)t + 3);
     }
 
     // -- copy e --
     t5->v[0] = PUB_EXPONENT;
     for(i=1; i<t1->c; i++) t5->v[i] = 0;
-    
+
     // -- copy \lambda(n) --
     for(i=0; i<t6->c; i++) t6->v[i] = vl->v[i];
 
@@ -238,7 +238,7 @@ restart:
     }
     for(i=0; i<vl->c; i++) vl->v[i] = t5->v[i];
     vlong_imod_inplace(vl, t6);
-    
+
     bx->offset_d = DeltaOf(x, vl);
     ul += vl->c + 1;
 
@@ -251,10 +251,10 @@ restart:
 
     // qInv, t_i -- CRT coefficient.
     t6 = vl;
-    
+
     for(i=0; i<t6->c; i++)
         t6->v[i] = 0;
-    
+
     for(i=0; i<vlsize_factor; i++)
         t6->v[i] = ((vlong_t *)DeltaTo(bx, offset_q))->v[i];
 
@@ -335,7 +335,7 @@ restart:
     // dQ -- CRT exponent of q.
     vl = (vlong_t *)ul;
     vl->c = vlsize_factor;
-    
+
     vlong_adds(
         DeltaTo(bx, offset_q),
         DeltaTo(bx, offset_q),
@@ -359,7 +359,7 @@ restart:
     {
         vl = (vlong_t *)ul;
         vl->c = vlsize_factor;
-    
+
         vlong_adds(
             DeltaAdd(bx, px[t].offset_r),
             DeltaAdd(bx, px[t].offset_r),
@@ -382,31 +382,31 @@ restart:
     // working variables:
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
-    
+
     bx->offset_w1 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
-    
+
     bx->offset_w2 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
-    
+
     bx->offset_w3 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
-    
+
     bx->offset_w4 = DeltaOf(x, vl);
     ul += vl->c + 1;
 
     vl = (vlong_t *)ul;
     vl->c = vlsize_modulus;
-    
+
     bx->offset_w5 = DeltaOf(x, vl);
     ul += vl->c + 1;
 

@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     free(copy); copy = NULL;
 
     int exitstat = EXIT_SUCCESS;
-    
+
     size_t sslen = 0;
     void *ss = NULL;
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
     fread(copy, 1, NBITS / 8, stdin);
     RSAES_OAEP_Decode_Ciphertext(dex, copy, NBITS / 8);
-        
+
     lret = (IntPtr)RSAES_OAEP_Dec(dex, NULL, &sslen);
     if( !lret )
     {
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
     ss = realloc(ss, sslen);
     RSAES_OAEP_Dec(dex, ss, &sslen);
-    
+
     if( argc < 2 || strncmp(ss, argv[1], sslen) )
     {
         printf("Reference Testing Failed Once, (ss=%zd,arg=%zd)%s\n",

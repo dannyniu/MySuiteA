@@ -40,7 +40,7 @@ IntPtr ECDSA_Decode_PrivateKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     IntPtr ret = ECC_Decode_PrivateKey(any, enc, enclen, param);
-    
+
     if( any )
     {
         ECDSA_Ctx_Hdr_t *x = any;
@@ -50,7 +50,7 @@ IntPtr ECDSA_Decode_PrivateKey(
         x->context_type = 2;
         x->offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t);
     }
-    
+
     return ret;
 }
 
@@ -74,7 +74,7 @@ IntPtr ECDSA_Decode_PublicKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     IntPtr ret = ECC_Decode_PublicKey(any, enc, enclen, param);
-    
+
     if( any )
     {
         ECDSA_Ctx_Hdr_t *x = any;
@@ -84,7 +84,7 @@ IntPtr ECDSA_Decode_PublicKey(
         x->context_type = 2;
         x->offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t);
     }
-    
+
     return ret;
 }
 
@@ -99,14 +99,14 @@ void *ECDSA_Sign(
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
-    
+
     void *restrict hashctx = DeltaTo(x, offset_hashctx);
     hash_funcs_set_t *hx = &x->hfuncs;
 
     vlong_size_t t;
     vlong_t *vl;
     uint32_t w;
-    
+
     ecp_opctx_t *opctx = DeltaTo(x, offset_opctx);
     ecp_xyz_t
         *Tmp1 = DeltaTo(x, offset_Tmp1),
@@ -130,15 +130,15 @@ start:
 
         if( vlong_cmpv_shifted(k, x->curve->n, 0) != 2 )
             continue;
-        
+
         if( vlong_cmpv_shifted(vlong_one, k, 0) == 1 )
             continue;
-        
+
         ecp_xyz_inf(R);
         ecp_point_scale_accumulate(
             R, Tmp1, Tmp2, x->curve->G,
             k, opctx, x->curve);
-        
+
         for(t=0,w=0; t<vl->c; t++)
             w |= vl->v[t];
         if( w ) break;
@@ -149,16 +149,16 @@ start:
 
     hx->initfunc(hashctx);
     hx->updatefunc(hashctx, msg, msglen);
-    
+
     if( hx->xfinalfunc )
         hx->xfinalfunc(hashctx);
-    
+
     hx->hfinalfunc(hashctx, H, slen);
 
     // compute s = k^{-1} * (e + r * d) mod n
 
     // pt.1. r = r.X / r.Z
-    
+
     vlong_inv_mod_p_fermat(
         DeltaTo(opctx, offset_w),
         DeltaTo(R,     offset_z),
@@ -211,7 +211,7 @@ start:
         x->curve->n);
 
     // check s != 0.
-    
+
     vl = DeltaTo(opctx, offset_s);
     for(t=0,w=0; t<vl->c; t++)
         w |= vl->v[t];
@@ -234,14 +234,14 @@ void const *ECDSA_Verify(
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
-    
+
     void *restrict hashctx = DeltaTo(x, offset_hashctx);
     hash_funcs_set_t *hx = &x->hfuncs;
 
     vlong_size_t t;
     vlong_t *vl;
     uint32_t w;
-    
+
     ecp_opctx_t *opctx = DeltaTo(x, offset_opctx);
     ecp_xyz_t
         *Tmp1 = DeltaTo(x, offset_Tmp1),
@@ -256,24 +256,24 @@ void const *ECDSA_Verify(
 
     if( vlong_cmpv_shifted(DeltaTo(opctx, offset_r), x->curve->n, 0) != 2 )
         goto reject;
-    
+
     if( vlong_cmpv_shifted(DeltaTo(opctx, offset_s), x->curve->n, 0) != 2 )
         goto reject;
-    
+
     if( vlong_cmpv_shifted(vlong_one, DeltaTo(opctx, offset_r), 0) == 1 )
         goto reject;
 
     if( vlong_cmpv_shifted(vlong_one, DeltaTo(opctx, offset_s), 0) == 1 )
         goto reject;
-    
+
     // hash the message.
 
     hx->initfunc(hashctx);
     hx->updatefunc(hashctx, msg, msglen);
-    
+
     if( hx->xfinalfunc )
         hx->xfinalfunc(hashctx);
-    
+
     hx->hfinalfunc(hashctx, H, slen);
 
     // u1 = e * s^{-1} mod n , u2 = r * s^{-1} mod n .
@@ -310,19 +310,19 @@ void const *ECDSA_Verify(
     // R = u1 * G + u2 * Q && R != O.
 
     ecp_xyz_inf(R);
-    
+
     ecp_point_scale_accumulate(
         R, Tmp1, Tmp2, x->curve->G,
         DeltaTo(x, offset_d), // {d} == u1.
         opctx, x->curve);
-    
+
     ecp_point_scale_accumulate(
         R, Tmp1, Tmp2, DeltaTo(x, offset_Q),
         DeltaTo(x, offset_k), // {k} == u2.
         opctx, x->curve);
 
     vl = DeltaTo(R, offset_z);
-        
+
     for(t=0,w=0; t<vl->c; t++)
         w |= vl->v[t];
     if( !w ) goto reject;

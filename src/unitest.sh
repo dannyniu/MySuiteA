@@ -6,7 +6,7 @@
 systarget=linux-gnu
 
 if command -v scan-build >/dev/null ; then
-    # scan-build installed. 
+    # scan-build installed.
     scan_build=scan-build
     regex='^[^[:alnum:].]*\([[:alnum:].]*\)[^[:alnum:].].*$'
     checkers="$(
@@ -84,25 +84,25 @@ test_arch_canrun()
     if [ $sysarch = $arch ] ; then true
     elif ( . /etc/os-release >/dev/null 2>&1 &&
                echo $ID $ID_LIKE | fgrep -q debian ) ; then
-        
+
         if ! dpkg -l \
              libgcc-\*-dev-${arch_abbrev}-cross \
              libc6-${arch_abbrev}-cross \
              qemu-user >/dev/null 2>&1 ; then false
-                              
+
         elif command -v $arch-$systarget-ld >/dev/null 2>&1
         then ld=$arch-$systarget-ld ; true
-             
+
         elif command -v ld.lld >/dev/null 2>&1
         then
             ld=ld.lld
-            
+
             if [ $arch = powerpc64 ] ||
                    [ $arch = sparc64 ]
             then
                 echo "$arch unsupported by $($ld --version)"
                 false
-                
+
             else true ; fi
         else false ; fi
     else false ; fi
@@ -123,7 +123,7 @@ test_run_1arch()
     # - systarget
     # - cc
     # - cflags0
-    
+
     # 2022-02-14: 2 notes.
     #
     # 1. The "src_common" variable had been imported here so that test scripts
@@ -146,7 +146,7 @@ test_run_1arch()
     : ${cflags:=""}
 
     bin=$(basename "$0" .sh)
- 
+
     # routinal notification info.
     echo "======== Test Name: $bin ; ${arch} / ${srcset} ========"
 
@@ -161,9 +161,9 @@ test_run_1arch()
         UsrArchIncPath=/usr/$arch-$systarget/include
         UsrArchLibPath=/usr/$arch-$systarget/lib
         UsrArchGccLibPath=$(last /usr/lib/gcc-cross/$arch-$systarget/*)
-        
+
         cflags1="-target $arch-$systarget -isystem $UsrArchIncPath"
-        
+
         ld_opt="
           -dynamic-linker
           $UsrArchLibPath/ld-*.so
@@ -243,13 +243,13 @@ tests_run()
               then test_run_1arch
               fi )
             if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
-            
+
             ( arch=aarch64
               if test_arch_canrun
               then test_run_1arch
               fi )
             if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
-            
+
             ( arch=powerpc64
                if test_arch_canrun
                then test_run_1arch
@@ -267,7 +267,7 @@ tests_run()
         # Specifying $arch_family allows (possibly multiple)
         # $arch to be adapt to different data models
         # (e.g. word lengths) within the same architecture.
-        
+
         x86)
             ( arch=x86_64
               if test_arch_canrun
@@ -275,7 +275,7 @@ tests_run()
               fi )
             if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
             ;;
-        
+
         arm)
             ( arch=aarch64
               if test_arch_canrun

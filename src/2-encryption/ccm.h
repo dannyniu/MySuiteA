@@ -9,7 +9,7 @@
 // ----------+-------+-------+------
 // align spec: 2 * 2 | 4 * 2 | 8 * 2
 typedef struct ccm_context {
-    // Similar to that in "sponge.h". 
+    // Similar to that in "sponge.h".
     ptrdiff_t   offset;
     EncFunc_t   enc;
 } ccm_t;
@@ -23,10 +23,10 @@ typedef struct ccm_context {
     })
 
 void *CCM_Encrypt(ccm_t *restrict ccm,
-                  size_t ivlen, void const *iv, // fixed, 12 bytes. 
+                  size_t ivlen, void const *iv, // fixed, 12 bytes.
                   size_t alen, void const *aad,
                   size_t len, void const *in, void *out,
-                  size_t tlen, void *T); // zeros tail if tlen>16. 
+                  size_t tlen, void *T); // zeros tail if tlen>16.
 
 void *CCM_Decrypt(ccm_t *restrict ccm,
                   size_t ivlen, void const *iv,

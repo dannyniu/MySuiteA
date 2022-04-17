@@ -26,7 +26,7 @@ typedef struct cmac_context {
         size_t         pad;
     };
 
-    // Similar to that in "sponge.h". 
+    // Similar to that in "sponge.h".
     ptrdiff_t       offset;
     KschdFunc_t     kschd;
     EncFunc_t       enc;
@@ -66,7 +66,7 @@ void CMAC_Final(
         size_t keylen);                         \
                                                 \
     IntPtr iCMAC_##algo(int q);
-    
+
 
 #define cCMAC(bc,q) (                                           \
         q==outBytes || q==blockBytes ? BLOCK_BYTES(c##bc) :     \

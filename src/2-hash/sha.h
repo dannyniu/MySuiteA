@@ -13,12 +13,12 @@ typedef struct sha1_context {
     unsigned    filled;
     uint64_t    len;
     uint32_t    H[5];
-    uint32_t    pad_H6; // to silence a warning. 
+    uint32_t    pad_H6; // to silence a warning.
     union {
         uint32_t    Msg32[16];
         uint8_t     Msg8[64];
     };
-} sha1_t; // only included for completeness, deprecated. 
+} sha1_t; // only included for completeness, deprecated.
 
 void SHA1_Init(sha1_t *restrict sha);
 void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len);

@@ -102,7 +102,7 @@ static inline int iota(keccak_state_t A_out, keccak_state_t A, int lfsr)
     int x, y;
     int j;
     keccak_word_t RC = 0;
-    
+
     for(y=0; y<5; y++)
         for(x=0; x<5; x++)
             A_out[y][x] = A[y][x];
@@ -121,7 +121,7 @@ static inline int iota(keccak_state_t A_out, keccak_state_t A, int lfsr)
     return lfsr;
 }
 
-// Intentionally not restrict-qualified. 
+// Intentionally not restrict-qualified.
 void glue(Keccak_InstName,_Permute)(void const *in, void *out)
 {
     keccak_state_t A;

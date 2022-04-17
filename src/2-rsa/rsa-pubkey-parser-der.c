@@ -12,7 +12,7 @@ IntPtr ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
 
     int pass = any ? 2 : 1;
     IntPtr ret = 0;
-    
+
     const uint8_t *ptr = enc;
     size_t remain = enclen;
 
@@ -39,7 +39,7 @@ IntPtr ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
             sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     }
-    
+
     size_modulus = ber_tlv_decode_integer(DeltaTo(ctx, offset_n), ptr, len);
     if( pass == 2 )  ctx->modulus_bits = vlong_topbit(DeltaTo(ctx, offset_n));
     ret += size_modulus;
@@ -48,31 +48,31 @@ IntPtr ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
     // 2021-09-11:
     // There was a serious error in which
     // pass 1 gives wrong estimate.
-    
+
     if( pass == 2 )
-        ctx->offset_w1 = 
+        ctx->offset_w1 =
             sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
 
     if( pass == 2 )
-        ctx->offset_w2 = 
+        ctx->offset_w2 =
             sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
-        
+
     if( pass == 2 )
-        ctx->offset_w3 = 
+        ctx->offset_w3 =
             sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
-        
+
     if( pass == 2 )
-        ctx->offset_w4 = 
+        ctx->offset_w4 =
             sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     ret += size_modulus;
-        
+
     if( pass == 2 )
     {
         ((vlong_t *)DeltaTo(ctx, offset_w1))->c = size_modulus / 4 - 1;
@@ -80,7 +80,7 @@ IntPtr ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
         ((vlong_t *)DeltaTo(ctx, offset_w3))->c = size_modulus / 4 - 1;
         ((vlong_t *)DeltaTo(ctx, offset_w4))->c = size_modulus / 4 - 1;
     }
-    
+
     //
     // publicExponent INTEGER, -- e
     if( -1 == BER_HDR ) return -1;
@@ -92,7 +92,7 @@ IntPtr ber_tlv_decode_RSAPublicKey(BER_TLV_DECODING_FUNC_PARAMS)
             sizeof(RSA_Pub_Ctx_Hdr_t) +
             ret; // it's been tracking occupied space since pass 1.
     }
-    
+
     ret += ber_tlv_decode_integer(DeltaTo(ctx, offset_e), ptr, len);
     ptr += len; remain -= len;
 

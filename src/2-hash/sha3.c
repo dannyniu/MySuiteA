@@ -30,7 +30,7 @@ void SHA3_Update(sha3_t *restrict x, void const *restrict data, size_t len)
 void SHA3_Final(sha3_t *restrict x, void *restrict out, size_t t)
 {
     size_t hlen = (200 - x->sponge.rate) / 2;
-    
+
     if( !x->sponge.finalized )
     {
         Sponge_Final(&x->sponge);

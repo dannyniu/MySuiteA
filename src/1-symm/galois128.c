@@ -10,7 +10,7 @@ typedef struct {
 static galois128_t galois128_load(void const *ptr)
 {
     galois128_t ret = (galois128_t){
-        .w[0] = be64toh( ((const uint64_t *)ptr)[0] ), 
+        .w[0] = be64toh( ((const uint64_t *)ptr)[0] ),
         .w[1] = be64toh( ((const uint64_t *)ptr)[1] ),
     };
     return ret;
@@ -65,9 +65,9 @@ void galois128_hash1block(void *restrict Y,
     if( Y ) y = galois128_load(Y);
     if( H ) h = galois128_load(H);
     if( X ) x = galois128_load(X);
-    
+
     y.w[0] ^= x.w[0];
     y.w[1] ^= x.w[1];
-    
+
     if( Y ) galois128_store(Y, galois128_mul(y, h));
 }

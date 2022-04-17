@@ -19,11 +19,11 @@ vlong_t *EGCD(
     for(t=0; t<y2->c; t++) y2->v[t] = 0;
     for(t=0; t<y1->c; t++) y1->v[t] = 0;
     y1->v[0] = 1;
-    
+
     while( !end )
     {
         vlong_divv(rem, quo, i, j);
-        
+
         tmp = i;
         i = j;
         j = rem;
@@ -39,7 +39,7 @@ vlong_t *EGCD(
         end = true;
         for(t=j->c; t--; ) if( j->v[t] ) end = false;
     }
-    
+
     for(t=1; t<i->c; t++) if( i->v[t] ) return NULL;
     if( i->v[0] != 1 ) return NULL;
     return y2;

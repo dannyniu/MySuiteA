@@ -1,112 +1,31 @@
-#!/bin/sh
+Skipping 1 non-native architecture test.
+======== Test Name: aes-test ; aarch64 / Plain C ========
+scan-build: Removing directory '/var/folders/2r/ggh9c1bj54s4fw658tg0n9mw0000gn/T/scan-build-2022-04-17-13-43-57-900831-o45wq0w5' because it contains no report.
+0 set(s) of test vectors failed.
+[42;33mpassing[0m
+Skipping 1 non-native architecture test.
+Skipping 1 non-native architecture test.
+Skipping 1 non-native architecture test.
+======== Test Name: aes-test ; aarch64 / ARM NEON Crypto ========
+scan-build: Removing directory '/var/folders/2r/ggh9c1bj54s4fw658tg0n9mw0000gn/T/scan-build-2022-04-17-13-44-00-621423-bxdf1riq' because it contains no report.
+0 set(s) of test vectors failed.
+[42;33mpassing[0m
+n21.4.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+clang: note: diagnostic msg: 
+********************
 
-if ! command -v python3 >/dev/null ; then
-    echo "Cannot invoke python3. (Not installed?)"
-    exit 1;
-elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
-    echo "Python version too old, (3.6 or newer required)" # Assumes CPython.
-    exit 1;
-fi
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang: note: diagnostic msg: /var/folders/2r/ggh9c1bj54s4fw658tg0n9mw0000gn/T/aes-test-e5b53f.c
+clang: note: diagnostic msg: /var/folders/2r/ggh9c1bj54s4fw658tg0n9mw0000gn/T/endian-6f1015.c
+clang: note: diagnostic msg: /var/folders/2r/ggh9c1bj54s4fw658tg0n9mw0000gn/T/rijndael-arm-4519e6.c
+clang: note: diagnostic msg: /var/folders/2r/ggh9c1bj54s4fw658tg0n9mw0000gn/T/aes-test-e5b53f.sh
+clang: note: diagnostic msg: Crash backtrace is located in
+clang: note: diagnostic msg: /Volumes/Extack/MiniSync/ReHome/Library/Logs/DiagnosticReports/clang_<YYYY-MM-DD-HHMMSS>_<hostname>.crash
+clang: note: diagnostic msg: (choose the .crash file that corresponds to your crash)
+clang: note: diagnostic msg: 
 
-testfunc() {
-    rm -f failed-*.dat success-*.dat
-    n=0
-    testvec=testblob.dat
-    mcnt=0;
-    mmax=17
-    while [ $mcnt -lt $mmax ] ; do
-        mlen=$(shortrand)
-        rm -f $testvec
-        randblob $mlen > $testvec
-
-        for b in 1 224 256 384 512 ; do
-            ../src/2-hash/shasum.py sha$b < $testvec > hash-ref.dat &
-            $exec xSHA$b < $testvec > hash-res.dat &
-            $exec iSHA$b < $testvec > hash-ret.dat &
-            wait
-
-            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
-            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
-                echo sha${b} failed with $ref:$res:$ret
-                n=$((n+1))
-                datetime=$(date +%Y-%m-%d-%H%M%S)
-                cp $testvec failed-sha${b}-$mlen.$datetime.$arch.dat
-            fi
-            rm hash-re[fst].dat
-        done
-
-        for b in 224 256; do
-            ../src/2-hash/shasum.py sha512_$b < $testvec > hash-ref.dat &
-            $exec xSHA512t${b} < $testvec > hash-res.dat &
-            $exec iSHA512t${b} < $testvec > hash-ret.dat &
-            wait
-            
-            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
-            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
-                echo sha512-${b} failed with $ref:$res:$ret
-                n=$((n+1))
-                cp $testvec failed-sha512t-${b}-$mlen.$datetime.$arch.dat
-            fi
-            rm hash-re[fst].dat
-        done
-
-        for b in 224 256 384 512; do
-            ../src/2-hash/shasum.py sha3_$b < $testvec > hash-ref.dat &
-            $exec xSHA3_$b < $testvec > hash-res.dat &
-            $exec iSHA3_$b < $testvec > hash-ret.dat &
-            wait
-            
-            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
-            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
-                echo sha3-${b} failed with $ref:$res:$ret
-                n=$((n+1))
-                cp $testvec failed-sha3-${b}-$mlen.$datetime.$arch.dat
-            fi
-            rm hash-re[fst].dat
-        done
-
-        for b in 128 256; do
-            ../src/2-hash/shakesum.py shake_$b < $testvec > hash-ref.dat &
-            $exec xSHA3_${b}000 < $testvec > hash-res.dat &
-            $exec iSHA3_${b}000 < $testvec > hash-ret.dat &
-            wait
-            
-            for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
-            if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
-                echo shake${b} failed with $ref:$res:$ret
-                n=$((n+1))
-                cp $testvec failed-shake-${b}-$mlen.$datetime.$arch.dat
-            fi
-            rm hash-re[fst].dat
-        done
-
-        unlink $testvec
-        mcnt=$((mcnt + 1))
-    done
-    
-    printf "%u failed tests.\n" $n
-    if [ $n -gt 0 ]
-    then return 1
-    else return 0
-    fi
-}
-
-cd "$(dirname "$0")"
-unitest_sh=../unitest.sh
-. $unitest_sh
-
-src="\
-sha-test.c
-sha.c
-sha3.c
-2-xof/shake.c
-1-symm/fips-180.c
-1-symm/sponge.c
-1-symm/keccak-f-1600.c
-0-datum/endian.c
-"
-
-arch_family=defaults
-srcset="Plain C"
-
-tests_run
+********************
+scan-build: Removing directory '/var/folders/2r/ggh9c1bj54s4fw658tg0n9mw0000gn/T/scan-build-2022-04-17-13-43-59-015962-fjbcs5wz' because it contains no report.

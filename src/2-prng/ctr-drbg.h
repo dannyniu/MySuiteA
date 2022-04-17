@@ -20,10 +20,10 @@ typedef struct ctr_drbg_context {
     // V and K are consecutive so as to ease implementation.
     ptrdiff_t       offset_k;
     ptrdiff_t       offset_v;
-    
+
     size_t          bc_kschdsize;
     ptrdiff_t       kschd_offset;
-    
+
     EncFunc_t       bc_enc;
     KschdFunc_t     bc_kschd;
 } ctr_drbg_t;
@@ -77,10 +77,10 @@ void CTR_DRBG_Generate(
 
 /* Notes on derivation function:
  *
- * Developers using this library may, for desiring more compact code size, 
+ * Developers using this library may, for desiring more compact code size,
  * omit the derivation function by defining CTR_DRBG_OMIT_DF as true.
  *
- * The derivation function in CTR-DRBG is essentially a entropy conditioner 
+ * The derivation function in CTR-DRBG is essentially a entropy conditioner
  * that condenses the input and reduce statistic biases.
  */
 

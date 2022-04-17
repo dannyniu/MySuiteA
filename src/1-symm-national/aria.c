@@ -98,7 +98,7 @@ static void A(uint8_t x[16])
 {
     uint8_t y[16];
     int i;
-    
+
     y[0]  = x[3] ^ x[4] ^ x[6] ^ x[8]  ^ x[9]  ^ x[13] ^ x[14];
     y[1]  = x[2] ^ x[5] ^ x[7] ^ x[8]  ^ x[9]  ^ x[12] ^ x[15];
     y[2]  = x[1] ^ x[4] ^ x[6] ^ x[10] ^ x[11] ^ x[12] ^ x[15];
@@ -123,7 +123,7 @@ static void A(uint8_t x[16])
 static void FO(uint8_t *restrict D, uint8_t const *restrict RK)
 {
     int i;
-    
+
     if( RK ) for(i=0; i<16; i++) D[i] ^= RK[i];
     SL1(D);
     A(D);
@@ -132,7 +132,7 @@ static void FO(uint8_t *restrict D, uint8_t const *restrict RK)
 static void FE(uint8_t *restrict D, uint8_t const *restrict RK)
 {
     int i;
-    
+
     if( RK ) for(i=0; i<16; i++) D[i] ^= RK[i];
     SL2(D);
     A(D);
@@ -147,22 +147,22 @@ static void ARIA_Kschd_Generic(
 {
     //
     // higher 64-bit half
-    
+
     ek[ 0] = W0h ^ (W1h >> 19 | W1l << 45);
     ek[ 2] = W1h ^ (W2h >> 19 | W2l << 45);
     ek[ 4] = W2h ^ (W3h >> 19 | W3l << 45);
     ek[ 6] = W3h ^ (W0h >> 19 | W0l << 45);
-    
+
     ek[ 8] = W0h ^ (W1h >> 31 | W1l << 33);
     ek[10] = W1h ^ (W2h >> 31 | W2l << 33);
     ek[12] = W2h ^ (W3h >> 31 | W3l << 33);
     ek[14] = W3h ^ (W0h >> 31 | W0l << 33);
-    
+
     ek[16] = W0h ^ (W1h << 61 | W1l >>  3);
     ek[18] = W1h ^ (W2h << 61 | W2l >>  3);
     ek[20] = W2h ^ (W3h << 61 | W3l >>  3);
     ek[22] = W3h ^ (W0h << 61 | W0l >>  3);
-    
+
     ek[24] = W0h ^ (W1h << 31 | W1l >> 33);
     if( c > 12 )
     {
@@ -171,29 +171,29 @@ static void ARIA_Kschd_Generic(
         if( c > 14 )
         {
             ek[30] = W3h ^ (W0h << 31 | W0l >> 33);
-    
+
             ek[32] = W0h ^ (W1h << 19 | W1l >> 45);
         }
     }
 
     //
     // lower 64-bit half
-    
+
     ek[ 1] = W0l ^ (W1l >> 19 | W1h << 45);
     ek[ 3] = W1l ^ (W2l >> 19 | W2h << 45);
     ek[ 5] = W2l ^ (W3l >> 19 | W3h << 45);
     ek[ 7] = W3l ^ (W0l >> 19 | W0h << 45);
-    
+
     ek[ 9] = W0l ^ (W1l >> 31 | W1h << 33);
     ek[11] = W1l ^ (W2l >> 31 | W2h << 33);
     ek[13] = W2l ^ (W3l >> 31 | W3h << 33);
     ek[15] = W3l ^ (W0l >> 31 | W0h << 33);
-    
+
     ek[17] = W0l ^ (W1l << 61 | W1h >>  3);
     ek[19] = W1l ^ (W2l << 61 | W2h >>  3);
     ek[21] = W2l ^ (W3l << 61 | W3h >>  3);
     ek[23] = W3l ^ (W0l << 61 | W0h >>  3);
-    
+
     ek[25] = W0l ^ (W1l << 31 | W1h >> 33);
     if( c > 12 )
     {
@@ -202,14 +202,14 @@ static void ARIA_Kschd_Generic(
         if( c > 14 )
         {
             ek[31] = W3l ^ (W0l << 31 | W0h >> 33);
-            
+
             ek[33] = W0l ^ (W1l << 19 | W1h >> 45);
         }
     }
 
     //
     // restore endianness.
-    
+
     c = (c + 1) * 2;
     while( c-- > 0 ) ek[c] = htobe64(ek[c]);
 }
@@ -338,7 +338,7 @@ static void ARIA_Encrypt_Generic(
     }
 
     FO(out, &ek[(i * 2 + 0) * 16]);
-    
+
     for(c=0; c<16; c++) out[c] ^= ek[(i * 2 + 1) * 16 + c];
 
     SL2(out);
@@ -352,7 +352,7 @@ static void ARIA_Decrypt_Generic(
 {
     // As newer blockcipher modes are mostly CTR-based AEADs, I decided to
     // deprioritize the efficient implementation of ARIA decryption.
-    
+
     uint8_t dk[16];
     int i;
 
@@ -367,7 +367,7 @@ static void ARIA_Decrypt_Generic(
         FO(out, dk);
         for(c=0, i--; c<16; c++) dk[c] = ek[i * 16 + c];
         A(dk);
-        
+
         FE(out, dk);
         for(c=0, i--; c<16; c++) dk[c] = ek[i * 16 + c];
         A(dk);
@@ -376,7 +376,7 @@ static void ARIA_Decrypt_Generic(
     FO(out, dk);
     for(c=0, i--; c<16; c++) dk[c] = ek[1 * 16 + c];
     A(dk);
-    
+
     for(c=0; c<16; c++) out[c] ^= dk[c];
 
     SL2(out);

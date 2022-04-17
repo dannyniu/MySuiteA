@@ -30,7 +30,7 @@ int main()
             ret = EXIT_FAILURE;
             printf("Src error: l1=%zd, o=%zd, l2=%zd. \n", l1, o, l2);
         }
-        
+
         if( memcmp(verify + l2, buf, l1) )
         {
             ret = EXIT_FAILURE;
@@ -40,6 +40,6 @@ int main()
 
     if( ret == EXIT_SUCCESS )
         printf("All Tests Passed.\n");
-    
+
     return ret;
 }

@@ -49,12 +49,12 @@ void test_run1(
 {
     int fails = 0;
     size_t kvlen;
-    
+
     printf("...... Test Name: %s ......\n", tn);
 
     INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen1);
     kvlen = ctx.x.bc_blksize + ctx.x.bc_keysize;
-    
+
     RESEED_FUNC(drbg)(&ctx.x, seed2, seedlen2);
 
     scanhex(ref, kvlen, exp1);
@@ -69,13 +69,13 @@ void test_run1(
             ((uint8_t *)&ctx.x + ctx.x.offset_k),
             kvlen);
     }
-    
+
     INST_INIT_FUNC(drbg)(&ctx.x, seed1, seedlen1);
 
     // -3 to test incomplete blocks' code path
     GEN_FUNC(drbg)(&ctx.x, out, 32 - 3);
     out[29] ^= 4;
-    
+
     scanhex(ref, 32, exp2);
     if( memcmp(ref, out, 32 - 3) )
     {

@@ -4,7 +4,7 @@ if ! command -v python3 >/dev/null ; then
     echo "Cannot invoke python3. (Not installed?)"
     exit 1
 elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
-    echo "Python version too old, (3.6 or newer required)" # Assumes CPython. 
+    echo "Python version too old, (3.6 or newer required)" # Assumes CPython.
     exit 1;
 fi
 
@@ -38,7 +38,7 @@ testfunc() {
                 mcnt=$((mcnt + 1))
             done
             kcnt=$((kcnt+1))
-        done 
+        done
     done | while
         rm -f mac-test-ref mac-test-result mac-test-key mac-test-data
         if ! read variant outlen klen mlen ; then
@@ -50,7 +50,7 @@ testfunc() {
         else true ; fi
     do
         algo=${variant}${outlen}
-        
+
         randblob $klen > mac-test-key
         randblob $mlen > mac-test-data
 
@@ -59,7 +59,7 @@ testfunc() {
             < mac-test-data > mac-test-ref &
         $exec $algo < mac-test-data > mac-test-result &
         wait
-        
+
         if [ "$(cat mac-test-ref)" = "$(cat mac-test-result)" ] ; then
             : echo Test succeeded for $algo klen=$klen mlen=$mlen
         else

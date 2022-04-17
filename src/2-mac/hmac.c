@@ -13,7 +13,7 @@ void *HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen
 
     for(i=0; i<sizeof(hmac->K0); i++) hmac->K0[i] = 0;
     for(i=0; i<sizeof(hmac->tag); i++) hmac->tag[i] = 0;
-        
+
     if( keylen <= hmac->B )
     {
         for(i=0; i<(keylen); i++)
@@ -28,7 +28,7 @@ void *HMAC_SetKey(hmac_t *restrict hmac, const void *restrict key, size_t keylen
          * // hmac->hFinal(aux, hmac->K0, hmac->L);
          */
     }
-        
+
     hmac->hInit(aux);
     for(i=0; i<hmac->B; i++) hmac->K0[i] ^= ipad;
     hmac->hUpdate(aux, hmac->K0, hmac->B);

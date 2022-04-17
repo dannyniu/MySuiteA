@@ -67,7 +67,7 @@ void *KMAC128_Xctrl(
             bufvec[0].dat, bufvec[0].len,
             rate);
         break;
-        
+
     default:
         return NULL;
     }
@@ -93,7 +93,7 @@ void *KMAC256_Xctrl(
             bufvec[0].dat, bufvec[0].len,
             rate);
         break;
-        
+
     default:
         return NULL;
     }
@@ -109,7 +109,7 @@ void KMAC_Final(kmac_t *restrict kmac, void *restrict out, size_t t)
     // [2022-04-14:n-out-len]:
     // It is a natural design that output of different desired length
     // be supported without requiring the entire input be re-inputted.
-    
+
     if( !kmac->sponge.finalized )
     {
         Sponge_Save(&kmac->sponge);
@@ -124,7 +124,7 @@ void KMAC_Final(kmac_t *restrict kmac, void *restrict out, size_t t)
 void KMAC_XofFinal(kmac_t *restrict kmac)
 {
     // see also [2022-04-14:n-out-len] in ``KMAC_Final''.
-    
+
     if( !kmac->sponge.finalized )
     {
         Sponge_Save(&kmac->sponge);

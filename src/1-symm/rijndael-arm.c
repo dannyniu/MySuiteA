@@ -20,7 +20,7 @@ static void Rijndael_Nb4_Cipher(
 
     rk = vld1q_u8((const void*)(w));
     state = vaeseq_u8(state, rk);
-    
+
     for(i=1; i<Nr; i++) {
         rk = vld1q_u8((const void*)(w+i*16));
         state = vaesmcq_u8(state);

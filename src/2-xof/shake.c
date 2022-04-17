@@ -8,7 +8,7 @@ void SHAKE128_Init(shake_t *restrict x)
 {
     *x = (shake_t){
         .sponge = SPONGE_INIT(200-16*2, 0x1f, 0x80, xKeccakF1600),
-        .state = {0}, 
+        .state = {0},
     };
 }
 
@@ -16,7 +16,7 @@ void SHAKE256_Init(shake_t *restrict x)
 {
     *x = (shake_t){
         .sponge = SPONGE_INIT(200-32*2, 0x1f, 0x80, xKeccakF1600),
-        .state = {0}, 
+        .state = {0},
     };
 }
 
@@ -38,7 +38,7 @@ void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len)
 static inline uint8_t ilen(uint64_t v)
 {
     uint8_t o = 8;
-    
+
     if( v < (uint64_t)1 << 56 ) o = 7; else return o;
     if( v < (uint64_t)1 << 48 ) o = 6; else return o;
     if( v < (uint64_t)1 << 40 ) o = 5; else return o;
@@ -96,7 +96,7 @@ void *SHAKE_Xctrl(
 {
     unsigned rate;
     (void)flags;
-    
+
     switch( cmd )
     {
     case SHAKE_cSHAKE_customize:
@@ -104,7 +104,7 @@ void *SHAKE_Xctrl(
         if( !bufvec || veclen < 2 ) return NULL;
 
         rate = x->sponge.rate;
-        
+
         // fall-back to plain SHAKE.
         if( bufvec[0].len == 0 && bufvec[1].len == 0 )
         {

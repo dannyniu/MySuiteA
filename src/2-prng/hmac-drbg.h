@@ -27,7 +27,7 @@ typedef struct hmac_drbg_context {
     ptrdiff_t       offset_k;
     ptrdiff_t       offset_v;
     size_t          prf_outlen;
-    
+
     ptrdiff_t           prf_ctx_offset;
     const CryptoParam_t *parameterization;
     union
@@ -35,7 +35,7 @@ typedef struct hmac_drbg_context {
         KInitFunc_t     prf_init;
         PKInitFunc_t    prf_pinit;
     };
-    
+
     UpdateFunc_t    prf_update;
     FinalFunc_t     prf_final;
 } hmac_drbg_t;

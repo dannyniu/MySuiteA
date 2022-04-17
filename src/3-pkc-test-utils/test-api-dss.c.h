@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 #include "test-api-keycpy.c.h"
 
     printf("tests start\n");
-    
+
     int failures = 0;
     int testcount = 80 / 5;
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
         PKC_Sign(dex, msg, msglen, PKC_PRNG_Gen, prng);
         PKC_Encode_Signature(dex, NULL, &size);
-       
+
         if( !(sig = realloc(copy, size)) )
         {
             perror("malloc 3");
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
         PKC_Encode_Signature(dex, copy, &size);
         PKC_Decode_Signature(enx, copy, size);
-        
+
         lret = (IntPtr)PKC_Verify(enx, msg, msglen);
         if( !lret )
         {

@@ -87,7 +87,7 @@ void compressfunc_sm3(uint32_t V[8], uint32_t const *restrict M)
         TT1 = W[i] ^ W[(i + 4) % 16];
         TT1 += FF(j, A, B, C) + D + SS2;
         TT2 = GG(j, E, F, G) + H + SS1 + W[i];
-        
+
         // Update W[].
         W[i] = P1(
             W[i] ^

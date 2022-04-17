@@ -7,7 +7,7 @@ void Gimli_XOF_Init(gimli_xof_t *restrict x)
 {
     *x = (gimli_xof_t){
         .sponge = SPONGE_INIT(16, 0x1f, 0x80, xGimli),
-        .state.u32 = {0}, 
+        .state.u32 = {0},
     };
 }
 

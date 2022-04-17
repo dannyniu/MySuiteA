@@ -4,7 +4,7 @@
 #include "../1-symm/fips-180.h"
 #include "sha.h"
 
-// SHA1 Definitions. 
+// SHA1 Definitions.
 
 void SHA1_Init(sha1_t *restrict sha)
 {
@@ -21,7 +21,7 @@ void SHA1_Init(sha1_t *restrict sha)
 void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
-    
+
     // Msg must not be full when this loop enters.
     while(len)
     {
@@ -43,7 +43,7 @@ void SHA1_Final(sha1_t *restrict sha, void *restrict out, size_t t)
     size_t i;
 
     if( sha->finalized ) goto finalized;
-    
+
     if( sha->filled / sizeof(uint32_t) >= 14 )
     {
         sha->Msg8[sha->filled++] = 0x80;
@@ -79,12 +79,12 @@ finalized:
     }
 }
 
-// SHA224, SHA256 Definitions. 
+// SHA224, SHA256 Definitions.
 
 void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
-    
+
     // Msg must not be full when this loop enters.
     while(len)
     {
@@ -104,7 +104,7 @@ static void sha256_final(sha256_t *restrict sha)
 {
     int i;
     if( sha->finalized ) return;
-    
+
     if( sha->filled / sizeof(uint32_t) >= 14 )
     {
         sha->Msg8[sha->filled++] = 0x80;
@@ -183,7 +183,7 @@ void SHA256_Final(sha256_t *restrict sha, void *restrict out, size_t t)
     size_t i;
 
     sha256_final(sha);
-    
+
     if( out )
     {
         for(i=0; i<t; i++)
@@ -191,12 +191,12 @@ void SHA256_Final(sha256_t *restrict sha, void *restrict out, size_t t)
     }
 }
 
-// SHA384, SHA512 Definitions. 
+// SHA384, SHA512 Definitions.
 
 void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
-    
+
     // Msg must not be full when this loop enters.
     while(len)
     {
@@ -216,7 +216,7 @@ static void sha512_final(sha512_t *restrict sha)
 {
     int i;
     if( sha->finalized ) return;
-    
+
     if( sha->filled / sizeof(uint64_t) >= 14 )
     {
         sha->Msg8[sha->filled++] = 0x80;
@@ -237,7 +237,7 @@ static void sha512_final(sha512_t *restrict sha)
         sha->filled = 0;
     }
 
-    // Known Bug: Streaming longer than 2^64 currently not supported. 
+    // Known Bug: Streaming longer than 2^64 currently not supported.
     sha->Msg64[14] = htobe64(0);
     sha->Msg64[15] = htobe64(sha->len);
     compressfunc_sha512(sha->H, sha->Msg64);
@@ -267,7 +267,7 @@ void SHA384_Final(sha384_t *restrict sha, void *restrict out, size_t t)
     size_t i;
 
     sha512_final(sha);
-    
+
     if( out )
     {
         for(i=0; i<t; i++)
@@ -296,7 +296,7 @@ void SHA512_Final(sha512_t *restrict sha, void *restrict out, size_t t)
     size_t i;
 
     sha512_final(sha);
-    
+
     if( out )
     {
         for(i=0; i<t; i++)
@@ -325,7 +325,7 @@ void SHA512t224_Final(sha512_t *restrict sha, void *restrict out, size_t t)
     size_t i;
 
     sha512_final(sha);
-    
+
     if( out )
     {
         for(i=0; i<t; i++)
@@ -354,13 +354,13 @@ void SHA512t256_Final(sha512_t *restrict sha, void *restrict out, size_t t)
     size_t i;
 
     sha512_final(sha);
-    
+
     if( out )
     {
         for(i=0; i<t; i++)
             ptr[i] = i<32 ? sha->Msg8[i] : 0;
     }
-}    
+}
 
 IntPtr iSHA1(int q){ return xSHA1(q); }
 IntPtr iSHA224(int q){ return xSHA224(q); }

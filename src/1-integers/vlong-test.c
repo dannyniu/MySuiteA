@@ -54,33 +54,33 @@ int main()
 
         // "ts" stands for test suite.
         // ts1: // normal tests of add, sub, mul.
-        
+
         vlong_addv((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v);
         vlong_subv((vlong_t *)&x, (vlong_t *)&u, (vlong_t *)&v);
-        
+
         if( (c = vlong2huge((vlong_t *)&w)) != a + b )
             wrong("add", a+b, c), failed++;
-        
+
         if( (d = vlong2huge((vlong_t *)&x)) != a - b )
             wrong("sub", a-b, d), failed++;
 
         vlong_mulv_masked((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v,
                           1, NULL, NULL);
-        
+
         if( (c = vlong2huge((vlong_t *)&w)) != a * b )
             wrong("mul", a*b, c), failed++;
 
         vlong_mulv_masked((vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v,
                           0, NULL, NULL);
-        
+
         if( (c = vlong2huge((vlong_t *)&w)) != a )
             wrong("maskmul", a, c), failed++;
 
-        
+
         // ts2: // modular test of mul.
 
         if( !(b >> 64) ) goto ts3;
-        
+
         for(int i=0; i<2; i++)
         {
             u.v[i] = a >> (i * 32);
@@ -96,7 +96,7 @@ int main()
             (a&UINT64_MAX) * (b&UINT64_MAX) % (b >> 64) )
             wrong("modmul", (a&UINT64_MAX) * (b&UINT64_MAX) % (b >> 64), d),
                 failed++;
-        
+
     ts3: // tests of div and rem.
 
         for(int i=0; i<4; i++)
@@ -104,14 +104,14 @@ int main()
             u.v[i] = a >> (i * 32);
             v.v[i] = b >> (i * 32);
         }
-        
+
         b >>= b % 60;
         if( !b ) goto ts4;
         for(int i=0; i<4; i++)
             v.v[i] = b >> (i * 32);
 
         vlong_divv((vlong_t *)&x, (vlong_t *)&w, (vlong_t *)&u, (vlong_t *)&v);
-        
+
         if( (c = vlong2huge((vlong_t *)&x)) != a % b )
             wrong("rem", a % b, c), failed++;
 
@@ -120,7 +120,7 @@ int main()
 
         for(int i=0; i<4; i++) x.v[i] = u.v[i];
         vlong_remv_inplace((vlong_t *)&x, (vlong_t *)&v);
-        
+
         if( (c = vlong2huge((vlong_t *)&x)) != a % b )
             wrong("irem", a % b, c), failed++;
 
@@ -133,7 +133,7 @@ int main()
 
     ts4: continue;
     }
-    
+
     printf("%ld failed test(s). \n", failed);
     return failed == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -28,7 +28,7 @@ void test_run1(
     uint8_t *p;
     size_t kl, ml, tl;
     size_t rl;
-    
+
     printf("...... Test Name: %s ......\n", tn);
     kl = (uint8_t *)scanhex(key, -1, k) - key;
     ml = (uint8_t *)scanhex(msg, -1, m) - msg;
@@ -58,7 +58,7 @@ void test_run1(
         printf("Actual Output 1: \n");
         dumphex(mac, tl);
     }
-    
+
     if( !fails ) printf("...... Test Succeeded ......\n");
     else ret = EXIT_FAILURE;
 }
@@ -78,14 +78,14 @@ void tests_runall()
         "2B7E1516 28AED2A6 ABF71588 09CF4F3C",
         "6BC1BEE2 2E409F96 E93D7E11 7393172A",
         "070A16B4 6B4D4144 F79BDD9D D04A287C");
-    
+
     test_run1(
         "CMAC<bc=AES-128>",
         "2B7E1516 28AED2A6 ABF71588 09CF4F3C",
         "6BC1BEE2 2E409F96 E93D7E11 7393172A"
         "AE2D8A57",
         "7D85449E A6EA19C8 23A7BF78 837DFADE");
-    
+
     test_run1(
         "CMAC<bc=AES-128>",
         "2B7E1516 28AED2A6 ABF71588 09CF4F3C",
@@ -96,7 +96,7 @@ void tests_runall()
         "51F0BEBF 7E3B9D92 FC497417 79363CFE");
 
     cmac = iCMAC_AES192;
-    
+
     test_run1(
         "CMAC<bc=AES-192>",
         "8E73B0F7 DA0E6452 C810F32B 809079E5"
@@ -130,7 +130,7 @@ void tests_runall()
         "A1D5DF0E ED790F79 4D775896 59F39A11");
 
     cmac = iCMAC_AES256;
-    
+
     test_run1(
         "CMAC<bc=AES-256>",
         "603DEB10 15CA71BE 2B73AEF0 857D7781"

@@ -14,7 +14,7 @@ typedef struct sha3_context {
     sponge_t    sponge;
     union {
         uint8_t     u8[200];
-        uint64_t    u64[25]; // for alignment. 
+        uint64_t    u64[25]; // for alignment.
     } state[2];
 } sha3_t, sha3_224_t, sha3_256_t, sha3_384_t, sha3_512_t;
 

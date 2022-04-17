@@ -35,7 +35,7 @@ if( !kgx )
     perror("malloc 1");
     exit(EXIT_FAILURE);
 }
-    
+
 lret = PKC_Keygen(kgx, params, PKC_PRNG_Gen, prng);
 
 if( !lret )

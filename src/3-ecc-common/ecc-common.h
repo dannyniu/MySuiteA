@@ -19,7 +19,7 @@ typedef struct {
     uint32_t offset_Tmp1, offset_Tmp2; // for ec_point_scale_accumulate.
     uint32_t offset_opctx;
     int32_t status; // refer to "2-rsa/pkcs1-padding.h".
-    
+
     // 2 machine word counted.
     IntPtr context_type; // 1 for KEM, 2 for DSS.
     ecp_curve_t const *curve;
@@ -63,7 +63,7 @@ typedef struct {
     // 2 machine words counted.
     size_t hlen;
     ptrdiff_t offset_hashctx;
-    
+
     // 4 machine words counted.
     hash_funcs_set_t hfuncs;
 } ECC_Hash_Ctx_Hdr_t;

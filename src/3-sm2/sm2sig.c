@@ -16,11 +16,11 @@ static void sm2sig_setZ(
 {
     ecp_opctx_t *opctx = DeltaTo(x, offset_opctx);
     ecp_xyz_t *pubkey = DeltaTo(x, offset_Q);
-    
+
     uint8_t buf[128];
     void *restrict hashctx = DeltaTo(x, offset_hashctx);
     hash_funcs_set_t *hx = &x->hfuncs;
-    
+
     vlong_t *vl;
     vlong_size_t t;
 
@@ -35,16 +35,16 @@ static void sm2sig_setZ(
         for(t=0; t<vl->c; t++) vl->v[t] = 0;
     else vlong_cpy(vl, x->curve->p);
     vlong_adds(vl, vl, x->curve->a, 0);
-    
+
     vlong_I2OSP(vl, buf, x->curve->plen);
     hx->updatefunc(hashctx, buf, x->curve->plen);
-    
+
     vlong_I2OSP(x->curve->b, buf, x->curve->plen);
     hx->updatefunc(hashctx, buf, x->curve->plen);
 
     vlong_I2OSP(DeltaTo(x->curve->G, offset_x), buf, x->curve->plen);
     hx->updatefunc(hashctx, buf, x->curve->plen);
-    
+
     vlong_I2OSP(DeltaTo(x->curve->G, offset_y), buf, x->curve->plen);
     hx->updatefunc(hashctx, buf, x->curve->plen);
 
@@ -52,7 +52,7 @@ static void sm2sig_setZ(
 
     vlong_I2OSP(DeltaTo(pubkey, offset_x), buf, x->curve->plen);
     hx->updatefunc(hashctx, buf, x->curve->plen);
-    
+
     vlong_I2OSP(DeltaTo(pubkey, offset_y), buf, x->curve->plen);
     hx->updatefunc(hashctx, buf, x->curve->plen);
 
@@ -99,7 +99,7 @@ IntPtr SM2SIG_Decode_PrivateKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     IntPtr ret = ECC_Decode_PrivateKey(any, enc, enclen, param);
-    
+
     if( any )
     {
         SM2SIG_Ctx_Hdr_t *x = any;
@@ -108,11 +108,11 @@ IntPtr SM2SIG_Decode_PrivateKey(
         x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
         x->context_type = 2;
         x->offset_hashctx = sizeof(SM2SIG_Ctx_Hdr_t);
-        
+
         // the value is default per Chinese GM/T 0009-2012 section 10.
         sm2sig_setZ(x, "1234567812345678", 16);
     }
-    
+
     return ret;
 }
 
@@ -136,7 +136,7 @@ IntPtr SM2SIG_Decode_PublicKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     IntPtr ret = ECC_Decode_PublicKey(any, enc, enclen, param);
-    
+
     if( any )
     {
         SM2SIG_Ctx_Hdr_t *x = any;
@@ -145,11 +145,11 @@ IntPtr SM2SIG_Decode_PublicKey(
         x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
         x->context_type = 2;
         x->offset_hashctx = sizeof(SM2SIG_Ctx_Hdr_t);
-        
+
         // the value is default per Chinese GM/T 0009-2012 section 10.
         sm2sig_setZ(x, "1234567812345678", 16);
     }
-    
+
     return ret;
 }
 
@@ -164,14 +164,14 @@ void *SM2SIG_Sign(
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
-    
+
     void *restrict hashctx = DeltaTo(x, offset_hashctx);
     hash_funcs_set_t *hx = &x->hfuncs;
 
     vlong_size_t t;
     vlong_t *vl;
     uint32_t w;
-    
+
     ecp_opctx_t *opctx = DeltaTo(x, offset_opctx);
     ecp_xyz_t
         *Tmp1 = DeltaTo(x, offset_Tmp1),
@@ -195,10 +195,10 @@ start:
 
         if( vlong_cmpv_shifted(k, x->curve->n, 0) != 2 )
             continue;
-        
+
         if( vlong_cmpv_shifted(vlong_one, k, 0) == 1 )
             continue;
-        
+
         ecp_xyz_inf(R);
         ecp_point_scale_accumulate(
             R, Tmp1, Tmp2, x->curve->G,
@@ -227,10 +227,10 @@ start:
     hx->initfunc(hashctx);
     hx->updatefunc(hashctx, x->uinfo, x->hlen);
     hx->updatefunc(hashctx, msg, msglen);
-    
+
     if( hx->xfinalfunc )
         hx->xfinalfunc(hashctx);
-    
+
     hx->hfinalfunc(hashctx, H, slen);
 
     // compute r = (e + x_R) mod n
@@ -238,7 +238,7 @@ start:
     vlong_OS2IP(
         DeltaTo(opctx, offset_v), // {v} == e
         H, slen);
-    
+
     vlong_addv(
         DeltaTo(opctx, offset_r), // r == {v} + x_R == e + x_R
         DeltaTo(opctx, offset_r),
@@ -310,9 +310,9 @@ start:
         DeltaTo(opctx, offset_w), 1,
         (vlong_modfunc_t)vlong_remv_inplace,
         x->curve->n);
-        
+
     // check s != 0.
-    
+
     vl = DeltaTo(opctx, offset_s);
     for(t=0,w=0; t<vl->c; t++)
         w |= vl->v[t];
@@ -335,14 +335,14 @@ void const *SM2SIG_Verify(
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
-    
+
     void *restrict hashctx = DeltaTo(x, offset_hashctx);
     hash_funcs_set_t *hx = &x->hfuncs;
 
     vlong_size_t t;
     vlong_t *vl;
     uint32_t w;
-    
+
     ecp_opctx_t *opctx = DeltaTo(x, offset_opctx);
     ecp_xyz_t
         *Tmp1 = DeltaTo(x, offset_Tmp1),
@@ -357,32 +357,32 @@ void const *SM2SIG_Verify(
 
     if( vlong_cmpv_shifted(DeltaTo(opctx, offset_r), x->curve->n, 0) != 2 )
         goto reject;
-    
+
     if( vlong_cmpv_shifted(DeltaTo(opctx, offset_s), x->curve->n, 0) != 2 )
         goto reject;
-    
+
     if( vlong_cmpv_shifted(vlong_one, DeltaTo(opctx, offset_r), 0) == 1 )
         goto reject;
 
     if( vlong_cmpv_shifted(vlong_one, DeltaTo(opctx, offset_s), 0) == 1 )
         goto reject;
-    
+
     // hash the message.
 
     hx->initfunc(hashctx);
     hx->updatefunc(hashctx, x->uinfo, x->hlen);
     hx->updatefunc(hashctx, msg, msglen);
-    
+
     if( hx->xfinalfunc )
         hx->xfinalfunc(hashctx);
-    
+
     hx->hfinalfunc(hashctx, H, slen);
 
     // {d} = s
     vlong_cpy(
         DeltaTo(x,     offset_d),
         DeltaTo(opctx, offset_s));
-    
+
     // {k} = t = (r' + s') mod n
     vlong_addv(
         DeltaTo(x,     offset_k),
@@ -392,7 +392,7 @@ void const *SM2SIG_Verify(
     vlong_remv_inplace(
         DeltaTo(x,     offset_k),
         x->curve->n);
-    
+
     vl = DeltaTo(x, offset_k);
     for(t=0,w=0; t<vl->c; t++)
         w |= vl->v[t];
@@ -401,12 +401,12 @@ void const *SM2SIG_Verify(
     // (x1', y1') = s' * G + t * Q && R != O.
 
     ecp_xyz_inf(R);
-    
+
     ecp_point_scale_accumulate(
         R, Tmp1, Tmp2, x->curve->G,
         DeltaTo(x, offset_d), // {d} == s.
         opctx, x->curve);
-    
+
     ecp_point_scale_accumulate(
         R, Tmp1, Tmp2, DeltaTo(x, offset_Q),
         DeltaTo(x, offset_k), // {k} == t.
@@ -418,7 +418,7 @@ void const *SM2SIG_Verify(
     if( !w ) goto reject; // actually, the spec didn't require this check.
 
     vl = DeltaTo(R, offset_x);
-    
+
     vlong_inv_mod_p_fermat(
         DeltaTo(opctx, offset_w),
         DeltaTo(R,     offset_z),
@@ -445,7 +445,7 @@ void const *SM2SIG_Verify(
         DeltaTo(opctx, offset_v));
 
     // {r} = {k} - R = t - R = (r' + s') - R ==? s'
-    
+
     vlong_subv(
         DeltaTo(opctx, offset_r),
         DeltaTo(x,     offset_k),
@@ -454,7 +454,7 @@ void const *SM2SIG_Verify(
     vlong_imod_inplace(
         DeltaTo(opctx, offset_r),
         x->curve->n);
-    
+
     if( vlong_cmpv_shifted( // {r} == {d} = s == s'
             DeltaTo(x,     offset_d),
             DeltaTo(opctx, offset_r),
@@ -499,7 +499,7 @@ void *SM2SIG_Sign_Xctrl(
     int flags)
 {
     (void)flags;
-    
+
     switch( cmd )
     {
     case SM2SIG_set_signer_id:
@@ -536,7 +536,7 @@ void *SM2SIG_Verify_Xctrl(
     int flags)
 {
     (void)flags;
-    
+
     switch( cmd )
     {
     case SM2SIG_set_signer_id:

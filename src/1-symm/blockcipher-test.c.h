@@ -24,11 +24,11 @@ int glue(blockcipher_test_,bc)(void)
 {
     int i, l=-1;
     int ret = EXIT_SUCCESS;
-    
+
     while( fgets(line, sizeof(line), stdin) )
     {
         *word = '\0'; sscanf(line, "%s", word);
-        
+
         if( !strlen(word) && l>=0 )
         {
             ENC_FUNC(bc)(pt, xt, w);
@@ -47,7 +47,7 @@ int glue(blockcipher_test_,bc)(void)
 
             l = -1;
         }
-        
+
         if( !strcmp(word, "COUNT") )
             sscanf(line, "%s = %d", word, &l);
 

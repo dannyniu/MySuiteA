@@ -66,7 +66,7 @@ unsigned long myrand(void)
     if( i >= 4 ) { mysrand_permute(), i=0; }
     return ret;
 }
-    
+
 void mysrand(unsigned long x) { rnd[0] = x; }
 #undef p
 

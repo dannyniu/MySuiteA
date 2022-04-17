@@ -35,7 +35,7 @@ void *CMAC_SetKey(cmac_t *restrict cmac, const void *restrict key, size_t keylen
     // also done by CMAC_INIT, see note above tagged [2021-07-22].
     cmac->filled = 0;
     cmac->flags &= 0377;
-    
+
     return cmac;
 }
 
@@ -90,7 +90,7 @@ void CMAC_Final(cmac_t *restrict cmac, void *restrict out, size_t t)
 finalized:
     for(i=0; i<t && i<CMAC_BLKSIZE; i++)
         ((uint8_t *)out)[i] = cmac->T[i];
-    
+
     for(; i<t; i++)
         ((uint8_t *)out)[i] = 0;
 }

@@ -17,7 +17,7 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
 {
     size_t i, j;
     size_t q = 15 - ivlen;
-    
+
     alignas(16) uint8_t B[16], Y[16], Ctr[16], S[16];
     const uint8_t *iptr = in; uint8_t *optr = out;
 
@@ -25,7 +25,7 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
 
     if( ivlen < 7 || ivlen > 13 )
         return NULL;
-    
+
     if( tlen<4 || tlen>16 || tlen%2==1 )
         return NULL;
 
@@ -40,20 +40,20 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
     vzero(Ctr);
     Ctr[0] = (q - 1);
     Ctr[15] = 1;
-    
+
     for(i=0; i<ivlen; i++)
     {
         Ctr[i+1] = ((const uint8_t *)iv)[i];
     }
-    
+
     ccm->enc(Ctr, S, kschd);
-    
+
     //
     // Compute B_0 and Y_0
 
     vzero(B);
     B[0] = (alen ? 1 : 0) << 6 | ((tlen - 2) / 2) << 3 | (q - 1);
-    
+
     for(i=0; i<ivlen; i++)
     {
         B[i+1] = ((const uint8_t *)iv)[i];
@@ -68,21 +68,21 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
 
     //
     // Encode a for AAD
-    
+
     vzero(B);
 
     if( alen == 0 )
     {
         j = 0;
     }
-    
+
     else if( alen < 0xFF00 )
     {
         B[0] = alen >> 8;
         B[1] = alen;
         j = 2;
     }
-    
+
     else if( alen <= UINT32_MAX )
     {
         B[0] = 0xFF;
@@ -93,7 +93,7 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
         B[5] = (uint64_t)alen;
         j = 6;
     }
-    
+
     else
     {
         B[0] = 0xFF;
@@ -111,7 +111,7 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
 
     //
     // Accumulate AAD for CBC-MAC.
-    
+
     for(i=0; i<alen; )
     {
         B[j++] = ((const uint8_t *)aad)[i++];
@@ -131,15 +131,15 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
         vzero(B);
         j = 0;
     }
-    
+
     //
     // Accumulate P for CBC-MAC and CTR-Encryption.
-    
+
     for(i=0; i<len; )
     {
         optr[i] = (B[j] = iptr[i]) ^ S[j];
         i++, j++;
-        
+
         if( j >= 16 )
         {
             for(i=0; i<16; i++) B[i] ^= Y[i];
@@ -149,7 +149,7 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
                 if( ++Ctr[j] )
                     break;
             ccm->enc(Ctr, S, kschd);
-            
+
             vzero(B);
             j = 0;
         }
@@ -177,10 +177,10 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
                   size_t tlen, void const *T)
 {
     uint16_t tcmp = 0;
-    
+
     size_t i, j;
     size_t q = 15 - ivlen;
-    
+
     alignas(16) uint8_t B[16], Y[16], Ctr[16], S[16];
     const uint8_t *iptr = in; uint8_t *optr = out;
 
@@ -188,13 +188,13 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
 
     if( ivlen < 7 || ivlen > 13 )
         return NULL;
-    
+
     if( tlen<4 || tlen>16 || tlen%2==1 )
         return NULL;
 
     if( q * 8 < 64 && len >= (uint64_t)1 << (q * 8) )
         return NULL;
-    
+
     // if( alen > UINT64_MAX ) return NULL; // an unreachable limit.
 
     //
@@ -203,20 +203,20 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
     vzero(Ctr);
     Ctr[0] = (q - 1);
     Ctr[15] = 1;
-    
+
     for(i=0; i<ivlen; i++)
     {
         Ctr[i+1] = ((const uint8_t *)iv)[i];
     }
-    
+
     ccm->enc(Ctr, S, kschd);
-    
+
     //
     // Compute B_0 and Y_0
-    
+
     vzero(B);
     B[0] = (alen ? 1 : 0) << 6 | ((tlen - 2) / 2) << 3 | (q - 1);
-    
+
     for(i=0; i<ivlen; i++)
     {
         B[i+1] = ((const uint8_t *)iv)[i];
@@ -226,26 +226,26 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
     {
         B[i+ivlen] = len >> (q - i) * 8;
     }
-    
+
     ccm->enc(B, Y, kschd);
 
     //
     // Encode a for AAD
-    
+
     vzero(B);
 
     if( alen == 0 )
     {
         j = 0;
     }
-        
+
     else if( alen < 0xFF00 )
     {
         B[0] = alen >> 8;
         B[1] = alen;
         j = 2;
     }
-    
+
     else if( alen <= UINT32_MAX )
     {
         B[0] = 0xFF;
@@ -256,7 +256,7 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
         B[5] = (uint64_t)alen;
         j = 6;
     }
-    
+
     else
     {
         B[0] = 0xFF;
@@ -274,7 +274,7 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
 
     //
     // Accumulate AAD for CBC-MAC.
-    
+
     for(i=0; i<alen; )
     {
         B[j++] = ((const uint8_t *)aad)[i++];
@@ -294,15 +294,15 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
         vzero(B);
         j = 0;
     }
-    
+
     //
     // Accumulate P for CBC-MAC.
-    
+
     for(i=0; i<len; )
     {
         B[j] = iptr[i] ^ S[j];
         i++, j++;
-        
+
         if( j >= 16 )
         {
             for(i=0; i<16; i++) B[i] ^= Y[i];
@@ -312,7 +312,7 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
                 if( ++Ctr[j] )
                     break;
             ccm->enc(Ctr, S, kschd);
-            
+
             vzero(B);
             j = 0;
         }
@@ -340,18 +340,18 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
     for(j=15; --j>ivlen; ) Ctr[j] = 0;
     ccm->enc(Ctr, S, kschd);
     j = 0;
-    
+
     for(i=0; i<len; )
     {
         optr[i] = iptr[i] ^ S[j];
         i++, j++;
-        
+
         if( j >= 16 )
         {
             for(j=16; --j>ivlen; )
                 if( ++Ctr[j] )
                     break;
-            
+
             ccm->enc(Ctr, S, kschd);
             j = 0;
         }

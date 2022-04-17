@@ -61,7 +61,7 @@ static inline vlong_t *vlong_sub_shifted(
 vlong_t *vlong_remv_inplace_fast(vlong_t *rem, vlong_t const *b)
 {
     vlong_size_t i, t;
-    
+
     if( rem->c < b->c ) return NULL;
 
     i = 0;
@@ -70,13 +70,13 @@ vlong_t *vlong_remv_inplace_fast(vlong_t *rem, vlong_t const *b)
 
     if( i > rem->c ) return rem;
     else i = (i + 1) * 32;
-    
+
     while( i-- )
     {
         if( vlong_ge_shifted(rem, b, i) )
             vlong_sub_shifted(rem, rem, b, i);
     }
-    
+
     return rem;
 }
 
@@ -113,7 +113,7 @@ regen: // Generate b in ]1, w-1[.
         if( tmp1->v[i] )
             break;
     }
-    
+
     if( i == 0 && tmp1->v[0] <= 1 ) goto regen;
     if( i > 0 ) while( tmp1->v[i] && tmp1->v[i] >= w->v[i] ) tmp1->v[i] >>= 1;
     tmp1->v[0] |= 0xAA55;
@@ -135,7 +135,7 @@ regen: // Generate b in ]1, w-1[.
         }
 
         if( ++i >= f ) break;
-        
+
         vlong_mulv_masked(
             tmp2,
             tmp1, tmp1,
@@ -174,7 +174,7 @@ regen: // Generate b in ]1, w-1[.
 
         vlong_adds(tmp1, tmp, 1, 0);
         for(i=0; i<n; i++) if( tmp1->v[i] != w->v[i] ) break;
-        if( i == n ) goto iteration_enter;        
+        if( i == n ) goto iteration_enter;
     }
 
     // Cannot be identified as prime.

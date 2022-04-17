@@ -80,7 +80,7 @@ void *ECDH_KEM_Enc(
     vlong_size_t t;
     vlong_t *vl;
     uint32_t w;
-    
+
     ecp_opctx_t *opctx = DeltaTo(x, offset_opctx);
     ecp_xyz_t
         *Tmp1 = DeltaTo(x, offset_Tmp1),
@@ -90,7 +90,7 @@ void *ECDH_KEM_Enc(
     vlong_t *k = DeltaTo(x, offset_k);
 
     // info reporting
-    
+
     if( !ss )
     {
         *sslen = x->curve->plen;
@@ -111,15 +111,15 @@ void *ECDH_KEM_Enc(
 
         if( vlong_cmpv_shifted(k, x->curve->n, 0) != 2 )
             continue;
-        
+
         if( vlong_cmpv_shifted(vlong_one, k, 0) == 1 )
             continue;
-        
+
         ecp_xyz_inf(R);
         ecp_point_scale_accumulate(
             R, Tmp1, Tmp2, DeltaTo(x, offset_Q),
             k, opctx, x->curve);
-        
+
         for(t=0,w=0; t<vl->c; t++)
             w |= vl->v[t];
         if( w ) break;
@@ -128,7 +128,7 @@ void *ECDH_KEM_Enc(
     while( true );
 
     // r = r.X / r.Z
-    
+
     vlong_inv_mod_p_fermat(
         DeltaTo(opctx, offset_w),
         DeltaTo(R,     offset_z),
@@ -150,12 +150,12 @@ void *ECDH_KEM_Enc(
 
     for(i=0; i<x->curve->plen && i<*sslen; i++)
         ((uint8_t *)ss)[i] = ((uint8_t *)vl->v)[i];
-    
+
     for(i=x->curve->plen; i<*sslen; i++)
         ((uint8_t *)ss)[i] = ((uint8_t *)vl->v)[i];
 
     // computing ciphertext.
-    
+
     ecp_xyz_inf(R);
     ecp_point_scale_accumulate(
         R, Tmp1, Tmp2, x->curve->G,
@@ -178,7 +178,7 @@ void *ECDH_KEM_Dec(
     vlong_size_t t;
     vlong_t *vl;
     uint32_t w;
-    
+
     ecp_opctx_t *opctx = DeltaTo(x, offset_opctx);
     ecp_xyz_t
         *Tmp1 = DeltaTo(x, offset_Tmp1),
@@ -188,7 +188,7 @@ void *ECDH_KEM_Dec(
     vlong_t *d = DeltaTo(x, offset_d);
 
     // info reporting
-    
+
     if( !ss )
     {
         *sslen = x->curve->plen;
@@ -206,7 +206,7 @@ void *ECDH_KEM_Dec(
         ecp_point_scale_accumulate(
             R, Tmp1, Tmp2, Tmp1,
             d, opctx, x->curve);
-        
+
         for(t=0,w=0; t<vl->c; t++)
             w |= vl->v[t];
         if( w ) break;
@@ -215,7 +215,7 @@ void *ECDH_KEM_Dec(
     while( false );
 
     // r = r.X / r.Z
-    
+
     vlong_inv_mod_p_fermat(
         DeltaTo(opctx, offset_w),
         DeltaTo(R,     offset_z),
@@ -237,7 +237,7 @@ void *ECDH_KEM_Dec(
 
     for(i=0; i<x->curve->plen && i<*sslen; i++)
         ((uint8_t *)ss)[i] = ((uint8_t *)vl->v)[i];
-    
+
     for(i=x->curve->plen; i<*sslen; i++)
         ((uint8_t *)ss)[i] = ((uint8_t *)vl->v)[i];
 

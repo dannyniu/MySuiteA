@@ -12,7 +12,7 @@ void *RSASSA_PSS_Encode_Signature(
 
     // 2021-10-10:
     // unused as signature serializer doesn't change working context status.
-    // pkcs1_padding_oracles_base_t *po = &x->po_base; 
+    // pkcs1_padding_oracles_base_t *po = &x->po_base;
 
     vlong_size_t emBits = dx->modulus_bits;
     vlong_size_t emLen = (emBits + 7) / 8;
@@ -30,7 +30,7 @@ void *RSASSA_PSS_Encode_Signature(
     ptr = DeltaTo(dx, offset_w1);
     ptr = (void *)((vlong_t *)ptr)->v;
     for(t=0; t<emLen; t++) ((uint8_t *)sig)[t] = ptr[t];
-        
+
     return sig;
 }
 
@@ -65,7 +65,7 @@ void *RSASSA_PSS_Sign(
         else return x;
     }
 begin:
-    
+
     if( emLen < po->hlen_msg + po->slen + 2 )
     {
         po->status = -1;

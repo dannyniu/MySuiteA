@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     fp = NULL;
 
     // decoding test.
-    
+
     size = ber_tlv_decode_RSAPrivateKey(NULL, buf, len);
     printf("1st pass decoding returned: %ld\n", size);
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     dump_ctx_words((void *)ctx, size);
 
     // encoding test.
-    
+
     size = ber_tlv_encode_RSAPrivateKey(ctx, NULL, 0);
     printf("1st pass encoding returned: %ld\n", size);
 
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
     ber_tlv_decode_RSAPrivateKey(NULL, buf2, len);
     ber_tlv_decode_RSAPrivateKey(ctx, buf2, len);
-    
+
     ber_tlv_encode_RSAPrivateKey(ctx, NULL, 0);
     ber_tlv_encode_RSAPrivateKey(ctx, buf, len);
 

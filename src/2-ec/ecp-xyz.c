@@ -15,14 +15,14 @@ vlong_t *ecp_imod_inplace(vlong_t *rem, const ecp_imod_aux_t *aux)
     const vlong_t *b = aux->mod_ctx;
 
     // imod(x,p) := x >= 0 ? x % p : (p - (-x % p));
-    
+
     for(i=0; i<rem->c; i++) rem->v[i] ^= neg;
     vlong_adds(rem, rem, neg&1, 0);
 
     aux->modfunc(rem, aux->mod_ctx);
 
     for(i=0; i<rem->c; i++) z |= rem->v[i];
-    
+
     // Per suggestion by @fgrieu at https://crypto.stackexchange.com/q/88233
     z |= z >> 16;
     z &= 0xffffU;
@@ -34,11 +34,11 @@ vlong_t *ecp_imod_inplace(vlong_t *rem, const ecp_imod_aux_t *aux)
         uint32_t u, v;
         u = i < rem->c ? rem->v[i] : 0;
         v = i <   b->c ?   b->v[i] : 0;
-        
+
         x += (~neg & u) | (neg & v);
         x -= (neg & u);
         rem->v[i] = (uint32_t)x;
-        
+
         x >>= 32;
         x = (uint64_t)(int64_t)(int32_t)x;
     }
@@ -56,7 +56,7 @@ ecp_xyz_t *ecp_point_add_rcb15(
     ecp_curve_t const *restrict curve)
 {
     // Algorithm 1 of the paper.
-    
+
     vlong_t *x = DeltaTo(out, offset_x);
     vlong_t *y = DeltaTo(out, offset_y);
     vlong_t *z = DeltaTo(out, offset_z);
@@ -74,7 +74,7 @@ ecp_xyz_t *ecp_point_add_rcb15(
     vlong_t *t5 = DeltaTo(opctx, offset_w);
     ecp_imod_aux_t const *aux = curve->imod_aux;
 
-    // 1. 2. 3. 
+    // 1. 2. 3.
     vlong_mulv_masked(t0, x1, x2, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(t1, y1, y2, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(t2, z1, z2, 1, aux->modfunc, aux->mod_ctx);
@@ -229,17 +229,17 @@ ecp_xyz_t *ecp_point_dbl_fast(
     vlong_mulv_masked(s, w, w, 1, aux->modfunc, aux->mod_ctx);
     vlong_subv(x, s, x);
     ecp_imod_inplace(x, aux);
-    
+
     vlong_mulv_masked(t, s, w, 1, aux->modfunc, aux->mod_ctx);
     vlong_subv(y, y, t);
     ecp_imod_inplace(y, aux);
-    
+
     vlong_mulv_masked(t, y1, z1, 1, aux->modfunc, aux->mod_ctx);
     vlong_muls(s, x, 2, false);
     aux->modfunc(s, aux->mod_ctx);
     //ecp_imod_inplace(s, aux);
     vlong_mulv_masked(x, t, s, 1, aux->modfunc, aux->mod_ctx);
-    
+
     vlong_mulv_masked(s, t, t, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(z, s, t, 1, aux->modfunc, aux->mod_ctx);
     vlong_muls(z, z, 8, false);
@@ -265,10 +265,10 @@ void ecp_xyz_inf(ecp_xyz_t *p)
 
     t = DeltaTo(p, offset_x);
     for(i=0; i<t->c; i++) t->v[i] = 0;
-    
+
     t = DeltaTo(p, offset_z);
     for(i=0; i<t->c; i++) t->v[i] = 0;
-    
+
     t = DeltaTo(p, offset_y);
     t->v[0] = 1;
     for(i=1; i<t->c; i++) t->v[i] = 0;
@@ -313,7 +313,7 @@ static void ecp_xyz_substitute(
             (amask & v1->v[i]) |
             (bmask & (i < v2->c ? v2->v[i] : 0));
     }
-}    
+}
 
 ecp_xyz_t *ecp_point_scale_accumulate(
     ecp_xyz_t *restrict accum,
@@ -327,7 +327,7 @@ ecp_xyz_t *ecp_point_scale_accumulate(
     ecp_xyz_t *t;
     vlong_size_t f, i;
     uint32_t mask;
-    
+
     ecp_xyz_copy(tmp1, base);
 
     // 2022-02-06:
@@ -339,7 +339,7 @@ ecp_xyz_t *ecp_point_scale_accumulate(
     //- ecp_xyz_inf(accum);
 
     f = scalar->c * 32;
-    
+
     for(i=0;;)
     {
         mask = scalar->v[i / 32] >> (i % 32);
@@ -373,7 +373,7 @@ static vlong_t *vlong_modexpv_shiftadded(
     short shift) // it's assumed that shift is (much) less than 32 bits.
 {
     vlong_size_t f, i, j, n;
-    
+
     vlong_t const *e = mod_ctx; // code layout eye candy.
     uint64_t w = (uint64_t)e->v[0] + addend;
     uint32_t mask;
@@ -383,7 +383,7 @@ static vlong_t *vlong_modexpv_shiftadded(
 
     f = e->c * 32;
     n = out->c;
-    
+
     for(i=0; i<n; i++)
     {
         // 2021-06-05:
@@ -394,7 +394,7 @@ static vlong_t *vlong_modexpv_shiftadded(
         tmp1->v[i] = i < x->c ? x->v[i] : 0;
         out->v[i] = i ? 0 : 1;
     }
-    
+
     for(i=shift;;)
     {
         mask = (w >> (i % 32)) & 1;
@@ -408,7 +408,7 @@ static vlong_t *vlong_modexpv_shiftadded(
 
         if( ++i >= f ) break; // 2022-02-24: this could be a false assumption.
         if( i % 32 == 0 ) w = (w >> 32) + e->v[i / 32];
-        
+
         vlong_mulv_masked(
             tmp2,
             tmp1, tmp1,
@@ -418,7 +418,7 @@ static vlong_t *vlong_modexpv_shiftadded(
 
         continue;
     }
-    
+
     return out;
 }
 
@@ -431,7 +431,7 @@ vlong_t *vlong_sqrt_c3m4(
 {
     if( (aux->mod_ctx->v[0] & 3) != 3 )
         return NULL;
-    
+
     return vlong_modexpv_shiftadded(
         out, x, tmp1, tmp2,
         aux->modfunc, aux->mod_ctx, 1, 2);
@@ -479,7 +479,7 @@ void ecp_opctx_init(ecp_opctx_t *opctx, unsigned bits)
     ((vlong_t *)DeltaTo(opctx, offset_r))->c = VLONG_BITS_WCNT(bits);
     ((vlong_t *)DeltaTo(opctx, offset_s))->c = VLONG_BITS_WCNT(bits);
     ((vlong_t *)DeltaTo(opctx, offset_t))->c = VLONG_BITS_WCNT(bits);
-    
+
     ((vlong_t *)DeltaTo(opctx, offset_u))->c = VLONG_BITS_WCNT(bits);
     ((vlong_t *)DeltaTo(opctx, offset_v))->c = VLONG_BITS_WCNT(bits);
     ((vlong_t *)DeltaTo(opctx, offset_w))->c = VLONG_BITS_WCNT(bits);

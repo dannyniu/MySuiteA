@@ -37,11 +37,11 @@ void test_run1(const char *tn, const char *exp1, const char *exp2)
     P[0].info = bc;
     P[0].param = NULL;
     seedlen = drbg(P, seedBytes);
-    
+
     printf("...... Test Name: %s ......\n", tn);
 
     ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen);
-    
+
     ((ReseedFunc_t)drbg(P, ReseedFunc))(&ctx.x, seed2, seedlen);
 
     scanhex(ref, seedlen, exp1);
@@ -56,13 +56,13 @@ void test_run1(const char *tn, const char *exp1, const char *exp2)
             ((uint8_t *)&ctx.x + ctx.x.offset_k),
             seedlen);
     }
-    
+
     ((PInstInitFunc_t)drbg(P, InstInitFunc))(P, &ctx.x, seed1, seedlen);
 
     // -3 to test incomplete blocks' code path
     ((GenFunc_t)drbg(P, GenFunc))(&ctx.x, out, 32 - 3);
     out[29] ^= 4;
-    
+
     scanhex(ref, 32, exp2);
     if( memcmp(ref, out, 32 - 3) )
     {

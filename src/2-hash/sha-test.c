@@ -166,6 +166,6 @@ int main(int argc, char *argv[])
     test1case(iSHA3_512);
     test1case(iSHA3_128000);
     test1case(iSHA3_256000);
-    
+
     return EXIT_SUCCESS;
 }

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 #include "test-self-fed-keycpy.c.h"
 
     printf("tests start\n");
-    
+
     int failures = 0;
     int testcount = 80 / 5;
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
         PKC_Encode_Signature(dex, copy, &size);
         PKC_Decode_Signature(&enx.header, copy, size);
-        
+
         lret = (IntPtr)PKC_Verify(&enx.header, msg, msglen);
         if( !lret )
         {

@@ -10,7 +10,7 @@ void *RSAES_OAEP_Encode_Ciphertext(
 {
     RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
     vlong_t *vp = DeltaTo(ex, offset_w2);
-    
+
     if( !ct )
     {
         *ctlen = ex->modulus_bits / 8;
@@ -30,7 +30,7 @@ static void *RSAES_OAEP_SetLabel(
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
-    
+
     vlong_size_t t;
     void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
 
@@ -42,11 +42,11 @@ static void *RSAES_OAEP_SetLabel(
 
     //
     // EME-OAEP encoding.
-    
+
     ptr = DeltaTo(ex, offset_w2);
     ptr = (void *)((vlong_t *)ptr)->v;
     for(t=0; t<k; t++) ptr[t] = 0;
-    
+
     // label.
     po->hfuncs_msg.initfunc(hx);
     po->hfuncs_msg.updatefunc(hx, label, len);
@@ -65,7 +65,7 @@ void *RSAES_OAEP_Enc(
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
-    
+
     vlong_size_t t;
     void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
 
@@ -88,9 +88,9 @@ void *RSAES_OAEP_Enc(
 
     //
     // EME-OAEP encoding.
-    
+
     for(t=0; t<k; t++) ptr[t] = 0;
-    
+
     // empty label.
     po->hfuncs_msg.initfunc(hx);
     if( po->hfuncs_msg.xfinalfunc )
@@ -128,7 +128,7 @@ postlabel:
     // RSA encryption operation.
 
     rsa_enc(ex);
-    
+
     po->status = 1;
     return ss;
 }
@@ -141,7 +141,7 @@ void *RSAES_OAEP_Enc_Xctrl(
     int flags)
 {
     (void)flags;
-    
+
     switch( cmd )
     {
     case RSAES_OAEP_label_set:

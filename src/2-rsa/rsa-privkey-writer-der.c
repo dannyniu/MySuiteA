@@ -17,7 +17,7 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     //- not used -// uint32_t i;
 
     size_t taglen;
-    
+
     const RSA_Priv_Base_Ctx_t *bx = any;
     const RSA_Priv_Ctx_Hdr_t *ctx = any;
 
@@ -27,7 +27,7 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     if( bx->count_primes_other > 0 )
         version = 1;
     else version = 0;
-    
+
     ver.c = 1;
     ver.v[0] = version;
 
@@ -64,14 +64,14 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // publicExponent INTEGER, -- e
     subret = ber_tlv_encode_integer(DeltaTo(bx, offset_e), ptr, remain);
@@ -81,14 +81,14 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // privateExponent INTEGER, -- d
     subret = ber_tlv_encode_integer(DeltaTo(bx, offset_d), ptr, remain);
@@ -98,14 +98,14 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // prime1 INTEGER, -- p
     subret = ber_tlv_encode_integer(DeltaTo(bx, offset_p), ptr, remain);
@@ -115,14 +115,14 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // prime2 INTEGER, -- q
     subret = ber_tlv_encode_integer(DeltaTo(bx, offset_q), ptr, remain);
@@ -132,14 +132,14 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // exponent1 INTEGER, -- d mod (p-1)
     subret = ber_tlv_encode_integer(DeltaTo(bx, offset_dP), ptr, remain);
@@ -149,7 +149,7 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
@@ -166,14 +166,14 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // coefficient INTEGER, -- (inverse of q) mod p
     subret = ber_tlv_encode_integer(DeltaTo(bx, offset_qInv), ptr, remain);
@@ -183,14 +183,14 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     if( version == 0 )
     {
         // do nothing.
@@ -200,7 +200,7 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
         //
         // otherPrimeInfos OtherPrimeInfos OPTIONAL
         // -- OtherPrimeInfos ::= SEQUENCE SIZE(1..MAX) OF OtherPrimeInfo --
-        
+
         subret = ber_tlv_encode_OtherPrimeInfos(ctx, ptr, remain, pass);
         ret += subret;
 
@@ -215,12 +215,12 @@ IntPtr ber_tlv_encode_RSAPrivateKey(BER_TLV_ENCODING_FUNC_PARAMS)
         }
         ret += taglen;
         if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     }
 
     //
     // } -- End of "RSAPrivateKey ::= SEQUENCE".
-    
+
     if( pass == 2 ) stack = enc + enclen;
     taglen = 0;
     taglen += ber_push_len(&stack, ret);
@@ -278,14 +278,14 @@ encode_1more_prime:
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     accum += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // exponent INTEGER, -- d_i
     subret = ber_tlv_encode_integer(
@@ -296,14 +296,14 @@ encode_1more_prime:
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     accum += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     // coefficient INTEGER -- t_i
     subret = ber_tlv_encode_integer(
         DeltaTo(bx, primes_other[i].offset_t), ptr, remain);
@@ -313,17 +313,17 @@ encode_1more_prime:
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     accum += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // } -- End of "OtherPrimeInfo ::= SEQUENCE"
-    
+
     if( pass == 2 ) stack = enc + enclen;
     taglen = 0;
     taglen += ber_push_len(&stack, accum);
@@ -333,10 +333,10 @@ encode_1more_prime:
     {
         ber_util_splice_insert(ptr1, accum, (stack - ptr1), taglen);
     }
-    
+
     ret += accum + taglen;
     if( enc ) ptr += taglen; remain -= taglen;
-    
+
     i++;
     goto encode_1more_prime;
 }

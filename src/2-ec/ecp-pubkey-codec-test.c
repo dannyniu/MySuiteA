@@ -47,7 +47,7 @@ const ecp384_xyz_t R_384 = ECP384_XYZ_INIT(
     .x.v[ 2] = 0x2CC7D507,
     .x.v[ 1] = 0xFCEF9FAF,
     .x.v[ 0] = 0x01A27088,
-    
+
     .y.v[11] = 0xC04E3246,
     .y.v[10] = 0x5D14C50C,
     .y.v[ 9] = 0xBC3BCB88,
@@ -73,7 +73,7 @@ void test_1point_1format(
 {
     void *ret;
     ecp_xyz_t *Q_ptr = (void *)&Q;
-    
+
     ret = ecp_point_encode(Q_in, os, enclen, curve);
     if( !ret )
     {
@@ -135,7 +135,7 @@ int main(void)
     *(ecp256_opctx_t *)&opctx = ECP256_OPCTX_INIT;
     curve = secp256r1;
     test_1param("P-256", (void const *)&R_256);
-    
+
     *(ecp384_xyz_t *)&Q = ECP384_XYZ_INIT();
     *(ecp384_xyz_t *)&R = ECP384_XYZ_INIT();
     *(ecp384_xyz_t *)&T1 = ECP384_XYZ_INIT();

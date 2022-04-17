@@ -41,7 +41,7 @@ static inline uint8_t gmul(uint8_t a, uint8_t b)
     // one of the operands of ``gmul'' is actually from
     // a set of public constants, where there's no need to
     // mask for time side-channels.
-    
+
     for(i=0; i<8; a=xtime(a),i++)
         if( 1 & (b >> i) ) x ^= a;
 
@@ -149,7 +149,7 @@ static void InvMixColumns(uint8_t state[16])
 }
 
 // In the following definitions, `in' and `out' are intentionally
-// not restrict-qualified. 
+// not restrict-qualified.
 
 #define Define_AES_Cipher(name,Nr)              \
     void name(void const *in, void *out,        \
@@ -173,7 +173,7 @@ static void Rijndael_Nb4_Cipher(
         MixColumns(out);
         AddRoundKey(out, w + i*16);
     }
-    
+
     SubBytes(out);
     ShiftRows(out);
     AddRoundKey(out, w + Nr*16);
@@ -216,7 +216,7 @@ static void Rijndael_Nb4_InvCipher(
         Rijndael_Nb4_KeyExpansion(key, w, Nk, Nr);      \
     }
 static void Rijndael_Nb4_KeyExpansion(
-    uint8_t const *restrict key_in, uint8_t *restrict w_out, 
+    uint8_t const *restrict key_in, uint8_t *restrict w_out,
     int Nk, int Nr)
 {
     uint8_t Rcon = 0x01;
@@ -248,7 +248,7 @@ static void Rijndael_Nb4_KeyExpansion(
                 (uint32_t)sbox(temp >>  8, sbox_table) <<  8 |
                 (uint32_t)sbox(temp >>  0, sbox_table) <<  0 ;
         }
-        
+
         w[i] = w[i - Nk] ^ htole32(temp);
     }
 }

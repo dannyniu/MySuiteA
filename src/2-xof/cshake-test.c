@@ -66,7 +66,7 @@ int main()
         bv[1].len = strlen(testptr->S);
         bv[0].dat = testptr->N;
         bv[1].dat = testptr->S;
-        
+
         INIT_FUNC(testptr->xof)(&sh);
         XCTRL_FUNC(testptr->xof)(
             &sh, SHAKE_cSHAKE_customize,
@@ -75,7 +75,7 @@ int main()
         WRITE_FUNC(testptr->xof)(&sh, msg, testptr->DataLen);
         XFINAL_FUNC(testptr->xof)(&sh);
         READ_FUNC(testptr->xof)(&sh, bin, testptr->DigestLen);
-        
+
         scanhex(ref, testptr->DigestLen, testptr->ref);
         if( memcmp(bin, ref, testptr->DigestLen) )
         {

@@ -1,7 +1,7 @@
 2018-02-08
 ==========
 
-**2021-09-03 Update**: 
+**2021-09-03 Update**:
 This file is being converted to Markdown format, this note is obsolete.
 
 Markups used in note:
@@ -9,7 +9,7 @@ Markups used in note:
 o. `$$$/$$$'
 
 Usage: 1. Date the subarticle added. Three preceeding blank lines or a
-          <form feed> would be required except for the first subarticle. 
+          <form feed> would be required except for the first subarticle.
        2. Subarticle top-level heading.
 
 o. `$=/=$'
@@ -18,7 +18,7 @@ Usage: 1. Unnumbered item list item heading.
 
 o. `::/::'
 
-Usage: 1. Unlevelled inter-paragraph heading. 
+Usage: 1. Unlevelled inter-paragraph heading.
 
 ---
 
@@ -48,7 +48,7 @@ represented as octet string data (requires ASN.1 often), and often require
 paying special attention to implementation pitfalls.
 
 Anyway, this suite isn't supposed to replace existing mature products such as
-LibreSSL, GnuTLS, etc. 
+LibreSSL, GnuTLS, etc.
 
 ---
 
@@ -57,7 +57,7 @@ LibreSSL, GnuTLS, etc.
 ==========
 
 Infomation macros' prefix are changed from ''_i'' to ''c'' to avoid namespace
-pollution with operating system implementations. ''c'' stands for "constants". 
+pollution with operating system implementations. ''c'' stands for "constants".
 
 ---
 
@@ -75,14 +75,14 @@ with the tag: [!A-E-D!]
 ===========
 
 When "-Wgnu-folding-constant" warning is enabled, the compiler emits a warning
-when nesting information macros in static type declarations. 
+when nesting information macros in static type declarations.
 
 The proposed solution is to separate out function pointers into another macro
 which will have the prefix "x" meaning "executable"; this new macro will
 inherit the parameters in the "constants" macro by invoking them through
 verbatim inclusion.
 
-Instance "info" functions will switch to "x" macros for parameter values; 
+Instance "info" functions will switch to "x" macros for parameter values;
 users of instance macros will update their source of information.
 
 The proposed change is realized as of 2021-09-04.
@@ -93,8 +93,8 @@ The proposed change is realized as of 2021-09-04.
 2021-09-03b
 ===========
 
-It's decided that information macros for blockciphers, hash and XOF functions, 
-and permutations shall not nest lower-level primitives. This restriction is 
+It's decided that information macros for blockciphers, hash and XOF functions,
+and permutations shall not nest lower-level primitives. This restriction is
 added to:
 
 1. ease the implementation of some higher level primitives (e.g. CTR-DRBG
@@ -114,8 +114,8 @@ added to:
 2021-12-24
 ==========
 
-The queries for key-pair and ciphergram codec functions are separated from 
-the queries for public-key algorithm so as to allow one implementation of a 
+The queries for key-pair and ciphergram codec functions are separated from
+the queries for public-key algorithm so as to allow one implementation of a
 cryptosystem to interoperate with a variety of different applications that
 use different data formats. The provision is made, but the availability of
 codec functions for additional formats will depend on demand and on whether
@@ -123,23 +123,23 @@ I can spare time to do it (or if someone is willing to fork MySuiteA and
 contribute their work).
 
 The codecs for key-pairs are associated with the key generation functions,
-for the obvious reason that key-pairs are the product of key-generation 
+for the obvious reason that key-pairs are the product of key-generation
 function.
 
-What's not obvious is the associating of ciphergram codecs. 
+What's not obvious is the associating of ciphergram codecs.
 
 There are 4 ways a ciphergram codec function can be associated with a
-crypto object instance - 1) with the private-key function, 2) with the 
+crypto object instance - 1) with the private-key function, 2) with the
 public-key function, 3) with the producer function, and 4) with the consumer
-function. 
+function.
 
 After some consideration, the ciphergram encoder and decoder pair is associated
 with the public and private key operation functions of the PKC algorithm, as
 most elements in a public-key cryptosystem, such as keys, cipher operations,
 etc. all come in pairs.
 
-Finally, the rules for determining whether a set of codec functions are 
-usable with an algorithm. The rules are based on the rules of association 
+Finally, the rules for determining whether a set of codec functions are
+usable with an algorithm. The rules are based on the rules of association
 descirbed above.
 
 - A set of key-pair codec functions is usable with a PKC algorithm iff
@@ -174,13 +174,13 @@ descirbed above.
 2022-02-10
 ==========
 
-In MySuiteA, higher-level algorithm construction can take lower-level 
-algorithms as instantiation parameter(s). The working contexts of these 
+In MySuiteA, higher-level algorithm construction can take lower-level
+algorithms as instantiation parameter(s). The working contexts of these
 higher-level algorithms are called "nesting working context", whereas the
 bottom-level ones that doesn't take instantiation parameter are called
 "plain working contexts".
 
-To ensure lower-level working contexts can be correctly appended to the 
+To ensure lower-level working contexts can be correctly appended to the
 higher-level working context without quirks such as padding bytes for alignment,
 it is decided that:
 
@@ -188,15 +188,15 @@ it is decided that:
   must have sizes that're multiply of the sizes of machine word - i.e.
   32-bit on ILP32, 64-bit on LP64, etc.
 
-- Optionally, nesting working contexts should have sizes that're multiply 
+- Optionally, nesting working contexts should have sizes that're multiply
   of 16 bytes whenever possible.
 
-- An assumption is made that, the compilation data type model is either 
+- An assumption is made that, the compilation data type model is either
   ILP32 or LP64. Users wishing to compile the suite on targets of other models
   (e.g. SIP16) will have to adapt the codes appropriately.
 
-- Each structure shall document how much of these requirements are met 
-  according to the "Sige and Alignment Conformity Statement Format" 
+- Each structure shall document how much of these requirements are met
+  according to the "Sige and Alignment Conformity Statement Format"
   described below.
 
 - plain working contexts are exempt from the above requirements.
@@ -214,12 +214,12 @@ Where `align-spec` has the following form:
 `{align-val} "*" {vec-len}` where:
 
 - `{align-val}` is the **SIZE** of the member with the widest integer or pointer
-  type _found recursively within_ the structure. 
-  
-  The reason size is used instead of the alignment of the type of the member, 
-  is that, the actual alignment is not always obvious or is inconsistent 
+  type _found recursively within_ the structure.
+
+  The reason size is used instead of the alignment of the type of the member,
+  is that, the actual alignment is not always obvious or is inconsistent
   between different CPU architecture ABIs of the same data type model.
-  
+
   The actual value documented is occasionally allowed to be greater than any
   actual member _IF_ the size of the structure is a multiply of it and that
   the value is a power of 2.

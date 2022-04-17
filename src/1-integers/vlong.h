@@ -86,7 +86,7 @@ int vlong_cmpv_shifted(
 
 // MARK: == Generic Division ==
 
-vlong_t *vlong_divv( // returns ``rem''. 
+vlong_t *vlong_divv( // returns ``rem''.
     vlong_t *restrict rem,
     vlong_t *restrict quo,
     vlong_t const *a,

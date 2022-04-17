@@ -5,10 +5,10 @@ testdir2=../tests/chacha20-poly1305
 
 testfunc() {
     e=0;
-    
+
     $exec ChaCha20-Poly1305 $testdir2/vec-01.txt || e=$((e+1))
     $exec ChaCha20-Poly1305 $testdir2/vec-02.txt || e=$((e+1))
-    
+
     $exec GCM-AES-128 $testdir1/vec-01.txt || e=$((e+1))
     $exec GCM-AES-128 $testdir1/vec-02.txt || e=$((e+1))
     $exec GCM-AES-128 $testdir1/vec-03.txt || e=$((e+1))

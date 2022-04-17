@@ -30,7 +30,7 @@ vlong_t *rsa_fastdec(RSA_Priv_Ctx_Hdr_t *restrict x)
 
     uint32_t modulus_bits = bx->modulus_bits;
     uint32_t bits_per_prime = modulus_bits / (bx->count_primes_other + 2);
-    
+
     vlong_size_t vlsize_modulus = VLONG_BITS_WCNT(modulus_bits);
     vlong_size_t vlsize_factor = VLONG_BITS_WCNT(bits_per_prime);
     // 2022-02-13: delete these 2 lines after testing.
@@ -40,7 +40,7 @@ vlong_t *rsa_fastdec(RSA_Priv_Ctx_Hdr_t *restrict x)
 
     int i, j;
     uint32_t *ul;
-    
+
     vlong_t *C = DeltaTo(bx, offset_w1); // set to C.
     vlong_t *M = DeltaTo(bx, offset_w2); // set to M.
     vlong_t *R = DeltaTo(bx, offset_w3); // allocated for R.
@@ -49,15 +49,15 @@ vlong_t *rsa_fastdec(RSA_Priv_Ctx_Hdr_t *restrict x)
 
     vlong_t *h, *m, *t;
     ul = (uint32_t *)R + R->c + 1;
-    
+
     h = (void *)ul;
     h->c = vlsize_factor;
     ul += h->c + 1;
-    
+
     m = (void *)ul;
     m->c = vlsize_factor;
     ul += m->c + 1;
-    
+
     t = (void *)ul;
     t->c = vlsize_factor;
     ul += t->c + 1;
@@ -70,11 +70,11 @@ vlong_t *rsa_fastdec(RSA_Priv_Ctx_Hdr_t *restrict x)
     b = h->c;
     for(a=0; a<M->c; a++)
         M->v[a] = a < b ? h->v[a] : 0;
-    
+
     b = ((vlong_t *)DeltaTo(bx, offset_q))->c;
     for(a=0; a<R->c; a++)
         R->v[a] = a < b ? ((vlong_t *)DeltaTo(bx, offset_q))->v[a] : 0;
-    
+
     for(i=0; (unsigned)i<=bx->count_primes_other; i++)
     {
         j = i - 1;
@@ -118,15 +118,15 @@ vlong_t *rsa_fastdec(RSA_Priv_Ctx_Hdr_t *restrict x)
         for(a=0; a<R->c; a++)
             R->v[a] = a < b ? t->v[a] : 0;
         ul = (uint32_t *)R + R->c + 1;
-    
+
         h = (void *)ul;
         h->c = vlsize_factor;
         ul += h->c + 1;
-    
+
         m = (void *)ul;
         m->c = vlsize_factor;
         ul += m->c + 1;
-    
+
         t = (void *)ul;
         t->c = vlsize_factor;
         ul += t->c + 1;

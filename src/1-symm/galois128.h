@@ -2,6 +2,6 @@
 
 #include "../mysuitea-common.h"
 
-void galois128_hash1block(void *restrict Y, // Accumulator. 
-                          void const *restrict H, // Hashing Key. 
-                          void const *restrict X); // message block. 
+void galois128_hash1block(void *restrict Y, // Accumulator.
+                          void const *restrict H, // Hashing Key.
+                          void const *restrict X); // message block.

@@ -22,7 +22,7 @@ void vlong_OS2IP(vlong_t *restrict vl, const uint8_t *restrict os, size_t len)
     // This function is being tested through RSA-OAEP cipher,
     // currently passing self-feeding tests, but not ones using
     // publicly available test vectors.
- 
+
     vlong_size_t i;
 
     static_assert(
@@ -44,7 +44,7 @@ void vlong_I2OSP(vlong_t const *restrict vl, uint8_t *restrict os, size_t len)
     // This function is being tested through RSA-OAEP cipher,
     // currently passing self-feeding tests, but not ones using
     // publicly available test vectors.
- 
+
     vlong_size_t i;
 
     static_assert(

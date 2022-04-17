@@ -41,7 +41,7 @@ void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
 void Sponge_Final(sponge_t *restrict s)
 {
     uint8_t *state = DeltaAdd(s, sizeof(*s) + s->blksize * 0);
-    
+
     if( s->finalized ) return;
 
     /* Padding the Message. */
@@ -61,7 +61,7 @@ void Sponge_Read(sponge_t *restrict s, void *restrict data, size_t len)
 {
     uint8_t *ptr = data;
     uint8_t *state = DeltaAdd(s, sizeof(*s) + s->blksize * 0);
-    
+
     while( len-- )
     {
         *(ptr++) = state[s->filled++];

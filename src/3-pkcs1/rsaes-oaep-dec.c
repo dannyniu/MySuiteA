@@ -13,7 +13,7 @@ void *RSAES_OAEP_Decode_Ciphertext(
     vlong_t *vp = DeltaTo(dx, offset_w1);
 
     vlong_OS2IP(vp, ct, ctlen);
-    
+
     po->status = 0;
     return x;
 }
@@ -37,7 +37,7 @@ void *RSAES_OAEP_Dec(
     if( po->status )
     {
     finish:
-        
+
         // assumes decryption failures result in status being exactly -1.
         err = po->status ^ (int32_t)-1;
         err = ~err;
@@ -47,7 +47,7 @@ void *RSAES_OAEP_Dec(
         err &= err >> 2;
         err &= err >> 1;
         err &= 1;
-        
+
         // assumer err is either 1 or 0 at this point.
         ret = (IntPtr)x & ((IntPtr)0 - (err ^ 1));
 
@@ -75,7 +75,7 @@ void *RSAES_OAEP_Dec(
                 to[i] = i < (IntPtr)po->status ? from[i] : 0;
             }
         }
-        
+
         return (void *)ret;
     }
 
@@ -92,7 +92,7 @@ void *RSAES_OAEP_Dec(
     vp1 = DeltaTo(dx, offset_w1);
     vp2 = DeltaTo(dx, offset_n);
     t = vp1->c > vp2->c ? vp1->c : vp2->c;
-    
+
     while( t-- )
     {
         uint32_t u, v;
@@ -127,7 +127,7 @@ void *RSAES_OAEP_Dec(
 
     // if Y is nonzero, output "decryption error".
     err |= 1 & ~((*ptr - 1) >> 8);
-    
+
     // x2 to ignore lHash as RSA encryption label is
     // unsupported during decryption - it's tested
     // separately in the context control function.
@@ -141,7 +141,7 @@ void *RSAES_OAEP_Dec(
     // against buffer overrun.
     for(t=0; t<k-1; t++) if( ptr[t] ) break;
     err |= 1 & ~(((ptr[t] ^ 0x01) - 1) >> 8);
-    
+
     // set the value of po->status the length.
     po->status = -err;
     for(t++; t<k; t++) po->status += err ^ 1;
@@ -156,7 +156,7 @@ static void *RSAES_OAEP_TestLabel(
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
-    
+
     vlong_size_t t;
     void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
 
@@ -179,23 +179,23 @@ static void *RSAES_OAEP_TestLabel(
 
     //
     // EME-OAEP encoding.
-    
+
     ptr = DeltaTo(dx, offset_w1);
     ptr = (void *)((vlong_t *)ptr)->v;
-    
+
     // label.
-    
+
     po->hfuncs_msg.initfunc(hx);
-    
+
     if( label )
         po->hfuncs_msg.updatefunc(hx, label, len);
-    
+
     if( po->hfuncs_msg.xfinalfunc )
         po->hfuncs_msg.xfinalfunc(hx);
     po->hfuncs_msg.hfinalfunc(hx, digest, po->hlen_msg);
 
     // compare label.
-    
+
     for(t=0; t<po->hlen_msg; t++)
         c |= ptr[t + 1 + po->hlen_msg] ^ digest[t];
 
@@ -218,7 +218,7 @@ void *RSAES_OAEP_Dec_Xctrl(
     int flags)
 {
     (void)flags;
-    
+
     switch( cmd )
     {
     case RSAES_OAEP_label_test:

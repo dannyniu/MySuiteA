@@ -12,9 +12,9 @@ void *GCM_Encrypt(gcm_t *restrict gcm,
                   size_t tlen, void *T)
 {
     size_t i, j;
-    
+
     alignas(16) uint32_t
-        J0[4], 
+        J0[4],
         CB[4],
         S[4] = {0};
     alignas(16) uint8_t X[16];
@@ -29,39 +29,39 @@ void *GCM_Encrypt(gcm_t *restrict gcm,
         len >= ((uint64_t)1 << 36) - 31 )
         return NULL;
 
-    // Prepare J0. 
+    // Prepare J0.
     for(i=0; i<3; i++){ J0[i] = ((const uint32_t *)iv)[i]; } J0[3] = htobe32(1);
 
-    // The A part of S. 
+    // The A part of S.
     for(j=0; j<alen; j+=16)
     {
         for(i=0; i<16; i++)
             X[i] = i+j < alen ? ((const uint8_t *)aad)[i+j] : 0;
-        
+
         galois128_hash1block(S, gcm->H, X);
     }
-    
-    // GCTR: First CB. 
+
+    // GCTR: First CB.
     for(i=0; i<4; i++){ CB[i] = J0[i]; }
 
-    // The C part of S. 
+    // The C part of S.
     for(j=0; j<len; j+=16)
     {
         CB[3] = htobe32(be32toh(CB[3])+1);
         gcm->enc(CB, X, kschd);
-        
+
         for(i=0; i<16; i++)
             X[i] = i+j < len ? (optr[i+j] = iptr[i+j]^X[i]) : 0;
 
         galois128_hash1block(S, gcm->H, X);
     }
 
-    // The len(A) and len(C) part of S. 
+    // The len(A) and len(C) part of S.
     ((uint64_t *)X)[0] = htobe64(alen*8);
     ((uint64_t *)X)[1] = htobe64(len*8);
     galois128_hash1block(S, gcm->H, X);
 
-    // Calculate T. Zero-extends if tlen>16. 
+    // Calculate T. Zero-extends if tlen>16.
     gcm->enc(J0, X, kschd);
     for(i=0; i<4; i++) ((uint32_t *)X)[i] ^= S[i];
     for(i=0; i<tlen; i++) ((uint8_t *)T)[i] = i<16 ? X[i] : 0;
@@ -77,9 +77,9 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
 {
     size_t i, j;
     int b;
-    
+
     alignas(16) uint32_t
-        J0[4], 
+        J0[4],
         CB[4],
         S[4] = {0};
     alignas(16) uint8_t X[16];
@@ -94,23 +94,23 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
         len >= ((uint64_t)1 << 36) - 31 )
         return NULL;
 
-    // Prepare J0. 
+    // Prepare J0.
     for(i=0; i<3; i++)
     {
         J0[i] = ((const uint32_t *)iv)[i];
     }
     J0[3] = htobe32(1);
 
-    // The A part of S. 
+    // The A part of S.
     for(j=0; j<alen; j+=16)
     {
         for(i=0; i<16; i++)
             X[i] = i+j < alen ? ((const uint8_t *)aad)[i+j] : 0;
-            
+
         galois128_hash1block(S, gcm->H, X);
     }
 
-    // The C part of S. 
+    // The C part of S.
     for(j=0; j<len; j+=16)
     {
         for(i=0; i<16; i++)
@@ -119,7 +119,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
         galois128_hash1block(S, gcm->H, X);
     }
 
-    // The len(A) and len(C) part of S. 
+    // The len(A) and len(C) part of S.
     ((uint64_t *)X)[0] = htobe64(alen*8);
     ((uint64_t *)X)[1] = htobe64(len*8);
     galois128_hash1block(S, gcm->H, X);
@@ -130,19 +130,19 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     for(i=0; i<4; i++) ((uint32_t *)X)[i] ^= S[i];
     for(i=0; i<tlen; i++)
     {
-        b |= ((const uint8_t *)T)[i] ^ (i<16 ? X[i] : 0); 
+        b |= ((const uint8_t *)T)[i] ^ (i<16 ? X[i] : 0);
     }
     if( b ) return NULL;
 
-    // GCTR: First CB. 
+    // GCTR: First CB.
     for(i=0; i<4; i++){ CB[i] = J0[i]; }
-    
-    // Per rfc5116, actual decryption is here. 
+
+    // Per rfc5116, actual decryption is here.
     for(j=0; j<len; j+=16)
     {
         CB[3] = htobe32(be32toh(CB[3])+1);
         gcm->enc(CB, X, kschd);
-        
+
         for(i=0; i<16 && i+j<len; i++) optr[i+j] = iptr[i+j] ^ X[i];
     }
 

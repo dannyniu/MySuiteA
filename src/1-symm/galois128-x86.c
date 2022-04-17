@@ -24,10 +24,10 @@ static __m128i galois128_mul_x86(__m128i x, __m128i y)
     b = _mm_clmulepi64_si128(x, y, 0x01);
     b ^=_mm_clmulepi64_si128(x, y, 0x10);
     a ^= _mm_slli_si128(b, 8); // 8 octets = 64 bits.
-    
+
     c = _mm_clmulepi64_si128(p, b, 0x10);
     a ^= c;
-    
+
     b = _mm_clmulepi64_si128(x, y, 0x11);
     c = _mm_clmulepi64_si128(p, b, 0x00);
     a ^= c;
@@ -35,7 +35,7 @@ static __m128i galois128_mul_x86(__m128i x, __m128i y)
     a ^= _mm_slli_si128(c, 8);
     c = _mm_clmulepi64_si128(p, c, 0x10);
     a ^= c;
-    
+
     return bytes_mirror(a);
 }
 

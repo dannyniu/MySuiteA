@@ -25,7 +25,7 @@ void *ChaCha_AEAD_Encrypt(
     alignas(uint64_t) uint8_t words[32];
     const uint8_t *iptr=in; uint8_t *optr=out;
     size_t i, j;
-    
+
     // values taken from
     // https://www.rfc-editor.org/rfc/rfc8439.html#section-2.8
     if( ivlen != 12 ||
@@ -58,7 +58,7 @@ void *ChaCha_AEAD_Encrypt(
     poly1305_final(&x->poly1305);
     for(i=0; i<4; i++) ((uint32_t *)words)[i] = htole32(x->poly1305.a[i]);
     for(i=0; i<tlen; i++) {
-        // Zero-extends if tlen>16. 
+        // Zero-extends if tlen>16.
         ((uint8_t *)T)[i] = i<16 ? words[i] : 0;
     }
 

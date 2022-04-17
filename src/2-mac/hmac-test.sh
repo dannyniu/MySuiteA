@@ -4,7 +4,7 @@ if ! command -v python3 >/dev/null ; then
     echo "Cannot invoke python3. (Not installed?)"
     exit 1
 elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
-    echo "Python version too old, (3.6 or newer required)" # Assumes CPython. 
+    echo "Python version too old, (3.6 or newer required)" # Assumes CPython.
     exit 1;
 fi
 
@@ -50,7 +50,7 @@ testfunc() {
         ../src/2-mac/hmac-test.py $algo < mac-test-data > mac-test-ref &
         $exec $algo < mac-test-data > mac-test-result &
         wait
-        
+
         if [ "$(cat mac-test-ref)" = "$(cat mac-test-result)" ] ; then
             : echo Test succeeded for $algo klen=$klen mlen=$mlen
         else

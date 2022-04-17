@@ -28,7 +28,7 @@ typedef struct {
 
     // Length of the salt in RSASSA-PSS.
     uint32_t            slen;
-    
+
     uint32_t            hlen_msg;
     uint32_t            hlen_mgf;
     hash_funcs_set_t    hfuncs_msg, hfuncs_mgf;

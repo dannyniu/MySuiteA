@@ -20,21 +20,21 @@ static void HMAC_DRBG_Update(
     uint8_t c;
 
     c = 0;
-    
+
     PRF_INIT(H, K, outlen);
     x->prf_update(H, V, outlen);
     x->prf_update(H, &c, 1);
     x->prf_update(H, str, len);
     x->prf_final(H, K, outlen);
-    
+
     PRF_INIT(H, K, outlen);
     x->prf_update(H, V, outlen);
     x->prf_final(H, V, outlen);
 
     if( !len ) return;
-    
+
     c = 1;
-    
+
     PRF_INIT(H, K, outlen);
     x->prf_update(H, V, outlen);
     x->prf_update(H, &c, 1);
@@ -86,7 +86,7 @@ void HMAC_DRBG_Generate(
         PRF_INIT(H, K, outlen);
         x->prf_update(H, V, outlen);
         x->prf_final(H, V, outlen);
-        
+
         for(t = 0; t < outlen && tmplen < len; t++, tmplen++)
             buf[tmplen] = ((uint8_t *)V)[t];
     }

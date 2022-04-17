@@ -14,7 +14,7 @@ IntPtr ber_tlv_encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
     //- not used -// uint32_t i;
 
     size_t taglen;
-    
+
     const RSA_Pub_Ctx_Hdr_t *ctx = any;
 
     //
@@ -29,14 +29,14 @@ IntPtr ber_tlv_encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // publicExponent INTEGER, -- e
     subret = ber_tlv_encode_integer(DeltaTo(ctx, offset_e), ptr, remain);
@@ -46,17 +46,17 @@ IntPtr ber_tlv_encode_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
     taglen = 0;
     taglen += ber_push_len(&stack, subret);
     taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-    
+
     if( pass == 2 )
     {
         ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
     }
     ret += taglen;
     if( enc ) ptr += subret + taglen; remain -= subret + taglen;
-    
+
     //
     // } -- End of "RSAPublicKey ::= SEQUENCE".
-    
+
     if( pass == 2 ) stack = enc + enclen;
     taglen = 0;
     taglen += ber_push_len(&stack, ret);

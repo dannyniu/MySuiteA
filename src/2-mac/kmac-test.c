@@ -25,7 +25,7 @@ void test_run1(
     uint8_t *p;
     size_t tl;
     size_t rl;
-    
+
     printf("...... Test Name: %s ......\n", tn);
     tl = (uint8_t *)scanhex(tag, -1, t) - tag;
 
@@ -35,7 +35,7 @@ void test_run1(
         bufvec_t bv[2] = {
             [0] = { .len = strlen(s), .dat = s },
             [1] = { .len = klen, .dat = key } };
-        
+
         XCTRL_FUNC(kmac)(
             &ctx, KMAC_KInit_WithS,
             bv, 2, 0);
@@ -63,7 +63,7 @@ void test_run1(
         printf("Actual Output 1: \n");
         dumphex(mac, tl);
     }
-    
+
     if( !fails ) printf("...... Test Succeeded ......\n");
     else ret = EXIT_FAILURE;
 }
@@ -73,7 +73,7 @@ void tests_runall()
     size_t t;
     for(t=0x40; t<0x60; t++) key[t - 0x40] = t;
     for(t=0; t<sizeof(msg); t++) msg[t] = t;
-    
+
     kmac = iKMAC128;
 
     test_run1(
@@ -98,7 +98,7 @@ void tests_runall()
         "E2 71 EC C7 60 07 1D FD 80 5F AA 38 F9 72 92 30");
 
     kmac = iKMAC256;
-    
+
     test_run1(
         "KMAC-256: short msg, S=<t>",
         "My Tagged Application",

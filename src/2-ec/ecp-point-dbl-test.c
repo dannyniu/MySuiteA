@@ -16,7 +16,7 @@ int test1(
     printf("ecc_asm.set_p(");
     printl(curve->p);
     printf(") or True\n");
-    
+
     for(long n=0; n<75*75; n++)
     {
         vlong_t *x1 = DeltaTo(a, offset_x);
@@ -25,7 +25,7 @@ int test1(
         vlong_t *x3 = DeltaTo(c, offset_x);
         vlong_t *y3 = DeltaTo(c, offset_y);
         vlong_t *z3 = DeltaTo(c, offset_z);
-        
+
         randoml(x1);
         randoml(y1);
         randoml(z1);
@@ -59,7 +59,7 @@ int main(void)
     *(ecp256_xyz_t *)&c = ECP256_XYZ_INIT();
     *(ecp256_opctx_t *)&opctx = ECP256_OPCTX_INIT;
     curve = secp256r1;
-    
+
     test1((void *)&a, (void *)&c, (void *)&opctx, curve);
 
     // NIST P-384.
@@ -70,6 +70,6 @@ int main(void)
     curve = secp384r1;
 
     test1((void *)&a, (void *)&c, (void *)&opctx, curve);
-    
+
     return 0;
 }

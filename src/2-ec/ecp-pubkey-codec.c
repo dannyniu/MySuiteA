@@ -15,7 +15,7 @@ ecp_xyz_t *ecp_point_decode(
     ecp_curve_t const *restrict curve)
 {
     int tinf_eq_Q = false;
-    
+
     uint8_t const *os = enc;
     vlong_t
         *x = DeltaTo(Q, offset_x),
@@ -51,7 +51,7 @@ start:
 
         vlong_imuls(u, x, curve->a, true);
         ecp_imod_inplace(u, curve->imod_aux);
-        
+
         vlong_addv(u, u, curve->b);
         curve->imod_aux->modfunc(
             u, curve->imod_aux->mod_ctx);
@@ -91,7 +91,7 @@ start:
         curve->n, opctx, curve);
 
     z = DeltaTo(tinf, offset_z);
-    
+
     for(i=0; i<z->c; i++)
         if( z->v[i] )
             return NULL;
@@ -116,7 +116,7 @@ void *ecp_point_encode(
     vlong_t
         *x = DeltaTo(Q, offset_x),
         *y = DeltaTo(Q, offset_y);
-    
+
     if( enclen == 1 + curve->plen * 2 )
     {
         *os = 4;

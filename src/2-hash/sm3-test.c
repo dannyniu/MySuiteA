@@ -14,6 +14,6 @@ int main(int argc, char *argv[])
 
     test1case(xSM3);
     test1case(iSM3);
-    
+
     return EXIT_SUCCESS;
 }

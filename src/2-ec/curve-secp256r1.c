@@ -19,7 +19,7 @@ static vlong_t *remv_inplace(vlong_t *rem, void const *aux)
     static_assert(
         sizeof(*rem->v) == sizeof(uint32_t),
         "Data type assumption failed");
-    
+
     vlong_size_t t;
     int64_t b;
 
@@ -40,7 +40,7 @@ static vlong_t *remv_inplace(vlong_t *rem, void const *aux)
         vlong_adds(rem, rem, -b, t-2);
         vlong_adds(rem, rem, -b, t-5);
         vlong_adds(rem, rem, b, t-8);
-        
+
         b = rem->v[t];
         rem->v[t] = 0;
         vlong_adds(rem, rem, b, t-1);
@@ -107,7 +107,7 @@ static const ecp256_xyz_t G = ECP256_XYZ_INIT(
     .x.v[2] = 0x2DEB33A0,
     .x.v[1] = 0xF4A13945,
     .x.v[0] = 0xD898C296,
-    
+
     .y.v[7] = 0x4FE342E2,
     .y.v[6] = 0xFE1A7F9B,
     .y.v[5] = 0x8EE7EB4A,
@@ -116,7 +116,7 @@ static const ecp256_xyz_t G = ECP256_XYZ_INIT(
     .y.v[2] = 0x6B315ECE,
     .y.v[1] = 0xCBB64068,
     .y.v[0] = 0x37BF51F5,
-    
+
     .z.v[0] = 1,
     );
 

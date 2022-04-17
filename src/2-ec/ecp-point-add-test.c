@@ -29,7 +29,7 @@ int test1(
         vlong_t *x3 = DeltaTo(r, offset_x);
         vlong_t *y3 = DeltaTo(r, offset_y);
         vlong_t *z3 = DeltaTo(r, offset_z);
-        
+
         randoml(x1);
         randoml(y1);
         randoml(z1);
@@ -85,6 +85,6 @@ int main(void)
 
     test1((void *)&p, (void *)&q, (void *)&r,
           (void *)&opctx, curve);
-    
+
     return 0;
 }

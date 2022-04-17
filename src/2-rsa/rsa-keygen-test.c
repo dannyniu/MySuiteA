@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         [0].aux = 2048, // modulus bits.
         [1].aux = 2, // primes count
     };
-    
+
     Gimli_XOF_Init(&gx);
     Gimli_XOF_Write(&gx, "Hello World!", 12);
     if( argc >= 2 )
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     // Experiment 1: RSA Key Generation.
     size = rsa_keygen(NULL, p_rsa, NULL, NULL);
     printf("sizeof(ctx-priv): %zu\n", size);
-    
+
     ctx = malloc(size);
     rsa_keygen(ctx, p_rsa, (GenFunc_t)Gimli_XOF_Read, &gx);
 

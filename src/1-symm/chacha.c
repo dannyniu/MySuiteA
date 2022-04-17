@@ -19,7 +19,7 @@ static const uint8_t sigma[10][16] = {
 // char:    8-bit,
 // short:   16-bit,
 // word:    32-bit,
-// long;    64-bit. 
+// long;    64-bit.
 
 #define qround(a, b, c, d)                      \
     {                                           \
@@ -54,7 +54,7 @@ inner_block(uint32_t state[16])
     qround(state[ 1], state[ 5], state[ 9], state[13]);
     qround(state[ 2], state[ 6], state[10], state[14]);
     qround(state[ 3], state[ 7], state[11], state[15]);
-    
+
     qround(state[ 0], state[ 5], state[10], state[15]);
     qround(state[ 1], state[ 6], state[11], state[12]);
     qround(state[ 2], state[ 7], state[ 8], state[13]);
@@ -68,7 +68,7 @@ inner_block_word(uint32_t state[16], uint32_t const m[16], uint8_t const s[16])
     qround_word(state[ 1], state[ 5], state[ 9], state[13], msg( 2), msg( 3));
     qround_word(state[ 2], state[ 6], state[10], state[14], msg( 4), msg( 5));
     qround_word(state[ 3], state[ 7], state[11], state[15], msg( 6), msg( 7));
-    
+
     qround_word(state[ 0], state[ 5], state[10], state[15], msg( 8), msg( 9));
     qround_word(state[ 1], state[ 6], state[11], state[12], msg(10), msg(11));
     qround_word(state[ 2], state[ 7], state[ 8], state[13], msg(12), msg(13));
@@ -82,7 +82,7 @@ inner_block_long(uint64_t state[16], uint64_t const m[16], uint8_t const s[16])
     qround_long(state[ 1], state[ 5], state[ 9], state[13], msg( 2), msg( 3));
     qround_long(state[ 2], state[ 6], state[10], state[14], msg( 4), msg( 5));
     qround_long(state[ 3], state[ 7], state[11], state[15], msg( 6), msg( 7));
-    
+
     qround_long(state[ 0], state[ 5], state[10], state[15], msg( 8), msg( 9));
     qround_long(state[ 1], state[ 6], state[11], state[12], msg(10), msg(11));
     qround_long(state[ 2], state[ 7], state[ 8], state[13], msg(12), msg(13));
@@ -96,7 +96,7 @@ void chacha20_set_state(
 {
     uint32_t *s = state;
     int i;
-    
+
     s[0] = 0x61707865;
     s[1] = 0x3320646e;
     s[2] = 0x79622d32;
@@ -115,7 +115,7 @@ void chacha20_set_state(
 
 void chacha20_block(
     uint32_t *restrict state,
-    uint32_t counter, 
+    uint32_t counter,
     size_t len, void const *in, void *out)
 {
     uint32_t *s = state, ws[16];
@@ -142,7 +142,7 @@ void blake2s_compress(uint32_t *restrict h, void const *m, uint64_t t, int f)
 {
     int i;
     uint32_t v[16];
-    
+
     for(i=0; i<8; i++) v[i] = h[i];
     v[ 8] = 0x6a09e667;
     v[ 9] = 0xbb67ae85;
@@ -169,7 +169,7 @@ void blake2b_compress(uint64_t *restrict h, void const *m, uint64_t t, int f)
 {
     int i;
     uint64_t v[16];
-    
+
     for(i=0; i<8; i++) v[i] = h[i];
     v[ 8] = 0x6a09e667f3bcc908;
     v[ 9] = 0xbb67ae8584caa73b;
@@ -181,7 +181,7 @@ void blake2b_compress(uint64_t *restrict h, void const *m, uint64_t t, int f)
     v[15] = 0x5be0cd19137e2179;
 
     v[12] ^= t;
-    // Not implemented for msglen > 2^64. 
+    // Not implemented for msglen > 2^64.
 
     if( f ) v[14] = ~v[14];
 

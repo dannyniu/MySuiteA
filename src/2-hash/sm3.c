@@ -7,7 +7,7 @@
 void SM3_Update(sm3_t *restrict x, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
-    
+
     // Msg must not be full when this loop enters.
     while(len)
     {
@@ -27,7 +27,7 @@ static void sm3_final(sm3_t *restrict x)
 {
     int i;
     if( x->finalized ) return;
-    
+
     if( x->filled / sizeof(uint32_t) >= 14 )
     {
         x->Msg8[x->filled++] = 0x80;
@@ -77,7 +77,7 @@ void SM3_Final(sm3_t *restrict x, void *restrict out, size_t t)
     size_t i;
 
     sm3_final(x);
-    
+
     if( out )
     {
         for(i=0; i<t; i++)

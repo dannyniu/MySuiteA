@@ -31,15 +31,15 @@ void glue(hash_test_,h)(void)
     void *x = NULL;
 
     mysrand((unsigned long)time(NULL));
-    
+
     x = malloc(CTX_BYTES(h));
     INIT_FUNC(h)(x);
-    
+
     while( (in_len = fread(buf, 1, myrand()+1, stdin)) > 0 )
     {
         UPDATE_FUNC(h)(x, buf, in_len);
     }
-    
+
     FINAL_FUNC(h)(x, buf, OUT_BYTES(h));
     free(x);
     x = NULL;

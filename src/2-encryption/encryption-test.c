@@ -40,24 +40,24 @@ int main(int argc, char *argv[])
     CryptoParam_t Bc;
 
     if( argc < 3 ) return 1;
-    
+
     if( !strcmp(argv[1], "GCM-AES-128") )
         aead=iGCM_AES128, bc=iAES128, mode=tGCM;
-    
+
     if( !strcmp(argv[1], "GCM-AES-192") )
         aead=iGCM_AES192, bc=iAES192, mode=tGCM;
-    
+
     if( !strcmp(argv[1], "GCM-AES-256") )
         aead=iGCM_AES256, bc=iAES256, mode=tGCM;
-    
+
     if( !strcmp(argv[1], "ChaCha20-Poly1305") )
         aead=iChaCha_AEAD, bc=NULL, mode=NULL;
-    
+
     Bc.info = bc, Bc.param = NULL;
 
     vname = argv[2];
     freopen(argv[2], "r", stdin);
-    
+
     while( fgets(line, sizeof(line), stdin) )
     {
         if( sscanf(line, " %[:] %n", x, &i) && ptr )
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
         PrintIf(vflushed, "Test Over\n");
         return vflushed ? EXIT_FAILURE : EXIT_SUCCESS;
     }
-    
+
     ((PKInitFunc_t)mode(&Bc, KInitFunc))(
         &Bc, &gcm, k, mode(&Bc, keyBytes));
     ((AEncFunc_t)mode(&Bc, AEncFunc))(
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         (void *)&gcm, 12, iv, alen, a, len, c, x, 16, t);
     PrintIf(!ptr, "Dec Errornously Returned FAIL\n");
     PrintIf(memcmp(p, x, len), "Dec Fail: Plaintext Wrong!\n");
-        
+
     if( alen ) {
         ptr = ((ADecFunc_t)mode(&Bc, ADecFunc))(
             (void *)&gcm, 12, iv, alen-1, a+1, len, c, x, 16, t);

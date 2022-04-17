@@ -10,7 +10,7 @@ static VLONG_T(4) a, base, e, mod, t1, t2;
 int main(void)
 {
     a.c = base.c = e.c = mod.c = t1.c = t2.c = 4;
-    
+
     for(long n=0; n<15*15; n++)
     {
         memset(base.v, 0, 16);

@@ -12,7 +12,7 @@ void mgf1_pkcs1(
     // This function is being tested through RSA-OAEP cipher,
     // currently passing self-feeding tests, but not ones using
     // publicly available test vectors.
-    
+
     size_t t, i;
     uint8_t *dst = out;
     uint8_t buf[64]; // assume hash functions are 512-bit maximum.
@@ -31,7 +31,7 @@ void mgf1_pkcs1(
         if( xor )
             for(i=0; i<t; i++) dst[i] ^= buf[i];
         else for(i=0; i<t; i++) dst[i] = buf[i];
-        
+
         dst += t;
         outlen -= t;
         c = htobe32(be32toh(c) + 1);
@@ -57,11 +57,11 @@ void mgf_xof(
     {
         t = sizeof(buf) < outlen ? sizeof(buf) : outlen;
         hx->hfinalfunc(x->hashctx, buf, t);
-        
+
         if( xor )
             for(i=0; i<t; i++) dst[i] ^= buf[i];
         else for(i=0; i<t; i++) dst[i] = buf[i];
-        
+
         dst += t;
         outlen -= t;
     }

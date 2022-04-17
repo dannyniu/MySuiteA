@@ -11,11 +11,11 @@ static void *blake2b_init(
     size_t i;
 
     if( outlen > 64 || outlen < 1 || keylen > 64 ) return NULL;
-    
+
     x->outlen = outlen;
     x->keylen = keylen;
     x->finalized = false;
-    
+
     x->h[0] = 0x6a09e667f3bcc908;
     x->h[1] = 0xbb67ae8584caa73b;
     x->h[2] = 0x3c6ef372fe94f82b;
@@ -36,7 +36,7 @@ static void *blake2b_init(
         blake2b_update(x, k, keylen);
         x->filled = sizeof(x->b);
     }
-    
+
     return x;
 }
 
@@ -62,7 +62,7 @@ void blake2b_update(blake2b_t *restrict x, const void *restrict data, size_t len
             blake2b_compress(x->h, x->b, x->t, 0);
             x->filled = 0;
         }
-        
+
         x->b[x->filled++] = ((const uint8_t *)data)[i];
     }
 }
@@ -73,7 +73,7 @@ void blake2b_final(blake2b_t *restrict x, void *restrict out, size_t t)
     size_t i;
 
     if( x->finalized ) goto finalized;
-    
+
     x->t += x->filled;
     while( x->filled < sizeof(x->b) )
         x->b[x->filled++] = 0;
@@ -81,9 +81,9 @@ void blake2b_final(blake2b_t *restrict x, void *restrict out, size_t t)
     blake2b_compress(x->h, x->b, x->t, 1);
     for(i=0; i<8; i++)
         *((uint64_t *)x->b + i) = htole64(x->h[i]);
-    
+
     x->finalized = true;
-    
+
 finalized:
     if( out )
     {
@@ -97,13 +97,13 @@ static void *blake2s_init(
     void const *restrict k, size_t keylen)
 {
     size_t i;
-    
+
     if( outlen > 32 || outlen < 1 || keylen > 32 ) return NULL;
 
     x->outlen = outlen;
     x->keylen = keylen;
     x->finalized = false;
-    
+
     x->h[0] = 0x6a09e667;
     x->h[1] = 0xbb67ae85;
     x->h[2] = 0x3c6ef372;
@@ -150,7 +150,7 @@ void blake2s_update(blake2s_t *restrict x, const void *restrict data, size_t len
             blake2s_compress(x->h, x->b, x->t, 0);
             x->filled = 0;
         }
-        
+
         x->b[x->filled++] = ((const uint8_t *)data)[i];
     }
 }
