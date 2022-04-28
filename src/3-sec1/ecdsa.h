@@ -73,7 +73,7 @@ int ECDSA_PKParams(int index, CryptoParam_t *out);
 #define cECDSA(crv,hash,q) (                            \
         q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :      \
         q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :       \
-        q==isParamDetermByKey ? 0 :                     \
+        q==isParamDetermByKey ? false :                 \
         0)
 
 #define xECDSA(crv,hash,q) (                            \

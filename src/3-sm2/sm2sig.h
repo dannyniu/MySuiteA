@@ -92,7 +92,7 @@ int SM2SIG_PKParams(int index, CryptoParam_t *out);
 #define cSM2SIG(crv,hash,q) (                           \
         q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :      \
         q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :       \
-        q==isParamDetermByKey ? 0 :                     \
+        q==isParamDetermByKey ? false :                 \
         0)
 
 #define xSM2SIG(crv,hash,q) (                           \

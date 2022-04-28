@@ -81,7 +81,7 @@ int ECDH_KEM_PKParams(int index, CryptoParam_t *out);
 #define cECDH_KEM(crv,q) (                                      \
         q==bytesCtxPriv ? ECC_CTX_SIZE(crv,ECDH_HASH_NULL) :    \
         q==bytesCtxPub ? ECC_CTX_SIZE(crv,ECDH_HASH_NULL) :     \
-        q==isParamDetermByKey ? 0 :                             \
+        q==isParamDetermByKey ? false :                         \
         0)
 
 #define xECDH_KEM(crv,q) (                              \

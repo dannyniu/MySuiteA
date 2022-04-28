@@ -150,7 +150,7 @@ IntPtr iPKCS1_KeyCodec(int q);
             hmsg,hmgf,slen,bits,primes) :               \
         q==bytesCtxPub ? PKCS1_PUB_CTX_SIZE(            \
             hmsg,hmgf,slen,bits,primes) :               \
-        q==isParamDetermByKey ? 1 :                     \
+        q==isParamDetermByKey ? true :                  \
         0)
 
 #endif /* MySuiteA_pkcs1_h */
