@@ -14,6 +14,7 @@ src="\
 ecdsa-self-fed-test.c
 ecdsa.c
 3-ecc-common/ecc-common.c
+2-ec/ec-common.c
 2-ec/ecp-xyz.c
 2-ec/ecp-pubkey-codec.c
 2-ec/curve-secp256r1.c

@@ -10,6 +10,7 @@ unitest_sh=../unitest.sh
 
 src="\
 ecp-point-dbl-test.c
+ec-common.c
 ecp-xyz.c
 curve-secp256r1.c
 curve-secp384r1.c

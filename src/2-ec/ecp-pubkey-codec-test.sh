@@ -11,6 +11,7 @@ unitest_sh=../unitest.sh
 src="\
 ecp-pubkey-codec-test.c
 ecp-pubkey-codec.c
+ec-common.c
 ecp-xyz.c
 curve-secp256r1.c
 curve-secp384r1.c

@@ -10,9 +10,12 @@ unitest_sh=../unitest.sh
 
 src="\
 ecp-remv-inplace-test.c
+ec-common.c
 ecp-xyz.c
 curve-secp256r1.c
 curve-secp384r1.c
+modp25519.c
+modp448.c
 1-integers/vlong.c
 "
 
