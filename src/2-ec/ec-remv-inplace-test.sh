@@ -1,7 +1,7 @@
 #!/bin/sh
 
 testfunc() {
-    $exec < /dev/urandom | ../src/2-ec/ecp-remv-inplace-test.py
+    $exec < /dev/urandom | ../src/2-ec/ec-remv-inplace-test.py
 }
 
 cd "$(dirname "$0")"
@@ -9,7 +9,7 @@ unitest_sh=../unitest.sh
 . $unitest_sh
 
 src="\
-ecp-remv-inplace-test.c
+ec-remv-inplace-test.c
 ec-common.c
 ecp-xyz.c
 curve-secp256r1.c
