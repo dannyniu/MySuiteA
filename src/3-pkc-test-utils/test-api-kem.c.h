@@ -66,6 +66,9 @@ int main(int argc, char *argv[])
         PKC_Prologue();
 #endif /* PKC_Epilogue */
 
+        PKC_PRNG_Gen(prng, ss1, sslen);
+        PKC_PRNG_Gen(prng, ss2, sslen);
+
         PKC_Enc(enx, ss1, &sslen, PKC_PRNG_Gen, prng);
         PKC_Encode_Ciphertext(enx, NULL, &size);
 

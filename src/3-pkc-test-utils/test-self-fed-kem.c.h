@@ -44,6 +44,9 @@ int main(int argc, char *argv[])
         if( i % 2 ) { PKC_Prologue(); }
 #endif /* PKC_Epilogue */
 
+        PKC_PRNG_Gen(prng, ss1, sslen);
+        PKC_PRNG_Gen(prng, ss2, sslen);
+
         PKC_Enc(
             &enx.header, ss1, &sslen,
             (GenFunc_t)Gimli_XOF_Read, &gx);
