@@ -56,9 +56,9 @@ Current RSA progress:
 
 + ECDH (KEM-based API, 2nd to come).
 
-- Chinese SM2 DSS and KEM.
++ Chinese SM2 DSS (and KEM dropped).
 
-- Formaliization of yet further plans (i).
++ Formaliization of yet further plans (i).
 
 2022-04-14:
 
