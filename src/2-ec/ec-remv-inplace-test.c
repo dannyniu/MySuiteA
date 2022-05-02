@@ -5,6 +5,9 @@
 #include "curves-secp.h"
 #include "ecMt.h"
 
+const ecp_imod_aux_t modp25519_aux;
+const ecp_imod_aux_t modp448_aux;
+
 void printl(const vlong_t *x)
 {
     printf("0x");
@@ -46,12 +49,12 @@ int main(void)
           secp384r1->imod_aux->modfunc, NULL);
 
     test1((void *)&ff,
-          modp25519->mod_ctx,
-          modp25519->modfunc, NULL);
+          modp25519_aux.mod_ctx,
+          modp25519_aux.modfunc, NULL);
 
     test1((void *)&ff,
-          modp448->mod_ctx,
-          modp448->modfunc, NULL);
+          modp448_aux.mod_ctx,
+          modp448_aux.modfunc, NULL);
 
     return 0;
 }

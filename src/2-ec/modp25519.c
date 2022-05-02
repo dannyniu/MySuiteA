@@ -71,9 +71,7 @@ static vlong_t *remv_inplace(vlong_t *rem, void const *aux)
     return rem;
 }
 
-static const ecp_imod_aux_t remv_callback = {
+const ecp_imod_aux_t modp25519_aux = {
     .modfunc = (vlong_modfunc_t)remv_inplace,
     .mod_ctx = (vlong_t *)&Fp,
 };
-
-const ecp_imod_aux_t *modp25519 = &remv_callback;

@@ -12,8 +12,8 @@ src="\
 ecMt-point-scl-check.c
 ecMt.c
 ec-common.c
+curve25519.c
 modp25519.c
-modp448.c
 1-integers/vlong-dat.c
 1-integers/vlong.c
 "

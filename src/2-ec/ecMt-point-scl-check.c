@@ -1,13 +1,11 @@
 /* DannyNiu/NJF, 2022-04-28. Public Domain. */
 
 #define ENABLE_HOSTED_HEADERS
-#include "ecMt.h"
+#include "curves-Mt.h"
 #include "../1-integers/vlong-dat.h"
 
 #include "../0-exec/struct-delta.c.h"
-// #include "../1-integers/vlong-dbg.c.h"
-void printl(void *);
-void randoml(void *);
+#include "../1-integers/vlong-dbg.c.h"
 
 #include "../test-utils.c.h"
 
@@ -41,7 +39,7 @@ int main(void)
     ecMt_point_scale(
         (vlong_t *)&k, (vlong_t *)&Q,
         (486662 - 2) / 4, 255,
-        (ecMt_opctx_t *)&opctx, modp25519);
+        (ecMt_opctx_t *)&opctx, Curve25519->modp);
     vlong_EncLSB((vlong_t *)&Q, H, 32);
     dumphex(H, 32);
     

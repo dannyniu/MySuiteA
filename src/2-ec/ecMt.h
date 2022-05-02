@@ -94,7 +94,28 @@ vlong_t *ecMt_point_scale(
 
 void ecMt_opctx_init(ecMt_opctx_t *opctx, unsigned bits);
 
-extern ecp_imod_aux_t *modp25519;
-extern ecp_imod_aux_t *modp448;
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 2 *10 | 4 * 6 | 8 * 4
+typedef struct {
+    uint32_t pbits;
+    int32_t a;
+    uint32_t u_p;
+    uint32_t sslen;
+
+    void (*gen_scl)(
+        vlong_t *restrict k,
+        vlong_t *restrict K,
+        ecMt_opctx_t *restrict opctx,
+        ecp_imod_aux_t const *restrict imod_aux,
+        GenFunc_t prng_gen, void *restrict prng);
+
+    ecp_imod_aux_t const *modp;
+} ecMt_curve_t;
+
+enum {
+    ecMt_PtrCurveDef = qPrivateUseBegin + 1,
+    ecMt_BitsModulus = qPrivateUseBegin + 2,
+};
 
 #endif /* MySuiteA_ecc_ecMt_h */
