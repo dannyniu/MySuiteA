@@ -1,6 +1,8 @@
 /* DannyNiu/NJF, 2022-04-27. Public Domain. */
 
-#include "xecdh.h.h"
+#include "rfc-7748.h"
+#include "../2-ec/curves-Mt.h"
+#include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
 static inline void stubprng(void *restrict ctx, void *restrict out, size_t len)
@@ -9,11 +11,21 @@ static inline void stubprng(void *restrict ctx, void *restrict out, size_t len)
     for(i=0; i<len; i++) ((uint8_t *)out)[i] = ((const uint8_t *)ctx)[i];
 }
 
+// after-thought, see note dated 2022-05-02 in "rfc-7748.h"
+#undef XECDH
+#define CRV_BITS        (x->curve->pbits)
+#define A24             ((x->curve->a - 2) / 4)
+#define U_P             (x->curve->u_p)
+#define SSLEN           (x->curve->sslen)
+
+#define xecdh_gen_scl   (x->curve->gen_scl)
+#define imod_aux        curve->modp
+
 #if ! PKC_OMIT_PRIV_OPS
 
 #if ! PKC_OMIT_KEYGEN
 
-IntPtr glue(XECDH,_Keygen)(
+IntPtr XECDH_Keygen(
     XECDH_Ctx_Hdr_t *restrict x,
     CryptoParam_t *restrict param,
     GenFunc_t prng_gen, void *restrict prng)
@@ -23,12 +35,12 @@ IntPtr glue(XECDH,_Keygen)(
     
     (void)param;
     
-    if( !x ) return XECDH_CTX_SIZE(CRV_BITS); else
+    if( !x ) return XECDH_CTX_SIZE(param->info); else
     {
-        *x = XECDH_CTX_HDR_INIT(CRV_BITS);
+        *x = XECDH_CTX_HDR_INIT(param->info);
         
         x->status = 0;
-        x->imod_aux = modp;
+        x->curve = (const ecMt_curve_t *)param->info(ecMt_PtrCurveDef);
         
         ecMt_opctx_init(DeltaTo(x, offset_opctx), CRV_BITS);
         ((vlong_t *)DeltaTo(x, offset_k))->c = VLONG_BITS_WCNT(CRV_BITS);
@@ -43,7 +55,7 @@ IntPtr glue(XECDH,_Keygen)(
 
         xecdh_gen_scl(
             k, K, DeltaTo(x, offset_opctx),
-            x->imod_aux, prng_gen, prng);
+            x->curve->modp, prng_gen, prng);
         
         return (IntPtr)x;
     }
@@ -51,7 +63,7 @@ IntPtr glue(XECDH,_Keygen)(
 
 #endif /* ! PKC_OMIT_KEYGEN */
 
-IntPtr glue(XECDH,_Encode_PrivateKey)(
+IntPtr XECDH_Encode_PrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     XECDH_Ctx_Hdr_t const *x = any;
@@ -65,26 +77,29 @@ IntPtr glue(XECDH,_Encode_PrivateKey)(
     return SSLEN;
 }
 
-IntPtr glue(XECDH,_Decode_PrivateKey)(
+IntPtr XECDH_Decode_PrivateKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     XECDH_Ctx_Hdr_t *x = any;
+    const ecMt_curve_t *crv;
     
     if( any )
     {
-        if( enclen != SSLEN ) return -1;
+        if( !param ) return -1;
+        crv = (const ecMt_curve_t *)param->info(ecMt_PtrCurveDef);
+        if( enclen != crv->sslen ) return -1;
 
         // 2022-04-28:
         // ``enc'' is const-qualified, where as the param is not.
         // cast to silence a warning, which had been noted.
-        glue(XECDH,_Keygen)(x, param, stubprng, (void *)enc);
+        XECDH_Keygen(x, param, stubprng, (void *)enc);
     }
-    return XECDH_CTX_SIZE(CRV_BITS);
+    return XECDH_CTX_SIZE(param->info);
 }
 
 #endif /* ! PKC_OMIT_PRIV_OPS */
 
-IntPtr glue(XECDH,_Encode_PublicKey)(
+IntPtr XECDH_Encode_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     XECDH_Ctx_Hdr_t const *x = any;
@@ -100,7 +115,7 @@ IntPtr glue(XECDH,_Encode_PublicKey)(
 
 #if ! PKC_OMIT_PUB_OPS
 
-IntPtr glue(XECDH,_Decode_PublicKey)(
+IntPtr XECDH_Decode_PublicKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
     XECDH_Ctx_Hdr_t *restrict x = any;
@@ -109,10 +124,10 @@ IntPtr glue(XECDH,_Decode_PublicKey)(
 
     if( any )
     {
-        *x = XECDH_CTX_HDR_INIT(CRV_BITS);
+        *x = XECDH_CTX_HDR_INIT(param->info);
         
         x->status = 0;
-        x->imod_aux = modp;
+        x->curve = (const ecMt_curve_t *)param->info(ecMt_PtrCurveDef);
         
         ecMt_opctx_init(DeltaTo(x, offset_opctx), CRV_BITS);
         ((vlong_t *)DeltaTo(x, offset_k))->c = VLONG_BITS_WCNT(CRV_BITS);
@@ -121,15 +136,15 @@ IntPtr glue(XECDH,_Decode_PublicKey)(
         
         vl = DeltaTo(x, offset_K);
         vlong_DecLSB(vl, enc, enclen);
+
+        if( x->curve->a == 486662 && U_P == 9 && SSLEN == 32 )
+            vl->v[7] &= INT32_MAX;
         
-#if A24 == ((486662 - 2) / 4) && U_P == 9 && SSLEN == 32
-        vl->v[7] &= INT32_MAX;
-#endif /* This is Curve 25519. */
     }
-    return XECDH_CTX_SIZE(CRV_BITS);
+    return XECDH_CTX_SIZE(param->info);
 }
 
-void *glue(XECDH,_Enc)(
+void *XECDH_Enc(
     XECDH_Ctx_Hdr_t *restrict x,
     void *restrict ss, size_t *restrict sslen,
     GenFunc_t prng_gen, void *restrict prng)
@@ -137,7 +152,7 @@ void *glue(XECDH,_Enc)(
     vlong_t *k, *K, *P;
     ecMt_opctx_t *opctx;
  
-    uint8_t tmp[SSLEN];
+    uint8_t tmp[64];
     size_t t;
 
     if( !ss )
@@ -180,14 +195,14 @@ void *glue(XECDH,_Enc)(
 
 #if ! PKC_OMIT_PRIV_OPS
 
-void *glue(XECDH,_Dec)(
+void *XECDH_Dec(
     XECDH_Ctx_Hdr_t *restrict x,
     void *restrict ss, size_t *restrict sslen)
 {
     vlong_t *k, *P;
     ecMt_opctx_t *opctx;
  
-    uint8_t tmp[SSLEN];
+    uint8_t tmp[64];
     size_t t;
 
     if( x->status > 0 )
@@ -228,7 +243,7 @@ void *glue(XECDH,_Dec)(
 
 #if ! PKC_OMIT_PUB_OPS
 
-void *glue(XECDH,_Encode_Ciphertext)(
+void *XECDH_Encode_Ciphertext(
     XECDH_Ctx_Hdr_t *restrict x,
     void *restrict ct, size_t *ctlen)
 {
@@ -243,7 +258,7 @@ void *glue(XECDH,_Encode_Ciphertext)(
 
 #if ! PKC_OMIT_PRIV_OPS
 
-void *glue(XECDH,_Decode_Ciphertext)(
+void *XECDH_Decode_Ciphertext(
     XECDH_Ctx_Hdr_t *restrict x,
     void const *restrict ct, size_t ctlen)
 {
@@ -252,11 +267,49 @@ void *glue(XECDH,_Decode_Ciphertext)(
     x->status = 0;
     vlong_DecLSB(vl, ct, ctlen);
 
-#if A24 == ((486662 - 2) / 4) && U_P == 9 && SSLEN == 32
-    vl->v[7] &= INT32_MAX;
-#endif /* This is Curve 25519. */
+    if( x->curve->a == 486662 && U_P == 9 && SSLEN == 32 )
+        vl->v[7] &= INT32_MAX;
     
     return x;
 }
 
 #endif /* ! PKC_OMIT_PRIV_OPS */
+
+int XECDH_PKParams(int index, CryptoParam_t *out)
+{
+    switch( index )
+    {
+    case 0:
+        return 0;
+        break;
+
+    case 1:
+        out[0].info = iX25519;
+        out[0].param = NULL;
+        return 128;
+        break;
+
+    case 2:
+        out[0].info = iX448;
+        out[0].param = NULL;
+        return 224;
+        break;
+
+    default:
+        return 0;
+    }
+}
+
+#if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
+
+IntPtr iXECDH_KeyCodec(int q) { return xXECDH_KeyCodec(q); }
+
+IntPtr tXECDH(const CryptoParam_t *P, int q)
+{
+    (void)P;
+    return xXECDH(P->info, q);
+}
+
+IntPtr iXECDH_CtCodec(int q) { return xXECDH_CtCodec(q); }
+
+#endif /* ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS) */

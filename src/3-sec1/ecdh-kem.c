@@ -270,7 +270,7 @@ void *ECDH_KEM_Encode_Ciphertext(
 
 void *ECDH_KEM_Decode_Ciphertext(
     ECDH_KEM_Ctx_Hdr_t *restrict x,
-    void *restrict ct, size_t ctlen)
+    void const *restrict ct, size_t ctlen)
 {
     x->status = 0;
 

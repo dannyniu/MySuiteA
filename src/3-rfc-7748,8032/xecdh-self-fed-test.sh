@@ -1,8 +1,8 @@
 #!/bin/sh
 
-optimize=debug
+optimize=true
 testfunc() {
-    # lldb \
+    #lldb \
         $exec "$(date)"
 }
 
@@ -11,10 +11,9 @@ unitest_sh=../unitest.sh
 . $unitest_sh
 
 src="\
-xecdh-api-test.c
+xecdh-self-fed-test.c
 rfc-7748.c
 2-ec/ec-common.c
-
 2-ec/ecMt.c
 2-ec/curve25519.c
 2-ec/curve448.c
