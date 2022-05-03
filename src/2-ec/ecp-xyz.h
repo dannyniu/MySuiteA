@@ -44,6 +44,7 @@ typedef struct {
 // 2022-02-05: Based on
 // "Complete addition formulas for prime order elliptic curves"
 // by Joost Renes, Craig Costello, and Lejla Batina, Oct 2015.
+// available at: <https://eprint.iacr.org/2015/1060>
 ecp_xyz_t *ecp_point_add_rcb15(
     ecp_xyz_t *restrict out,
     ecp_xyz_t const *p1,
