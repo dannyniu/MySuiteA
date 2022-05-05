@@ -124,10 +124,10 @@ static const ecp_curve_t CurveDef = {
     .plen = 32,
     .h = 1,
     .a = -3,
-    .b = (vlong_t *)&CrvEq_b,
-    .p = (vlong_t *)&Fp,
-    .n = (vlong_t *)&CrvParam_n,
-    .G = (ecp_xyz_t *)&G,
+    .b = (const vlong_t *)&CrvEq_b,
+    .p = (const vlong_t *)&Fp,
+    .n = (const vlong_t *)&CrvParam_n,
+    .G = (const ecp_xyz_t *)&G,
     .imod_aux = &remv_callback,
 };
 
