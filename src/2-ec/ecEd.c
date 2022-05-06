@@ -1,6 +1,7 @@
 /* DannyNiu/NJF, 2022-05-02. Public Domain. */
 
 #include "ecEd.h"
+#include "../0-exec/struct-delta.c.h"
 
 ecEd_xytz_t *ecEd_point_add(
     ecEd_xytz_t *out, // intentionally not restrict-qualified,
@@ -9,7 +10,7 @@ ecEd_xytz_t *ecEd_point_add(
     ecEd_opctx_t *restrict opctx,
     ecEd_curve_t const *restrict curve)
 {
-    ecp_imod_aux_t const aux = curve->imod_aux;
+    ecp_imod_aux_t const *aux = curve->imod_aux;
     
     vlong_t const *x1 = DeltaTo(p1, offset_x);
     vlong_t const *y1 = DeltaTo(p1, offset_y);
@@ -35,7 +36,7 @@ ecEd_xytz_t *ecEd_point_add(
     // w = r + s
     
     vlong_mulv_masked(r, x1, y2, 1, aux->modfunc, aux->mod_ctx);
-    vlong_mulv_masked(s, x1, y2, 1, aux->modfunc, aux->mod_ctx);
+    vlong_mulv_masked(s, x2, y1, 1, aux->modfunc, aux->mod_ctx);
 
     vlong_addv(w, r, s);
     aux->modfunc(w, aux->mod_ctx);
@@ -65,8 +66,8 @@ ecEd_xytz_t *ecEd_point_add(
     // x3 = w * v
     // t3 = u & w
 
-    vlong_mulv_masked(x3, w, v, aux->modfunc, aux->mod_ctx);
-    vlong_mulv_masked(t3, u, w, aux->modfunc, aux->mod_ctx);
+    vlong_mulv_masked(x3, w, v, 1, aux->modfunc, aux->mod_ctx);
+    vlong_mulv_masked(t3, u, w, 1, aux->modfunc, aux->mod_ctx);
 
     // overwriting:
     // w = r * d_under + d_over * s
@@ -104,11 +105,11 @@ ecEd_xytz_t *ecEd_point_dbl(
     ecEd_opctx_t *restrict opctx,
     ecEd_curve_t const *restrict curve)
 {
-    ecp_imod_aux_t const aux = curve->imod_aux;
+    ecp_imod_aux_t const *aux = curve->imod_aux;
     
     vlong_t const *x1 = DeltaTo(p1, offset_x);
     vlong_t const *y1 = DeltaTo(p1, offset_y);
-    vlong_t const *t1 = DeltaTo(p1, offset_t);
+    // vlong_t const *t1 = DeltaTo(p1, offset_t); // unused, actually.
     vlong_t const *z1 = DeltaTo(p1, offset_z);
     
     vlong_t *x3 = DeltaTo(out, offset_x);
@@ -129,7 +130,7 @@ ecEd_xytz_t *ecEd_point_dbl(
     vlong_mulv_masked(s, y1, y1, 1, aux->modfunc, aux->mod_ctx);
 
     vlong_imuls(r, r, curve->a, false);
-    aux->modfunc(r, aux->mod_ctx);
+    ecp_imod_inplace(r, aux);
 
     // u = s + r
     // v = s - r
@@ -167,6 +168,8 @@ ecEd_xytz_t *ecEd_point_dbl(
 
     vlong_mulv_masked(x3, s, w, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(z3, u, w, 1, aux->modfunc, aux->mod_ctx);
+
+    return out;
 }
 
 void ecEd_xytz_copy(
@@ -249,7 +252,7 @@ static void ecEd_xytz_substitute(
     }
 }
 
-ecEd_xytz_t *ecp_point_scale_accumulate(
+ecEd_xytz_t *ecEd_point_scale_accumulate(
     ecEd_xytz_t *restrict accum,
     ecEd_xytz_t *restrict tmp1, // temporary variables are
     ecEd_xytz_t *restrict tmp2, // allocated by the caller
@@ -288,4 +291,25 @@ ecEd_xytz_t *ecp_point_scale_accumulate(
     }
 
     return accum;
+}
+
+void ecEd_xytz_init(ecEd_xytz_t *xytz, unsigned bits)
+{
+    *xytz = ECED_XYTZ_HDR_INIT(bits);
+
+    ((vlong_t *)DeltaTo(xytz, offset_x))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(xytz, offset_y))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(xytz, offset_t))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(xytz, offset_z))->c = VLONG_BITS_WCNT(bits);
+}
+
+void ecEd_opctx_init(ecEd_opctx_t *opctx, unsigned bits)
+{
+    *opctx = ECED_OPCTX_HDR_INIT(bits);
+    ((vlong_t *)DeltaTo(opctx, offset_r))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(opctx, offset_s))->c = VLONG_BITS_WCNT(bits);
+
+    ((vlong_t *)DeltaTo(opctx, offset_u))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(opctx, offset_v))->c = VLONG_BITS_WCNT(bits);
+    ((vlong_t *)DeltaTo(opctx, offset_w))->c = VLONG_BITS_WCNT(bits);
 }

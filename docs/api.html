@@ -1055,7 +1055,7 @@
       <dt><p><code>PKVerifyFunc</code></p></dt>
       <dd>
         <p>The digital signature signing function of prototype:</p>
-        <pre>void *(*PKVerifyFunc_t)(
+        <pre>const void *(*PKVerifyFunc_t)(
           <span class="tab"></span>rbuf x,
           <span class="tab"></span>rdat msg, size_t msglen);</pre>
         <p>where:</p>

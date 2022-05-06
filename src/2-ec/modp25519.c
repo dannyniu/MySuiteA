@@ -2,7 +2,9 @@
 
 #include "ec-common.h"
 
-static const VLONG_T(8) Fp = {
+#define Fp Fp_25519
+
+const VLONG_T(8) Fp = {
     .c = 8,
     .v[7] = INT32_MAX,
     .v[6] = -1,

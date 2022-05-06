@@ -2,7 +2,9 @@
 
 #include "ec-common.h"
 
-static const VLONG_T(14) Fp = {
+#define Fp Fp_448
+
+const VLONG_T(14) Fp = {
     .c = 14,
     .v[13] = -1,
     .v[12] = -1,
