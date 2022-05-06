@@ -57,7 +57,7 @@ void *ECDSA_Encode_Signature(
 
 void *ECDSA_Decode_Signature(
     ECDSA_Ctx_Hdr_t *restrict x,
-    void *restrict sig, size_t siglen);
+    void const *restrict sig, size_t siglen);
 
 int ECDSA_PKParams(int index, CryptoParam_t *out);
 

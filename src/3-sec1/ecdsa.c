@@ -389,7 +389,7 @@ void *ECDSA_Encode_Signature(
 
 void *ECDSA_Decode_Signature(
     ECDSA_Ctx_Hdr_t *restrict x,
-    void *restrict sig, size_t siglen)
+    void const *restrict sig, size_t siglen)
 {
     int subret = ber_tlv_ecc_decode_dss_signature(x, sig, siglen);
     x->status = 0;

@@ -57,7 +57,7 @@ void *SM2SIG_Encode_Signature(
 
 void *SM2SIG_Decode_Signature(
     SM2SIG_Ctx_Hdr_t *restrict x,
-    void *restrict sig, size_t siglen);
+    void const *restrict sig, size_t siglen);
 
 void *SM2SIG_Sign_Xctrl(
     SM2SIG_Ctx_Hdr_t *restrict x,

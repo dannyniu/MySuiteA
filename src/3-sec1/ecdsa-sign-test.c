@@ -13,7 +13,7 @@ typedef struct {
     sha384_t hash;
     ecp384_opctx_t opctx;
     ecp384_xyz_t Points[4];
-    VLONG_T(14) Scalars[2];
+    VLONG_T(VLONG_BITS_WCNT(384)) Scalars[2];
 } ECDSA_Ctx_t;
 
 ECDSA_Ctx_t ecdsaCtx, ecdsaSavedCtx;
@@ -137,9 +137,9 @@ int main(void) // (int argc, char *argv[])
             fails ++;
         }
 
-        memcpy(&ecdsaSavedCtx, &ecdsaCtx, sizeof(ECDSA_Ctx_t));
+        memcpy(&ecdsaCtx, &ecdsaSavedCtx, sizeof(ECDSA_Ctx_t));
 
-        if( ECDSA_Verify(
+        if( !ECDSA_Verify(
                 &ecdsaCtx.x_hdr,
                 testvec->msg,
                 strlen(testvec->msg)) )

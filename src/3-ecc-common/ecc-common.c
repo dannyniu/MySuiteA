@@ -245,7 +245,7 @@ IntPtr ber_tlv_ecc_encode_dss_signature(BER_TLV_ENCODING_FUNC_PARAMS)
 
     //
     // r INTEGER,
-           subret = ber_tlv_encode_integer(DeltaTo(opctx, offset_r), ptr, remain);
+    subret = ber_tlv_encode_integer(DeltaTo(opctx, offset_r), ptr, remain);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -262,7 +262,7 @@ IntPtr ber_tlv_ecc_encode_dss_signature(BER_TLV_ENCODING_FUNC_PARAMS)
 
     //
     // s INTEGER,
-           subret = ber_tlv_encode_integer(DeltaTo(opctx, offset_s), ptr, remain);
+    subret = ber_tlv_encode_integer(DeltaTo(opctx, offset_s), ptr, remain);
     ret += subret;
 
     if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
@@ -322,7 +322,7 @@ int ber_tlv_ecc_decode_dss_signature(BER_TLV_DECODING_FUNC_PARAMS)
 
     //
     // r INTEGER,
-           if( -1 == BER_HDR ) return -1;
+    if( -1 == BER_HDR ) return -1;
     if( tag != BER_TLV_TAG_UNI(2) ) return -1;
 
     vlong_OS2IP(DeltaTo(opctx, offset_r), ptr, len);
@@ -366,7 +366,10 @@ IntPtr ECC_Decode_PublicKey(
                 DeltaTo(x, offset_Tmp2),
                 DeltaTo(x, offset_opctx),
                 curve) )
+        {
+            x->status = -1;
             return -1;
+        }
     }
     return ECC_CTX_SIZE(param[0].info, param[1].info);
 }

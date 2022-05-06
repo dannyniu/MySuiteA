@@ -108,9 +108,9 @@ int main(void) // (int argc, char *argv[])
             fails ++;
         }
 
-        memcpy(&sm2sigSavedCtx, &sm2sigCtx, sizeof(SM2SIG_Ctx_t));
+        memcpy(&sm2sigCtx, &sm2sigSavedCtx, sizeof(SM2SIG_Ctx_t));
 
-        if( SM2SIG_Verify(
+        if( !SM2SIG_Verify(
                 &sm2sigCtx.x_hdr,
                 testvec->msg,
                 strlen(testvec->msg)) )
