@@ -1,10 +1,10 @@
-/* DannyNiu/NJF, 2021-10-08. Public Domain. */
+/* DannyNiu/NJF, 2022-05-07. Public Domain. */
 
-#include "rsassa-pss.h"
+#include "rsassa-pkcs1-v1_5.h" // change this later.
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
-void *RSASSA_PSS_Encode_Signature(
+void *RSAEncryptionWithHash_Encode_Signature(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen)
 {
@@ -34,7 +34,7 @@ void *RSASSA_PSS_Encode_Signature(
     return sig;
 }
 
-void *RSASSA_PSS_Sign(
+void *RSAEncryptionWithHash_Sign(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen,
     GenFunc_t prng_gen, void *restrict prng)
@@ -43,15 +43,17 @@ void *RSASSA_PSS_Sign(
     void *hashctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
     RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
 
+    const RSAEnc_HashOID *hoid;
+
     vlong_size_t t;
-    vlong_t *vp1; // , *vp2;
+    vlong_t *vp1;
 
     vlong_size_t emBits = dx->modulus_bits - 1;
     vlong_size_t emLen = (emBits + 7) / 8;
     uint8_t *ptr;
-    static const uint8_t nul[8] = {0};
 
-    // int32_t err = 0; // 2021-10-10: unused variabe consider removing.
+    (void)prng_gen;
+    (void)prng;
 
     if( po->status )
     {
@@ -66,7 +68,21 @@ void *RSASSA_PSS_Sign(
     }
 begin:
 
-    if( emLen < po->hlen_msg + po->slen + 2 )
+    // Look up the hash function.
+    hoid = HashOIDs_Table;
+    while( hoid->HashInitFunc )
+    {
+        if( hoid->HashInitFunc == po->hfuncs_msg.initfunc )
+            break;
+    }
+    
+    if( !hoid->HashInitFunc )
+    {
+        po->status = -1;
+        goto finish;
+    }
+
+    if( emLen < hoid->DER_Prefix_Len + hoid->Digest_Len + 11 )
     {
         po->status = -1;
         goto finish;
@@ -75,50 +91,36 @@ begin:
     // Setup buffer for EM.
     ptr = DeltaTo(dx, offset_w2);
     ptr = (void *)((vlong_t *)ptr)->v;
-    ptr[emLen - 1] = 0xbc;
 
-    // Generate salt.
-    prng_gen(prng, ptr + emLen - po->hlen_msg - po->slen - 1, po->slen);
+    // 00h + 01h + PS + 00h + T
+    ptr[0] = 0;
+    ptr[1] = 1;
+    
+    for(t=2; ; t++)
+    {
+        if( hoid->DER_Prefix_Len +
+            hoid->Digest_Len +
+            t + 1 >= emLen )
+        {
+            ptr[t] = 0;
+            break;
+        }
+        
+        ptr[t] = 0xff;
+    }
 
-    // Compute mHash.
+    for(t=0; t<hoid->DER_Prefix_Len; t++)
+        ptr[t + emLen - hoid->Digest_Len - hoid->DER_Prefix_Len] =
+            ((uint8_t const *)hoid->DER_Prefix)[t];
+
     po->hfuncs_msg.initfunc(hashctx);
     po->hfuncs_msg.updatefunc(hashctx, msg, msglen);
-    if( po->hfuncs_msg.xfinalfunc )
+    if( po->hfuncs_msg.xfinalfunc ) // this should never happen.
         po->hfuncs_msg.xfinalfunc(hashctx);
     po->hfuncs_msg.hfinalfunc(
         hashctx,
-        ptr + emLen - po->hlen_msg - 1, po->hlen_msg);
-
-    // Compute H.
-    po->hfuncs_msg.initfunc(hashctx);
-    po->hfuncs_msg.updatefunc(hashctx, nul, 8);
-    po->hfuncs_msg.updatefunc(
-        hashctx,
-        ptr + emLen - po->hlen_msg - 1, po->hlen_msg);
-    po->hfuncs_msg.updatefunc(
-        hashctx,
-        ptr + emLen - po->hlen_msg - po->slen - 1, po->slen);
-    if( po->hfuncs_msg.xfinalfunc )
-        po->hfuncs_msg.xfinalfunc(hashctx);
-    po->hfuncs_msg.hfinalfunc(
-        hashctx,
-        ptr + emLen - po->hlen_msg - 1, po->hlen_msg);
-
-    // Setup DB.
-    for(t=0; t < emLen - po->hlen_msg - po->slen - 2; t++) ptr[t] = 0;
-    ptr[t] = 1;
-
-    // maskedDB = DB \xor dbMask
-    mgf_auto(
-        (void *)po,
-        ptr + emLen - po->hlen_msg - 1, po->hlen_msg, // H
-        ptr, emLen - po->hlen_msg - 1, // maskedDB,dbMask.
-        1);
-
-    // Clear the leftmost 8*emLen-emBits bits.
-    t = 8 * emLen - emBits;
-    ptr[0] &= 0xFF >> t;
-
+        ptr + emLen - hoid->Digest_Len, hoid->Digest_Len);
+    
     // EM to Integer.
     vp1 = DeltaTo(dx, offset_w1);
     vlong_OS2IP(vp1, ptr, emLen);
