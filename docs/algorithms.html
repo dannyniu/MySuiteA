@@ -228,7 +228,7 @@
         </tr>
 
         <tr>
-          <td>RSA (RSAES-OAEP, RSASSA-PSS)</td>
+          <td>RSA (RSAES-OAEP, RSASSA-PSS, PKCS#1 v1.5 RSA Encryptions)</td>
           <td>
             Public-Key Cryptography
             (Public-Key Encryption / Key Encapsulation Mechanism,
@@ -253,6 +253,18 @@
             Public-Key Cryptography
             (With only digital signature implemented in the suite)
           </td>
+          <td>Construction based on Elliptic-Curve Discrete Logarithm</td>
+        </tr>
+
+        <tr>
+          <td>Curve25519, Curve448, X25519, X448</td>
+          <td>Key Exchange (Implemented as Key Encapsulation Mechanism)</td>
+          <td>Construction based on Elliptic-Curve Discrete Logarithm</td>
+        </tr>
+
+        <tr>
+          <td>EdDSA, Ed25519, Ed448</td>
+          <td>Digital Signature Schemes</td>
           <td>Construction based on Elliptic-Curve Discrete Logarithm</td>
         </tr>
 
@@ -693,6 +705,61 @@
           <td><a href="http://www.gb688.cn/bzgk/gb/std_list_type?p.p2=GB%2FT%2032918">[1]</a></td>
         </tr>
 
+        <tr>
+          <td>Curve25519, Curve448, X25519, X448</td> <td>Normative</td>
+          <td>
+            [RFC-7748]
+            Elliptic Curves for Security
+          </td>
+          <td>A. Langley, K. Hamburg, S. Turner</td>
+          <td>2016-01</td>
+          <td><a href="https://tools.ietf.org/html/rfc7748">[1]</a></td>
+        </tr>
+
+        <tr>
+          <td>EdDSA, Ed25519, Ed448</td> <td>Normative</td>
+          <td>
+            [RFC-8032]
+            Edwards-Curve Digital signature Algorithm (EdDSA)
+          </td>
+          <td>S. Josefsson, I. Liusvaara</td>
+          <td>2017-01</td>
+          <td><a href="https://tools.ietf.org/html/rfc8032">[1]</a></td>
+        </tr>
+
+        <tr>
+          <td>Curve25519</td> <td>Informative</td>
+          <td>
+            Curve25519: new Diffie-Hellman speed records
+          </td>
+          <td>Daniel J. Bernstein</td>
+          <td>2006</td>
+          <td>
+            <a href="https://www.iacr.org/cryptodb/archive/2006/PKC/3351/3351.pdf">[1]</a>
+            <a href="http://cr.yp.to/ecdh.html">[2]</a>
+          </td>
+        </tr>
+        
+        <tr>
+          <td>EdDSA, Ed25519</td> <td>Informative</td>
+          <td>
+            High-speed high-security signatures
+          </td>
+          <td>Daniel J. Bernstein</td>
+          <td>2011-09</td>
+          <td><a href="https://ed25519.cr.yp.to/ed25519-20110926">[1]</a></td>
+        </tr>
+        
+        <tr>
+          <td>Curve448, Ed448</td> <td>Informative</td>
+          <td>
+            Ed448-Goldilocks, a New Elliptic Curve
+          </td>
+          <td>M. Hamburg</td>
+          <td>2015-06</td>
+          <td><a href="https://eprint.iacr.org/2015/625.pdf">[1]</a></td>
+        </tr>
+        
       </tbody>
     </table>
 
