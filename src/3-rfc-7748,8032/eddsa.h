@@ -122,6 +122,31 @@ void *EdDSA_Decode_Signature(
     EdDSA_Ctx_Hdr_t *restrict x,
     void const *restrict sig, size_t siglen);
 
+void *EdDSA_Sign_Xctrl(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
+void *EdDSA_Verify_Xctrl(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
+enum {
+    EdDSA_cmd_null          = 0,
+
+    // This command is used for setting pre-hash flag and context string.
+    // bufvec[0].dat is reserved and should be NULL,
+    // bufvec[0].info is the bitwise-or of EdDSA_Flags_* macro constants.
+    // bufvec[1].dat is the pointer to context string,
+    // bufvec[1].len is its length, and should be no greater than 255.
+    EdDSA_set_domain_params = 1, // pre-hash flag and context.
+};
+
 int EdDSA_PKParams(int index, CryptoParam_t *out);
 
 #define xEdDSA_KeyCodec(q) (                                    \
@@ -144,6 +169,8 @@ int EdDSA_PKParams(int index, CryptoParam_t *out);
         q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :        \
         q==PKSignFunc ? (IntPtr)EdDSA_Sign :            \
         q==PKVerifyFunc ? (IntPtr)EdDSA_Verify :        \
+        q==PubXctrlFunc ? (IntPtr)EdDSA_Verify_Xctrl : \
+        q==PrivXctrlFunc ? (IntPtr)EdDSA_Sign_Xctrl :  \
         cEdDSA(crv,hash,q) )
 
 #define xEdDSA_CtCodec(q) (                                     \

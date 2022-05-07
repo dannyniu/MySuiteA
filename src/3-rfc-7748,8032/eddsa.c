@@ -7,6 +7,49 @@
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
+static void *Ed25519_Set_DomainParams(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    const bufvec_t *restrict bufvec)
+{
+    void *dst = DeltaTo(x, offset_hashctx_init);
+    uint8_t bi[2];
+    
+    if( bufvec[0].info & EdDSA_Flags_PH || bufvec[1].len )
+    {
+        if( bufvec[1].len > 255 ) return NULL;
+        x->hfuncs.initfunc(dst);
+        x->hfuncs.updatefunc(
+            dst, "SigEd25519 no Ed25519 collisions", 32);
+        
+        bi[0] = bufvec[0].info & EdDSA_Flags_PH;
+        bi[1] = bufvec[1].len;
+        x->hfuncs.updatefunc(dst, bi, 2);
+        x->hfuncs.updatefunc(dst, bufvec[1].dat, bufvec[1].len);
+    }
+    else x->hfuncs.initfunc(dst);
+
+    return x;
+}
+
+static void *Ed448_Set_DomainParams(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    const bufvec_t *restrict bufvec)
+{
+    void *dst = DeltaTo(x, offset_hashctx_init);
+    uint8_t bi[2];
+    
+    if( bufvec[1].len > 255 ) return NULL;
+    x->hfuncs.initfunc(dst);
+    x->hfuncs.updatefunc(dst, "SigEd448", 8);
+        
+    bi[0] = bufvec[0].info & EdDSA_Flags_PH;
+    bi[1] = bufvec[1].len;
+    x->hfuncs.updatefunc(dst, bi, 2);
+    x->hfuncs.updatefunc(dst, bufvec[1].dat, bufvec[1].len);
+
+    return x;
+}
+
 IntPtr EdDSA_Keygen(
     EdDSA_Ctx_Hdr_t *restrict x,
     CryptoParam_t *restrict param,
@@ -353,6 +396,34 @@ void *EdDSA_Encode_Signature(
     return sig;
 }
 
+void *EdDSA_Sign_Xctrl(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags)
+{
+    (void)flags;
+
+    switch( cmd )
+    {
+    case EdDSA_set_domain_params:
+        if( !bufvec || veclen < 2 ) return NULL;
+        
+        if( x->curve == CurveEd25519 )
+            return Ed25519_Set_DomainParams(x, bufvec);
+        
+        if( x->curve == CurveEd448 )
+            return Ed448_Set_DomainParams(x, bufvec);
+        
+        return x;
+        break;
+
+    default:
+        return NULL;
+    }
+}
+
 void *EdDSA_Decode_Signature(
     EdDSA_Ctx_Hdr_t *restrict x,
     void const *restrict sig, size_t siglen)
@@ -393,6 +464,34 @@ void *EdDSA_Decode_Signature(
         return NULL;
     }
     else return x; // status set to 0 at the beginning.
+}
+
+void *EdDSA_Verify_Xctrl(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags)
+{
+    (void)flags;
+
+    switch( cmd )
+    {
+    case EdDSA_set_domain_params:
+        if( !bufvec || veclen < 2 ) return NULL;
+        
+        if( x->curve == CurveEd25519 )
+            return Ed25519_Set_DomainParams(x, bufvec);
+        
+        if( x->curve == CurveEd448 )
+            return Ed448_Set_DomainParams(x, bufvec);
+        
+        return x;
+        break;
+
+    default:
+        return NULL;
+    }
 }
 
 int EdDSA_PKParams(int index, CryptoParam_t *out)

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-optimize=true
+optimize=debug
 testfunc() {
     #lldb \
         $exec "$(date)"
@@ -11,7 +11,7 @@ unitest_sh=../unitest.sh
 . $unitest_sh
 
 src="\
-eddsa-check.c
+eddsa-sign-test.c
 eddsa.c
 eddsa-misc.c
 2-ec/ec-common.c
