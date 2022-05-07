@@ -1,15 +1,15 @@
 #!/bin/sh
 
-# I was going to use SIGCHLD, but some quirks (with bash I presume)
-# convinced me to devise some other convoluted scheme using SIGUSR1.
+# This script runs all tests in MySuiteA (excluding checks).
 
-# This script runs all tests in MySuiteA (not including checks).
+rsleep(){
+    python3 -c 'import secrets, time; time.sleep(secrets.randbits(8) / 200);'
+}
 
 if [ X"$1" = X-1 ] ; then # run 1 test.
     shift
     printf '%s\n' "$1"
     ./"$1" >../bin/"$(basename "$1" .sh)".log 2>&1
-    kill -USR1 "$2" || echo "kill(1) failed with $? / $1"
     exit
 fi
 
@@ -17,16 +17,38 @@ cd "$(dirname "$0")"
 self="./$(basename "$0")"
 
 set $(find . -name \*-test.sh | sort)
-sem=$#
 
-cmd='# script literal for the main command
-if [ $# -gt 0 ] ; then
-    "$self" -1 "$1" '$$' &
-    shift
-fi ;'
+pvec="1 2 3 4 5 6"
+for pv in $pvec ; do eval "pid${pv}=ready" ; done
 
-trap "sem=\$((sem-1)) ; $cmd" USR1
-for c in 1 2 3 4 5 6 ; do eval "$cmd" ; done
-wait
-while [ $sem -gt 0 ] ; do sleep 2 ; done
-wait
+while [ $# -gt 0 ] ; do
+    for pv in $pvec ; do
+        if eval test "\$pid${pv}" = done ; then
+            continue
+        elif
+            eval test "\$pid${pv}" = ready ||
+                ! eval kill -0 "\$pid${pv}" 2>/dev/null
+        then
+            if [ $# -gt 0 ] ; then
+                "$self" -1 "$1" &
+                eval "pid${pv}=$!"
+                shift
+            else
+                eval "pid${pv}=done"
+            fi
+        fi
+    done
+    rsleep
+done
+
+for pv in $pvec ; do
+    if eval test "\$pid${pv}" != done ; then
+        while eval kill -0 "\$pid${pv}" 2>/dev/null
+        do sleep 2 ; done
+        eval wait "\$pid${pv}"
+        eval "pid${pv}=done"
+    fi
+done
+
+echo omnitest: exiting
+exit
