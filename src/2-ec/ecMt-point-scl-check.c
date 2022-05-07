@@ -17,7 +17,7 @@ int main(void)
     VLONG_T(11) k;
     VLONG_T(11) Q;
     uint8_t H[32];
-    
+
     ecMt_opctx_init((ecMt_opctx_t *)&opctx, 255);
     k.c = Q.c = 11;
 
@@ -42,6 +42,6 @@ int main(void)
         (ecMt_opctx_t *)&opctx, Curve25519->modp);
     vlong_EncLSB((vlong_t *)&Q, H, 32);
     dumphex(H, 32);
-    
+
     return 0;
 }

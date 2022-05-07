@@ -6,13 +6,16 @@
 #include "../2-ec/ecEd.h"
 #include "../2-hash/hash-funcs-set.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec: 4 *47 | 4 *16 | 8 *27
 typedef struct {
     uint8_t sk[64];
     uint8_t prefix[64];
-    
+
     uint32_t offset_s, offset_A; // private key scalar and public key.
     uint32_t offset_r, offset_R; // per-message keypair.
-    
+
     uint32_t offset_Tmp1, offset_Tmp2;
     uint32_t offset_opctx;
     int16_t status, flags;
@@ -21,7 +24,7 @@ typedef struct {
     size_t hashctx_size;
     uint32_t offset_hashctx;
     uint32_t offset_hashctx_init;
-    
+
     hash_funcs_set_t hfuncs;
 } EdDSA_Ctx_Hdr_t;
 

@@ -40,7 +40,7 @@ testfunc() {
             $exec xSHA512t${b} < $testvec > hash-res.dat &
             $exec iSHA512t${b} < $testvec > hash-ret.dat &
             wait
-            
+
             for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo sha512-${b} failed with $ref:$res:$ret
@@ -55,7 +55,7 @@ testfunc() {
             $exec xSHA3_$b < $testvec > hash-res.dat &
             $exec iSHA3_$b < $testvec > hash-ret.dat &
             wait
-            
+
             for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo sha3-${b} failed with $ref:$res:$ret
@@ -70,7 +70,7 @@ testfunc() {
             $exec xSHA3_${b}000 < $testvec > hash-res.dat &
             $exec iSHA3_${b}000 < $testvec > hash-ret.dat &
             wait
-            
+
             for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
             if [ "$ref" != "$res" ] || [ "$ref" != "$ret" ] ; then
                 echo shake${b} failed with $ref:$res:$ret
@@ -83,7 +83,7 @@ testfunc() {
         unlink $testvec
         mcnt=$((mcnt + 1))
     done
-    
+
     printf "%u failed tests.\n" $n
     if [ $n -gt 0 ]
     then return 1

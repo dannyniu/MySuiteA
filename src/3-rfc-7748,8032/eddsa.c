@@ -13,14 +13,14 @@ static void *Ed25519_Set_DomainParams(
 {
     void *dst = DeltaTo(x, offset_hashctx_init);
     uint8_t bi[2];
-    
+
     if( bufvec[0].info & EdDSA_Flags_PH || bufvec[1].len )
     {
         if( bufvec[1].len > 255 ) return NULL;
         x->hfuncs.initfunc(dst);
         x->hfuncs.updatefunc(
             dst, "SigEd25519 no Ed25519 collisions", 32);
-        
+
         bi[0] = bufvec[0].info & EdDSA_Flags_PH;
         bi[1] = bufvec[1].len;
         x->hfuncs.updatefunc(dst, bi, 2);
@@ -37,11 +37,11 @@ static void *Ed448_Set_DomainParams(
 {
     void *dst = DeltaTo(x, offset_hashctx_init);
     uint8_t bi[2];
-    
+
     if( bufvec[1].len > 255 ) return NULL;
     x->hfuncs.initfunc(dst);
     x->hfuncs.updatefunc(dst, "SigEd448", 8);
-        
+
     bi[0] = bufvec[0].info & EdDSA_Flags_PH;
     bi[1] = bufvec[1].len;
     x->hfuncs.updatefunc(dst, bi, 2);
@@ -61,12 +61,12 @@ IntPtr EdDSA_Keygen(
 {
     ecEd_curve_t const *curve = (void const *)param[0].info(ecEd_PtrCurveDef);
     size_t plen = (curve->pbits + 8) / 8;
-    
+
     if( !x ) return EDDSA_CTX_SIZE(param[0].info, param[1].info); else
     {
         eddsa_ctxinit_basic(x, param);
         prng_gen(prng, x->sk, plen);
-        
+
         eddsa_privkey_reload(x);
         return (IntPtr)x;
     }
@@ -99,7 +99,7 @@ IntPtr EdDSA_Decode_PrivateKey(
     {
         if( enclen != plen ) return -1;
         eddsa_ctxinit_basic(x, param);
-        
+
         for(plen=0; plen<enclen; plen++)
             x->sk[plen] = ((const uint8_t *)enc)[plen];
 
@@ -122,7 +122,7 @@ IntPtr EdDSA_Encode_PublicKey(
         if( plen != enclen ) return -1;
         eddsa_point_enc(x, enc, DeltaTo(x, offset_A));
     }
-    
+
     return plen;
 }
 
@@ -146,7 +146,7 @@ IntPtr EdDSA_Decode_PublicKey(
             return -1;
         }
     }
-    
+
     return EDDSA_CTX_SIZE(param[0].info, param[1].info);
 }
 
@@ -180,17 +180,17 @@ void *EdDSA_Sign(
     src = DeltaTo(x, offset_hashctx_init);
 
     // H(dom(F,C) + prefix + PH(M), plen)
-    
+
     if( x->flags & EdDSA_Flags_PH )
     {
         // pre-hash flag is set.
-        
+
         x->hfuncs.initfunc(dst);
         x->hfuncs.updatefunc(dst, msg, msglen);
         if( hx->xfinalfunc )
             hx->xfinalfunc(dst);
         hx->hfinalfunc(dst, hmsg, 64);
-    
+
         for(t=0; t<x->hashctx_size; t++)
             dst[t] = src[t];
         x->hfuncs.updatefunc(dst, x->prefix, plen);
@@ -199,19 +199,19 @@ void *EdDSA_Sign(
     else
     {
         // pre-hash flag is clear.
-        
+
         for(t=0; t<x->hashctx_size; t++)
             dst[t] = src[t];
         x->hfuncs.updatefunc(dst, x->prefix, plen);
         x->hfuncs.updatefunc(dst, msg, msglen);
     }
-    
+
     if( hx->xfinalfunc )
         hx->xfinalfunc(dst);
     hx->hfinalfunc(dst, buf, plen * 2);
 
     // R = [r]B
-    
+
     vlong_DecLSB((vlong_t *)&e, buf, plen * 2);
     vlong_remv_inplace((vlong_t *)&e, x->curve->L);
     vlong_cpy(DeltaTo(x, offset_r), (vlong_t *)&e);
@@ -226,7 +226,7 @@ void *EdDSA_Sign(
         opctx, x->curve);
 
     // H(dom(F,C) + R + A + PH(M), plen)
-    
+
     for(t=0; t<x->hashctx_size; t++)
         dst[t] = src[t];
 
@@ -237,7 +237,7 @@ void *EdDSA_Sign(
     eddsa_point_enc(x, buf, DeltaTo(x, offset_A));
     x->hfuncs.updatefunc(dst, buf, plen);
 
-    if( x->flags & EdDSA_Flags_PH ) 
+    if( x->flags & EdDSA_Flags_PH )
     {
         // pre-hash flag is set.
         x->hfuncs.updatefunc(dst, hmsg, 64);
@@ -247,13 +247,13 @@ void *EdDSA_Sign(
         // pre-hash flag is clear.
         x->hfuncs.updatefunc(dst, msg, msglen);
     }
-    
+
     if( hx->xfinalfunc )
         hx->xfinalfunc(dst);
     hx->hfinalfunc(dst, buf, plen * 2);
 
     // {ctx.r} := S = (r + k * s)
-  
+
     vlong_DecLSB((vlong_t *)&e, buf, plen * 2);
     vlong_remv_inplace((vlong_t *)&e, x->curve->L);
     vlong_cpy(DeltaTo(opctx, offset_r), (vlong_t *)&e);
@@ -307,7 +307,7 @@ void const *EdDSA_Verify(
     src = DeltaTo(x, offset_hashctx_init);
 
     // H(dom(F,C) + R + A + PH(M), plen)
-    
+
     for(t=0; t<x->hashctx_size; t++)
         dst[t] = src[t];
 
@@ -320,16 +320,16 @@ void const *EdDSA_Verify(
     eddsa_point_enc(x, buf, DeltaTo(x, offset_A));
     x->hfuncs.updatefunc(dst, buf, plen);
 
-    if( x->flags & EdDSA_Flags_PH ) 
+    if( x->flags & EdDSA_Flags_PH )
     {
         // pre-hash flag is set.
-        
+
         x->hfuncs.initfunc(dst);
         x->hfuncs.updatefunc(dst, msg, msglen);
         if( hx->xfinalfunc )
             hx->xfinalfunc(dst);
         hx->hfinalfunc(dst, hmsg, 64);
-    
+
         x->hfuncs.updatefunc(dst, hmsg, 64);
     }
     else
@@ -337,7 +337,7 @@ void const *EdDSA_Verify(
         // pre-hash flag is clear.
         x->hfuncs.updatefunc(dst, msg, msglen);
     }
-    
+
     if( hx->xfinalfunc )
         hx->xfinalfunc(dst);
     hx->hfinalfunc(dst, buf, plen * 2);
@@ -360,7 +360,7 @@ void const *EdDSA_Verify(
     eddsa_point_enc(x, x->sk, DeltaTo(x, offset_R));
 
     ecEd_xytz_inf(DeltaTo(x, offset_R));
-    
+
     // add [S]B to the negated R.
     ecEd_point_scale_accumulate(
         DeltaTo(x, offset_R),
@@ -377,7 +377,7 @@ void const *EdDSA_Verify(
     {
         buf[0] |= x->sk[i] ^ x->prefix[i];
     }
-    
+
     if( buf[0] )
     {
         x->status = -1;
@@ -398,7 +398,7 @@ void *EdDSA_Encode_Signature(
 {
     unsigned pbits = x->curve->pbits;
     size_t plen = (pbits + 8) / 8;
-    
+
     IntPtr minlen = plen * 2;
 
     if( !sig )
@@ -410,9 +410,9 @@ void *EdDSA_Encode_Signature(
     if( *siglen < (size_t)minlen ) return NULL;
 
     eddsa_point_enc(x, sig, DeltaTo(x, offset_R));
-    
+
     vlong_EncLSB(DeltaTo(x, offset_r), (uint8_t *)sig + plen, plen);
-    
+
     return sig;
 }
 
@@ -429,13 +429,13 @@ void *EdDSA_Sign_Xctrl(
     {
     case EdDSA_set_domain_params:
         if( !bufvec || veclen < 2 ) return NULL;
-        
+
         if( x->curve == CurveEd25519 )
             return Ed25519_Set_DomainParams(x, bufvec);
-        
+
         if( x->curve == CurveEd448 )
             return Ed448_Set_DomainParams(x, bufvec);
-        
+
         return x;
         break;
 
@@ -454,7 +454,7 @@ void *EdDSA_Decode_Signature(
 {
     unsigned pbits = x->curve->pbits;
     size_t plen = (pbits + 8) / 8;
-    
+
     void *subret = x;
     x->status = 0;
 
@@ -503,13 +503,13 @@ void *EdDSA_Verify_Xctrl(
     {
     case EdDSA_set_domain_params:
         if( !bufvec || veclen < 2 ) return NULL;
-        
+
         if( x->curve == CurveEd25519 )
             return Ed25519_Set_DomainParams(x, bufvec);
-        
+
         if( x->curve == CurveEd448 )
             return Ed448_Set_DomainParams(x, bufvec);
-        
+
         return x;
         break;
 

@@ -9,7 +9,7 @@ if [ X"$1" = X-1 ] ; then # run 1 test.
     shift
     printf '%s\n' "$1"
     ./"$1" >../bin/"$(basename "$1" .sh)".log 2>&1
-    kill -USR1 "$2" || echo "$1"
+    kill -USR1 "$2" || echo "kill(1) failed with $? / $1"
     exit
 fi
 
@@ -21,7 +21,7 @@ sem=$#
 
 cmd='# script literal for the main command
 if [ $# -gt 0 ] ; then
-    "$self" -1 "$1" $$ &
+    "$self" -1 "$1" '$$' &
     shift
 fi ;'
 

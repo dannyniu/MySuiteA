@@ -242,25 +242,25 @@ tests_run()
               if test_arch_canrun
               then test_run_1arch
               fi )
-            if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
             ( arch=aarch64
               if test_arch_canrun
               then test_run_1arch
               fi )
-            if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
             ( arch=powerpc64
                if test_arch_canrun
                then test_run_1arch
                fi )
-            if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
             ( arch=sparc64
               if test_arch_canrun
               then test_run_1arch
               fi )
-            if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
             ;;
 
         # 2022-02-19:
@@ -273,7 +273,7 @@ tests_run()
               if test_arch_canrun
               then test_run_1arch
               fi )
-            if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
             ;;
 
         arm)
@@ -281,7 +281,7 @@ tests_run()
               if test_arch_canrun
               then test_run_1arch
               fi )
-            if [ $ret -ne 0 ] || [ $? -ne 0 ] ; then ret=1 ; fi
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
             ;;
     esac
 

@@ -57,7 +57,7 @@ void *RSAEncryption_Enc(
 
     t = k - *sslen - 3; // len(PS).
     u = v = ptr + 2;
-    
+
     ptr[0] = 0;
     ptr[1] = 2;
     ptr[t + 2] = 0;

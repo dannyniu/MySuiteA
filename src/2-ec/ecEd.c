@@ -11,7 +11,7 @@ ecEd_xytz_t *ecEd_point_add(
     ecEd_curve_t const *restrict curve)
 {
     ecp_imod_aux_t const *aux = curve->imod_aux;
-    
+
     vlong_t const *x1 = DeltaTo(p1, offset_x);
     vlong_t const *y1 = DeltaTo(p1, offset_y);
     vlong_t const *t1 = DeltaTo(p1, offset_t);
@@ -20,7 +20,7 @@ ecEd_xytz_t *ecEd_point_add(
     vlong_t const *y2 = DeltaTo(p2, offset_y);
     vlong_t const *t2 = DeltaTo(p2, offset_t);
     vlong_t const *z2 = DeltaTo(p2, offset_z);
-    
+
     vlong_t *x3 = DeltaTo(out, offset_x);
     vlong_t *y3 = DeltaTo(out, offset_y);
     vlong_t *t3 = DeltaTo(out, offset_t);
@@ -34,7 +34,7 @@ ecEd_xytz_t *ecEd_point_add(
     // r = x1 * y2
     // s = x2 * y1
     // w = r + s
-    
+
     vlong_mulv_masked(r, x1, y2, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(s, x2, y1, 1, aux->modfunc, aux->mod_ctx);
 
@@ -44,7 +44,7 @@ ecEd_xytz_t *ecEd_point_add(
     // r = x1 * x2
     // s = y1 * y2
     // u = s - a * r
-    
+
     vlong_mulv_masked(r, x1, x2, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(s, y1, y2, 1, aux->modfunc, aux->mod_ctx);
 
@@ -106,17 +106,17 @@ ecEd_xytz_t *ecEd_point_dbl(
     ecEd_curve_t const *restrict curve)
 {
     ecp_imod_aux_t const *aux = curve->imod_aux;
-    
+
     vlong_t const *x1 = DeltaTo(p1, offset_x);
     vlong_t const *y1 = DeltaTo(p1, offset_y);
     // vlong_t const *t1 = DeltaTo(p1, offset_t); // unused, actually.
     vlong_t const *z1 = DeltaTo(p1, offset_z);
-    
+
     vlong_t *x3 = DeltaTo(out, offset_x);
     vlong_t *y3 = DeltaTo(out, offset_y);
     vlong_t *t3 = DeltaTo(out, offset_t);
     vlong_t *z3 = DeltaTo(out, offset_z);
-    
+
     vlong_t *r = DeltaTo(opctx, offset_r);
     vlong_t *s = DeltaTo(opctx, offset_s);
     vlong_t *u = DeltaTo(opctx, offset_u);
@@ -125,7 +125,7 @@ ecEd_xytz_t *ecEd_point_dbl(
 
     // r = x1 * x1 * a
     // s = y1 * y1
-    
+
     vlong_mulv_masked(r, x1, x1, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(s, y1, y1, 1, aux->modfunc, aux->mod_ctx);
 
@@ -134,10 +134,10 @@ ecEd_xytz_t *ecEd_point_dbl(
 
     // u = s + r
     // v = s - r
-    
+
     vlong_addv(u, s, r);
     vlong_subv(v, s, r);
-    
+
     aux->modfunc(u, aux->mod_ctx);
     ecp_imod_inplace(v, aux);
 

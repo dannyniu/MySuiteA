@@ -127,9 +127,9 @@ void *RSAEncryption_Dec(
     err |= err >> 2;
     err |= err >> 1;
     err &= 1;
-    
+
     // below are from RSAES-OAEP
-    
+
     // set the value of po->status the length.
     po->status = -err;
     po->status += (k-t-1) * (err ^ 1);

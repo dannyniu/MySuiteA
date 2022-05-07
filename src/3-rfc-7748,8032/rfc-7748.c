@@ -32,21 +32,21 @@ IntPtr XECDH_Keygen(
 {
     vlong_t *k, *K;
     vlong_size_t t;
-    
+
     (void)param;
-    
+
     if( !x ) return XECDH_CTX_SIZE(param->info); else
     {
         *x = XECDH_CTX_HDR_INIT(param->info);
-        
+
         x->status = 0;
         x->curve = (const ecMt_curve_t *)param->info(ecMt_PtrCurveDef);
-        
+
         ecMt_opctx_init(DeltaTo(x, offset_opctx), CRV_BITS);
         ((vlong_t *)DeltaTo(x, offset_k))->c = VLONG_BITS_WCNT(CRV_BITS);
         ((vlong_t *)DeltaTo(x, offset_K))->c = VLONG_BITS_WCNT(CRV_BITS);
         ((vlong_t *)DeltaTo(x, offset_P))->c = VLONG_BITS_WCNT(CRV_BITS);
-        
+
         k = DeltaTo(x, offset_k);
         K = DeltaTo(x, offset_K);
 
@@ -56,7 +56,7 @@ IntPtr XECDH_Keygen(
         xecdh_gen_scl(
             k, K, DeltaTo(x, offset_opctx),
             x->curve->modp, prng_gen, prng);
-        
+
         return (IntPtr)x;
     }
 }
@@ -82,7 +82,7 @@ IntPtr XECDH_Decode_PrivateKey(
 {
     XECDH_Ctx_Hdr_t *x = any;
     const ecMt_curve_t *crv;
-    
+
     if( any )
     {
         if( !param ) return -1;
@@ -125,21 +125,21 @@ IntPtr XECDH_Decode_PublicKey(
     if( any )
     {
         *x = XECDH_CTX_HDR_INIT(param->info);
-        
+
         x->status = 0;
         x->curve = (const ecMt_curve_t *)param->info(ecMt_PtrCurveDef);
-        
+
         ecMt_opctx_init(DeltaTo(x, offset_opctx), CRV_BITS);
         ((vlong_t *)DeltaTo(x, offset_k))->c = VLONG_BITS_WCNT(CRV_BITS);
         ((vlong_t *)DeltaTo(x, offset_K))->c = VLONG_BITS_WCNT(CRV_BITS);
         ((vlong_t *)DeltaTo(x, offset_P))->c = VLONG_BITS_WCNT(CRV_BITS);
-        
+
         vl = DeltaTo(x, offset_K);
         vlong_DecLSB(vl, enc, enclen);
 
         if( x->curve->a == 486662 && U_P == 9 && SSLEN == 32 )
             vl->v[7] &= INT32_MAX;
-        
+
     }
     return XECDH_CTX_SIZE(param->info);
 }
@@ -151,7 +151,7 @@ void *XECDH_Enc(
 {
     vlong_t *k, *K, *P;
     ecMt_opctx_t *opctx;
- 
+
     uint8_t tmp[64];
     size_t t;
 
@@ -160,7 +160,7 @@ void *XECDH_Enc(
         *sslen = SSLEN;
         return NULL;
     }
-    
+
     k = DeltaTo(x, offset_k);
     K = DeltaTo(x, offset_K);
     P = DeltaTo(x, offset_P);
@@ -183,7 +183,7 @@ void *XECDH_Enc(
 
     P->v[0] = U_P; // set generator value.
     for(t=1; t<P->c; t++) P->v[t] = 0;
-    
+
     ecMt_point_scale(
         k, P, A24, CRV_BITS,
         opctx, x->imod_aux);
@@ -201,7 +201,7 @@ void *XECDH_Dec(
 {
     vlong_t *k, *P;
     ecMt_opctx_t *opctx;
- 
+
     uint8_t tmp[64];
     size_t t;
 
@@ -226,7 +226,7 @@ void *XECDH_Dec(
             return NULL;
         }
     }
-    
+
     k = DeltaTo(x, offset_k);
     P = DeltaTo(x, offset_P);
     opctx = DeltaTo(x, offset_opctx);
@@ -250,7 +250,7 @@ void *XECDH_Encode_Ciphertext(
     if( !ct ) *ctlen = SSLEN;
     else if( *ctlen != SSLEN ) return NULL;
     else vlong_EncLSB(DeltaTo(x, offset_P), ct, *ctlen);
-    
+
     return ct;
 }
 
@@ -263,13 +263,13 @@ void *XECDH_Decode_Ciphertext(
     void const *restrict ct, size_t ctlen)
 {
     vlong_t *vl = DeltaTo(x, offset_P);
-    
+
     x->status = 0;
     vlong_DecLSB(vl, ct, ctlen);
 
     if( x->curve->a == 486662 && U_P == 9 && SSLEN == 32 )
         vl->v[7] &= INT32_MAX;
-    
+
     return x;
 }
 

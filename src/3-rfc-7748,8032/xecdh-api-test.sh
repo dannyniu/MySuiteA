@@ -1,6 +1,6 @@
 #!/bin/sh
 
-optimize=debug
+optimize=true
 testfunc() {
     # lldb \
         $exec "$(date)"

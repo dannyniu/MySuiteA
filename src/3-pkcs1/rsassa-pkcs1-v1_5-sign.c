@@ -75,7 +75,7 @@ begin:
         if( hoid->HashInitFunc == po->hfuncs_msg.initfunc )
             break;
     }
-    
+
     if( !hoid->HashInitFunc )
     {
         po->status = -1;
@@ -95,7 +95,7 @@ begin:
     // 00h + 01h + PS + 00h + T
     ptr[0] = 0;
     ptr[1] = 1;
-    
+
     for(t=2; ; t++)
     {
         if( hoid->DER_Prefix_Len +
@@ -105,7 +105,7 @@ begin:
             ptr[t] = 0;
             break;
         }
-        
+
         ptr[t] = 0xff;
     }
 
@@ -120,7 +120,7 @@ begin:
     po->hfuncs_msg.hfinalfunc(
         hashctx,
         ptr + emLen - hoid->Digest_Len, hoid->Digest_Len);
-    
+
     // EM to Integer.
     vp1 = DeltaTo(dx, offset_w1);
     vlong_OS2IP(vp1, ptr, emLen);

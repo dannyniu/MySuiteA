@@ -28,16 +28,16 @@ vlong_t *ecMt_point_scale(
     ecp_imod_aux_t const *restrict imod_aux)
 {
     // entirely based on rfc-7748.
-    
+
     vdecl(x2);
     vdecl(z2);
     vdecl(x3);
     vdecl(z3);
-    
+
     vdecl(da);
     vdecl(cb);
     vdecl(tmp);
-    
+
     vdecl(a);
     vdecl(b);
     vdecl(c);
@@ -63,7 +63,7 @@ vlong_t *ecMt_point_scale(
             "Data type assumption failed");
         kt = k->v[t / 32] >> (t % 32);
         kt &= 1;
-        
+
         swap ^= kt;
         cswap(swap, x2, x3);
         cswap(swap, z2, z3);

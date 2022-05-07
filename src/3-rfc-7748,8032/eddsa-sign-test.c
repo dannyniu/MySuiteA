@@ -33,7 +33,7 @@ typedef struct {
 EdDSA_Test_Vector_t testvecs[] =
 {
     // Ed25519
-    
+
     {
         .d =
         "9d61b19deffd5a60ba844af492ec2cc4"
@@ -218,7 +218,7 @@ EdDSA_Test_Vector_t testvecs[] =
     },
 
     // Ed25519ctx
-    
+
     {
         .d =
         "0305334e381af78f141cb666f6199f57"
@@ -316,7 +316,7 @@ EdDSA_Test_Vector_t testvecs[] =
     },
 
     // Ed25519ph
-    
+
     {
         .d =
         "833fe62409237b9d62ec77587520911e"
@@ -342,7 +342,7 @@ EdDSA_Test_Vector_t testvecs[] =
     },
 
     // Ed448
-    
+
     {
         .d =
         "6c82a562cb808d10d632be89c8513ebf"

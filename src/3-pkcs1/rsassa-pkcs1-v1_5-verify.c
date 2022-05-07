@@ -74,7 +74,7 @@ void const *RSAEncryptionWithHash_Verify(
     ptr = (void *)((vlong_t *)ptr)->v;
 
     // -- begin - identical to that in *-sign.c --
-    
+
     // Look up the hash function.
     hoid = HashOIDs_Table;
     while( hoid->HashInitFunc )
@@ -82,7 +82,7 @@ void const *RSAEncryptionWithHash_Verify(
         if( hoid->HashInitFunc == po->hfuncs_msg.initfunc )
             break;
     }
-    
+
     if( !hoid->HashInitFunc )
     {
         po->status = -1;
@@ -102,7 +102,7 @@ void const *RSAEncryptionWithHash_Verify(
     // 00h + 01h + PS + 00h + T
     ptr[0] = 0;
     ptr[1] = 1;
-    
+
     for(t=2; ; t++)
     {
         if( hoid->DER_Prefix_Len +
@@ -112,7 +112,7 @@ void const *RSAEncryptionWithHash_Verify(
             ptr[t] = 0;
             break;
         }
-        
+
         ptr[t] = 0xff;
     }
 
@@ -129,20 +129,20 @@ void const *RSAEncryptionWithHash_Verify(
         ptr + emLen - hoid->Digest_Len, hoid->Digest_Len);
 
     // -- end - identical to that in *-sign.c --
-    
+
     // EMSA-PKCS1-v1_5 message encoding verification.
-    
+
     for(t=0,diff=0; t<emLen; t++)
     {
         diff |= ptr[t] ^ eem[t];
     }
-    
+
     if( diff )
     {
         po->status = -1;
         goto finish;
     }
-    
+
     // Finishing.
     po->status = 1;
     goto finish;

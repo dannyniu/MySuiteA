@@ -29,7 +29,7 @@ void eddsa_ctxinit_basic(
     *x = EDDSA_CTX_INIT(
         param[0].info,
         param[1].info);
-    
+
     ((vlong_t *)DeltaTo(x, offset_s))->c = VLONG_BITS_WCNT(pbits);
     ((vlong_t *)DeltaTo(x, offset_r))->c = VLONG_BITS_WCNT(pbits);
 
@@ -46,7 +46,7 @@ void eddsa_ctxinit_basic(
     x->hashctx_size = param[1].info(contextBytes);
     hashctx = DeltaTo(x, offset_hashctx_init);
     x->hfuncs.initfunc(hashctx);
-    
+
     if( Cond_p25519 )
     {
         // dom2(x,y) is by default empty.
@@ -60,14 +60,14 @@ void eddsa_ctxinit_basic(
 void eddsa_privkey_reload(EdDSA_Ctx_Hdr_t *x)
 {
     uint8_t buf[128];
-    
+
     ecEd_curve_t const *curve = x->curve;
     ecEd_opctx_t *opctx = DeltaTo(x, offset_opctx);
-    
+
     unsigned pbits = curve->pbits;
     size_t plen = (pbits + 8) / 8;
     size_t t;
-    
+
     void *hashctx = DeltaTo(x, offset_hashctx);
     hash_funcs_set_t *hx = &x->hfuncs;
 
@@ -94,7 +94,7 @@ void eddsa_privkey_reload(EdDSA_Ctx_Hdr_t *x)
 
     vlong_DecLSB(DeltaTo(x, offset_s), buf, plen);
     ecEd_xytz_inf(DeltaTo(x, offset_A));
-    
+
     ecEd_point_scale_accumulate(
         DeltaTo(x, offset_A),
         DeltaTo(x, offset_Tmp1),
@@ -102,7 +102,7 @@ void eddsa_privkey_reload(EdDSA_Ctx_Hdr_t *x)
         x->curve->B,
         DeltaTo(x, offset_s),
         opctx, x->curve);
-    
+
     eddsa_canon_pubkey(x, DeltaTo(x, offset_A));
 }
 
@@ -124,14 +124,14 @@ void eddsa_canon_pubkey(
     ecEd_xytz_t *restrict Q)
 {
     ecEd_opctx_t *opctx = DeltaTo(x, offset_opctx);
-    
+
     ecEd_inv_mod_p_fermat(
         DeltaTo(opctx, offset_s),
         DeltaTo(Q,     offset_z),
         DeltaTo(opctx, offset_u),
         DeltaTo(opctx, offset_v),
         x->curve);
-    
+
     vlong_mulv_masked(
         DeltaTo(opctx, offset_u),
         DeltaTo(Q,     offset_x),
@@ -171,7 +171,7 @@ void eddsa_point_enc(
     size_t pbytes = (pbits + 7) / 8;
     size_t bitpos =  pbits % 8;
     int par;
-    
+
     vlong_EncLSB(DeltaTo(Q, offset_y), buf, pbytes);
     buf[pbits / 8] &= (1 << bitpos) - 1;
 
@@ -181,13 +181,13 @@ void eddsa_point_enc(
 
 static VLONG_T(8) po2_25519 = {
     .c = 8,
-    .v[7] = 0x2b832480, 
-    .v[6] = 0x4fc1df0b, 
-    .v[5] = 0x2b4d0099, 
-    .v[4] = 0x3dfbd7a7, 
-    .v[3] = 0x2f431806, 
-    .v[2] = 0xad2fe478, 
-    .v[1] = 0xc4ee1b27, 
+    .v[7] = 0x2b832480,
+    .v[6] = 0x4fc1df0b,
+    .v[5] = 0x2b4d0099,
+    .v[4] = 0x3dfbd7a7,
+    .v[3] = 0x2f431806,
+    .v[2] = 0xad2fe478,
+    .v[1] = 0xc4ee1b27,
     .v[0] = 0x4a0ea0b0,
 };
 
@@ -199,7 +199,7 @@ static vlong_t *getx_p25519(
     ecp_imod_aux_t const *aux = curve->imod_aux;
     ecEd_opctx_t *opctx = DeltaTo(ctx, offset_opctx);
     ecEd_xytz_t *tmp = DeltaTo(ctx, offset_Tmp1);
-    
+
     vlong_t *r = DeltaTo(opctx, offset_r);
     vlong_t *s = DeltaTo(opctx, offset_s);
     vlong_t *u = DeltaTo(opctx, offset_u);
@@ -210,7 +210,7 @@ static vlong_t *getx_p25519(
     // vlong_t *b = DeltaTo(tmp, offset_y);
     vlong_t *c = DeltaTo(tmp, offset_t);
     vlong_t *d = DeltaTo(tmp, offset_z);
-    
+
     vlong_t *x = DeltaTo(Q, offset_x);
     vlong_t *y = DeltaTo(Q, offset_y);
 
@@ -234,7 +234,7 @@ static vlong_t *getx_p25519(
     vlong_mulv_masked(r, v, v, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(s, r, v, 1, aux->modfunc, aux->mod_ctx);
     vlong_cpy(a, s); // v ** 3.
-    
+
     vlong_mulv_masked(r, s, s, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(s, r, v, 1, aux->modfunc, aux->mod_ctx);
     vlong_mulv_masked(r, s, u, 1, aux->modfunc, aux->mod_ctx);
@@ -277,7 +277,7 @@ static vlong_t *getx_p448(
     ecp_imod_aux_t const *aux = curve->imod_aux;
     ecEd_opctx_t *opctx = DeltaTo(ctx, offset_opctx);
     ecEd_xytz_t *tmp = DeltaTo(ctx, offset_Tmp1);
-    
+
     vlong_t *r = DeltaTo(opctx, offset_r);
     vlong_t *s = DeltaTo(opctx, offset_s);
     vlong_t *u = DeltaTo(opctx, offset_u);
@@ -288,7 +288,7 @@ static vlong_t *getx_p448(
     // vlong_t *b = DeltaTo(tmp, offset_y);
     vlong_t *c = DeltaTo(tmp, offset_t);
     vlong_t *d = DeltaTo(tmp, offset_z);
-    
+
     vlong_t *x = DeltaTo(Q, offset_x);
     vlong_t *y = DeltaTo(Q, offset_y);
 
