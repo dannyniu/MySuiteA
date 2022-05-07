@@ -62,7 +62,7 @@ void *RSAES_OAEP_Dec(
             uint8_t *from, *to;
             from = DeltaTo(dx, offset_w1);
             from = (void *)((vlong_t *)from)->v;
-            from += k - *sslen;
+            from += k - po->status;
             to = ss;
 
             // In case a negative status is assigned to *sslen,
@@ -139,12 +139,14 @@ void *RSAES_OAEP_Dec(
     // [implementation note]: the end condition in the
     // for loop is tweaked as a trivial protection
     // against buffer overrun.
+    // [security note]: this loop is non-constant-time assuming
+    // that the length of the message is public knowledge.
     for(t=0; t<k-1; t++) if( ptr[t] ) break;
     err |= 1 & ~(((ptr[t] ^ 0x01) - 1) >> 8);
 
     // set the value of po->status the length.
     po->status = -err;
-    for(t++; t<k; t++) po->status += err ^ 1;
+    po->status += (k-t-1) * (err ^ 1);
 
     k += 1 + po->hlen_msg * 2;
     goto finish;
