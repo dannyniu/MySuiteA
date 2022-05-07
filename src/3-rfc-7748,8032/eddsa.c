@@ -50,6 +50,10 @@ static void *Ed448_Set_DomainParams(
     return x;
 }
 
+#if ! PKC_OMIT_PRIV_OPS
+
+#if ! PKC_OMIT_KEYGEN
+
 IntPtr EdDSA_Keygen(
     EdDSA_Ctx_Hdr_t *restrict x,
     CryptoParam_t *restrict param,
@@ -104,6 +108,8 @@ IntPtr EdDSA_Decode_PrivateKey(
     return EDDSA_CTX_SIZE(param[0].info, param[1].info);
 }
 
+#endif /* ! PKC_OMIT_PRIV_OPS */
+
 IntPtr EdDSA_Encode_PublicKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
@@ -119,6 +125,8 @@ IntPtr EdDSA_Encode_PublicKey(
     
     return plen;
 }
+
+#if ! PKC_OMIT_PUB_OPS
 
 IntPtr EdDSA_Decode_PublicKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param)
@@ -141,6 +149,10 @@ IntPtr EdDSA_Decode_PublicKey(
     
     return EDDSA_CTX_SIZE(param[0].info, param[1].info);
 }
+
+#endif /* ! PKC_OMIT_PUB_OPS */
+
+#if ! PKC_OMIT_PRIV_OPS
 
 void *EdDSA_Sign(
     EdDSA_Ctx_Hdr_t *restrict x,
@@ -264,6 +276,10 @@ void *EdDSA_Sign(
     return x;
 }
 
+#endif /* ! PKC_OMIT_PRIV_OPS */
+
+#if ! PKC_OMIT_PUB_OPS
+
 void const *EdDSA_Verify(
     EdDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen)
@@ -372,6 +388,10 @@ void const *EdDSA_Verify(
     return msg;
 }
 
+#endif /* ! PKC_OMIT_PUB_OPS */
+
+#if ! PKC_OMIT_PRIV_OPS
+
 void *EdDSA_Encode_Signature(
     EdDSA_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen)
@@ -423,6 +443,10 @@ void *EdDSA_Sign_Xctrl(
         return NULL;
     }
 }
+
+#endif /* ! PKC_OMIT_PRIV_OPS */
+
+#if ! PKC_OMIT_PUB_OPS
 
 void *EdDSA_Decode_Signature(
     EdDSA_Ctx_Hdr_t *restrict x,
@@ -493,6 +517,8 @@ void *EdDSA_Verify_Xctrl(
         return NULL;
     }
 }
+
+#endif /* ! PKC_OMIT_PUB_OPS */
 
 int EdDSA_PKParams(int index, CryptoParam_t *out)
 {
