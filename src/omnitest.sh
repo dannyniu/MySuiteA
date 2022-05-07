@@ -2,10 +2,6 @@
 
 # This script runs all tests in MySuiteA (excluding checks).
 
-rsleep(){
-    python3 -c 'import secrets, time; time.sleep(secrets.randbits(8) / 200);'
-}
-
 if [ X"$1" = X-1 ] ; then # run 1 test.
     shift
     printf '%s\n' "$1"
@@ -38,7 +34,7 @@ while [ $# -gt 0 ] ; do
             fi
         fi
     done
-    rsleep
+    sleep 1
 done
 
 for pv in $pvec ; do
