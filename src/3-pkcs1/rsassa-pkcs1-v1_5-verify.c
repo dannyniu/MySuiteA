@@ -81,6 +81,7 @@ void const *RSAEncryptionWithHash_Verify(
     {
         if( hoid->HashInitFunc == po->hfuncs_msg.initfunc )
             break;
+        hoid++;
     }
 
     if( !hoid->HashInitFunc )
