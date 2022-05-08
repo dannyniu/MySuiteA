@@ -72,6 +72,8 @@ IntPtr EdDSA_Keygen(
     }
 }
 
+#endif /* ! PKC_OMIT_KEYGEN */
+
 IntPtr EdDSA_Encode_PrivateKey(
     void const *any, void *enc, size_t enclen, CryptoParam_t *restrict param)
 {
