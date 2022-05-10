@@ -50,7 +50,7 @@ Current RSA progress:
 
 2022-02-08:
 
-- PKCS#1 v1.5 legacy RSA algorithms (will come later).
++ PKCS#1 v1.5 legacy RSA algorithms (will come later).
 
 + ECDSA (1st to come).
 
