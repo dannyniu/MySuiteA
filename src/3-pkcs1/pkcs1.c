@@ -4,6 +4,8 @@
 #include "../2-rsa/rsa-codec-der.h"
 #include "../0-exec/struct-delta.c.h"
 
+IntPtr PKCS1_NullHash(int q) { (void)q; return 0; }
+
 #if ! PKC_OMIT_PRIV_OPS
 
 #if ! PKC_OMIT_KEYGEN

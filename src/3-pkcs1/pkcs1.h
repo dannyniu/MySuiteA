@@ -7,6 +7,8 @@
 #include "../2-rsa/pkcs1-padding.h"
 #include "../2-asn1/der-codec.h"
 
+IntPtr PKCS1_NullHash(int q);
+
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
 // align spec: Error | 4 *13 | 8 *11

@@ -8,24 +8,25 @@ systarget=linux-gnu
 if command -v scan-build >/dev/null ; then
     # scan-build installed.
     scan_build=scan-build
-    regex='^[^[:alnum:].]*\([[:alnum:].]*\)[^[:alnum:].].*$'
+    regex='^[^-[:alnum:].]*\([-[:alnum:].]*\)[^-[:alnum:].].*$'
     checkers="$(
         $scan_build --help-checkers-verbose |
+            fgrep -v \
+            -e deadcode.DeadStores | # explicitly rejected checks.
             sed -n "s/$regex/--enable-checker \1/p" |
             fgrep . )"
-    scan_build_opt="$checkers"
+    nochecks="$(
+        $scan_build --help-checkers-verbose |
+            fgrep \
+            -e deadcode.DeadStores | # explicitly disabled checks.
+            sed -n "s/$regex/--disable-checker \1/p" |
+            fgrep . )"
+    scan_build_opt="$checkers $nochecks"
 else
     echo Try installing the \"scan-build\" pip package.
     exit 1
 fi
 
-cc=clang
-if ! command -v $cc >/dev/null ; then
-    echo The \"clang\" compiler is not available, falling back to '"$CC"'
-    cc="$CC"
-fi
-
-cc="$scan_build $scan_build_opt $cc"
 cflags0="-Wall -Wextra -g -O0"
 [ X"$optimize" = Xdebug ] && cflags0="$cflags0 -D ENABLE_HOSTED_HEADERS="
 [ X"$optimize" = Xtrue ] && cflags0="-Wall -Wextra -O"
@@ -202,7 +203,11 @@ test_run_1arch()
     cd "$(dirname $unitest_sh)"/../bin
     rm -f *.o *-test
     set -e
-    $cc -c -ffreestanding $cflags0 $cflags1 $cflags_common $cflags $srcfiles
+
+    $scan_build $scan_build_opt sh -c '$CC "$@"' \
+                cc -c -ffreestanding $cflags0 $cflags1 \
+                $cflags_common $cflags $srcfiles
+
     $ld $ld_opt $objfiles -o $bin
     set +e
 

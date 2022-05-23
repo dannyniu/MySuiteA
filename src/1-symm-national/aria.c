@@ -224,103 +224,112 @@ static const uint64_t C3l = 0x0324977504e8c90e;
 void ARIA128_KeySched(void const *restrict k, void *restrict w)
 {
     uint64_t const *key = k;
-    uint64_t W[8];
+    union {
+        uint64_t l[8]; // 2022-05-23: now using ''DataView'' union
+        uint8_t b[64]; // to help linter avoid false positive.
+    } W;
     int i;
 
-    W[0] = key[0];
-    W[1] = key[1];
+    W.l[0] = key[0];
+    W.l[1] = key[1];
 
-    W[2] = W[0] ^ htobe64(C1h);
-    W[3] = W[1] ^ htobe64(C1l);
-    FO((void *)(W + 2), NULL);
-    // W[2] ^= 0;
-    // W[3] ^= 0;
+    W.l[2] = W.l[0] ^ htobe64(C1h);
+    W.l[3] = W.l[1] ^ htobe64(C1l);
+    FO(W.b + 16, NULL);
+    // W.l[2] ^= 0;
+    // W.l[3] ^= 0;
 
-    W[4] = W[2] ^ htobe64(C2h);
-    W[5] = W[3] ^ htobe64(C2l);
-    FE((void *)(W + 4), NULL);
-    W[4] ^= W[0];
-    W[5] ^= W[1];
+    W.l[4] = W.l[2] ^ htobe64(C2h);
+    W.l[5] = W.l[3] ^ htobe64(C2l);
+    FE(W.b + 32, NULL);
+    W.l[4] ^= W.l[0];
+    W.l[5] ^= W.l[1];
 
-    W[6] = W[4] ^ htobe64(C3h);
-    W[7] = W[5] ^ htobe64(C3l);
-    FO((void *)(W + 6), NULL);
-    W[6] ^= W[2];
-    W[7] ^= W[3];
+    W.l[6] = W.l[4] ^ htobe64(C3h);
+    W.l[7] = W.l[5] ^ htobe64(C3l);
+    FO(W.b + 48, NULL);
+    W.l[6] ^= W.l[2];
+    W.l[7] ^= W.l[3];
 
-    for(i=0; i<8; i++) W[i] = be64toh(W[i]);
+    for(i=0; i<8; i++) W.l[i] = be64toh(W.l[i]);
     ARIA_Kschd_Generic(
         w, 12,
-        W[0], W[1], W[2], W[3],
-        W[4], W[5], W[6], W[7]);
+        W.l[0], W.l[1], W.l[2], W.l[3],
+        W.l[4], W.l[5], W.l[6], W.l[7]);
 }
 
 void ARIA192_KeySched(void const *restrict k, void *restrict w)
 {
     uint64_t const *key = k;
-    uint64_t W[8];
+    union {
+        uint64_t l[8]; // 2022-05-23: now using ''DataView'' union
+        uint8_t b[64]; // to help linter avoid false positive.
+    } W;
     int i;
 
-    W[0] = key[0];
-    W[1] = key[1];
+    W.l[0] = key[0];
+    W.l[1] = key[1];
 
-    W[2] = W[0] ^ htobe64(C2h);
-    W[3] = W[1] ^ htobe64(C2l);
-    FO((void *)(W + 2), NULL);
-    W[2] ^= key[2];
-    // W[3] ^= 0;
+    W.l[2] = W.l[0] ^ htobe64(C2h);
+    W.l[3] = W.l[1] ^ htobe64(C2l);
+    FO(W.b + 16, NULL);
+    W.l[2] ^= key[2];
+    // W.l[3] ^= 0;
 
-    W[4] = W[2] ^ htobe64(C3h);
-    W[5] = W[3] ^ htobe64(C3l);
-    FE((void *)(W + 4), NULL);
-    W[4] ^= W[0];
-    W[5] ^= W[1];
+    W.l[4] = W.l[2] ^ htobe64(C3h);
+    W.l[5] = W.l[3] ^ htobe64(C3l);
+    FE(W.b + 32, NULL);
+    W.l[4] ^= W.l[0];
+    W.l[5] ^= W.l[1];
 
-    W[6] = W[4] ^ htobe64(C1h);
-    W[7] = W[5] ^ htobe64(C1l);
-    FO((void *)(W + 6), NULL);
-    W[6] ^= W[2];
-    W[7] ^= W[3];
+    W.l[6] = W.l[4] ^ htobe64(C1h);
+    W.l[7] = W.l[5] ^ htobe64(C1l);
+    FO(W.b + 48, NULL);
+    W.l[6] ^= W.l[2];
+    W.l[7] ^= W.l[3];
 
-    for(i=0; i<8; i++) W[i] = be64toh(W[i]);
+    for(i=0; i<8; i++) W.l[i] = be64toh(W.l[i]);
     ARIA_Kschd_Generic(
         w, 14,
-        W[0], W[1], W[2], W[3],
-        W[4], W[5], W[6], W[7]);
+        W.l[0], W.l[1], W.l[2], W.l[3],
+        W.l[4], W.l[5], W.l[6], W.l[7]);
 }
 
 void ARIA256_KeySched(void const *restrict k, void *restrict w)
 {
     uint64_t const *key = k;
-    uint64_t W[8];
+    union {
+        uint64_t l[8]; // 2022-05-23: now using ''DataView'' union
+        uint8_t b[64]; // to help linter avoid false positive.
+    } W;
     int i;
 
-    W[0] = key[0];
-    W[1] = key[1];
+    W.l[0] = key[0];
+    W.l[1] = key[1];
 
-    W[2] = W[0] ^ htobe64(C3h);
-    W[3] = W[1] ^ htobe64(C3l);
-    FO((void *)(W + 2), NULL);
-    W[2] ^= key[2];
-    W[3] ^= key[3];
+    W.l[2] = W.l[0] ^ htobe64(C3h);
+    W.l[3] = W.l[1] ^ htobe64(C3l);
+    FO(W.b + 16, NULL);
+    W.l[2] ^= key[2];
+    W.l[3] ^= key[3];
 
-    W[4] = W[2] ^ htobe64(C1h);
-    W[5] = W[3] ^ htobe64(C1l);
-    FE((void *)(W + 4), NULL);
-    W[4] ^= W[0];
-    W[5] ^= W[1];
+    W.l[4] = W.l[2] ^ htobe64(C1h);
+    W.l[5] = W.l[3] ^ htobe64(C1l);
+    FE(W.b + 32, NULL);
+    W.l[4] ^= W.l[0];
+    W.l[5] ^= W.l[1];
 
-    W[6] = W[4] ^ htobe64(C2h);
-    W[7] = W[5] ^ htobe64(C2l);
-    FO((void *)(W + 6), NULL);
-    W[6] ^= W[2];
-    W[7] ^= W[3];
+    W.l[6] = W.l[4] ^ htobe64(C2h);
+    W.l[7] = W.l[5] ^ htobe64(C2l);
+    FO(W.b + 48, NULL);
+    W.l[6] ^= W.l[2];
+    W.l[7] ^= W.l[3];
 
-    for(i=0; i<8; i++) W[i] = be64toh(W[i]);
+    for(i=0; i<8; i++) W.l[i] = be64toh(W.l[i]);
     ARIA_Kschd_Generic(
         w, 16,
-        W[0], W[1], W[2], W[3],
-        W[4], W[5], W[6], W[7]);
+        W.l[0], W.l[1], W.l[2], W.l[3],
+        W.l[4], W.l[5], W.l[6], W.l[7]);
 }
 
 static void ARIA_Encrypt_Generic(

@@ -24,6 +24,10 @@ static void CTR_DRBG_Update(
     uint8_t *seed = DeltaTo(x, offset_k);
     size_t t;
 
+    // 2022-05-23:
+    // assert for block size, added to make linter more accurate.
+    assert( x->bc_blksize >= 8 ); // 16 actually.
+
     // Copy V to blk.
     for(t = 0; t<x->bc_blksize; t++)
         blk[t] = *(seed + x->bc_keysize + t);
@@ -69,6 +73,11 @@ void CTR_DRBG_Seed(
     uint8_t *seed = DeltaTo(x, offset_k);
     size_t t;
 
+    // 2022-05-23:
+    // assert for block and key sizes, added to make linter more accurate.
+    assert( x->bc_blksize >= 8 && x->bc_blksize <= CTR_DRBG_MAX_BLKSIZE );
+    assert( x->bc_keysize >= 8 && x->bc_keysize <= CTR_DRBG_MAX_KEYSIZE );
+
     for(t = 0; t < x->bc_blksize + x->bc_keysize; t++)
         seed[t] = 0;
 
@@ -96,7 +105,7 @@ void CTR_DRBG_Generate(
 
     // 2022-05-23:
     // assert for block size, added to make linter more accurate.
-    assert(x->bc_blksize >= 8); // 16 actually.
+    assert( x->bc_blksize >= 8 ); // 16 actually.
 
     // Copy V to blk.
     for(t = 0; t < x->bc_blksize; t++)
@@ -293,10 +302,16 @@ void *CTR_DRBG_T_InstInit(
     void const *restrict seedstr,
     size_t len)
 {
+    assert(P); // 2022-05-23: assertion added to make linter more accurate.
     *x = CTR_DRBG_INIT(cT);
+
     if( x->bc_blksize > CTR_DRBG_MAX_BLKSIZE ||
         x->bc_keysize > CTR_DRBG_MAX_KEYSIZE )
         return NULL;
+
+    if( x->bc_blksize < 8 || x->bc_keysize < 8 )
+        return NULL;
+
     __CTR_DRBG_Seed(x, seedstr, len);
     return x;
 }

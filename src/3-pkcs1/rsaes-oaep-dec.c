@@ -170,7 +170,7 @@ static void *RSAES_OAEP_TestLabel(
     IntPtr ret;
 
     // 2022-05-23:
-    // assertion added to make static analysis more accurate.
+    // assertion added to make linter more accurate.
     assert(dx);
 
     // assumes decryption failures result in status being exactly -1.
