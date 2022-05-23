@@ -169,6 +169,10 @@ static void *RSAES_OAEP_TestLabel(
     uint16_t c = 0;
     IntPtr ret;
 
+    // 2022-05-23:
+    // assertion added to make static analysis more accurate.
+    assert(dx);
+
     // assumes decryption failures result in status being exactly -1.
     err = po->status ^ (int32_t)-1;
     err = ~err;

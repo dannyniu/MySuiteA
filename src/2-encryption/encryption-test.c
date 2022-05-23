@@ -19,7 +19,6 @@ void PrintIf(intmax_t cond, const char *fmt, ...)
     va_list ap;
 
     if( !cond ) return;
-    va_start(ap, fmt);
 
     if( !vflushed )
     {
@@ -27,7 +26,13 @@ void PrintIf(intmax_t cond, const char *fmt, ...)
     }
 
     vflushed = true;
+
+    // 2022-05-23:
+    // linter detected a problem
+    // involving variadic arguments.
+    va_start(ap, fmt);
     vprintf(fmt, ap);
+    va_end(ap);
 }
 
 int main(int argc, char *argv[])

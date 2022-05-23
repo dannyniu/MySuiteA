@@ -160,7 +160,7 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
         for(i=0; i<16; i++) B[i] ^= Y[i];
         ccm->enc(B, Y, kschd);
         vzero(B);
-        j = 0;
+        // j = 0; // 2022-05-23: commented out to shut up the linter.
     }
 
     for(j=16; --j>ivlen; ) Ctr[j] = 0;
@@ -323,7 +323,7 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
         for(i=0; i<16; i++) B[i] ^= Y[i];
         ccm->enc(B, Y, kschd);
         vzero(B);
-        j = 0;
+        // j = 0; // 2022-05-23: commented out to shut up the linter.
     }
 
     for(j=16; --j>ivlen; ) Ctr[j] = 0;

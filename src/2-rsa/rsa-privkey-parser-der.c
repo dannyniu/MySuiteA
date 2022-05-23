@@ -231,6 +231,10 @@ decode_rsa_priv_key:
     ret += ber_tlv_decode_integer(DeltaTo(bx, offset_qInv), ptr, len);
     ptr += len; remain -= len;
 
+    // 2022-05-23:
+    // assertion added to make linter more accurate.
+    assert( version == 0 || version == 1 );
+
     if( version == 0 )
     {
         count_primes_other = 0;

@@ -3,13 +3,23 @@
 #ifndef MySuiteA_mysuitea_common_h
 #define MySuiteA_mysuitea_common_h 1
 
-#define static_assert _Static_assert
-
 #include <limits.h>
 #include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#define static_assert _Static_assert
+
+#if true
+// 2022-05-23:
+// This one hosted header is added so that
+// codes may pass the check in the linter.
+// Can be changed to false if desired.
+#include <assert.h>
+#else
+#define assert(...) ((void)0)
+#endif
 
 static_assert(CHAR_BIT == 8, "MySuiteA supports only octet-oriented targets!");
 static_assert(sizeof(int) == 4, "Adaptation needed unless int's 32-bit!");

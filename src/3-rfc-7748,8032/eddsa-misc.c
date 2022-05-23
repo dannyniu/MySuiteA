@@ -172,6 +172,11 @@ void eddsa_point_enc(
     size_t bitpos =  pbits % 8;
     int par;
 
+    // 2022-05-23:
+    // this assertion was added to silence the linter,
+    // but I think a better solution should be sought.
+    assert(Q);
+
     vlong_EncLSB(DeltaTo(Q, offset_y), buf, pbytes);
     buf[pbits / 8] &= (1 << bitpos) - 1;
 

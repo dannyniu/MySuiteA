@@ -94,6 +94,10 @@ void CTR_DRBG_Generate(
     uint8_t *buf = out;
     size_t t;
 
+    // 2022-05-23:
+    // assert for block size, added to make linter more accurate.
+    assert(x->bc_blksize >= 8); // 16 actually.
+
     // Copy V to blk.
     for(t = 0; t < x->bc_blksize; t++)
         blk[t] = *(seed + x->bc_keysize + t);

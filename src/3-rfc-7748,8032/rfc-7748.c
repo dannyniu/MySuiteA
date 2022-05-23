@@ -205,6 +205,14 @@ void *XECDH_Dec(
     uint8_t tmp[64];
     size_t t;
 
+    // 2022-05-23:
+    // this was an actual bug.
+    // now resolved by moving the following
+    // 3 lines up here before the if clause.
+    k = DeltaTo(x, offset_k);
+    P = DeltaTo(x, offset_P);
+    opctx = DeltaTo(x, offset_opctx);
+
     if( x->status > 0 )
     {
     finish:
@@ -226,10 +234,6 @@ void *XECDH_Dec(
             return NULL;
         }
     }
-
-    k = DeltaTo(x, offset_k);
-    P = DeltaTo(x, offset_P);
-    opctx = DeltaTo(x, offset_opctx);
 
     ecMt_point_scale(
         k, P, A24, CRV_BITS,

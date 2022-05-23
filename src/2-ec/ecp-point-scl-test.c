@@ -26,6 +26,8 @@ int test1(
         vlong_t *ry = DeltaTo(r, offset_y);
         vlong_t *rz = DeltaTo(r, offset_z);
 
+        assert(curve->G);
+
         randoml(b);
         ecp_xyz_inf(r);
 

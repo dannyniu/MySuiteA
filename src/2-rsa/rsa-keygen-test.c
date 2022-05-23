@@ -20,7 +20,7 @@ void dump_ctx_words(const uint32_t *ctx, size_t size)
             (4 - i % 4 == 1) ? '\n' : ' ');
     }
 #else /* DUMP_CONTEXT_WORDS */
-    size = 0;
+    (void)size;
 #endif /* DUMP_CONTEXT_WORDS */
 }
 

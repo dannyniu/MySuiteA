@@ -8,7 +8,7 @@ void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
     uint8_t const *buffer = data;
     uint8_t *state = DeltaAdd(s, sizeof(*s) + s->blksize * 0);
 
-    if( !data && len && s->filled )
+    if( !data && len )
     {
         // 2018-02-09: Old note, may be relevant in future.
         // Pads the block and invoke 1 permutation.
@@ -19,6 +19,10 @@ void Sponge_Update(sponge_t *restrict s, void const *restrict data, size_t len)
         // for invoking the permutation had been changed to
         // adapt for the definition of "bytepad" function in
         // NIST-SP-800-185.
+        //
+        // 2022-05-23:
+        // Linter reported that the ``&& s->filled'' condition
+        // may cause dereferencing of null pointer. It's being removed.
         //
         s->filled = s->rate;
         len = 0;

@@ -21,7 +21,6 @@ void PrintIf(intmax_t cond, const char *fmt, ...)
 
     if( !cond ) return;
     else if( !pass ) return;
-    va_start(ap, fmt);
 
     if( !vflushed && !vflushed_saved )
     {
@@ -29,7 +28,13 @@ void PrintIf(intmax_t cond, const char *fmt, ...)
     }
 
     vflushed = true;
+
+    // 2022-05-23:
+    // linter detected a problem
+    // involving variadic arguments.
+    va_start(ap, fmt);
     vprintf(fmt, ap);
+    va_end(ap);
 }
 
 #define out2(...) (0) // printf(__VA_ARGS__)
