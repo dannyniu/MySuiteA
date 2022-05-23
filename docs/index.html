@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>MySuiteA Overview</title>
+    <style>
+     body {
+       box-sizing:   border-box;
+       width:        calc(384px + 40vw);
+       margin:   1em calc(30vw - 192px);
+       padding:  2ex;
+     }
+
+     .main-title {
+       font-size:    4.2rem;
+       text-align:   center;
+     }
+
+     .main-title .chromatic {
+       background:
+         linear-gradient(75Deg, rgba(80,240,160,0.6), rgba(240,128,80,0.6)),
+         linear-gradient(15deg, rgba(240,160,80,0.6), rgba(128,80,240,0.6));
+       background-clip:          text;
+       -webkitbackground-clip:   text;
+       color:    rgba(0,0,0,0);
+     }
+    </style>
+  </head>
+  <body>
+    <h1 class="main-title" >
+      <span class="chromatic">MySuiteA</span>
+    </h1>
+
+    <p>
+      MySuiteA is a collection of cryptographic algorithms implemented in
+      the C programming language. All codes (except testing codes) are
+      implemented in free-standing C, without any call to system libraries,
+      and can be used in embedded systems. All symmetric-key algorithms
+      can be instantiated at both compile-time and run-time.
+    </p>
+
+    <p>
+      For a list of algorithms implemented in the suite, see
+      <a href="algorithms.html" >[Algorithms]</a>
+      For a information on the design of API, see
+      <a href="api.html" >[API]</a> .
+    </p>
+  </body>
+</html>
+
