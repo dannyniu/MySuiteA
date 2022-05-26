@@ -5,25 +5,17 @@
 
 systarget=linux-gnu
 
-if command -v scan-build >/dev/null ; then
-    # scan-build installed.
-    scan_build=scan-build
-    regex='^[^-[:alnum:].]*\([-[:alnum:].]*\)[^-[:alnum:].].*$'
-    checkers="$(
-        $scan_build --help-checkers-verbose |
-            fgrep -v \
-            -e deadcode.DeadStores | # explicitly rejected checks.
-            sed -n "s/$regex/--enable-checker \1/p" |
-            fgrep . )"
-    nochecks="$(
-        $scan_build --help-checkers-verbose |
-            fgrep \
-            -e deadcode.DeadStores | # explicitly disabled checks.
-            sed -n "s/$regex/--disable-checker \1/p" |
-            fgrep . )"
-    scan_build_opt="$checkers $nochecks"
+if command -v CodeChecker >/dev/null ; then
+    # CodeChecker installed.
+
+    CodeChecker=CodeChecker
+
+    # 2022-05-26: add the "--ctu" option when time comes.
+    CodeCheckerOpts="\
+        --analyzers clangsa --enable-all \
+        --disable deadcode.DeadStores"
 else
-    echo Try installing the \"scan-build\" pip package.
+    echo Try installing the \"CodeChecker\" pip package.
     exit 1
 fi
 
@@ -204,9 +196,20 @@ test_run_1arch()
     rm -f *.o *-test
     set -e
 
-    $scan_build $scan_build_opt sh -c '$CC "$@"' \
-                cc -c -ffreestanding $cflags0 $cflags1 \
-                $cflags_common $cflags $srcfiles
+    if [ X$UNITEST_STATIC_ANALYZE = Xtrue ] ; then
+        
+        $CodeChecker log --output ../bin/report-"${arch}-${bin}".json \
+                     --build "\$CC -c -ffreestanding $cflags0 $cflags1 \
+                     $cflags_common $cflags $srcfiles"
+
+        $CodeChecker analyze $CodeCheckerOpts \
+                     ../bin/report-"${arch}-${bin}".json \
+                     --output ../bin/reports-"${arch}-${bin}"
+
+    else
+        ${CC:-cc} -c -ffreestanding $flags0 $cflags1 \
+                  $cflags_common $cflags $srcfiles
+    fi
 
     $ld $ld_opt $objfiles -o $bin
     set +e
