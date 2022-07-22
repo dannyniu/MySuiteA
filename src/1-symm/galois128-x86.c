@@ -39,7 +39,7 @@ static __m128i galois128_mul_x86(__m128i x, __m128i y)
     return bytes_mirror(a);
 }
 
-void galois128_hash1block(
+void galois128_hash1block_ni(
     void *restrict Y,
     void const *restrict H,
     void const *restrict X)
@@ -50,3 +50,5 @@ void galois128_hash1block(
 
     _mm_storeu_si128(Y, galois128_mul_x86(y, h));
 }
+
+#include "galois128.c"

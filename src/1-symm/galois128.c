@@ -56,9 +56,10 @@ static galois128_t galois128_mul(galois128_t X, galois128_t Y)
     return Z;
 }
 
-void galois128_hash1block(void *restrict Y,
-                          void const *restrict H,
-                          void const *restrict X)
+void galois128_hash1block_ci(
+    void *restrict Y,
+    void const *restrict H,
+    void const *restrict X)
 {
     galois128_t y={0}, h={0}, x={0};
 
@@ -71,3 +72,7 @@ void galois128_hash1block(void *restrict Y,
 
     if( Y ) galois128_store(Y, galois128_mul(y, h));
 }
+
+#if NI_GALOIS128 == NI_RUNTIME
+int extern_ni_galois128_conf = false;
+#endif /* NI_GALOIS128 */

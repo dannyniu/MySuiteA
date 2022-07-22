@@ -57,14 +57,14 @@ src="
 tests_run
 
 arch_family=x86
-cflags="-maes -mpclmul"
+cflags="-maes -mpclmul -D NI_AES=NI_ALWAYS -D NI_GALOIS128=NI_ALWAYS"
 srcset="x86 AESNI+PCLMUL"
 src="1-symm/rijndael-x86.c 1-symm/galois128-x86.c"
 
 tests_run
 
 arch_family=arm
-cflags="-march=armv8-a+crypto"
+cflags="-march=armv8-a+crypto -D NI_AES=NI_ALWAYS -D NI_GALOIS128=NI_ALWAYS"
 srcset="ARM NEON Crypto"
 src="1-symm/rijndael-arm.c 1-symm/galois128-arm.c"
 

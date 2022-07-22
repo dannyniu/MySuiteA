@@ -99,6 +99,25 @@ typedef struct {
     };
 } bufvec_t;
 
+// Native CPU Instruction Implementation of Algorithms.
+// The following flags determines the compile-time behavior
+// of code definition.
+//
+// The additional ``NI_<ALGO>'' determines algorithm-specific
+// behavior at compile time.
+//
+// If ``NI_<ALGO>'' is 'NI_RUNTIME', then ``ni_<algo>_conf'' will
+// be the boolean value that determines whether the next query
+// to the crypto-object returns the optimized implementation
+// (if true), or the reference implementation (if false).
+//
+// ``ni_<algo>_conf'' are objects of type ``int'' with external
+// linkage, multi-threaded codes must use additional synchronization
+// to protect access to them. Their default value is 'false'.
+#define NI_NEVER    0
+#define NI_ALWAYS   1
+#define NI_RUNTIME  2
+
 enum {
     //-- Symmetric-Key Cryptography --//
     // 1-19: compile-time queries,

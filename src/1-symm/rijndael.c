@@ -29,7 +29,7 @@ static inline uint8_t xtime(uint16_t x)
     return (uint8_t)(x ^ ((x >> 8) & 0x1b));
 }
 
-#ifndef Define_AES_Cipher
+// #ifndef Define_AES_Cipher // 2022-06-27: AES Dual-Implementation.
 
 static inline uint8_t gmul(uint8_t a, uint8_t b)
 {
@@ -207,7 +207,7 @@ static void Rijndael_Nb4_InvCipher(
     AddRoundKey(out, w);
 }
 
-#endif /* Define_AES_Cipher */
+// #endif /* Define_AES_Cipher */ // AES Dual-Implementation
 
 #define Define_AES_KeyExpansion(name,Nk,Nr)             \
     void name(void const *restrict key,                 \
@@ -253,6 +253,10 @@ static void Rijndael_Nb4_KeyExpansion(
     }
 }
 
+#if NI_AES == NI_RUNTIME
+int extern_ni_aes_conf = false;
+#endif /* NI_AES */
+
 Define_AES_Cipher(AES128_Cipher,10);
 Define_AES_Cipher(AES192_Cipher,12);
 Define_AES_Cipher(AES256_Cipher,14);
@@ -260,6 +264,16 @@ Define_AES_Cipher(AES256_Cipher,14);
 Define_AES_InvCipher(AES128_InvCipher,10);
 Define_AES_InvCipher(AES192_InvCipher,12);
 Define_AES_InvCipher(AES256_InvCipher,14);
+
+#if NI_AES == NI_ALWAYS || NI_AES == NI_RUNTIME
+NI_Define_AES_Cipher(NI_AES128_Cipher,10);
+NI_Define_AES_Cipher(NI_AES192_Cipher,12);
+NI_Define_AES_Cipher(NI_AES256_Cipher,14);
+
+NI_Define_AES_InvCipher(NI_AES128_InvCipher,10);
+NI_Define_AES_InvCipher(NI_AES192_InvCipher,12);
+NI_Define_AES_InvCipher(NI_AES256_InvCipher,14);
+#endif /* NI_AES */
 
 Define_AES_KeyExpansion(AES128_KeyExpansion,4,10);
 Define_AES_KeyExpansion(AES192_KeyExpansion,6,12);

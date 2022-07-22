@@ -3,13 +3,13 @@
 #include "rijndael.h"
 #include <x86intrin.h>
 
-#define Define_AES_Cipher(name,Nr)              \
+#define NI_Define_AES_Cipher(name,Nr)              \
     void name(void const *in, void *out,        \
               void const *restrict w)           \
     {                                           \
-        Rijndael_Nb4_Cipher(in, out, w, Nr);    \
+        NI_Rijndael_Nb4_Cipher(in, out, w, Nr);    \
     }
-static void Rijndael_Nb4_Cipher(
+static void NI_Rijndael_Nb4_Cipher(
     uint8_t const in[16], uint8_t out[16],
     uint8_t const *restrict w, int Nr)
 {
@@ -32,13 +32,13 @@ static void Rijndael_Nb4_Cipher(
     return;
 }
 
-#define Define_AES_InvCipher(name,Nr)               \
+#define NI_Define_AES_InvCipher(name,Nr)               \
     void name(void const *in, void *out,            \
               void const *restrict w)               \
     {                                               \
-        Rijndael_Nb4_InvCipher(in, out, w, Nr);     \
+        NI_Rijndael_Nb4_InvCipher(in, out, w, Nr);     \
     }
-static void Rijndael_Nb4_InvCipher(
+static void NI_Rijndael_Nb4_InvCipher(
     uint8_t const in[16], uint8_t out[16],
     uint8_t const *restrict w, int Nr)
 {

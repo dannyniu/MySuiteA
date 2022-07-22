@@ -57,9 +57,10 @@ static poly128_t galois128_mul_arm(poly128_t x, poly128_t y)
     return bytes_mirror(a);
 }
 
-void galois128_hash1block(void *restrict Y,
-                          void const *restrict H,
-                          void const *restrict X)
+void galois128_hash1block_ni(
+    void *restrict Y,
+    void const *restrict H,
+    void const *restrict X)
 {
     register poly128_t y=0, h=0, x=0;
 
@@ -79,3 +80,5 @@ void galois128_hash1block(void *restrict Y,
     ((uint64_t *)Y)[0] = htole64((uint64_t)(y));
     ((uint64_t *)Y)[1] = htole64((uint64_t)(y>>64));
 }
+
+#include "galois128.c"
