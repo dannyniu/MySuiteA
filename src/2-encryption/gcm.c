@@ -12,6 +12,11 @@ void *GCM_Encrypt(gcm_t *restrict gcm,
                   size_t tlen, void *T)
 {
     size_t i, j;
+    void (*ghash128)(
+        void *restrict Y,
+        void const *restrict H,
+        void const *restrict X) =
+        galois128_hash1block;
 
     alignas(16) uint32_t
         J0[4],
@@ -38,7 +43,7 @@ void *GCM_Encrypt(gcm_t *restrict gcm,
         for(i=0; i<16; i++)
             X[i] = i+j < alen ? ((const uint8_t *)aad)[i+j] : 0;
 
-        galois128_hash1block(S, gcm->H, X);
+        ghash128(S, gcm->H, X);
     }
 
     // GCTR: First CB.
@@ -53,13 +58,13 @@ void *GCM_Encrypt(gcm_t *restrict gcm,
         for(i=0; i<16; i++)
             X[i] = i+j < len ? (optr[i+j] = iptr[i+j]^X[i]) : 0;
 
-        galois128_hash1block(S, gcm->H, X);
+        ghash128(S, gcm->H, X);
     }
 
     // The len(A) and len(C) part of S.
     ((uint64_t *)X)[0] = htobe64(alen*8);
     ((uint64_t *)X)[1] = htobe64(len*8);
-    galois128_hash1block(S, gcm->H, X);
+    ghash128(S, gcm->H, X);
 
     // Calculate T. Zero-extends if tlen>16.
     gcm->enc(J0, X, kschd);
@@ -75,8 +80,13 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
                   size_t len, void const *in, void *out,
                   size_t tlen, void const *T)
 {
-    size_t i, j;
     int b;
+    size_t i, j;
+    void (*ghash128)(
+        void *restrict Y,
+        void const *restrict H,
+        void const *restrict X) =
+        galois128_hash1block;
 
     alignas(16) uint32_t
         J0[4],
@@ -107,7 +117,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
         for(i=0; i<16; i++)
             X[i] = i+j < alen ? ((const uint8_t *)aad)[i+j] : 0;
 
-        galois128_hash1block(S, gcm->H, X);
+        ghash128(S, gcm->H, X);
     }
 
     // The C part of S.
@@ -116,13 +126,13 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
         for(i=0; i<16; i++)
             X[i] = i+j < len ? iptr[i+j] : 0;
 
-        galois128_hash1block(S, gcm->H, X);
+        ghash128(S, gcm->H, X);
     }
 
     // The len(A) and len(C) part of S.
     ((uint64_t *)X)[0] = htobe64(alen*8);
     ((uint64_t *)X)[1] = htobe64(len*8);
-    galois128_hash1block(S, gcm->H, X);
+    ghash128(S, gcm->H, X);
 
     // Calculate T.
     b = 0;
