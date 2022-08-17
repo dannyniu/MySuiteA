@@ -15,7 +15,4 @@ void chacha20_block(
     uint32_t counter,
     size_t len, void const *in, void *out);
 
-void blake2s_compress(uint32_t *restrict h, void const *m, uint64_t t, int f);
-void blake2b_compress(uint64_t *restrict h, void const *m, uint64_t t, int f);
-
 #endif /* MySuiteA_chacha_h */
