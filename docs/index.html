@@ -24,6 +24,13 @@
        -webkitbackground-clip:   text;
        color:    rgba(0,0,0,0);
      }
+
+     code {
+       background:       rgba(128,128,128,0.25);
+       padding:          3pt;
+       border-radius:    3pt;
+       font-size:        78%;
+     }
     </style>
   </head>
   <body>
@@ -33,17 +40,26 @@
 
     <p>
       MySuiteA is a collection of cryptographic algorithms implemented in
-      the C programming language. All codes (except testing codes) are
-      implemented in free-standing C, without any call to system libraries,
-      and can be used in embedded systems. All symmetric-key algorithms
-      can be instantiated at both compile-time and run-time.
+      the C programming language. All codes, except testing codes, and codes
+      in the <code>1-oslib</code> directory, are all implemented in
+      free-standing C, without any call to system libraries, and can be used
+      in embedded systems. All symmetric-key algorithms can be instantiated
+      at both compile-time and run-time.
     </p>
 
     <p>
       For a list of algorithms implemented in the suite, see
-      <a href="algorithms.html" >[Algorithms]</a>
+      <a href="algorithms.html" >[Algorithms]</a> .
       For a information on the design of API, see
       <a href="api.html" >[API]</a> .
+    </p>
+
+    <br />
+
+    <h2>Other Docs</h2>
+
+    <p>
+      <a href="cross-arch-testing.md">Cross-Architecture Testing HOWTO</a>.
     </p>
   </body>
 </html>
