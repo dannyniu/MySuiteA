@@ -170,6 +170,13 @@ enum {
     //
     ivBytes = 6, tagBytes = 7,
 
+    // Added 2022-08-29:
+    // For parallel and tree hashing algorithms, there's the chunk size
+    // parameter. Each chunk is processed single-threaded, multiple chunks
+    // may be processed in parallel.
+    //
+    chunkBytes = 8,
+    
     // Block Cipher Interfaces //
     EncFunc = 21, DecFunc = 22, KschdFunc = 23,
 
@@ -197,6 +204,28 @@ enum {
 
     // AEAD Functions //
     AEncFunc = 31, ADecFunc = 32,
+
+    // Parallel and Tree Hashing Functions (Added 2022-09-04) //
+    //
+    // The update and finalization functions of parallel and tree
+    // hashing functions take an additional "threads crew" object
+    // to exploit the parallelism of the host platform. This poses
+    // new requirements on designing APIs for them in an elegant way.
+    //
+    // The current idea is that, apart from the initialization function
+    // that is in common with regular hashing algorithms, parallel and
+    // tree hashing algorithms will have 3 functions of their own to
+    // perform input updating, final calculation, and reading output.
+    // The update and finalization functions will take an additional
+    // "threads crew" object as argument for exploiting the parallelism
+    // available on the platform; the read function will behave similar
+    // to that of XOF's (because parallel and tree hashing algorithms are
+    // predominantly XOFs) read, except that it takes an additional flags
+    // argument to customize its behavior. These new APIs will contain
+    // a number in their name to indicate the number of arguments they
+    // take. Similar convention exists in Unix APIs (e.g. "accept4",
+    // "dup3", "pipe2", etc.).
+    Update4Func = 33, Final2Func = 34, Read4Func = 35,
 
     //-- Public-Key Cryptography --//
     // 101-119: compile-time queries.
@@ -312,6 +341,24 @@ typedef KInitFunc_t     InstInitFunc_t;
 typedef PKInitFunc_t    PInstInitFunc_t;
 typedef WriteFunc_t     ReseedFunc_t;
 typedef ReadFunc_t      GenFunc_t;
+
+// 2022-09-04, parallel and tree hashing additions.
+
+#include "1-oslib/TCrew-common.h"
+
+typedef void (*Update4Func_t)(void *restrict x,
+                              void const *restrict data,
+                              size_t len,
+                              TCrew_Abstract_t *restrict tc);
+
+typedef void (*Final2Func_t)(void *restrict x,
+                             TCrew_Abstract_t *restrict tc);
+
+#define HASHING_READ4_REWIND 1
+
+typedef void (*Read4Func_t)(void *restrict x,
+                            void *restrict data,
+                            size_t len, int flags);
 
 // ``index'' starts at 0,
 // at which the function returns the length of parameter vector.
