@@ -67,7 +67,6 @@ unitest_sh=../unitest.sh
 src="\
 blake2-test.c
 blake2.c
-1-symm/chacha.c
 0-datum/endian.c
 "
 

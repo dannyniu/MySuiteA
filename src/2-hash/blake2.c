@@ -1,6 +1,7 @@
 /* DannyNiu/NJF, 2018-12-23. Public Domain. */
 
 #include "blake2.h"
+#include "blake-common.c.h"
 #include "../0-datum/endian.h"
 
 static const uint8_t sigma[10][16] = {
@@ -20,22 +21,6 @@ static const uint8_t sigma[10][16] = {
 // short:   16-bit,
 // word:    32-bit,
 // long;    64-bit.
-
-#define qround_word(a, b, c, d, x, y)                           \
-    {                                                           \
-        a += b + le32toh(x); d ^= a; d = (d>>16)|(d<<16);       \
-        c += d             ; b ^= c; b = (b>>12)|(b<<20);       \
-        a += b + le32toh(y); d ^= a; d = (d>> 8)|(d<<24);       \
-        c += d             ; b ^= c; b = (b>> 7)|(b<<25);       \
-    }
-
-#define qround_long(a, b, c, d, x, y)                           \
-    {                                                           \
-        a += b + le64toh(x); d ^= a; d = (d>>32)|(d<<32);       \
-        c += d             ; b ^= c; b = (b>>24)|(b<<40);       \
-        a += b + le64toh(y); d ^= a; d = (d>>16)|(d<<48);       \
-        c += d             ; b ^= c; b = (b>>63)|(b<< 1);       \
-    }
 
 #define msg(i) ( m ? m[s[i]] : 0 )
 
@@ -74,14 +59,14 @@ blake2s_compress(uint32_t *restrict h, void const *m, uint64_t t, int f)
     uint32_t v[16];
 
     for(i=0; i<8; i++) v[i] = h[i];
-    v[ 8] = 0x6a09e667;
-    v[ 9] = 0xbb67ae85;
-    v[10] = 0x3c6ef372;
-    v[11] = 0xa54ff53a;
-    v[12] = 0x510e527f;
-    v[13] = 0x9b05688c;
-    v[14] = 0x1f83d9ab;
-    v[15] = 0x5be0cd19;
+    v[ 8] = IV0;
+    v[ 9] = IV1;
+    v[10] = IV2;
+    v[11] = IV3;
+    v[12] = IV4;
+    v[13] = IV5;
+    v[14] = IV6;
+    v[15] = IV7;
 
     v[12] ^= t;
     v[13] ^= t>>32;
@@ -102,14 +87,14 @@ blake2b_compress(uint64_t *restrict h, void const *m, uint64_t t, int f)
     uint64_t v[16];
 
     for(i=0; i<8; i++) v[i] = h[i];
-    v[ 8] = 0x6a09e667f3bcc908;
-    v[ 9] = 0xbb67ae8584caa73b;
-    v[10] = 0x3c6ef372fe94f82b;
-    v[11] = 0xa54ff53a5f1d36f1;
-    v[12] = 0x510e527fade682d1;
-    v[13] = 0x9b05688c2b3e6c1f;
-    v[14] = 0x1f83d9abfb41bd6b;
-    v[15] = 0x5be0cd19137e2179;
+    v[ 8] = IV0l;
+    v[ 9] = IV1l;
+    v[10] = IV2l;
+    v[11] = IV3l;
+    v[12] = IV4l;
+    v[13] = IV5l;
+    v[14] = IV6l;
+    v[15] = IV7l;
 
     v[12] ^= t;
     // Not implemented for msglen > 2^64.
@@ -135,14 +120,14 @@ static void *blake2b_init(
     x->keylen = keylen;
     x->finalized = false;
 
-    x->h[0] = 0x6a09e667f3bcc908;
-    x->h[1] = 0xbb67ae8584caa73b;
-    x->h[2] = 0x3c6ef372fe94f82b;
-    x->h[3] = 0xa54ff53a5f1d36f1;
-    x->h[4] = 0x510e527fade682d1;
-    x->h[5] = 0x9b05688c2b3e6c1f;
-    x->h[6] = 0x1f83d9abfb41bd6b;
-    x->h[7] = 0x5be0cd19137e2179;
+    x->h[0] = IV0l;
+    x->h[1] = IV1l;
+    x->h[2] = IV2l;
+    x->h[3] = IV3l;
+    x->h[4] = IV4l;
+    x->h[5] = IV5l;
+    x->h[6] = IV6l;
+    x->h[7] = IV7l;
 
     x->h[0] ^= UINT32_C(0x01010000) ^ (x->keylen << 8) ^ x->outlen;
     x->t = 0;
@@ -223,14 +208,14 @@ static void *blake2s_init(
     x->keylen = keylen;
     x->finalized = false;
 
-    x->h[0] = 0x6a09e667;
-    x->h[1] = 0xbb67ae85;
-    x->h[2] = 0x3c6ef372;
-    x->h[3] = 0xa54ff53a;
-    x->h[4] = 0x510e527f;
-    x->h[5] = 0x9b05688c;
-    x->h[6] = 0x1f83d9ab;
-    x->h[7] = 0x5be0cd19;
+    x->h[0] = IV0;
+    x->h[1] = IV1;
+    x->h[2] = IV2;
+    x->h[3] = IV3;
+    x->h[4] = IV4;
+    x->h[5] = IV5;
+    x->h[6] = IV6;
+    x->h[7] = IV7;
 
     x->h[0] ^= UINT32_C(0x01010000) ^ (x->keylen << 8) ^ x->outlen;
     x->t = 0;
