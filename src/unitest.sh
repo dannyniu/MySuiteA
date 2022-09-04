@@ -5,6 +5,7 @@
 
 systarget=linux-gnu
 
+CodeChecker="--null--"
 if command -v CodeChecker >/dev/null ; then
     # CodeChecker installed.
 
@@ -14,9 +15,6 @@ if command -v CodeChecker >/dev/null ; then
     CodeCheckerOpts="\
         --analyzers clangsa --enable-all \
         --disable deadcode.DeadStores"
-else
-    echo Try installing the \"CodeChecker\" pip package.
-    exit 1
 fi
 
 cflags0="-Wall -Wextra -g -O0"
@@ -42,7 +40,7 @@ cflags0="-Wall -Wextra -g -O0"
 #
 # -- Begin: mirror to /tmp before testing. --
 
-test_tmpid=MySuiteA_$(basename "$0" .sh)_$(date +%Y-%m-%d-%H%M%S)_$RANDOM
+test_tmpid=UniTest_$(basename "$0" .sh)_$(date +%Y-%m-%d-%H%M%S)_$RANDOM
 path_tmpid=/tmp/$test_tmpid
 path_src="$(cd "$(dirname $unitest_sh)" ; pwd)"
 path_ref="$(cd "$path_src"/../tests ; pwd)"
@@ -197,7 +195,12 @@ test_run_1arch()
     set -e
 
     if [ X$UNITEST_STATIC_ANALYZE = Xtrue ] ; then
-        
+
+        if [ X"$CodeChecker" = X--null-- ] ; then
+            echo Try installing the \"CodeChecker\" pip package.
+            exit 1
+        fi
+
         $CodeChecker log --output ../bin/report-"${arch}-${bin}".json \
                      --build "\$CC -c -ffreestanding $cflags0 $cflags1 \
                      $cflags_common $cflags $srcfiles"
@@ -211,7 +214,7 @@ test_run_1arch()
                   $cflags_common $cflags $srcfiles
     fi
 
-    $ld $ld_opt $objfiles -o $bin
+    $ld $ld_opt $ldflags $objfiles -o $bin
     set +e
 
     if testfunc
@@ -259,9 +262,9 @@ tests_run()
             if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
             ( arch=powerpc64
-               if test_arch_canrun
-               then test_run_1arch
-               fi )
+              if test_arch_canrun
+              then test_run_1arch
+              fi )
             if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
             ( arch=sparc64
