@@ -5,6 +5,7 @@
 
 #include "../mysuitea-common.h"
 
+void KeccakP1600_Permute(void const *in, void *out, int rounds);
 void KeccakF1600_Permute(void const *in, void *out);
 
 #define cKeccakF(b,q) ( q==blockBytes ? b/8 : 0 )
