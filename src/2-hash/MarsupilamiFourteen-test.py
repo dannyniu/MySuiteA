@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import M14, subprocess, secrets
+import M14, subprocess, secrets, os, re
 
 fails = 0
 
@@ -9,7 +9,7 @@ for mlen in (23**i for i in range(5)):
         m = secrets.token_bytes(mlen)
         c = secrets.token_bytes(clen)
         p = subprocess.Popen(
-            ["./MarsupilamiFourteen-test", str(mlen)],
+            re.split(r'\s+', os.getenv("exec"))+[str(mlen)],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         ref = M14.MarsupilamiFourteen(m, c, 256)
         p.stdin.write(m);
