@@ -5,21 +5,35 @@
 
 #include "../mysuitea-common.h"
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:         8*131
 typedef struct {
     uint8_t hashed;
     uint8_t height; // 0: leaf; >0: parent; max: root.
     uint16_t remain; // as in remain yet to be hashed, <= 1024.
     uint32_t d; // domain parameters (as with the spec).
     uint64_t t;
-    long me;
+    int64_t me;
     union {
         uint8_t u8[1024];
         uint32_t u32[256];
     } buf;
 } blake3_node_t;
 
-#define BLAKE3_NODES_COUNT 66
+// This number, and the type for some of the structure members, are chosen
+// so that the entire structure pads up to multiply of 8 bytes (64 bits).
+// It's currently so ideal that it happens to be a multiply of 16 bytes.
+//
+// The number of nodes in the working context must be at least 64, so as to
+// ensure it can hold the deepest possible tree that can ever occur
+// according to the spec.
+//
+#define BLAKE3_NODES_COUNT 65
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:   8*(5+17+130*68)
 typedef struct {
     union {
         uint8_t u8[32];
@@ -30,18 +44,18 @@ typedef struct {
 
 
     // no need to explain.
-    short keyed;
-    short finalize;
+    int8_t keyed;
+    int8_t finalize;
 
     // nodes[ nind[branches_filled + leaves_filled] ] is the
     // next node available to fill more (chunk) data.
-    short leaves_filled;
+    int16_t leaves_filled;
 
     // the number of branch nodes remain here.
-    short branches_filled;
+    int16_t branches_filled;
 
     // index into ``nodes''
-    short nind[BLAKE3_NODES_COUNT];
+    int16_t nind[BLAKE3_NODES_COUNT];
 
     // storage of nodes, mapped by ``nind''.
     blake3_node_t nodes[BLAKE3_NODES_COUNT];

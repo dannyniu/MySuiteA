@@ -13,7 +13,7 @@
 #define DERIVE_KEY_CONTEXT      (1 << 5)
 #define DERIVE_KEY_MATERIAL     (1 << 6)
 
-static void init1node(blake3_node_t *restrict node, long id)
+static void init1node(blake3_node_t *restrict node, int64_t id)
 {
     uint16_t i;
     
@@ -196,19 +196,6 @@ static void commit1parent(blake3_t *restrict x, blake3_node_t *restrict node)
     hash1node(x, node);
     node->hashed = true;
 }
-
-static int dispatch_stub(void *tc, TCrew_Assignment_t func, void *ctx)
-{
-    (void)tc;
-
-    if( func ) func(ctx);
-    return 0;
-}
-
-static TCrew_Abstract_t atc = {
-    .enqueue = dispatch_stub,
-    .wait = dispatch_stub,
-};
 
 static void job_hash1leaf(blake3_node_t *node)
 {
@@ -432,7 +419,7 @@ void BLAKE3_Final2(blake3_t *restrict x, TCrew_Abstract_t *restrict tc)
 {
     if( !x->finalize )
     {
-        final_1bat2tc(x, &atc); // will set ``x->finalize''
+        final_1bat2tc(x, tc); // will set ``x->finalize''
         x->t = 0;
     }
 }

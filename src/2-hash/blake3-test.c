@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2018-12-23. Public Domain. */
+/* DannyNiu/NJF, 2022-08-29. Public Domain. */
 
 #include "blake3.h"
 #include "../1-oslib/TCrew-Stub.h"
