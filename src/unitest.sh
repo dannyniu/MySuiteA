@@ -210,7 +210,7 @@ test_run_1arch()
                      --output ../bin/reports-"${arch}-${bin}"
 
     else
-        ${CC:-cc} -c -ffreestanding $flags0 $cflags1 \
+        ${CC:-cc} -c -ffreestanding $cflags0 $cflags1 \
                   $cflags_common $cflags $srcfiles
     fi
 
