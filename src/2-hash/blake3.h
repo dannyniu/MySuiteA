@@ -23,7 +23,6 @@ typedef struct {
 
 // This number, and the type for some of the structure members, are chosen
 // so that the entire structure pads up to multiply of 8 bytes (64 bits).
-// It's currently so ideal that it happens to be a multiply of 16 bytes.
 //
 // The number of nodes in the working context must be at least 64, so as to
 // ensure it can hold the deepest possible tree that can ever occur
@@ -33,7 +32,7 @@ typedef struct {
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec:   8*(5+17+130*68)
+// align spec:   8*(5+17+131*65)
 typedef struct {
     union {
         uint8_t u8[32];
