@@ -21,6 +21,11 @@ void SHA1_Init(sha1_t *restrict sha)
 void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
+    
+    void (*compressfunc)(
+        uint32_t H[5],
+        uint32_t const *restrict M) =
+        compressfunc_sha1;
 
     // Msg must not be full when this loop enters.
     while(len)
@@ -29,7 +34,7 @@ void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len)
         len--;
 
         if( sha->filled == sizeof(sha->Msg8) ) {
-            compressfunc_sha1(sha->H, sha->Msg32);
+            compressfunc(sha->H, sha->Msg32);
             sha->filled = 0;
         }
     }
@@ -41,6 +46,11 @@ void SHA1_Final(sha1_t *restrict sha, void *restrict out, size_t t)
 {
     uint8_t *ptr = out;
     size_t i;
+    
+    void (*compressfunc)(
+        uint32_t H[5],
+        uint32_t const *restrict M) =
+        compressfunc_sha1;
 
     if( sha->finalized ) goto finalized;
 
@@ -49,7 +59,7 @@ void SHA1_Final(sha1_t *restrict sha, void *restrict out, size_t t)
         sha->Msg8[sha->filled++] = 0x80;
         while( sha->filled < sizeof(sha->Msg8) )
             sha->Msg8[sha->filled++] = 0;
-        compressfunc_sha1(sha->H, sha->Msg32);
+        compressfunc(sha->H, sha->Msg32);
         sha->filled = 0;
 
         while( sha->filled < sizeof(sha->Msg8) )
@@ -66,7 +76,7 @@ void SHA1_Final(sha1_t *restrict sha, void *restrict out, size_t t)
 
     sha->Msg32[14] = htobe32((uint32_t)(sha->len >> 32));
     sha->Msg32[15] = htobe32((uint32_t)(sha->len));
-    compressfunc_sha1(sha->H, sha->Msg32);
+    compressfunc(sha->H, sha->Msg32);
     for(i=0; i<5; i++)
         sha->Msg32[i] = htobe32(sha->H[i]);
     sha->finalized = true;
@@ -85,6 +95,11 @@ void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len
 {
     const uint8_t *ptr = data;
 
+    void (*compressfunc)(
+        uint32_t H[8],
+        uint32_t const *restrict M) =
+        compressfunc_sha256;
+
     // Msg must not be full when this loop enters.
     while(len)
     {
@@ -92,7 +107,7 @@ void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len
         len--;
 
         if( sha->filled == sizeof(sha->Msg8) ) {
-            compressfunc_sha256(sha->H, sha->Msg32);
+            compressfunc(sha->H, sha->Msg32);
             sha->filled = 0;
         }
     }
@@ -103,6 +118,12 @@ void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len
 static void sha256_final(sha256_t *restrict sha)
 {
     int i;
+    
+    void (*compressfunc)(
+        uint32_t H[8],
+        uint32_t const *restrict M) =
+        compressfunc_sha256;
+
     if( sha->finalized ) return;
 
     if( sha->filled / sizeof(uint32_t) >= 14 )
@@ -110,7 +131,7 @@ static void sha256_final(sha256_t *restrict sha)
         sha->Msg8[sha->filled++] = 0x80;
         while( sha->filled < sizeof(sha->Msg8) )
             sha->Msg8[sha->filled++] = 0;
-        compressfunc_sha256(sha->H, sha->Msg32);
+        compressfunc(sha->H, sha->Msg32);
         sha->filled = 0;
 
         while( sha->filled < sizeof(sha->Msg8) )
@@ -127,7 +148,7 @@ static void sha256_final(sha256_t *restrict sha)
 
     sha->Msg32[14] = htobe32((uint32_t)(sha->len >> 32));
     sha->Msg32[15] = htobe32((uint32_t)(sha->len));
-    compressfunc_sha256(sha->H, sha->Msg32);
+    compressfunc(sha->H, sha->Msg32);
     for(i=0; i<8; i++)
         sha->Msg32[i] = htobe32(sha->H[i]);
     sha->finalized = true;
@@ -196,6 +217,11 @@ void SHA256_Final(sha256_t *restrict sha, void *restrict out, size_t t)
 void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
+    
+    void (*compressfunc)(
+        uint64_t H[8],
+        uint64_t const *restrict M) =
+        compressfunc_sha512;
 
     // Msg must not be full when this loop enters.
     while(len)
@@ -204,7 +230,7 @@ void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len
         len--;
 
         if( sha->filled == sizeof(sha->Msg8) ) {
-            compressfunc_sha512(sha->H, sha->Msg64);
+            compressfunc(sha->H, sha->Msg64);
             sha->filled = 0;
         }
     }
@@ -215,6 +241,12 @@ void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len
 static void sha512_final(sha512_t *restrict sha)
 {
     int i;
+        
+    void (*compressfunc)(
+        uint64_t H[8],
+        uint64_t const *restrict M) =
+        compressfunc_sha512;
+
     if( sha->finalized ) return;
 
     if( sha->filled / sizeof(uint64_t) >= 14 )
@@ -222,7 +254,7 @@ static void sha512_final(sha512_t *restrict sha)
         sha->Msg8[sha->filled++] = 0x80;
         while( sha->filled < sizeof(sha->Msg8) )
             sha->Msg8[sha->filled++] = 0;
-        compressfunc_sha512(sha->H, sha->Msg64);
+        compressfunc(sha->H, sha->Msg64);
         sha->filled = 0;
 
         while( sha->filled < sizeof(sha->Msg8) )
@@ -240,7 +272,7 @@ static void sha512_final(sha512_t *restrict sha)
     // Known Bug: Streaming longer than 2^64 currently not supported.
     sha->Msg64[14] = htobe64(0);
     sha->Msg64[15] = htobe64(sha->len);
-    compressfunc_sha512(sha->H, sha->Msg64);
+    compressfunc(sha->H, sha->Msg64);
     for(i=0; i<8; i++)
         sha->Msg64[i] = htobe64(sha->H[i]);
     sha->finalized = true;

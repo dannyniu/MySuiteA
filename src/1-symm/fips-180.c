@@ -15,7 +15,7 @@
     t<40 ? 0x6ed9eba1 : \
     t<60 ? 0x8f1bbcdc : 0xca62c1d6 )
 
-void compressfunc_sha1(uint32_t H[5], uint32_t const *restrict M)
+void compressfunc_sha1_ci(uint32_t H[5], uint32_t const *restrict M)
 {
     // Working Variables.
     uint32_t a, b, c, d, e, T, W[16];
@@ -80,7 +80,7 @@ static const uint32_t K_sha256[] = {
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 };
 
-void compressfunc_sha256(uint32_t H[8], uint32_t const *restrict M)
+void compressfunc_sha256_ci(uint32_t H[8], uint32_t const *restrict M)
 {
 #define Sigma0(x) ( ROTR(x,2) ^ ROTR(x,13) ^ ROTR(x,22) )
 #define Sigma1(x) ( ROTR(x,6) ^ ROTR(x,11) ^ ROTR(x,25) )
@@ -171,7 +171,7 @@ static const uint64_t K_sha512[] = {
     0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 };
 
-void compressfunc_sha512(uint64_t H[8], uint64_t const *restrict M)
+void compressfunc_sha512_ci(uint64_t H[8], uint64_t const *restrict M)
 {
 #define Sigma0(x) ( ROTR(x,28) ^ ROTR(x,34) ^ ROTR(x,39) )
 #define Sigma1(x) ( ROTR(x,14) ^ ROTR(x,18) ^ ROTR(x,41) )
