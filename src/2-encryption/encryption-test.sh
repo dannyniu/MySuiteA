@@ -49,7 +49,7 @@ gcm.c
 arch_family=defaults
 cflags=""
 srcset="Plain C"
-src="
+src="\
 1-symm/rijndael.c
 1-symm/galois128.c
 "
