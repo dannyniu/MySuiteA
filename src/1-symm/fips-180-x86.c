@@ -173,10 +173,10 @@ __m128i x86_sha256msg2(__m128i src1, __m128i src2)
 #define x86_sha1rnds4(...) _mm_sha1rnds4_epu32(__VA_ARGS__)
 #define x86_sha1nexte(...) _mm_sha1nexte_epu32(__VA_ARGS__)
 #define x86_sha1msg1(...) _mm_sha1msg1_epu32(__VA_ARGS__)
-#define x86_sha1msg2(...) _mm_sha1msg1_epu32(__VA_ARGS__)
-#define x86_sha256rnds2(...) _mm_sha256rnds2_epu(__VA_ARGS__)
-#define x86_sha256msg1(...) _mm_sha256msg1_epu(__VA_ARGS__)
-#define x86_sha256msg2(...) _mm_sha256msg2_epu(__VA_ARGS__)
+#define x86_sha1msg2(...) _mm_sha1msg2_epu32(__VA_ARGS__)
+#define x86_sha256rnds2(...) _mm_sha256rnds2_epu32(__VA_ARGS__)
+#define x86_sha256msg1(...) _mm_sha256msg1_epu32(__VA_ARGS__)
+#define x86_sha256msg2(...) _mm_sha256msg2_epu32(__VA_ARGS__)
 #endif /* TEST_WITH_MOCK */
 
 // Can't test this on QEMU-User (2022-09-10).
