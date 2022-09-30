@@ -5,19 +5,8 @@
 
 systarget=linux-gnu
 
-CodeChecker="--null--"
-if command -v CodeChecker >/dev/null ; then
-    # CodeChecker installed.
-
-    CodeChecker=CodeChecker
-
-    # 2022-05-26: add the "--ctu" option when time comes.
-    CodeCheckerOpts="\
-        --analyzers clangsa --enable-all \
-        --disable deadcode.DeadStores"
-fi
-
 cflags0="-Wall -Wextra -g -O0"
+:  ${optimize:=true}
 [ X"$optimize" = Xdebug ] && cflags0="$cflags0 -D ENABLE_HOSTED_HEADERS="
 [ X"$optimize" = Xtrue ] && cflags0="-Wall -Wextra -O"
 
@@ -35,7 +24,7 @@ cflags0="-Wall -Wextra -g -O0"
 # > corresponding -Wno- option.
 #
 
-# -- End; --
+# -- End: customizable block; --
 
 #
 # -- Begin: mirror to /tmp before testing. --
@@ -44,7 +33,10 @@ test_tmpid=UniTest_$(basename "$0" .sh)_$(date +%Y-%m-%d-%H%M%S)_$RANDOM
 path_tmpid=/tmp/$test_tmpid
 path_src="$(cd "$(dirname $unitest_sh)" ; pwd)"
 path_ref="$(cd "$path_src"/../tests ; pwd)"
+link_bin="$(cd "$path_src"/../bin ; pwd)"
 
+rm -f "$link_bin"/UniTest
+ln -s $path_tmpid "$link_bin"/UniTest
 mkdir $path_tmpid $path_tmpid/bin
 ln -s "$path_src" $path_tmpid/src
 ln -s "$path_ref" $path_tmpid/tests
@@ -66,15 +58,17 @@ test_arch_canrun()
     # output var assignments:
     # - ld
     case $arch in
+        i686) arch_abbrev=i386 ;;
         x86_64) arch_abbrev=amd64 ;;
         aarch64) arch_abbrev=arm64 ;;
         powerpc64) arch_abbrev=ppc64 ;;
+        powerpc64le) arch_abbrev=ppc64le ;;
         *) arch_abbrev=$arch
     esac
 
     if [ $sysarch = $arch ] ; then true
     elif ( . /etc/os-release >/dev/null 2>&1 &&
-               echo $ID $ID_LIKE | fgrep -q debian ) ; then
+               echo $ID $ID_LIKE | grep -F -q debian ) ; then
 
         if ! dpkg -l \
              libgcc-\*-dev-${arch_abbrev}-cross \
@@ -136,6 +130,10 @@ test_run_1arch()
     : ${cflags_common:=""}
     : ${cflags:=""}
 
+    if [ X"${want_srcset:-$srcset}" != X"$srcset" ] ||
+           [ X"${want_arch:-$arch}" != X"$arch" ]
+    then return ; fi
+
     bin=$(basename "$0" .sh)
 
     # routinal notification info.
@@ -144,7 +142,7 @@ test_run_1arch()
     if [ $sysarch = $arch ] ; then
         cflags1=""
         ld=cc
-        ld_opt=""
+        ld_opts=""
         export exec=./$bin
 
     else
@@ -155,22 +153,25 @@ test_run_1arch()
 
         cflags1="-target $arch-$systarget -isystem $UsrArchIncPath"
 
-        ld_opt="
-          -dynamic-linker
-          $UsrArchLibPath/ld-*.so
+        dyld=$(set $(find $UsrArchLibPath* -type f |
+                         grep -E '/ld([^a-zA-Z].*)?\.so(.[1-9])?$' |
+                         sort) ; echo $1)
+
+        ld_opts="\
           $UsrArchLibPath/crt[1in].o
           $UsrArchGccLibPath/crtbegin.o
           $UsrArchGccLibPath/crtend.o
           -L$UsrArchLibPath
           -L$UsrArchGccLibPath
-          -lc -lgcc -lgcc_s
-        "
+          -lc" # -lgcc -lgcc_s"
 
         qemu_arch=$arch
         qemu_opts=""
-        if [ $arch = powerpc64 ] ; then qemu_arch=ppc64 ; fi
+        if [ $arch = i686 ] ; then qemu_arch=i386 ; fi
         if [ $arch = x86_64 ] ; then qemu_opts="-cpu max" ; fi
-        export exec="qemu-$qemu_arch $qemu_opts ./$bin"
+        if [ $arch = powerpc ] ; then qemu_arch=ppc ; fi
+        if [ $arch = powerpc64 ] ; then qemu_arch=ppc64 ; fi
+        export exec="qemu-${qemu_arch} $qemu_opts $dyld ./$bin"
         export LD_LIBRARY_PATH=$UsrArchLibPath:$LD_LIBRARY_PATH
     fi
 
@@ -194,32 +195,17 @@ test_run_1arch()
     rm -f *.o *-test
     set -e
 
-    if [ X$UNITEST_STATIC_ANALYZE = Xtrue ] ; then
+    ${CC:-cc} -c -ffreestanding $cflags0 $cflags1 \
+              $cflags_common $cflags $srcfiles
 
-        if [ X"$CodeChecker" = X--null-- ] ; then
-            echo Try installing the \"CodeChecker\" pip package.
-            exit 1
-        fi
-
-        $CodeChecker log --output ../bin/report-"${arch}-${bin}".json \
-                     --build "\$CC -c -ffreestanding $cflags0 $cflags1 \
-                     $cflags_common $cflags $srcfiles"
-
-        $CodeChecker analyze $CodeCheckerOpts \
-                     ../bin/report-"${arch}-${bin}".json \
-                     --output ../bin/reports-"${arch}-${bin}"
-
-    else
-        ${CC:-cc} -c -ffreestanding $cflags0 $cflags1 \
-                  $cflags_common $cflags $srcfiles
-    fi
-
-    $ld $ld_opt $ldflags $objfiles -o $bin
+    $ld $ld_opts $objfiles -o $bin
     set +e
 
-    if testfunc
-    then printf '\033[42;33m%s\033[0m\n' passing ; true
-    else printf '\033[41;34m%s\033[0m\n' failing ; false
+    if [ X"$build_only" != Xyes ] ; then
+        if testfunc
+        then printf '\033[42;33m%s\033[0m\n' passing ; true
+        else printf '\033[41;34m%s\033[0m\n' failing ; false
+        fi
     fi
 
     #rm $objfiles $bin
@@ -249,7 +235,18 @@ tests_run()
 {
     case $arch_family in
         defaults)
-            ( arch=x86_64
+            # 2022-09-30:
+            # The default set was:
+            # x86_64, aarch64, powerpc64, and sparc64.
+            # The sparc64 architecture is having segfault which I have
+            # little resource to debug, and is being removed. The other
+            # major reason to change the default set of architectures is
+            # to ensure the completeness of test coverage, on both big-
+            # and little- endian and 32- and 64- bit architectures.
+            # Therefore, the default set now is:
+            # i686, aarch64, powerpc, and powerpc64.
+            
+            ( arch=i686
               if test_arch_canrun
               then test_run_1arch
               fi )
@@ -261,13 +258,13 @@ tests_run()
               fi )
             if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
-            ( arch=powerpc64
+            ( arch=powerpc
               if test_arch_canrun
               then test_run_1arch
               fi )
             if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
-            ( arch=sparc64
+            ( arch=powerpc64
               if test_arch_canrun
               then test_run_1arch
               fi )
@@ -289,6 +286,28 @@ tests_run()
 
         arm)
             ( arch=aarch64
+              if test_arch_canrun
+              then test_run_1arch
+              fi )
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
+            ;;
+
+        ppc)
+            ( arch=powerpc64
+              if test_arch_canrun
+              then test_run_1arch
+              fi )
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
+
+            ( arch=powerpc64le
+              if test_arch_canrun
+              then test_run_1arch
+              fi )
+            if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
+            ;;
+
+        +*)
+            ( arch=${arch_family#+}
               if test_arch_canrun
               then test_run_1arch
               fi )
