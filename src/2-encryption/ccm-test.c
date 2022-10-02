@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     Bc.info = bc, Bc.param = NULL;
 
     vname = argv[2];
-    printf("%s\n", vname);
+    // printf("%s\n", vname);
     freopen(argv[2], "r", stdin);
 
     while( fgets(line, sizeof(line), stdin) )
@@ -194,6 +194,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("%ld tested %ld fail(s).\n", tested, fails);
+    // printf("%ld tested %ld fail(s).\n", tested, fails);
     return vflushed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

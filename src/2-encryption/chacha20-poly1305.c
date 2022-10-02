@@ -30,7 +30,7 @@ void *ChaCha_AEAD_Encrypt(
     // https://www.rfc-editor.org/rfc/rfc8439.html#section-2.8
     if( ivlen != 12 ||
         // alen > UINT64_MAX || // essentially impossible to exceed.
-        len >= (uint64_t)1 << 38 )
+        (uintmax_t)len >= (uint64_t)1 << 38 )
         return NULL;
 
     chacha20_set_state(x->state, NULL, iv);
@@ -83,7 +83,7 @@ void *ChaCha_AEAD_Decrypt(
     // https://www.rfc-editor.org/rfc/rfc8439.html#section-2.8
     if( ivlen != 12 ||
         // alen > UINT64_MAX || // essentially impossible to exceed.
-        len >= (uint64_t)1 << 38 )
+        (uintmax_t)len >= (uint64_t)1 << 38 )
         return NULL;
 
     chacha20_set_state(x->state, NULL, iv);

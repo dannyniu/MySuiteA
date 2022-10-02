@@ -69,3 +69,10 @@ srcset="ARM NEON Crypto"
 src="1-symm/rijndael-arm.c 1-symm/galois128-arm.c"
 
 tests_run
+
+arch_family=ppc
+cflags="-mcpu=power8 -D NI_AES=NI_ALWAYS -D NI_GALOIS128=NI_ALWAYS"
+srcset="PowerPC AltiVec Crypto"
+src="1-symm/rijndael-ppc.c 1-symm/galois128-ppc.c"
+
+tests_run

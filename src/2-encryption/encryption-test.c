@@ -5,7 +5,7 @@
 #include "../test-utils.c.h"
 
 static char line[128], word[128];
-static uint8_t k[32], iv[12], a[32], p[1024], c[1024], s[16], t[16], x[1024];
+static uint8_t k[32], iv[16], a[32], p[1024], c[1024], s[16], t[16], x[1024];
 static size_t len, alen;
 
 static gcm_aes256_t gcm;

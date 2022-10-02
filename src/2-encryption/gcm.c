@@ -30,8 +30,8 @@ void *GCM_Encrypt(gcm_t *restrict gcm,
     // values taken from
     // https://www.rfc-editor.org/rfc/rfc5116.html#section-5.3
     if( ivlen != 12 ||
-        alen >= (uint64_t)1 << 61 ||
-        len >= ((uint64_t)1 << 36) - 31 )
+        (uintmax_t)alen >= (uint64_t)1 << 61 ||
+        (uintmax_t)len >= ((uint64_t)1 << 36) - 31 )
         return NULL;
 
     // Prepare J0.
@@ -100,8 +100,8 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     // values taken from
     // https://www.rfc-editor.org/rfc/rfc5116.html#section-5.3
     if( ivlen != 12 ||
-        alen >= (uint64_t)1 << 61 ||
-        len >= ((uint64_t)1 << 36) - 31 )
+        (uintmax_t)alen >= (uint64_t)1 << 61 ||
+        (uintmax_t)len >= ((uint64_t)1 << 36) - 31 )
         return NULL;
 
     // Prepare J0.
