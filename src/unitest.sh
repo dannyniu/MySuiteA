@@ -62,7 +62,7 @@ test_arch_canrun()
         x86_64) arch_abbrev=amd64 ;;
         aarch64) arch_abbrev=arm64 ;;
         powerpc64) arch_abbrev=ppc64 ;;
-        powerpc64le) arch_abbrev=ppc64le ;;
+        powerpc64le) arch_abbrev=ppc64el ;;
         *) arch_abbrev=$arch
     esac
 
@@ -82,9 +82,12 @@ test_arch_canrun()
         then
             ld=ld.lld
 
-            if [ $arch = powerpc64 ] ||
-                   [ $arch = sparc64 ]
+            if # lld happens to support 32-bit powerpc.
+                [ $arch = powerpc64 ] ||
+                    [ $arch = sparc64 ] ||
+                    [ $arch = riscv64 ] # having a bit of trouble (2022-10-02).
             then
+                
                 echo "$arch unsupported by $($ld --version)"
                 false
 
@@ -163,7 +166,7 @@ test_run_1arch()
           $UsrArchGccLibPath/crtend.o
           -L$UsrArchLibPath
           -L$UsrArchGccLibPath
-          -lc" # -lgcc -lgcc_s"
+          -lc"
 
         qemu_arch=$arch
         qemu_opts=""
@@ -171,6 +174,7 @@ test_run_1arch()
         if [ $arch = x86_64 ] ; then qemu_opts="-cpu max" ; fi
         if [ $arch = powerpc ] ; then qemu_arch=ppc ; fi
         if [ $arch = powerpc64 ] ; then qemu_arch=ppc64 ; fi
+        if [ $arch = powerpc64le ] ; then qemu_arch=ppc64le ; fi
         export exec="qemu-${qemu_arch} $qemu_opts $dyld ./$bin"
         export LD_LIBRARY_PATH=$UsrArchLibPath:$LD_LIBRARY_PATH
     fi
