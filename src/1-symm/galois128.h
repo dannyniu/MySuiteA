@@ -13,7 +13,7 @@ void galois128_hash1block_ni(
     void const *restrict H, // Hashing Key.
     void const *restrict X); // message block.
 
-#if !defined(NI_GALOIS128) || NI_AES == NI_NEVER
+#if !defined(NI_GALOIS128) || NI_GALOIS128 == NI_NEVER
 #define galois128_hash1block galois128_hash1block_ci
 
 #elif NI_GALOIS128 == NI_ALWAYS
