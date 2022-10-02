@@ -61,7 +61,9 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
 
     for(i=1; i<=q; i++)
     {
-        B[i+ivlen] = len >> (q - i) * 8;
+        // 2022-10-02: ``len'' needed a cast on 32-bit platforms
+        // to avoid undefined behavior with right shifting.
+        B[i+ivlen] = (uint64_t)len >> (q - i) * 8;
     }
 
     ccm->enc(B, Y, kschd);
@@ -97,7 +99,7 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
     else
     {
         B[0] = 0xFF;
-        B[1] = 0xFE;
+        B[1] = 0xFF; // didn't notice until 2022-10-02.
         B[2] = (uint64_t)alen >> 56;
         B[3] = (uint64_t)alen >> 48;
         B[4] = (uint64_t)alen >> 40;
@@ -160,7 +162,7 @@ void *CCM_Encrypt(ccm_t *restrict ccm,
         for(i=0; i<16; i++) B[i] ^= Y[i];
         ccm->enc(B, Y, kschd);
         vzero(B);
-        // j = 0; // 2022-05-23: commented out to shut up the linter.
+        // j = 0; // 2022-05-23: commented out to shut the linter up.
     }
 
     for(j=16; --j>ivlen; ) Ctr[j] = 0;
@@ -224,7 +226,9 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
 
     for(i=1; i<=q; i++)
     {
-        B[i+ivlen] = len >> (q - i) * 8;
+        // 2022-10-02: ``len'' needed a cast on 32-bit platforms
+        // to avoid undefined behavior with right shifting.
+        B[i+ivlen] = (uint64_t)len >> (q - i) * 8;
     }
 
     ccm->enc(B, Y, kschd);
@@ -260,7 +264,7 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
     else
     {
         B[0] = 0xFF;
-        B[1] = 0xFE;
+        B[1] = 0xFF; // didn't notice until 2022-10-02.
         B[2] = (uint64_t)alen >> 56;
         B[3] = (uint64_t)alen >> 48;
         B[4] = (uint64_t)alen >> 40;
@@ -323,7 +327,7 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
         for(i=0; i<16; i++) B[i] ^= Y[i];
         ccm->enc(B, Y, kschd);
         vzero(B);
-        // j = 0; // 2022-05-23: commented out to shut up the linter.
+        // j = 0; // 2022-05-23: commented out to shut the linter up.
     }
 
     for(j=16; --j>ivlen; ) Ctr[j] = 0;
