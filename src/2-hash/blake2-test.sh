@@ -3,7 +3,12 @@
 if ! command -v python3 >/dev/null ; then
     echo "Cannot invoke python3. (Not installed?)"
     exit 1;
-elif [ $(expr "$(python3 --version 2>&1)" '>=' "Python 3.6") != 1 ] ; then
+elif
+    pyver="$(python3 --version 2>&1)"
+    pyver="${pyver#Python 3.}"
+    pyver="${pyver%%.*}"
+    [ $(expr "$pyver" '>=' 6) != 1 ]
+then
     echo "Python version too old, (3.6 or newer required)" # Assumes CPython.
     exit 1;
 fi
