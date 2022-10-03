@@ -46,4 +46,4 @@ gcm.c
 0-datum/endian.c
 "
 
-. ../1-symm/aes-cipher-variants.sh.inc
+. ../1-symm/aes-cipher-variants.sh.inc # rijndael
