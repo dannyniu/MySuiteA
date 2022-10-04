@@ -4,7 +4,10 @@ testfunc() {
     e=0
     for b in 128 ; do
         for f in ../tests/KAT_SM4/ECB*${b}.rsp ; do
-            if ! $exec $b < $f ; then e=$((e+1)) ; echo fail: $b ; fi
+            exec1="$exec"
+            if [ "$srcset" = "ARMv8.4-A Crypto Extensions" ]
+            then exec1="qemu-aarch64 $exec" ; fi
+            if ! $exec1 $b < $f ; then e=$((e+1)) ; echo fail: $b ; fi
         done
     done
     echo "$e set(s) of test vectors failed."
@@ -24,5 +27,12 @@ arch_family=defaults
 cflags=""
 srcset="Plain C"
 src="sm4.c"
+
+tests_run
+
+arch_family=arm
+cflags="-march=armv8-a+crypto+sm4 -D NI_SM4=NI_ALWAYS"
+srcset="ARMv8.4-A Crypto Extensions"
+src="sm4-arm.c"
 
 tests_run
