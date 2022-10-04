@@ -8,14 +8,19 @@ void SM3_Update(sm3_t *restrict x, void const *restrict data, size_t len)
 {
     const uint8_t *ptr = data;
 
+    void (*compressfunc)(
+        uint32_t H[8],
+        uint32_t const *restrict M) =
+        compressfunc_sm3;
+
     // Msg must not be full when this loop enters.
-    while(len)
+    while( len )
     {
         x->Msg8[x->filled++] = *ptr++;
         len--;
 
         if( x->filled == sizeof(x->Msg8) ) {
-            compressfunc_sm3(x->H, x->Msg32);
+            compressfunc(x->H, x->Msg32);
             x->filled = 0;
         }
     }
@@ -26,6 +31,12 @@ void SM3_Update(sm3_t *restrict x, void const *restrict data, size_t len)
 static void sm3_final(sm3_t *restrict x)
 {
     int i;
+
+    void (*compressfunc)(
+        uint32_t H[8],
+        uint32_t const *restrict M) =
+        compressfunc_sm3;
+
     if( x->finalized ) return;
 
     if( x->filled / sizeof(uint32_t) >= 14 )
@@ -33,7 +44,7 @@ static void sm3_final(sm3_t *restrict x)
         x->Msg8[x->filled++] = 0x80;
         while( x->filled < sizeof(x->Msg8) )
             x->Msg8[x->filled++] = 0;
-        compressfunc_sm3(x->H, x->Msg32);
+        compressfunc(x->H, x->Msg32);
         x->filled = 0;
 
         while( x->filled < sizeof(x->Msg8) )
@@ -50,7 +61,7 @@ static void sm3_final(sm3_t *restrict x)
 
     x->Msg32[14] = htobe32((uint32_t)(x->len >> 32));
     x->Msg32[15] = htobe32((uint32_t)(x->len));
-    compressfunc_sm3(x->H, x->Msg32);
+    compressfunc(x->H, x->Msg32);
     for(i=0; i<8; i++)
         x->Msg32[i] = htobe32(x->H[i]);
     x->finalized = true;
