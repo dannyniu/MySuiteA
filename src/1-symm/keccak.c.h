@@ -177,7 +177,7 @@ static inline int iota(keccak_state_t A, int lfsr)
 }
 
 // Intentionally not restrict-qualified.
-void glue(KeccakP_InstName,_Permute)(void const *in, void *out, int rounds)
+void glue(KeccakP_InstName,_Permute_ci)(void const *in, void *out, int rounds)
 {
     keccak_word_t const *cptr;
     keccak_word_t *ptr;
@@ -203,7 +203,11 @@ void glue(KeccakP_InstName,_Permute)(void const *in, void *out, int rounds)
 // Intentionally not restrict-qualified.
 void glue(KeccakF_InstName,_Permute)(void const *in, void *out)
 {
-    glue(KeccakP_InstName,_Permute)(in, out, 24);
+#if Keccak_StateSize == 1600
+    KeccakP1600_Permute(in, out, 24);
+#else
+    glue(KeccakP_InstName,_Permute_ci)(in, out, 24);
+#endif /* w == 64 */
 }
 
 IntPtr glue(i,KeccakF_InstName)(int q){ return glue(x,KeccakF_InstName)(q); }

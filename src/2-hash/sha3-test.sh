@@ -77,8 +77,4 @@ sha3.c
 0-datum/endian.c
 "
 
-arch_family=defaults
-src="1-symm/keccak-f-1600.c"
-srcset="Plain C"
-
-tests_run
+. ../1-symm/keccak-variants.sh.inc

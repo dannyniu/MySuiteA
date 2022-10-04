@@ -28,7 +28,7 @@ testfunc() {
         randblob $mlen > mac-test-data
 
         ../src/2-mac/hmac-test.py $algo < mac-test-data > mac-test-ref &
-        $exec $algo < mac-test-data > mac-test-result &
+        $exec $algo < mac-test-data > mac-test-result #&
         wait
 
         if [ "$(cat mac-test-ref)" = "$(cat mac-test-result)" ] ; then

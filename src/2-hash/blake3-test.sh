@@ -13,7 +13,6 @@ then
     exit 1;
 fi
 
-debug=true
 testfunc() {
     rm -f failed-*.dat success-*.dat
     n=0

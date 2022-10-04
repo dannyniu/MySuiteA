@@ -39,7 +39,6 @@ hmac.c
 2-hash/sha.c
 2-hash/sha3.c
 1-symm/sponge.c
-1-symm/keccak-f-1600.c
 0-datum/endian.c
 "
 

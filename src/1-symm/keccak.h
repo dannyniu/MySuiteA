@@ -5,7 +5,8 @@
 
 #include "../mysuitea-common.h"
 
-void KeccakP1600_Permute(void const *in, void *out, int rounds);
+void KeccakP1600_Permute_ci(void const *in, void *out, int rounds);
+void KeccakP1600_Permute_ni(void const *in, void *out, int rounds);
 void KeccakF1600_Permute(void const *in, void *out);
 
 #define cKeccakF(b,q) ( q==blockBytes ? b/8 : 0 )
@@ -16,7 +17,22 @@ void KeccakF1600_Permute(void const *in, void *out);
 
 #define cKeccakF1600(q) cKeccakF(1600,q)
 #define xKeccakF1600(q) xKeccakF(1600,q)
-
 IntPtr iKeccakF1600(int q);
+
+#if !defined(NI_KECCAK) || NI_KECCAK == NI_NEVER
+#define KeccakP1600_Permute KeccakP1600_Permute_ci
+
+#elif NI_KECCAK == NI_ALWAYS
+#define KeccakP1600_Permute KeccakP1600_Permute_ni
+
+#elif NI_KECCAK == NI_RUNTIME
+extern int extern_ni_keccak_conf;
+#define ni_keccak_conf extern_ni_keccak_conf;
+
+#define KeccakP1600_Permute                  \
+    ( ni_keccak_conf ?                       \
+      KeccakP1600_Permute_ni :               \
+      KeccakP1600_Permute_ci )
+#endif /* NI_KECCAK */
 
 #endif /* MySuiteA_keccak_h */
