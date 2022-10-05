@@ -12,7 +12,8 @@ export want_srcset want_arch build_only
 
 CheckerOpts="\
 --analyzers clangsa --enable-all \
---disable deadcode.DeadStores"
+--disable deadcode.DeadStores
+--disable security.insecureAPI.DeprecatedOrUnsafeBufferHandling"
 
 if ! grep -q "srcset=.*$want_srcset" "$1" ; then
     echo
@@ -24,7 +25,7 @@ if ! grep -q "srcset=.*$want_srcset" "$1" ; then
 fi
 
 bin_path="$(dirname "$0")"/../bin
-reports="$bin_path"/reports
+reports="$bin_path"/reports_"$(basename $1 .sh)"
 
 CodeChecker check --build "$*" --output "$reports" --clean $CheckerOpts
 CodeChecker parse --export html --output "$reports"_html "$reports"
