@@ -62,6 +62,8 @@ typedef struct {
 
 void BLAKE3_Init(blake3_t *x);
 
+blake3_t *BLAKE3_KInit(blake3_t *x, const void *k, size_t klen);
+
 void BLAKE3_Update4(
     blake3_t *restrict x,
     void const *restrict dat,
@@ -84,6 +86,7 @@ void BLAKE3_Read4(
 
 #define xBLAKE3(q) (                                    \
         q==InitFunc    ? (IntPtr)BLAKE3_Init :          \
+        q==KInitFunc   ? (IntPtr)BLAKE3_KInit :         \
         q==Update4Func ? (IntPtr)BLAKE3_Update4 :       \
         q==Final2Func  ? (IntPtr)BLAKE3_Final2 :        \
         q==Read4Func   ? (IntPtr)BLAKE3_Read4 :         \

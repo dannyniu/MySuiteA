@@ -19,6 +19,12 @@ testfunc() {
     testvec=testblob.dat
     mcnt=0;
     mmax=17
+
+    export exec1="$exec"
+    if [ "$(uname -sm)" != "Darwin arm64" ] &&
+           [ "$srcset" = "ARMv8.4-A Crypto Extensions" ]
+    then export exec1="qemu-aarch64 $exec" ; fi
+    
     while [ $mcnt -lt $mmax ] ; do
         mlen=$(shortrand)
         rm -f $testvec
@@ -26,8 +32,8 @@ testfunc() {
 
         for b in 224 256 384 512; do
             ../src/2-hash/shasum.py sha3_$b < $testvec > hash-ref.dat &
-            $exec xSHA3_$b < $testvec > hash-res.dat &
-            $exec iSHA3_$b < $testvec > hash-ret.dat &
+            $exec1 xSHA3_$b < $testvec > hash-res.dat &
+            $exec1 iSHA3_$b < $testvec > hash-ret.dat &
             wait
 
             for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done
@@ -41,8 +47,8 @@ testfunc() {
 
         for b in 128 256; do
             ../src/2-hash/shakesum.py shake_$b < $testvec > hash-ref.dat &
-            $exec xSHA3_${b}000 < $testvec > hash-res.dat &
-            $exec iSHA3_${b}000 < $testvec > hash-ret.dat &
+            $exec1 xSHA3_${b}000 < $testvec > hash-res.dat &
+            $exec1 iSHA3_${b}000 < $testvec > hash-ret.dat &
             wait
 
             for i in ref res ret ; do eval "$i=\$(cat hash-$i.dat)" ; done

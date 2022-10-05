@@ -9,7 +9,7 @@ for mlen in (23**i for i in range(5)):
         m = secrets.token_bytes(mlen)
         c = secrets.token_bytes(clen)
         p = subprocess.Popen(
-            re.split(r'\s+', os.getenv("exec"))+[str(mlen)],
+            re.split(r'\s+', os.getenv("exec1"))+[str(mlen)],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         ref = M14.MarsupilamiFourteen(m, c, 256)
         p.stdin.write(m);

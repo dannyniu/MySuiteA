@@ -84,7 +84,6 @@ unitest_sh=../unitest.sh
 src="\
 kblake2-test.c
 2-hash/blake2.c
-1-symm/chacha.c
 0-datum/endian.c
 "
 

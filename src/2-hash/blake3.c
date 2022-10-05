@@ -49,6 +49,29 @@ void BLAKE3_Init(blake3_t *x)
     }
 }
 
+blake3_t *BLAKE3_KInit(blake3_t *x, const void *k, size_t klen)
+{
+    int i;
+
+    if( klen != 32 ) return NULL;
+
+    for(i=0; i<32; i++) x->k.u8[i] = ((uint8_t *)k)[i];
+
+    x->t = 0;
+    x->keyed = true;
+    x->finalize = false;
+    x->leaves_filled = 0;
+    x->branches_filled = 0;
+
+    for(i=0; i<BLAKE3_NODES_COUNT; i++)
+    {
+        x->nind[i] = i;
+        init1node(x->nodes+i, i);
+    }
+
+    return x;
+}
+
 #define msg(i) ( m ? m[s[i]] : 0 )
 
 static inline void
@@ -113,6 +136,12 @@ static void hash1node(blake3_t *restrict x, blake3_node_t *restrict node)
         IV4, IV5, IV6, IV7,
     };
     long t;
+
+    if( x->keyed )
+    {
+        for(t=0; t<8; t++)
+            h[t] = le32toh(x->k.u32[t]);
+    }
 
     for(t=0; t<16; t++)
     {
@@ -185,7 +214,7 @@ static void join2nodes(blake3_t *restrict x, int li)
     }
 
     node1->t = 0;
-    node1->d = 0;
+    node1->d = x->keyed ? KEYED_HASH : 0; // was: node1->d = 0;
     node1->remain = 64;
     node1->hashed = false;
     node1->height ++;
