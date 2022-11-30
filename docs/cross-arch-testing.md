@@ -5,16 +5,13 @@ The master testing control script performs cross-architecture testing
 when run on the Debian or Ubuntu Linux distribution with certain packages
 installed. Such testing ensures the correctness of the subject code on
 different architectures, and ABIs, and most importantly, endianness. 
-Currently, 4 architectures are tested: 
+Currently, 3 architecture families are tested: 
 
-- x86-32 i686
-- ARMv8 AArch64
-- PowerPC (32-bit)
-- PowerPC64 (64-bit)
+- x86, 32-bit: i686, 64-bit: x86_64
+- ARM, 64-bit: AArch64
+- PowerPC, 32-bit, and 64-bit
 
-of which, x86-32 and ARM are little-endian, and PowerPC and PowerPC64
-are big-endian; x86-32 and PowerPC are 32-bit, and AArch64 and PowerPC64
-are 64-bit.
+of which, x86 and ARM are little-endian, and PowerPC is big-endian.
 
 Previously, there was the SPARC64 target. Testing on recent version of Debian
 show this architecture being broken and no longer a suitable test target.
@@ -22,7 +19,7 @@ show this architecture being broken and no longer a suitable test target.
 Additionally, 64-bit RISC-V is added as an explorational optimization target.
 Its installation is recommended.
 
-(1) How to Setup for Cross-Architecture Testing on Debian and Ubuntu
+I. How to Setup for Cross-Architecture Testing on Debian and Ubuntu
 ===================================================================
 
 Prerequisites
@@ -57,22 +54,28 @@ Finally, we need the linker used for producing the test executable program,
 and the standard libraries to link the program with.
 
 If you're on an x86 computer, then these all can be installed from the
-`gcc-{i686,aarch64,riscv,powerpc,powerpc64}-linux-gnu` package. 
+`gcc-${archs}-linux-gnu` packages, where `${archs}` is (one or some of):
+
+> `{i686,x86_64,aarch64,riscv64,powerpc,powerpc64}`
+
 However, there's some quirk on other architectures.
 
 The `gcc-*` master packages we just mentioned installs some real dependencies,
 including the `binutils-*` cross linkers, and `libgcc-*` standard libraries.
 The full package names for `binutils-*` is:
 
-> `binutils-{i686,aarch64,riscv64,powerpc,powerpc64}-linux-gnu`
+> `binutils-${archs}-linux-gnu`
 
 The full package name for `libgcc-*` is:
 
-> `libgcc-<ver>-{i686,aarch64,riscv64,powerpc,powerpc64}-cross`
+> `libgcc-<ver>-${archs_abbrev}-cross`
 
 Where `<ver>` is the version of GCC available to you. Any version should do,
-and normally, the latest one is to be chosen.
+and normally, the latest one is to be chosen. And `${archs_abbrev} is 
+(one or some of):
+
+> {i386,amd64,arm64,riscv64,powerpc,ppc64}
 
 By the way, there's the LLVM LLD linker, which can work for the little-endian
-x86 and ARM architectures (but not the big-endian PowerPC64 and SPARC64
-architectures).
+x86 and ARM, and 32-bit PowerPC architectures (but not the big-endian PowerPC64
+and SPARC64 architectures).

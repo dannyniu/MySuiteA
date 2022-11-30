@@ -248,7 +248,7 @@ tests_run()
             # to ensure the completeness of test coverage, on both big-
             # and little- endian and 32- and 64- bit architectures.
             # Therefore, the default set now is:
-            # i686, aarch64, powerpc, and powerpc64.
+            # i686, x86_64, aarch64, powerpc, and powerpc64.
             
             ( arch=i686
               if test_arch_canrun
@@ -256,8 +256,8 @@ tests_run()
               fi )
             if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
-            ( arch=aarch64
-              if test_arch_canrun
+            ( if { : ; arch=aarch64 ; test_arch_canrun ; } ||
+                     { arch=x86_64  ; test_arch_canrun ; }
               then test_run_1arch
               fi )
             if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
