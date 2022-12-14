@@ -33,11 +33,11 @@ test_tmpid=UniTest_$(basename "$0" .sh)_$(date +%Y-%m-%d-%H%M%S)_$RANDOM
 path_tmpid=/tmp/$test_tmpid
 path_src="$(cd "$(dirname $unitest_sh)" ; pwd)"
 path_ref="$(cd "$path_src"/../tests ; pwd)"
-link_bin="$(cd "$path_src"/../bin ; pwd)"
+link_auto="$(cd "$path_src"/../auto ; pwd)"
 
-rm -f "$link_bin"/UniTest
-ln -s $path_tmpid "$link_bin"/UniTest
-mkdir $path_tmpid $path_tmpid/bin
+rm -f "$link_auto"/UniTest
+ln -s $path_tmpid "$link_auto"/UniTest
+mkdir $path_tmpid $path_tmpid/auto
 ln -s "$path_src" $path_tmpid/src
 ln -s "$path_ref" $path_tmpid/tests
 cd $path_tmpid/src/"${PWD#$path_src}"
@@ -195,7 +195,7 @@ test_run_1arch()
         fi ; objfiles="$objfiles ${b%.*}.o"
     done
 
-    cd "$(dirname $unitest_sh)"/../bin
+    cd "$(dirname $unitest_sh)"/../auto
     rm -f *.o *-test
     set -e
 
