@@ -7,7 +7,6 @@ systarget=linux-gnu
 
 cflags0="-Wall -Wextra -g -O0"
 :  ${optimize:=true}
-[ X"$optimize" = Xdebug ] && cflags0="$cflags0 -D ENABLE_HOSTED_HEADERS="
 [ X"$optimize" = Xtrue ] && cflags0="-Wall -Wextra -O"
 
 # Note 2020-02-18 regarding removal of "-Weverything" option:
@@ -23,6 +22,8 @@ cflags0="-Wall -Wextra -g -O0"
 # > they find or explicitly disabling that diagnostic with its
 # > corresponding -Wno- option.
 #
+
+. "$(dirname $unitest_sh)"/uniconf.sh.inc
 
 # -- End: customizable block; --
 
@@ -199,7 +200,7 @@ test_run_1arch()
     rm -f *.o *-test
     set -e
 
-    ${CC:-cc} -c -ffreestanding $cflags0 $cflags1 \
+    ${CC:-cc} -c $cflags_proj $cflags0 $cflags1 \
               $cflags_common $cflags $srcfiles
 
     $ld $ld_opts $objfiles -o $bin
