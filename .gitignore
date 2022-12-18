@@ -57,3 +57,6 @@ dkms.conf
 
 # 2021-10-04 Additions: Python test submodules cache
 __pycache__
+
+# 2022-12-18 Additions: Makefile includes.
+inc-dep.mk

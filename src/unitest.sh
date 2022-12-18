@@ -133,6 +133,8 @@ test_run_1arch()
     : ${arch:?Variable unspecified: arch}
     : ${cflags_common:=""}
     : ${cflags:=""}
+    : ${ldflags_common:=""}
+    : ${ldflags:=""}
 
     if [ X"${want_srcset:-$srcset}" != X"$srcset" ] ||
            [ X"${want_arch:-$arch}" != X"$arch" ]
@@ -203,7 +205,7 @@ test_run_1arch()
     ${CC:-cc} -c $cflags_proj $cflags0 $cflags1 \
               $cflags_common $cflags $srcfiles
 
-    $ld $ld_opts $objfiles -o $bin
+    $ld $ld_opts $ldflags_common $ldflags $objfiles -o $bin
     set +e
 
     if [ X"$build_only" != Xyes ] ; then
