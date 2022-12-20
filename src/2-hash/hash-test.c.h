@@ -25,12 +25,20 @@ static unsigned char buf[4096];
 #error The hash function query object ``h'' is not defined!
 #endif /* h */
 
+#ifdef THREADS_CREW_H
+static TCrew_t tcrew_shared;
+#endif /* THREADS_CREW_H */
+
 void glue(hash_test_,h)(void)
 {
     size_t in_len = 0;
     void *x = NULL;
 
     mysrand((unsigned long)time(NULL));
+
+#ifdef THREADS_CREW_H
+    TCrew_Init(&tcrew_shared);
+#endif /* THREADS_CREW_H */
 
     x = malloc(CTX_BYTES(h));
     INIT_FUNC(h)(x);
@@ -45,4 +53,8 @@ void glue(hash_test_,h)(void)
     x = NULL;
 
     for(int i=0; i<OUT_BYTES(h); i++) printf("%02x", buf[i]);
+
+#ifdef THREADS_CREW_H
+    TCrew_Destroy(&tcrew_shared);
+#endif /* THREADS_CREW_H */
 }

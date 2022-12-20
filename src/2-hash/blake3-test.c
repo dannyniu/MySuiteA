@@ -1,14 +1,17 @@
 /* DannyNiu/NJF, 2022-08-29. Public Domain. */
 
 #include "blake3.h"
-#include "../1-oslib/TCrew-Stub.h"
+#include "../1-oslib/TCrew.h"
 
-void BLAKE3_Update(blake3_t *restrict x, void const *restrict data, size_t len)
-{
-    BLAKE3_Update4(x, data, len, &tcrew_stub.funcstab);
-}
+void BLAKE3_Update(
+    blake3_t *restrict x,
+    void const *restrict data,
+    size_t len);
 
-void BLAKE3_Final(blake3_t *restrict x, void *restrict out, size_t t);
+void BLAKE3_Final(
+    blake3_t *restrict x,
+    void *restrict out,
+    size_t t);
 
 #define xBLAKE3_ForTest(q) (\
         q==outBytes ? 131 :\
@@ -20,12 +23,20 @@ void BLAKE3_Final(blake3_t *restrict x, void *restrict out, size_t t);
 #define h xBLAKE3_ForTest
 #include "hash-test.c.h"
 
+void BLAKE3_Update(
+    blake3_t *restrict x,
+    void const *restrict data,
+    size_t len)
+{
+    BLAKE3_Update4(x, data, len, &tcrew_shared.funcstab);
+}
+
 void BLAKE3_Final(blake3_t *restrict x, void *restrict out, size_t t)
 {
     size_t l;
     uint8_t *ptr = out;
 
-    BLAKE3_Final2(x, &tcrew_stub.funcstab);
+    BLAKE3_Final2(x, &tcrew_shared.funcstab);
 
     while( t > 0 )
     {

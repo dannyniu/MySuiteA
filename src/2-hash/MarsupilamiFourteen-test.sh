@@ -16,6 +16,7 @@ src_common="\
 MarsupilamiFourteen-test.c
 KangarooTwelve.c
 1-symm/sponge.c
+1-oslib/TCrew.c
 1-oslib/TCrew-Stub.c
 0-datum/endian.c
 "

@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2022-08-05. Public Domain. */
 
-#ifndef THREADS_CREW_H
-#define THREADS_CREW_H 1
+#ifndef THREADS_CREW_STUB_H
+#define THREADS_CREW_STUB_H 1
 
 #include <errno.h>
 #include <stdbool.h>
@@ -23,4 +23,4 @@ int TCrew_Stub_Task_Enqueue(
 
 extern TCrew_Stub_t tcrew_stub;
 
-#endif /* THREADS_CREW_H */
+#endif /* THREADS_CREW_STUB_H */

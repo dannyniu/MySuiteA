@@ -3,7 +3,7 @@
 #include "TCrew-Stub.h"
 #include <time.h>
 
-int TCrew_Init(TCrew_Stub_t *crew)
+int TCrew_Stub_Init(TCrew_Stub_t *crew)
 {
     int ret = TCrew_RetOk;
 

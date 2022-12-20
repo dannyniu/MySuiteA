@@ -41,7 +41,6 @@ typedef struct {
 
     uint64_t t;
 
-
     // no need to explain.
     int8_t keyed;
     int8_t finalize;

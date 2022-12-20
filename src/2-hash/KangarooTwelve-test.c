@@ -2,7 +2,7 @@
 
 #define ENABLE_HOSTED_HEADERS
 #include "KangarooTwelve.h"
-#include "../1-oslib/TCrew-Stub.h"
+#include "../1-oslib/TCrew.h"
 
 #include "../test-utils.c.h"
 
@@ -106,12 +106,20 @@ uint8_t bin[HASH_LEN];
 uint8_t ref[HASH_LEN];
 uint8_t msg[256];
 
+#ifdef THREADS_CREW_H
+static TCrew_t tcrew_shared;
+#endif /* THREADS_CREW_H */
+
 int main()
 {
     int fails = 0;
 
     bufvec_t bv[2];
     long s, t;
+
+#ifdef THREADS_CREW_H
+    TCrew_Init(&tcrew_shared);
+#endif /* THREADS_CREW_H */
 
     for(t=0; t<(long)sizeof(msg); t++) msg[t] = (uint8_t)t;
 
@@ -130,13 +138,13 @@ int main()
             {
                 t = 251;
                 if( s+t > testptr->mlen ) t = testptr->mlen - s;
-                K12_Update4(&sh, msg, t, &tcrew_stub.funcstab);
+                K12_Update4(&sh, msg, t, &tcrew_shared.funcstab);
             }
         }
         else // mlen times byte 0xff
         {
             for(t=testptr->mlen; t++<0; )
-                K12_Update4(&sh, msg+255, 1, &tcrew_stub.funcstab);
+                K12_Update4(&sh, msg+255, 1, &tcrew_shared.funcstab);
         }
 
         // feed customization string. //
@@ -150,7 +158,7 @@ int main()
 
                 bv[0].dat = msg;
                 bv[0].len = t;
-                bv[1].buf = &tcrew_stub;
+                bv[1].buf = &tcrew_shared;
                 K12_Xctrl(&sh, K12_cmd_Feed_CStr, bv, 2, 0);
             }
         }
@@ -158,13 +166,13 @@ int main()
         {
             bv[0].dat = msg+255;
             bv[0].len = 1;
-            bv[1].buf = &tcrew_stub;
+            bv[1].buf = &tcrew_shared;
             for(t=testptr->mlen; t++<0; )
                 K12_Xctrl(&sh, K12_cmd_Feed_CStr, bv, 2, 0);
         }
         sh.clen = testptr->clen;
 
-        K12_Final2(&sh, &tcrew_stub.funcstab);
+        K12_Final2(&sh, &tcrew_shared.funcstab);
 
         for(s=0,t=0; s<testptr->skip; s+=t)
         {
@@ -184,6 +192,10 @@ int main()
 
         testptr++;
     }
+
+#ifdef THREADS_CREW_H
+    TCrew_Destroy(&tcrew_shared);
+#endif /* THREADS_CREW_H */
 
     if( fails ) return EXIT_FAILURE; else
     {

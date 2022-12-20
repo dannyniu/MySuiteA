@@ -48,6 +48,7 @@ unitest_sh=../unitest.sh
 src="\
 blake3-test.c
 blake3.c
+1-oslib/TCrew.c
 1-oslib/TCrew-Stub.c
 0-datum/endian.c
 "

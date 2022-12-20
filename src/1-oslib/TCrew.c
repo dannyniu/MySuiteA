@@ -13,15 +13,15 @@ TCrewThread_ExitVal_t TCrew_Thread_Loop(TCrewMember_t *self)
     do
     {
         // get task ready.
+        TCrewMutex_Lock(&self->crew->lockCrew);
         while( !self->taskproc )
         {
-            TCrewCondVar_Broadcast(&self->crew->avail);
-            TCrewMutex_Lock(&self->crew->lockCrew);
             self->busy = false;
+            TCrewCondVar_Broadcast(&self->crew->avail);
             TCrewCondVar_Wait(&self->wake, &self->crew->lockCrew);
-            // self->busy = true; // should be set by ``*_Enqueue''.
-            TCrewMutex_Unlock(&self->crew->lockCrew);
+            // ``self->busy'' should be set to 'true' by ``*_Enqueue''.
         }
+        TCrewMutex_Unlock(&self->crew->lockCrew);
 
         // execute the task.
         self->taskproc(self->taskproc_ctx);

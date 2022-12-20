@@ -2,12 +2,16 @@
 
 #define ENABLE_HOSTED_HEADERS
 #include "KangarooTwelve.h"
-#include "../1-oslib/TCrew-Stub.h"
+#include "../1-oslib/TCrew.h"
 
 #include "../test-utils.c.h"
 
 MarsupilamiFourteen_t sh;
 #define BUF_LEN 256
+
+#ifdef THREADS_CREW_H
+static TCrew_t tcrew_shared;
+#endif /* THREADS_CREW_H */
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +22,10 @@ int main(int argc, char *argv[])
 
     if( argc != 2 ) return 1;
 
+#ifdef THREADS_CREW_H
+    TCrew_Init(&tcrew_shared);
+#endif /* THREADS_CREW_H */
+
     tlen = 0;
     MarsupilamiFourteen_Init(&sh);
 
@@ -26,7 +34,7 @@ int main(int argc, char *argv[])
         rlen = BUF_LEN;
         if( rlen + tlen > msglen ) rlen = msglen - tlen;
         fread(buf, 1, rlen, stdin);
-        K12_Update4(&sh, buf, rlen, &tcrew_stub.funcstab);
+        K12_Update4(&sh, buf, rlen, &tcrew_shared.funcstab);
         tlen += rlen;
     }
 
@@ -34,13 +42,17 @@ int main(int argc, char *argv[])
     {
         bv[0].dat = buf;
         bv[0].len = fread(bv[0].buf, 1, BUF_LEN, stdin);
-        bv[1].buf = &tcrew_stub;
+        bv[1].buf = &tcrew_shared;
         K12_Xctrl(&sh, K12_cmd_Feed_CStr, bv, 2, 0);
     }
 
-    K12_Final2(&sh, &tcrew_stub.funcstab);
+    K12_Final2(&sh, &tcrew_shared.funcstab);
     K12_Read4(&sh, buf, BUF_LEN, HASHING_READ4_REWIND);
     fwrite(buf, 1, BUF_LEN, stdout);
+
+#ifdef THREADS_CREW_H
+    TCrew_Destroy(&tcrew_shared);
+#endif /* THREADS_CREW_H */
 
     return 0;
 }
