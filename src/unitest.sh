@@ -55,12 +55,11 @@ find_arch_cc()
     # - arch
     # - systarget
 
-    if #! : \
-         command -v clang >/dev/null 2>&1
+    if command -v clang >/dev/null 2>&1
     then echo "clang -target $arch-$systarget"
 
     elif command -v $arch-$systarget-gcc >/dev/null 2>&1
-    then echo "$arch-$systarget-gcc -w"
+    then echo "$arch-$systarget-gcc"
 
     fi
 }
