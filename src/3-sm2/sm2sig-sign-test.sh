@@ -2,7 +2,7 @@
 
 testfunc() {
     exec1="$exec"
-    if [ "$srcset" = "ARMv8.4-A Crypto Extensions" ]
+    if [ "$srcset" = "ARMv8.4-A Crypto Extensions" ] && [ $arch = $sysarch ]
     then exec1="qemu-aarch64 $exec" ; fi
 
     $exec1
@@ -38,7 +38,7 @@ tests_run
 # SM3 has too few test cases. Borrowing SM2-ECDSA for coverage.
 
 arch_family=arm
-cflags="-march=armv8-a+crypto+sm4 -D NI_SM3=NI_ALWAYS"
+cflags="-march=armv8.2-a+crypto+sm4 -D NI_SM3=NI_ALWAYS"
 src="1-symm-national/gbt-32905-arm.c"
 srcset="ARMv8.4-A Crypto Extensions"
 

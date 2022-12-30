@@ -22,20 +22,29 @@ int main(int argc, char *argv[])
     if( argc < 2 ) return EXIT_FAILURE;
     else
     {
-        switch( u8cc(argv[1]) )
-        {
-        case u8cc("sha1"): h = iSHA1; break;
-        case u8cc("sha224"): h = iSHA224; break;
-        case u8cc("sha256"): h = iSHA256; break;
-        case u8cc("sha384"): h = iSHA384; break;
-        case u8cc("sha512"): h = iSHA512; break;
-        case u8cc("sha3_224"): h = iSHA3_224; break;
-        case u8cc("sha3_256"): h = iSHA3_256; break;
-        case u8cc("sha3_384"): h = iSHA3_384; break;
-        case u8cc("sha3_512"): h = iSHA3_512; break;
+        struct { uint64_t hid; iCryptoObj_t obj; } htab[] = {
+            { u8cc("sha1"), iSHA1 },
+            { u8cc("sha224"), iSHA224 },
+            { u8cc("sha256"), iSHA256 },
+            { u8cc("sha384"), iSHA384 },
+            { u8cc("sha512"), iSHA512 },
+            { u8cc("sha3_224"), iSHA3_224 },
+            { u8cc("sha3_256"), iSHA3_256 },
+            { u8cc("sha3_384"), iSHA3_384 },
+            { u8cc("sha3_512"), iSHA3_512 },
+            { 0, NULL }
+        };
 
-        default: return EXIT_FAILURE; break;
+        uint64_t id = u8cc(argv[1]);
+        int i;
+
+        for(i=0; htab[i].obj; i++)
+        {
+            if( id == htab[i].hid ) break;
         }
+
+        if( !htab[i].obj ) return EXIT_FAILURE;
+        else h = htab[i].obj;
     }
 
     H.info = h, H.param = NULL;

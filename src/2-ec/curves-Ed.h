@@ -5,8 +5,8 @@
 
 #include "ecEd.h"
 
-const ecEd_curve_t *CurveEd25519;
-const ecEd_curve_t *CurveEd448;
+extern const ecEd_curve_t *CurveEd25519;
+extern const ecEd_curve_t *CurveEd448;
 
 #define cCurveEd25519(q) cCurveEd(q,256)
 #define cCurveEd448(q) cCurveEd(q,448)

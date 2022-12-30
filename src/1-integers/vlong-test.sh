@@ -12,8 +12,17 @@ src="
 vlong-test.c
 vlong.c
 "
-
-arch_family=defaults
 srcset="Plain C"
+ldflags="-lgcc -lgcc_s"
 
+arch_family=+aarch64
+tests_run
+
+arch_family=+powerpc64
+tests_run
+
+arch_family=+riscv64
+tests_run
+
+arch_family=+x86_64
 tests_run

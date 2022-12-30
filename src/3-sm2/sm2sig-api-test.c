@@ -2,7 +2,6 @@
 
 #include "sm2sig.h"
 #include "../2-ec/curveSM2.h"
-#include "../2-ec/curves-secp.h"
 #include "../2-hash/sm3.h"
 
 #define PKC_CtAlgo iSM2SIG_CtCodec

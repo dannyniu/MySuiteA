@@ -18,7 +18,6 @@ sm2sig.c
 2-ec/ecp-xyz.c
 2-ec/ecp-pubkey-codec.c
 2-ec/curveSM2.c
-2-ec/curve-secp256r1.c
 2-hash/sm3.c
 2-asn1/der-codec.c
 1-integers/vlong.c

@@ -28,6 +28,8 @@ void compressfunc_sm3_ni(uint32_t V[8], uint32_t const *restrict M)
     uint32x4_t t;
     
     uint32x4_t W[4];
+    uint64x2_t *Q;
+
     static const uint8_t tbli1[16] = {
         12, 13, 14, 15,
         16, 17, 18, 19,
@@ -45,9 +47,12 @@ void compressfunc_sm3_ni(uint32_t V[8], uint32_t const *restrict M)
 
     abcd = vld1q_u32(V + 0);
     efgh = vld1q_u32(V + 4);
-    
-    abcd = vtrn1q_u64(vtrn2q_u64(abcd, abcd), abcd);
-    efgh = vtrn1q_u64(vtrn2q_u64(efgh, efgh), efgh);
+
+    Q = &abcd;
+    *Q = vtrn1q_u64(vtrn2q_u64(*Q, *Q), *Q);
+
+    Q = &efgh;
+    *Q = vtrn1q_u64(vtrn2q_u64(*Q, *Q), *Q);
     
     abcd = vtrn1q_u32(vtrn2q_u32(abcd, abcd), abcd);
     efgh = vtrn1q_u32(vtrn2q_u32(efgh, efgh), efgh);
@@ -71,19 +76,28 @@ void compressfunc_sm3_ni(uint32_t V[8], uint32_t const *restrict M)
         CF1Rnd(3);
 
         t = vsm3partw1q_u32(
-            W[i & 3], vqtbl2q_u8(
-                (uint8x16x2_t){W[(i + 1) & 3], W[(i + 2) & 3]},
-                vld1q_u8(tbli1)
-                ),
+            W[i & 3], vreinterpretq_u32_u8(
+                vqtbl2q_u8(
+                    (uint8x16x2_t){
+                        vreinterpretq_u8_u32(W[(i + 1) & 3]),
+                        vreinterpretq_u8_u32(W[(i + 2) & 3])},
+                    vld1q_u8(tbli1)
+                    )),
             W[(i + 3) & 3]);
 
         W[i & 3] = vsm3partw2q_u32(
-            t, vqtbl2q_u8(
-                (uint8x16x2_t){W[(i + 2) & 3], W[(i + 3) & 3]},
-                vld1q_u8(tbli2) ),
-            vqtbl2q_u8(
-                (uint8x16x2_t){W[(i + 0) & 3], W[(i + 1) & 3]},
-                vld1q_u8(tbli1) )
+            t, vreinterpretq_u32_u8(
+                vqtbl2q_u8(
+                    (uint8x16x2_t){
+                        vreinterpretq_u8_u32(W[(i + 2) & 3]),
+                        vreinterpretq_u8_u32(W[(i + 3) & 3])},
+                    vld1q_u8(tbli2) )),
+            vreinterpretq_u32_u8(
+                vqtbl2q_u8(
+                    (uint8x16x2_t){
+                        vreinterpretq_u8_u32(W[(i + 0) & 3]),
+                        vreinterpretq_u8_u32(W[(i + 1) & 3])},
+                    vld1q_u8(tbli1) ))
             );
     }
 

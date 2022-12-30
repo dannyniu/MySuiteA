@@ -5,8 +5,8 @@
 #include "curves-secp.h"
 #include "ecMt.h"
 
-const ecp_imod_aux_t modp25519_aux;
-const ecp_imod_aux_t modp448_aux;
+extern const ecp_imod_aux_t modp25519_aux;
+extern const ecp_imod_aux_t modp448_aux;
 
 void printl(const vlong_t *x)
 {

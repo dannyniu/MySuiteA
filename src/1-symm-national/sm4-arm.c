@@ -9,6 +9,7 @@ static void NI_SM4Feistel(
 {
     uint32_t const *kschd = w;
     uint32x4_t X = vld1q_u32(in);
+    uint64x2_t *Q;
     unsigned i;
 
 #if !__ARM_BIG_ENDIAN
@@ -25,7 +26,8 @@ static void NI_SM4Feistel(
         if( rev )
         {
             rk = vld1q_u32(kschd + 28 - i * 4);
-            rk = vtrn1q_u64(vtrn2q_u64(rk, rk), rk);
+            Q = &rk;
+            *Q = vtrn1q_u64(vtrn2q_u64(*Q, *Q), *Q);
             rk = vtrn1q_u32(vtrn2q_u32(rk, rk), rk);
         }
         else
@@ -36,8 +38,9 @@ static void NI_SM4Feistel(
         X = vsm4eq_u32(X, rk);
     }
 
-    X = vtrn1q_u64(vtrn2q_u64(X, X), X);
-    X = vtrn1q_u32(vtrn2q_u32(X, X), X);
+    Q = &X;
+    *Q = vtrn1q_u64(vtrn2q_u64(*Q, *Q), *Q);
+    X  = vtrn1q_u32(vtrn2q_u32(X,  X),  X);
 
 #if !__ARM_BIG_ENDIAN
     X = vreinterpretq_u32_u8(

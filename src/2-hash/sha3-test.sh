@@ -22,7 +22,8 @@ testfunc() {
 
     export exec1="$exec"
     if [ "$(uname -sm)" != "Darwin arm64" ] &&
-           [ "$srcset" = "ARMv8.4-A Crypto Extensions" ]
+           [ "$srcset" = "ARMv8.4-A Crypto Extensions" ] &&
+           [ $arch = $sysarch ]
     then export exec1="qemu-aarch64 $exec" ; fi
     
     while [ $mcnt -lt $mmax ] ; do

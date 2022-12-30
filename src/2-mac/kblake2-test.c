@@ -17,19 +17,28 @@ int main(int argc, char *argv[])
     if( argc < 2 ) return EXIT_FAILURE;
     else
     {
-        switch( u4cc(argv[1]+6) )
-        {
-        case u4cc("b160"): h = ikBLAKE2b160; break;
-        case u4cc("b256"): h = ikBLAKE2b256; break;
-        case u4cc("b384"): h = ikBLAKE2b384; break;
-        case u4cc("b512"): h = ikBLAKE2b512; break;
-        case u4cc("s128"): h = ikBLAKE2s128; break;
-        case u4cc("s160"): h = ikBLAKE2s160; break;
-        case u4cc("s224"): h = ikBLAKE2s224; break;
-        case u4cc("s256"): h = ikBLAKE2s256; break;
+        struct { uint64_t hid; iCryptoObj_t obj; } htab[] = {
+            { u4cc("b160"), ikBLAKE2b160 },
+            { u4cc("b256"), ikBLAKE2b256 },
+            { u4cc("b384"), ikBLAKE2b384 },
+            { u4cc("b512"), ikBLAKE2b512 },
+            { u4cc("s128"), ikBLAKE2s128 },
+            { u4cc("s160"), ikBLAKE2s160 },
+            { u4cc("s224"), ikBLAKE2s224 },
+            { u4cc("s256"), ikBLAKE2s256 },
+            { 0, NULL }
+        };
 
-        default: return EXIT_FAILURE; break;
+        uint64_t id = u4cc(argv[1]+6);
+        int i;
+
+        for(i=0; htab[i].obj; i++)
+        {
+            if( id == htab[i].hid ) break;
         }
+
+        if( !htab[i].obj ) return EXIT_FAILURE;
+        else h = htab[i].obj;
     }
 
     kfp = fopen("mac-test-key", "rb");

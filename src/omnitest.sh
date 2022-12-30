@@ -5,7 +5,7 @@
 if [ X"$1" = X-1 ] ; then # run 1 test.
     shift
     printf '%s\n' "$1"
-    ./"$1" >../bin/"$(basename "$1" .sh)".log 2>&1
+    ./"$1" >../auto/"$(basename "$1" .sh)".log 2>&1
     exit
 fi
 
@@ -14,7 +14,7 @@ self="./$(basename "$0")"
 
 set $(find . -name \*-test.sh | sort)
 
-pvec="1 2 3 4 5 6"
+pvec="1 2 3 4 5 6 7 8"
 for pv in $pvec ; do eval "pid${pv}=ready" ; done
 
 while [ $# -gt 0 ] ; do

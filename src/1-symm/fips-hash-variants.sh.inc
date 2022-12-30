@@ -22,7 +22,7 @@ srcset="x86 SHA Extensions"
 tests_run
 
 arch_family=arm # Apple Silicons Only for now.
-cflags="-march=armv8-a+crypto+sha3"
+cflags="-march=armv8.2-a+crypto+sha3"
 cflags="$cflags -D NI_FIPS180=NI_ALWAYS -D NI_KECCAK=NI_ALWAYS"
 src="1-symm/fips-180-arm.c 1-symm/keccak-f-1600-arm.c"
 srcset="ARMv8.4-A Crypto Extensions"

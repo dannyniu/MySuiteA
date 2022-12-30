@@ -6,7 +6,7 @@ testfunc() {
     testvec=testblob.dat
 
     exec1="$exec"
-    if [ "$srcset" = "ARMv8.4-A Crypto Extensions" ]
+    if [ "$srcset" = "ARMv8.4-A Crypto Extensions" ] && [ $arch = $sysarch ]
     then exec1="qemu-aarch64 $exec" ; fi
 
     rm -f $testvec
@@ -61,7 +61,7 @@ srcset="Plain C"
 tests_run
 
 arch_family=arm
-cflags="-march=armv8-a+crypto+sm4 -D NI_SM3=NI_ALWAYS"
+cflags="-march=armv8.2-a+crypto+sm4 -D NI_SM3=NI_ALWAYS"
 src="1-symm-national/gbt-32905-arm.c"
 srcset="ARMv8.4-A Crypto Extensions"
 

@@ -114,9 +114,22 @@ ecEd_xytz_t *ecEd_point_scale_accumulate(
         VLONG_BITS_SIZE(bits) * 3,              \
     })
 
+// embedded ECED_XYTZ_HDR_INIT into ECED_XYTZ_INIT
+// in order to work around a bug in GCC 11.3.0 that
+// produced the "initializer element is not constant" error.
+
 #define ECED_XYTZ_INIT(type,bits,...)           \
     ((type){                                    \
-        .header = ECED_XYTZ_HDR_INIT(bits),     \
+        .header = {                             \
+            .offset_x = sizeof(ecEd_xytz_t) +   \
+            VLONG_BITS_SIZE(bits) * 0,          \
+            .offset_y = sizeof(ecEd_xytz_t) +   \
+            VLONG_BITS_SIZE(bits) * 1,          \
+            .offset_t = sizeof(ecEd_xytz_t) +   \
+            VLONG_BITS_SIZE(bits) * 2,          \
+            .offset_z = sizeof(ecEd_xytz_t) +   \
+            VLONG_BITS_SIZE(bits) * 3,          \
+        },                                      \
         .x.c = VLONG_BITS_WCNT(bits),           \
         .y.c = VLONG_BITS_WCNT(bits),           \
         .t.c = VLONG_BITS_WCNT(bits),           \

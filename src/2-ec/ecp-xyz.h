@@ -141,9 +141,20 @@ vlong_t *vlong_inv_mod_n_fermat(
         VLONG_BITS_SIZE(bits) * 2,              \
     })
 
+// embedded ECP_XYZ_HDR_INIT into ECP_XYZ_INIT
+// in order to work around a bug in GCC 11.3.0 that
+// produced the "initializer element is not constant" error.
+
 #define ECP_XYZ_INIT(type,bits,...)             \
     ((type){                                    \
-        .header = ECP_XYZ_HDR_INIT(bits),       \
+        .header = {                             \
+            .offset_x = sizeof(ecp_xyz_t) +     \
+            VLONG_BITS_SIZE(bits) * 0,          \
+            .offset_y = sizeof(ecp_xyz_t) +     \
+            VLONG_BITS_SIZE(bits) * 1,          \
+            .offset_z = sizeof(ecp_xyz_t) +     \
+            VLONG_BITS_SIZE(bits) * 2,          \
+        },                                      \
         .x.c = VLONG_BITS_WCNT(bits),           \
         .y.c = VLONG_BITS_WCNT(bits),           \
         .z.c = VLONG_BITS_WCNT(bits),           \

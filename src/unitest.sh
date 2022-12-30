@@ -49,6 +49,53 @@ sysarch=$(uname -m | sed s/arm64/aarch64/g)
 sysname=$(uname -s)
 hostname=$(uname -n)
 
+find_arch_cc()
+{
+    # expected arguments var:
+    # - arch
+    # - systarget
+
+    if #! : \
+         command -v clang >/dev/null 2>&1
+    then echo "clang -target $arch-$systarget"
+
+    elif command -v $arch-$systarget-gcc >/dev/null 2>&1
+    then echo "$arch-$systarget-gcc -w"
+
+    fi
+}
+
+find_arch_ld()
+{
+    # expected arguments var:
+    # - arch
+    # - systarget
+
+    if command -v $arch-$systarget-ld >/dev/null 2>&1
+    then echo $arch-$systarget-ld
+
+    elif command -v ld.lld >/dev/null 2>&1
+    then
+        case $arch in
+            powerpc64|sparc64|riscv64)
+
+                # lld happens to support 32-bit powerpc.
+                # but it's having a bit of trouble with
+                # riscv64 as of 2022-10-02.
+
+                echo "$arch unsupported by $(ld.lld --version)" >&2
+                ;;
+
+            *)
+                # assume it may work for the target, even though
+                # it's most likely not going to work.
+
+                echo ld.lld
+                ;;
+        esac
+    fi
+}
+
 test_arch_canrun()
 {
     # expected arguments vars:
@@ -57,7 +104,8 @@ test_arch_canrun()
     # - sysarch
     # - systarget
     # output var assignments:
-    # - ld
+    # - target_ld
+    # - target_cc
     case $arch in
         i686) arch_abbrev=i386 ;;
         x86_64) arch_abbrev=amd64 ;;
@@ -67,40 +115,34 @@ test_arch_canrun()
         *) arch_abbrev=$arch
     esac
 
-    if [ $sysarch = $arch ] ; then true
+    target_ld=""
+    target_cc=""
+
+    if [ $sysarch = $arch ] ; then
+        target_ld=cc
+        target_cc=cc
+
     elif ( . /etc/os-release >/dev/null 2>&1 &&
                echo $ID $ID_LIKE | grep -F -q debian ) ; then
 
-        if ! dpkg -l \
-             libgcc-\*-dev-${arch_abbrev}-cross \
-             libc6-${arch_abbrev}-cross \
-             qemu-user >/dev/null 2>&1 ; then false
+        # Debian/Ubuntu -like distributions.
 
-        elif command -v $arch-$systarget-ld >/dev/null 2>&1
-        then ld=$arch-$systarget-ld ; true
+        if dpkg -l qemu-user \
+                libgcc-\*-dev-${arch_abbrev}-cross \
+                libc6-${arch_abbrev}-cross \
+                >/dev/null 2>&1
 
-        elif command -v ld.lld >/dev/null 2>&1
         then
-            ld=ld.lld
+            target_cc=$(find_arch_cc)
+            target_ld=$(find_arch_ld)
 
-            if # lld happens to support 32-bit powerpc.
-                [ $arch = powerpc64 ] ||
-                    [ $arch = sparc64 ] ||
-                    [ $arch = riscv64 ] # having a bit of trouble (2022-10-02).
-            then
-                
-                echo "$arch unsupported by $($ld --version)"
-                false
-
-            else true ; fi
-        else false ; fi
-    else false ; fi
-
-    ret=$?
-    if [ $ret != 0 ] ; then
-        echo Skipping 1 non-native architecture test.
-        return $ret
+        fi
     fi
+
+    if [ ! "$target_cc" ] || [ ! "$target_ld" ] ; then
+        echo Skipping 1 non-native architecture test. >&2
+        false
+    else : ; fi
 }
 
 test_run_1arch()
@@ -110,7 +152,8 @@ test_run_1arch()
     # expected setups vars:
     # - sysarch
     # - systarget
-    # - cc
+    # - target_cc
+    # - target_ld
     # - cflags0
 
     # 2022-02-14: 2 notes.
@@ -147,7 +190,6 @@ test_run_1arch()
 
     if [ $sysarch = $arch ] ; then
         cflags1=""
-        ld=cc
         ld_opts=""
         export exec=./$bin
 
@@ -157,7 +199,7 @@ test_run_1arch()
         UsrArchLibPath=/usr/$arch-$systarget/lib
         UsrArchGccLibPath=$(last /usr/lib/gcc-cross/$arch-$systarget/*)
 
-        cflags1="-target $arch-$systarget -isystem $UsrArchIncPath"
+        cflags1="-isystem $UsrArchIncPath"
 
         dyld=$(set $(find $UsrArchLibPath* -type f |
                          grep -E '/ld([^a-zA-Z].*)?\.so(.[1-9])?$' |
@@ -202,10 +244,10 @@ test_run_1arch()
     rm -f *.o *-test
     set -e
 
-    ${CC:-cc} -c $cflags_proj $cflags0 $cflags1 \
+    ${CC:-$target_cc} -c $cflags_proj $cflags0 $cflags1 \
               $cflags_common $cflags $srcfiles
 
-    $ld $ld_opts $ldflags_common $ldflags $objfiles -o $bin
+    ${LD:-$target_ld} $ld_opts $ldflags_common $ldflags $objfiles -o $bin
     set +e
 
     if [ X"$build_only" != Xyes ] ; then
@@ -252,7 +294,7 @@ tests_run()
             # and little- endian and 32- and 64- bit architectures.
             # Therefore, the default set now is:
             # i686, x86_64, aarch64, powerpc, and powerpc64.
-            
+
             ( arch=i686
               if test_arch_canrun
               then test_run_1arch
