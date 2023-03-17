@@ -206,6 +206,44 @@
       construction is said to be parameterized by multiple elements.
     </p>
 
+    <h2>Facilities for Supporting Multi-Threaded Algorithms</h2>
+
+    <p>
+      Parallel and tree hashing had been an active area of research, with
+      results such as KangarooTwelve and BLAKE3 turning up. These 2 algorithms
+      are implemented in the Suite with a thin layer of hosted library support.
+    </p>
+
+    <p>
+      The model chosen for these multi-thread capable algorithms, is to
+      implement them in such way that, they can take a parallel object to
+      dispatch independent workloads to a crew of threads in a hosted
+      environment; equally, in a freestanding environment, the thread crew
+      can just be a stub that executes the workload subroutine within the
+      control flow with no benefit of any concurrency.
+    </p>
+
+    <p>
+      The thread crew is provided as a pointer to a structure which contains
+      at least 2 interfaces - an <code>enqueue</code> that dispatches the
+      workload, and a <code>wait</code> that waits for all currently dispatched
+      workloads to complete. The thread crew instances shall have structures
+      that're layout-compatible with the <code>TCrew_Abstract_t</code>
+      data type, as defined here:
+    </p>
+
+    <pre>
+      typedef void (*TCrew_Assignment_t)(void *ctx);
+
+      typedef int (*TCrew_Dispatch_t)(
+      <span class="tab"></span>void *crew, TCrew_Assignment_t func, void *ctx);
+
+      typedef struct {
+      <span class="tab"></span>TCrew_Dispatch_t enqueue;
+      <span class="tab"></span>TCrew_Dispatch_t wait;
+      } TCrew_Abstract_t;
+    </pre>
+
     <h1>MySuiteA Algorithm APIs</h1>
 
     <p>
@@ -257,6 +295,9 @@
         <th><code>_param_</code></th>
         <td><code>const CryptoParam_t *P</code></td>
       </tr>
+      <tr>
+        <th><code>_tc_</code></th>
+        <td><code>TCrew_Abstract_t *restrict tc</code>
     </table>
 
     <h2>Blockcipher</h2>
@@ -445,6 +486,59 @@
       digest/tag length of the hash/MAC function, then the output will be
       zero-extended (or truncated).
     </em></p>
+
+    <p>Additionally, for parallel and tree hashing algorithms, there are:</p>
+
+    <dl>
+      <dt><code>Update4Func</code></dt>
+      <dd>
+        The multi-threaded update function. In addition to the arguments taken
+        by the regular update function, it takes a parallel object that's
+        layout compatible with <code>TCrew_Abstract_t</code> to potentially
+        provide concurrent computation. It has the prototype
+        <code>void (*)(rbuf x, rdat data, size_t len, _tc_);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the working context,</li>
+          <li><code>data</code> the data to feed into the working context,</li>
+          <li><code>len</code> the length of the data, and</li>
+          <li><code>tc</code>
+            the thread crew that will receive the dispatched workload.</li>
+        </ul>
+      </dd>
+
+      <dt><code>Final2Func</code></dt>
+      <dd>
+        The finalization function which marks the working context as
+        finalized and perform some tail computation. It has the prototype
+        <code>void (*)(rbuf x, _tc_);</code> where
+        <ul>
+          <li><code>x</code> is the pointer to the working context,</li>
+          <li><code>tc</code>
+            the thread crew that had been used with the working context.</li>
+        </ul>
+      </dd>
+
+      <dt><code>Read4Func</code></dt>
+      <dd>
+        The reading function that copies the digest into output buffers.
+        It has prototype
+        <code>void (*)(rbuf x, rbuf data, size_t len, int flags);</code>
+        where
+        <ul>
+          <li><code>x</code> is the pointer to the working context,</li>
+          <li><code>data</code> is the pointer to the output buffer,</li>
+          <li><code>len</code> is the length of digest data to retrieve,</li>
+          <li><code>flags</code> specifies miscellaneous information.
+        </ul>
+        <p>
+          Because newer parallel and tree hashing algorithms are commonly
+          XOFs, by default, this function behaves identically to XOF's
+          <code>ReadFunc</code> when <code>flags</code> is 0. There is the flag
+          <code>HASHING_READ4_REWIND</code> that resets the reading offset
+          of the hashing context to the start, and it's currently the only flag
+          defined for <code>Read4Func</code>.
+      </dd>
+    </dl>
 
     <h2>XOF (Extendable-Output Function)</h2>
 
