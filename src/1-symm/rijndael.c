@@ -83,7 +83,7 @@ static void ShiftRows(uint8_t state[16])
 
 static void MixColumns(uint8_t state[16])
 {
-    const static uint8_t a[4] = {0x03, 0x01, 0x01, 0x02};
+    static const uint8_t a[4] = {0x03, 0x01, 0x01, 0x02};
     auto uint8_t s2[16] = {0};
     register int c, r, i;
 
@@ -135,7 +135,7 @@ static void InvSubBytes(uint8_t state[16])
 
 static void InvMixColumns(uint8_t state[16])
 {
-    const static uint8_t a[4] = {0x0b, 0x0d, 0x09, 0x0e};
+    static const uint8_t a[4] = {0x0b, 0x0d, 0x09, 0x0e};
     auto uint8_t s2[16] = {0};
     register int c, r, i;
 
