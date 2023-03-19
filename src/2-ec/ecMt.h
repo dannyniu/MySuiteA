@@ -97,7 +97,7 @@ void ecMt_opctx_init(ecMt_opctx_t *opctx, unsigned bits);
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 2 *10 | 4 * 6 | 8 * 4
+// align spec: 4 * 5 | 4 * 6 | 8 * 4
 typedef struct {
     uint32_t pbits;
     int32_t a;

@@ -47,7 +47,6 @@ cd $path_tmpid/src/"${PWD#$path_src}"
 
 sysarch=$(uname -m | sed s/arm64/aarch64/g)
 sysname=$(uname -s)
-hostname=$(uname -n)
 
 find_arch_cc()
 {

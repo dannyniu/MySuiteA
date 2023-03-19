@@ -5,7 +5,7 @@ ProductName = lib${LibraryName}
 MajorVer = 0
 MinorVer = 1
 ProductVer = ${MajorVer}.${MinorVer}
-ProductRev = ${ProductVer}.0
+ProductRev = ${ProductVer}.1
 
 FILE_EXT_ELF = so.${ProductVer}
 FILE_EXT_MACHO = ${ProductVer}.dylib
@@ -28,9 +28,6 @@ prefix = /usr/local
 exec_prefix = ${prefix}
 libdir = ${exec_prefix}/lib
 includedir  = ${prefix}/include
-
-xfercmd = if command -v tar >/dev/null ; then \
-	tar
 
 include inc-config.mk
 include objects.mk

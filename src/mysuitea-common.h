@@ -460,6 +460,10 @@ typedef void *(*XctrlFunc_t)(void *restrict x,
 #define AENC_FUNC(obj)      ((AEncFunc_t)(obj(AEncFunc)))
 #define ADEC_FUNC(obj)      ((ADecFunc_t)(obj(ADecFunc)))
 
+#define UPDATE4_FUNC(obj)   ((Update4Func_t)(obj(Update4Func)))
+#define FINAL2_FUNC(obj)    ((Final2Func_t)(obj(Final2Func)))
+#define READ4_FUNC(obj)     ((Read4Func_t)(obj(Read4Func)))
+
 #define XCTRL_FUNC(obj)         ((XctrlFunc_t)(obj(XctrlFunc)))
 #define PUB_XCTRL_FUNC(obj)     ((XctrlFunc_t)(obj(PubXctrlFunc)))
 #define PRIV_XCTRL_FUNC(obj)    ((XctrlFunc_t)(obj(PrivXctrlFunc)))

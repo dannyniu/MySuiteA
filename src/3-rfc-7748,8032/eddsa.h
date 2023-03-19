@@ -8,7 +8,7 @@
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 4 *47 | 4 *16 | 8 *27
+// align spec: 4 *47 | 4 *48 | 8 *27
 typedef struct {
     uint8_t sk[64];
     uint8_t prefix[64];

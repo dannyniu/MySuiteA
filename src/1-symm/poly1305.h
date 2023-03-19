@@ -10,11 +10,9 @@ typedef uint32_t p1305bn_t[5];
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
 // align spec:        4 * 15       .
-typedef struct
-{
+typedef struct {
     p1305bn_t   r, s, a;
-}
-poly1305_t;
+} poly1305_t;
 
 // A bit of note here.
 // poly1305_init is known to be used by ChaCha_AEAD_*
