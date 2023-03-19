@@ -59,4 +59,5 @@ dkms.conf
 __pycache__
 
 # 2022-12-18 Additions: Makefile includes.
-inc-dep.mk
+# 2023-03-18: Changed to wildcard
+inc-*.mk

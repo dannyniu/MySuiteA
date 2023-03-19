@@ -1,0 +1,120 @@
+#!/bin/sh
+
+cd "$(dirname "$0")"
+
+cc=""
+ld=""
+
+opt_cc_flag='--cc=CC'
+opt_cc_help='Specifies a C compiler to override the default.'
+opt_cc_do='cc="${arg#--cc=}"'
+
+opt_ld_flag='--ld=LD'
+opt_ld_help='Specifies a linker to override the default.'
+opt_ld_do='ld="${arg#--ld=}"'
+
+file_ext=""
+opt_file_ext_flag='--file-ext={so,dylib}'
+opt_file_ext_flag='Specifies the filename extension for DLL files.'
+opt_file_ext_do='file_ext="${arg#--file-ext=}"'
+
+dllflags=""
+dllflags_xpg8="-G"
+dllflags_apple="-dylib"
+dllflags_binutils="-shared"
+
+opt_dllflags_flag='--dllflags=DLLFLAGS'
+opt_dllflags_help='Specify flags for creating a DLL.'
+opt_dllflags_do='dllflags="${arg#--dllflags=}"'
+
+with=""
+
+opt_with_flag='--with={x86,arm,ppc}'
+opt_with_help='Specify architecture-specific additions.'
+opt_with_help='with="$(echo "${arg#--with=}" | tr [a-z] [A-Z])"'
+
+for arg ; do
+    for opt in cc ld file_ext dllflags with ; do
+        eval 'flag="${opt_'$opt'_flag}"'
+        eval 'do="${opt_'$opt'_do}"'
+        if [ X"${arg%%=*}=" = X"${flag%=*}" ] ; then
+            eval "$do"
+        fi
+    done
+done
+
+if ! [ "$cc" ] ; then cc='${CC}' ; fi
+if ! [ "$ld" ] ; then ld='${CC}' ; fi
+
+if ! [ "$file_ext" ] ; then
+    if [ "$(uname -s)" = Darwin ]
+    then file_ext=dylib
+    else file_ext=so
+    fi
+fi
+
+if ! [ "$dllflags" ] ; then
+    printf '%s\n' ".PHONY: getcc getld" > auto/configure-getcc.mk \
+           "getcc:; echo ${cc}" "getld:; echo ${ld}"
+
+    mkcc="$(make -s -f auto/configure-getcc.mk getcc)"
+    mkld="$(make -s -f auto/configure-getcc.mk getld)"
+
+    echo 'int add0(int x){ return x; }' > auto/configure-add0.c
+    "$mkcc" -c auto/configure-add0.c -o auto/configure-add0.o
+
+    for vendor in xpg8 apple binutils ; do
+        eval candflags=\"'$dllflags_'$vendor\"
+        rm -f auto/configure.${file_ext}
+
+        if "$mkld" $candflags auto/configure-add0.o \
+                   -o auto/configure.${file_ext} 2>/dev/null &&
+                [ -f auto/configure.${file_ext} ] ; then
+            dllflags="$candflags"
+            break ; fi
+
+        if [ "$candflags" = "-G" ] ; then continue ; fi
+
+        rm -f auto/configure.${file_ext}
+        candflags=""
+        eval for opt in \$dllflags_$vendor \; do \
+             candflags=\"\$candflags -Xlinker \$opt\" \; done
+
+        if "$mkld" $candflags auto/configure-add0.o \
+                   -o auto/configure.${file_ext} 2>/dev/null &&
+                [ -f auto/configure.${file_ext} ] ; then
+            dllflags="$candflags"
+            break ; fi
+    done
+
+    if ! [ "$dllflags" ] ; then
+        echo ERROR: Cannot determine flags for creating DLLs! >&2
+        exit 1
+    fi
+fi
+
+case "$file_ext" in
+    so) file_ext='so.${ProductVer}' ;;
+    dylib) file_ext='${ProductVer}.dylib' ;;
+    *) echo ERROR: Unknown filename extension: "$file_ext"! >&2; exit 1 ;;
+esac
+
+{   printf '%s\n' \
+           "FILE_EXT = $file_ext" \
+           "DLLFLAGS = $dllflags" \
+           "LD = $ld"
+
+    if [ "$cc" != '${CC}' ] ; then printf '%s\n' "CC = $cc" ; fi
+
+    if [ "$with" ] ; then
+        with="$(echo "$with" | tr [a-z] [A-Z])"
+        printf '%s\n' \
+               "OBJ_GROUP_WITH_ADDITIONAL = \\" \
+               "OBJ_GROUP_${with}_ADDITIONAL" \
+               "CFLAGS_GROUP_WITH = \\" \
+               "CFLAGS_GROUP_${with}"
+    fi
+} > inc-config.mk
+
+# 2023-03-19: not working as intended, disabled.
+# utils/gen-inc-dep.sh src > inc-dep.mk
