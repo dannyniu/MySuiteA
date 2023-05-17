@@ -90,6 +90,8 @@ void HMAC_DRBG_Generate(
         for(t = 0; t < outlen && tmplen < len; t++, tmplen++)
             buf[tmplen] = ((uint8_t *)V)[t];
     }
+
+    HMAC_DRBG_Update(x, NULL, 0); // This was missing before 2023-05-17.
 }
 
 #define cT(q) (P->param ? P->template(P->param, q) : P->info(q))

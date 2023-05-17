@@ -16,7 +16,7 @@ typedef struct gimli_xof_context {
     union {
         uint8_t     u8[48];
         uint32_t    u32[12];
-    } state;
+    } state[2]; // see 2023-05-17 note in "shake.c" for adding ``[2]''.
 } gimli_xof_t;
 
 void Gimli_XOF_Init(gimli_xof_t *restrict x);

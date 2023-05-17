@@ -7,7 +7,7 @@ void Gimli_XOF_Init(gimli_xof_t *restrict x)
 {
     *x = (gimli_xof_t){
         .sponge = SPONGE_INIT(16, 0x1f, 0x80, xGimli),
-        .state.u32 = {0},
+        .state = {0},
     };
 }
 
@@ -21,7 +21,14 @@ void Gimli_XOF_Write(
 
 void Gimli_XOF_Final(gimli_xof_t *restrict x)
 {
-    Sponge_Final(&x->sponge);
+    // See 2023-05-17 note in "shake.c".
+
+    if( !x->sponge.finalized )
+    {
+        Sponge_Final(&x->sponge);
+        Sponge_Save(&x->sponge);
+    }
+    else Sponge_Restore(&x->sponge);
 }
 
 void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len)

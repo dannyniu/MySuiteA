@@ -582,10 +582,11 @@
 
       <dt><code>XofFinalFunc</code></dt>
       <dd>
-        The finalization function which, if the working context hasn't been
+        The finalization function. If the working context hasn't been
         finalized yet, marks the working context as finalized and performs
         finalization computation to make the context ready for output being
-        read. It has the prototype
+        read. Otherwise, it resets output stream to the start.
+        It has the prototype
         <code>void (*)(rbuf x);</code> where
         <ul>
           <li><code>x</code> is the pointer to the working context, </li>

@@ -27,7 +27,16 @@ void SHAKE_Write(shake_t *restrict x, const void *restrict data, size_t len)
 
 void SHAKE_Final(shake_t *restrict x)
 {
-    Sponge_Final(&x->sponge);
+    // 2023-05-17:
+    // Changed so that a call to this function
+    // would resets output stream to the start.
+
+    if( !x->sponge.finalized )
+    {
+        Sponge_Final(&x->sponge);
+        Sponge_Save(&x->sponge);
+    }
+    else Sponge_Restore(&x->sponge);
 }
 
 void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len)
