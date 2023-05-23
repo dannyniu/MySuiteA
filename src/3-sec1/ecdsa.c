@@ -147,8 +147,12 @@ start:
 
     // hash the message.
 
-    hx->initfunc(hashctx);
-    hx->updatefunc(hashctx, msg, msglen);
+    if( x->status != 2 )
+    {
+        x->status = 2;
+        hx->initfunc(hashctx);
+        hx->updatefunc(hashctx, msg, msglen);
+    }
 
     if( hx->xfinalfunc )
         hx->xfinalfunc(hashctx);

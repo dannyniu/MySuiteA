@@ -8,7 +8,7 @@
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 4 *47 | 4 *48 | 8 *27
+// align spec: 4 *47 | 4 *50 | 8 *28
 typedef struct {
     uint8_t sk[64];
     uint8_t prefix[64];
@@ -18,12 +18,13 @@ typedef struct {
 
     uint32_t offset_Tmp1, offset_Tmp2;
     uint32_t offset_opctx;
-    int16_t status, flags;
+    int32_t status, flags;
+    uint32_t domlen;
 
-    ecEd_curve_t const *curve;
-    size_t hashctx_size;
     uint32_t offset_hashctx;
     uint32_t offset_hashctx_init;
+    size_t hashctx_size;
+    ecEd_curve_t const *curve;
 
     hash_funcs_set_t hfuncs;
 } EdDSA_Ctx_Hdr_t;

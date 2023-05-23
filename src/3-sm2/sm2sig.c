@@ -369,9 +369,13 @@ void const *SM2SIG_Verify(
 
     // hash the message.
 
-    hx->initfunc(hashctx);
-    hx->updatefunc(hashctx, x->uinfo, x->hlen);
-    hx->updatefunc(hashctx, msg, msglen);
+    if( x->status != 3 )
+    {
+        x->status = 3;
+        hx->initfunc(hashctx);
+        hx->updatefunc(hashctx, x->uinfo, x->hlen);
+        hx->updatefunc(hashctx, msg, msglen);
+    }
 
     if( hx->xfinalfunc )
         hx->xfinalfunc(hashctx);

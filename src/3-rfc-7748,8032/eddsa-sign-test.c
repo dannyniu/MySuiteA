@@ -22,6 +22,11 @@ typedef struct {
 
 EdDSA_Ctx_t eddsaCtx, eddsaSavedCtx;
 
+union {
+    sha512_t sha512;
+    shake256_t shake256;
+} prnghash;
+
 uint8_t msgbuf[1024];
 
 typedef struct {
@@ -762,6 +767,59 @@ void FixedPRNG(void const *restrict randstr, void *restrict out, size_t len)
     scanhex(out, len, randstr);
 }
 
+void *EdDSA_Static_Sign(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    void *restrict hash,
+    PKSignFunc_t signer,
+    void const *restrict msg, size_t msglen)
+{
+    void *hx;
+    unsigned plen = (x->curve->pbits + 8) / 8;
+    unsigned i;
+
+    uint8_t buf[256] = {0};
+
+    assert( signer == (PKSignFunc_t)EdDSA_Sign );
+
+    assert( x->hfuncs.initfunc == (InitFunc_t)SHA512_Init ||
+            x->hfuncs.initfunc == (InitFunc_t)SHAKE256_Init );
+
+    // DOM String.
+
+    hx = DeltaTo(x, offset_hashctx_init);
+
+    for(i=0; i<x->hashctx_size; i++)
+        ((uint8_t *)hash)[i] = ((uint8_t *)hx)[i];
+
+    // 'prefix'.
+
+    x->hfuncs.updatefunc(hash, x->prefix, plen);
+
+    // PH(M).
+
+    hx = DeltaTo(x, offset_hashctx);
+
+    if( x->flags & EdDSA_Flags_PH )
+    {
+        x->status = 2;
+        x->hfuncs.initfunc(hx);
+        x->hfuncs.updatefunc(hx, msg, msglen);
+
+        if( x->hfuncs.xfinalfunc )
+            x->hfuncs.xfinalfunc(hx);
+
+        // consult [2023-05-19:outlen-64] in "eddsa.c".
+        x->hfuncs.hfinalfunc(hx, buf, 64);
+        x->hfuncs.updatefunc(hash, buf, 64);
+    }
+    else x->hfuncs.updatefunc(hash, msg, msglen);
+
+    if( x->hfuncs.xfinalfunc )
+        x->hfuncs.xfinalfunc(hash);
+
+    return signer(x, msg, msglen, x->hfuncs.hfinalfunc, hash);
+}
+
 int main(void) // (int argc, char *argv[])
 {
     uint8_t H[128];
@@ -785,10 +843,16 @@ int main(void) // (int argc, char *argv[])
 
         msglen = strlen(testvec->msg) / 2;
         scanhex(msgbuf, msglen, testvec->msg);
-        EdDSA_Sign(
+
+        /* EdDSA_Sign(
             &eddsaCtx.x_hdr,
             msgbuf, msglen,
-            NULL, NULL);
+            NULL, NULL); */
+
+        EdDSA_Static_Sign(
+            &eddsaCtx.x_hdr, &prnghash,
+            (PKSignFunc_t)EdDSA_Sign,
+            msgbuf, msglen);
 
         len = plen * 2;
         EdDSA_Encode_Signature(&eddsaCtx.x_hdr, H, &len);

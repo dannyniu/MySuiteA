@@ -25,6 +25,8 @@ static void *Ed25519_Set_DomainParams(
         bi[1] = bufvec[1].len;
         x->hfuncs.updatefunc(dst, bi, 2);
         x->hfuncs.updatefunc(dst, bufvec[1].dat, bufvec[1].len);
+
+        x->domlen = 32 + 2 + bufvec[1].len;
     }
     else x->hfuncs.initfunc(dst);
 
@@ -46,6 +48,8 @@ static void *Ed448_Set_DomainParams(
     bi[1] = bufvec[1].len;
     x->hfuncs.updatefunc(dst, bi, 2);
     x->hfuncs.updatefunc(dst, bufvec[1].dat, bufvec[1].len);
+
+    x->domlen = 8 + 2 + bufvec[1].len;
 
     return x;
 }
@@ -173,44 +177,67 @@ void *EdDSA_Sign(
 
     VLONG_T(16) e = { .c = 16 };
 
-#if true
+#if false
     (void)prng_gen;
     (void)prng;
-#endif // implementing deterministic EdDSA, currently.
+#endif // implementing randomized+hedged EdDSA, currently.
 
     dst = DeltaTo(x, offset_hashctx);
     src = DeltaTo(x, offset_hashctx_init);
 
-    // H(dom(F,C) + prefix + PH(M), plen)
+    // 2023-05-19: was: H(dom(F,C) + prefix + PH(M), plen)
 
     if( x->flags & EdDSA_Flags_PH )
     {
-        // pre-hash flag is set.
-
-        x->hfuncs.initfunc(dst);
-        x->hfuncs.updatefunc(dst, msg, msglen);
         if( hx->xfinalfunc )
             hx->xfinalfunc(dst);
+
+        // consult [2023-05-19:outlen-64] below.
         hx->hfinalfunc(dst, hmsg, 64);
-
-        for(t=0; t<x->hashctx_size; t++)
-            dst[t] = src[t];
-        x->hfuncs.updatefunc(dst, x->prefix, plen);
-        x->hfuncs.updatefunc(dst, hmsg, 64);
-    }
-    else
-    {
-        // pre-hash flag is clear.
-
-        for(t=0; t<x->hashctx_size; t++)
-            dst[t] = src[t];
-        x->hfuncs.updatefunc(dst, x->prefix, plen);
-        x->hfuncs.updatefunc(dst, msg, msglen);
     }
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(dst);
-    hx->hfinalfunc(dst, buf, plen * 2);
+    prng_gen(prng, buf, plen * 2);
+
+    /* 2023-05-19: Switching to randomized/hednged signing.
+       if( x->flags & EdDSA_Flags_PH )
+       {
+       // pre-hash flag is set.
+
+       if( x->status !== 2 )
+       {
+       x->status = 2;
+       x->hfuncs.initfunc(dst);
+       x->hfuncs.updatefunc(dst, msg, msglen);
+       }
+
+       if( hx->xfinalfunc )
+       hx->xfinalfunc(dst);
+
+       // [2023-05-19:outlen-64]:
+       // ``64'' isn't mistaken. RFC-8032 says
+       // "PH is SHA512" for Ed25519ph, and
+       // "PH being SHAKE256(x, 64)" for Ed448ph.
+       hx->hfinalfunc(dst, hmsg, 64);
+
+       for(t=0; t<x->hashctx_size; t++)
+       dst[t] = src[t];
+       x->hfuncs.updatefunc(dst, x->prefix, plen);
+       x->hfuncs.updatefunc(dst, hmsg, 64);
+       }
+       else
+       {
+       // pre-hash flag is clear.
+
+       for(t=0; t<x->hashctx_size; t++)
+       dst[t] = src[t];
+       x->hfuncs.updatefunc(dst, x->prefix, plen);
+       x->hfuncs.updatefunc(dst, msg, msglen);
+       }
+
+       if( hx->xfinalfunc )
+       hx->xfinalfunc(dst);
+       hx->hfinalfunc(dst, buf, plen * 2);
+    */
 
     // R = [r]B
 
@@ -543,7 +570,7 @@ int EdDSA_PKParams(int index, CryptoParam_t *out)
         out[1].info = iSHAKE256;
         out[0].param = NULL;
         out[1].param = NULL;
-        return 192;
+        return 224;
         break;
 
     default:
