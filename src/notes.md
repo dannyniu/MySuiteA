@@ -196,7 +196,7 @@ it is decided that:
   (e.g. SIP16) will have to adapt the codes appropriately.
 
 - Each structure shall document how much of these requirements are met
-  according to the "Sige and Alignment Conformity Statement Format"
+  according to the "Size and Alignment Conformity Statement Format"
   described below.
 
 - plain working contexts are exempt from the above requirements.
@@ -229,5 +229,5 @@ Where `align-spec` has the following form:
   complications and problems.
 
 In rare cases (SIP16 mostly), where the size of the structure cannot be
-consistently determined, `{align-spec}` can be set to the word "Error".
+consistently determined, `{align-spec}` can be specified as "Error".
 This is allowed **ONLY** for plain working contexts.

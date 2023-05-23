@@ -71,8 +71,8 @@ typedef struct {
 // This macro is defined for use
 // in *_SIZE and *_INIT macros
 // indicating that the subject is
-// ``SEC_Base_Ctx_Hdr_t'' rather than
-// ``SEC_Hash_Ctx_Hdr_t''.
+// ``ECC_Base_Ctx_Hdr_t'' rather than
+// ``ECC_Hash_Ctx_Hdr_t''.
 #define ECDH_HASH_NULL(q) (0)
 IntPtr iECDH_Hash_Null(int q);
 

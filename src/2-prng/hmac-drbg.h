@@ -22,11 +22,19 @@
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 16* 1 | 16* 2 | 16* 4
+// align spec: 8 * 2 | 8 * 4 | 8 * 8
 typedef struct hmac_drbg_context {
     ptrdiff_t       offset_k;
     ptrdiff_t       offset_v;
-    size_t          prf_outlen;
+
+    union
+    {
+        struct {
+            uint8_t     prf_outlen;
+            uint8_t     prf_blklen;
+        };
+        size_t          struct_pad;
+    };
 
     ptrdiff_t           prf_ctx_offset;
     const CryptoParam_t *parameterization;
@@ -48,6 +56,7 @@ typedef struct hmac_drbg_context {
         .offset_k = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 0,           \
         .offset_v = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 1,           \
         .prf_outlen = OUT_BYTES(prf),                                   \
+        .prf_blklen = BLOCK_BYTES(prf),                                 \
         .prf_ctx_offset = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 2,     \
         .prf_init = KINIT_FUNC(prf),                                    \
         .prf_update = UPDATE_FUNC(prf),                                 \

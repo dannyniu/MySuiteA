@@ -17,8 +17,15 @@ typedef struct {
     // - >0: indicates the length of the decrypted plaintext.
     // - <0: decryption failure.
     //
-    // For signature gneration:
+    // For signature generation:
     // - 1. OK.
+    // - 2. The input message had been hashed and the digest
+    //      don't need to be recomputed. This only occurs during
+    //      the hand-over from the hedged signing subroutine to
+    //      the internal PRNG-based signing subroutine.
+    // - 3. Same as 2, except the ``uinfo'' field is prepended to
+    //      the message when hashing. This is used by DSS schemes
+    //      supporting user info such as SM2-DSS.
     // - -1. Some signing error.
     // For signature verification:
     // - 0: signature decoded and ready for verification.
