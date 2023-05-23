@@ -28,7 +28,11 @@ static void *Ed25519_Set_DomainParams(
 
         x->domlen = 32 + 2 + bufvec[1].len;
     }
-    else x->hfuncs.initfunc(dst);
+    else
+    {
+        x->hfuncs.initfunc(dst);
+        x->domlen = 0; // missing before 2023-05-23.
+    }
 
     return x;
 }
