@@ -543,7 +543,7 @@ int EdDSA_PKParams(int index, CryptoParam_t *out)
         out[1].info = iSHAKE256;
         out[0].param = NULL;
         out[1].param = NULL;
-        return 192;
+        return 224;
         break;
 
     default:
