@@ -4,7 +4,10 @@
 #include "../0-datum/endian.h"
 #include "../0-datum/sbox.c.h"
 
-static const alignas(256) uint8_t sbox_table[256] = {
+#define CALC(b,i) (uint32_t)b*0x01010101, (uint32_t)i*0x01010101
+
+static const alignas(1024) uint32_t wsbox_table[512] = SBOX_WIDENER(
+    CALC,
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
     0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
     0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15,
@@ -20,8 +23,7 @@ static const alignas(256) uint8_t sbox_table[256] = {
     0xBA, 0x78, 0x25, 0x2E, 0x1C, 0xA6, 0xB4, 0xC6, 0xE8, 0xDD, 0x74, 0x1F, 0x4B, 0xBD, 0x8B, 0x8A,
     0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E,
     0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF,
-    0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16,
-};
+    0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16);
 
 static inline uint8_t xtime(uint16_t x)
 {
@@ -54,7 +56,9 @@ static inline uint8_t gmul(uint8_t a, uint8_t b)
 static void SubBytes(uint8_t state[16])
 {
     int i;
-    for(i=0; i<16; i++) state[i] = sbox(state[i], sbox_table);
+    // for(i=0; i<16; i++) state[i] = sbox(state[i], sbox_table);
+    for(i=0; i<4; i++)
+        ((uint32_t *)state)[i] = wsbox(((uint32_t *)state)[i], wsbox_table);
 }
 
 static void ShiftRows(uint8_t state[16])
@@ -130,7 +134,9 @@ static void InvShiftRows(uint8_t state[16])
 static void InvSubBytes(uint8_t state[16])
 {
     int i;
-    for(i=0; i<16; i++) state[i] = invsbox(state[i], sbox_table);
+    // for(i=0; i<16; i++) state[i] = invsbox(state[i], sbox_table);
+    for(i=0; i<4; i++)
+        ((uint32_t *)state)[i] = invwsbox(((uint32_t *)state)[i], wsbox_table);
 }
 
 static void InvMixColumns(uint8_t state[16])
@@ -233,20 +239,14 @@ static void Rijndael_Nb4_KeyExpansion(
 
         if( i % Nk == 0 )
         {
-            temp = (
-                (uint32_t)sbox(temp >> 24, sbox_table) << 16 |
-                (uint32_t)sbox(temp >> 16, sbox_table) <<  8 |
-                (uint32_t)sbox(temp >>  8, sbox_table) <<  0 |
-                (uint32_t)sbox(temp >>  0, sbox_table) << 24 ) ^ Rcon;
+            temp = wsbox(temp, wsbox_table);
+            temp = temp >> 8 | temp << 24;
+            temp ^= Rcon;
             Rcon = xtime(Rcon);
         }
         else if( Nk > 6 && i % Nk == 4 )
         {
-            temp =
-                (uint32_t)sbox(temp >> 24, sbox_table) << 24 |
-                (uint32_t)sbox(temp >> 16, sbox_table) << 16 |
-                (uint32_t)sbox(temp >>  8, sbox_table) <<  8 |
-                (uint32_t)sbox(temp >>  0, sbox_table) <<  0 ;
+            temp = wsbox(temp, wsbox_table);
         }
 
         w[i] = w[i - Nk] ^ htole32(temp);

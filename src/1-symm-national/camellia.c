@@ -4,7 +4,17 @@
 #include "../0-datum/endian.h"
 #include "../0-datum/sbox.c.h"
 
-static const alignas(256) uint8_t sbox1_table[256] = {
+#define CALC(b,i)                                               \
+    ((uint32_t)b << 24 |                                        \
+     (uint32_t)(b & 0x7f) << 17 | (uint32_t)(b & 0x80) << 9 |   \
+     (uint32_t)(b & 0xfe) << 7 | (uint32_t)(b & 0x01) << 15 |   \
+     (uint32_t)b),                                              \
+        ((uint32_t)i * 0x01010100 |                             \
+         (uint32_t)(i & 0xfe) >> 1 |                            \
+         (uint32_t)(i & 0x01) << 7)
+
+static const alignas(1024) uint32_t wsbox_table[512] = SBOX_WIDENER(
+    CALC,
     112, 130,  44, 236, 179,  39, 192, 229, 228, 133,  87,  53, 234,  12, 174,  65,
     35u, 239, 107, 147,  69,  25, 165,  33, 237,  14,  79,  78,  29, 101, 146, 189,
     134, 184, 175, 143, 124, 235,  31, 206,  62,  48, 220,  95,  94, 197,  11,  26,
@@ -20,18 +30,13 @@ static const alignas(256) uint8_t sbox1_table[256] = {
     233, 121, 167, 140, 159, 110, 188, 142,  41, 245, 249, 182,  47, 253, 180,  89,
     120, 152,   6, 106, 231,  70, 113, 186, 212,  37, 171,  66, 136, 162, 141, 250,
     114,   7, 185,  85, 248, 238, 172,  10,  54,  73,  42, 104,  60,  56, 241, 164,
-    64u,  40, 211, 123, 187, 201,  67, 193,  21, 227, 173, 244, 119, 199, 128, 158,
-};
+    64u,  40, 211, 123, 187, 201,  67, 193,  21, 227, 173, 244, 119, 199, 128, 158);
 
 static inline uint64_t func_F(uint64_t X, uint64_t k);
 static inline uint64_t func_FL(uint64_t X, uint64_t kl);
 static inline uint64_t invf_FL(uint64_t X, uint64_t kl);
 
 static inline uint64_t func_S(uint64_t x);
-static inline uint8_t sbox1(uint8_t x);
-static inline uint8_t sbox2(uint8_t x);
-static inline uint8_t sbox3(uint8_t x);
-static inline uint8_t sbox4(uint8_t x);
 static inline uint64_t func_P(uint64_t x);
 
 static inline uint64_t func_F(uint64_t X, uint64_t k)
@@ -67,38 +72,15 @@ static inline uint64_t invf_FL(uint64_t Y, uint64_t kl)
 
 static inline uint64_t func_S(uint64_t x)
 {
-    return
-        (uint64_t)sbox1(x >> 56) << 56 |
-        (uint64_t)sbox2(x >> 48) << 48 |
-        (uint64_t)sbox3(x >> 40) << 40 |
-        (uint64_t)sbox4(x >> 32) << 32 |
-        (uint64_t)sbox2(x >> 24) << 24 |
-        (uint64_t)sbox3(x >> 16) << 16 |
-        (uint64_t)sbox4(x >>  8) <<  8 |
-        (uint64_t)sbox1(x);
-}
+    register uint32_t hi = wsbox(x >> 32, wsbox_table);
+    register uint32_t lo;
 
-static inline uint8_t sbox1(uint8_t x)
-{
-    return sbox(x, sbox1_table);
-}
+    lo = x;
+    lo = lo << 24 | lo >> 8;
+    lo = wsbox(lo, wsbox_table);
+    lo = lo >> 24 | lo << 8;
 
-static inline uint8_t sbox2(uint8_t x)
-{
-    uint8_t ret = sbox1(x);
-    return ret << 1 | ret >> 7;
-}
-
-static inline uint8_t sbox3(uint8_t x)
-{
-    uint8_t ret = sbox1(x);
-    return ret >> 1 | ret << 7;
-}
-
-static inline uint8_t sbox4(uint8_t x)
-{
-    x = x << 1 | x >> 7;
-    return sbox1(x);
+    return (uint64_t)hi << 32 | (uint64_t)lo;
 }
 
 static inline uint64_t xmask_bytes(uint64_t x, uint64_t m)
