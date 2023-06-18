@@ -5,9 +5,16 @@
 
 #include <stdint.h>
 
-#ifdef MySuiteA_UsePlatformEndianFuncs
+#undef MySuiteA_UsePlatformEndianFuncs
+
+#ifdef __has_include
+#if __has_include(<endian.h>)
 #include <endian.h>
-#else
+#define MySuiteA_UsePlatformEndianFuncs 1
+#endif /* __has_include(<endian.h>) */
+#endif /* __has_include */
+
+#ifndef MySuiteA_UsePlatformEndianFuncs
 
 uint16_t htobe16(uint16_t);
 uint32_t htobe32(uint32_t);
