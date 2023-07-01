@@ -306,6 +306,13 @@ void *EdDSA_Sign(
 
     vlong_remv_inplace(DeltaTo(x, offset_r), x->curve->L);
 
+    // 2023-07-01:
+    // status value 2 was added in the "2023-hedged-dss" branch;
+    // the following line was forgotten, and as such, reusing
+    // the same EdDSA working context for signing multiple messages
+    // may fail unpredictably.
+    x->status = 1;
+
     return x;
 }
 
