@@ -438,6 +438,9 @@ typedef void *(*XctrlFunc_t)(void *restrict x,
 #define TAG_BYTES(obj)      ((IntPtr)(obj(tagBytes)))
 
 // In case C doesn't expand nested macro.
+#define BLOCK_BYTES_1(obj)  ((IntPtr)(obj(blockBytes)))
+#define BLOCK_BYTES_2(obj)  ((IntPtr)(obj(blockBytes)))
+#define BLOCK_BYTES_3(obj)  ((IntPtr)(obj(blockBytes)))
 #define CTX_BYTES_1(obj)    ((IntPtr)(obj(contextBytes)))
 #define CTX_BYTES_2(obj)    ((IntPtr)(obj(contextBytes)))
 #define CTX_BYTES_3(obj)    ((IntPtr)(obj(contextBytes)))
