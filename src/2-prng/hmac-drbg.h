@@ -22,7 +22,7 @@
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 4 * 5 | 8 * 4 | 8 * 6
+// align spec: 2 * 9 | 8 * 4 | 8 * 6
 typedef struct hmac_drbg_context {
     int                 offset_k;
     int                 offset_v;
