@@ -37,10 +37,10 @@ void const *RSASSA_PSS_Verify(
         cRSASSA_PSS(hmsg,hmgf,slen,bits,primes,q) )
 
 #define xRSASSA_PSS_CtCodec(q) (                                \
-        q==PKSignFunc ? (IntPtr)RSASSA_PSS_Sign :       \
-        q==PKVerifyFunc ? (IntPtr)RSASSA_PSS_Verify :   \
-        q==PKCtEncoder ? (IntPtr)RSASSA_PSS_Encode_Signature : \
-        q==PKCtDecoder ? (IntPtr)RSASSA_PSS_Decode_Signature : \
+        q==PKSignFunc ? (IntPtr)RSASSA_PSS_Sign :               \
+        q==PKVerifyFunc ? (IntPtr)RSASSA_PSS_Verify :           \
+        q==PKCtEncoder ? (IntPtr)RSASSA_PSS_Encode_Signature :  \
+        q==PKCtDecoder ? (IntPtr)RSASSA_PSS_Decode_Signature :  \
         0)
 
 IntPtr tRSASSA_PSS(const CryptoParam_t *P, int q);

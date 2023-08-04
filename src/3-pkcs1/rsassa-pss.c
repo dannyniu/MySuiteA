@@ -4,7 +4,7 @@
 
 IntPtr tRSASSA_PSS(const CryptoParam_t *P, int q)
 {
-    if( P ) assert( P[4].aux > 2 );
+    if( P ) assert( P[4].aux >= 2 ); // There was a mistake before 2023-08-03.
     return xRSASSA_PSS(
         (P ? P[0].info : PKCS1_NullHash),
         (P ? P[1].info : PKCS1_NullHash),
