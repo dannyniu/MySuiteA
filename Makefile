@@ -3,7 +3,7 @@
 LibraryName = MySuiteA
 ProductName = lib${LibraryName}
 MajorVer = 0
-MinorVer = 1
+MinorVer = 2
 ProductVer = ${MajorVer}.${MinorVer}
 ProductRev = ${ProductVer}.1
 

@@ -5,21 +5,6 @@
 
 #include "../mysuitea-common.h"
 
-/* was:
- * typedef struct hmac_drbg_context {
- * size_t          ctx_len_total;
- *
- * size_t          prf_outlen;
- * ptrdiff_t       offset_k;
- * ptrdiff_t       offset_v;
- *
- * ptrdiff_t       prf_ctx_offset;
- * KInitFunc_t     prf_init;
- * UpdateFunc_t    prf_update;
- * FinalFunc_t     prf_final;
- * } hmac_drbg_t;
- */
-
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
 // align spec: 2 * 9 | 8 * 4 | 8 * 6

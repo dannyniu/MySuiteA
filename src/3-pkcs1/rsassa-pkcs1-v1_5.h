@@ -38,12 +38,11 @@ void const *RSAEncryptionWithHash_Verify(
 
 #define cRSAEncryptionWithHash cRSA_PKCS1
 
-#define xRSAEncryptionWithHash(hmsg,hmgf,slen,bits,primes,q) (          \
-        q==PKParamsFunc ? (IntPtr)PKCS1_PKParams :                      \
+#define xRSAEncryptionWithHash(hmsg,hmgf,bits,primes,q) (               \
         q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                        \
         q==PKSignFunc ? (IntPtr)RSAEncryptionWithHash_Sign :            \
         q==PKVerifyFunc ? (IntPtr)RSAEncryptionWithHash_Verify :        \
-        cRSAEncryptionWithHash(hmsg,hmgf,slen,bits,primes,q) )
+        cRSAEncryptionWithHash(hmsg,hmgf,bits,primes,q) )
 
 #define xRSAEncryptionWithHash_CtCodec(q) (                             \
         q==PKSignFunc ? (IntPtr)RSAEncryptionWithHash_Sign :            \

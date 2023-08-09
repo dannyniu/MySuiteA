@@ -2,8 +2,6 @@
 
 #include "eddsa-misc.h"
 #include "../2-ec/curves-Ed.h"
-#include "../2-hash/sha.h"
-#include "../2-xof/shake.h"
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
@@ -559,35 +557,6 @@ void *EdDSA_Verify_Xctrl(
 }
 
 #endif /* ! PKC_OMIT_PUB_OPS */
-
-int EdDSA_PKParams(int index, CryptoParam_t *out)
-{
-    switch( index )
-    {
-    case 0:
-        return 2;
-        break;
-
-    case 1:
-        out[0].info = iCurveEd25519;
-        out[1].info = iSHA512;
-        out[0].param = NULL;
-        out[1].param = NULL;
-        return 128;
-        break;
-
-    case 2:
-        out[0].info = iCurveEd448;
-        out[1].info = iSHAKE256;
-        out[0].param = NULL;
-        out[1].param = NULL;
-        return 224;
-        break;
-
-    default:
-        return 0;
-    }
-}
 
 #if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
 

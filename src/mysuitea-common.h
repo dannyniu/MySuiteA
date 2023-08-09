@@ -89,6 +89,33 @@ struct CryptoParam {
 };
 
 typedef struct {
+    // [2023-08-09-SepParams]:
+    // ----------
+    //
+    // In making PKC object codes in MySuiteA independent of instantiation
+    // parameters, some issues were raised:
+    //
+    // While it's not an anti-pattern to use functions to retrieve parameters
+    // for an algorithm instance (see:
+    // https://softwareengineering.stackexchange.com/q/446914), a feature
+    // originally planned could not be executed - It was impossible to specify
+    // an algorithm family as parameter and let the function choose appropriate
+    // parameter based on the description.
+    //
+    // Several ideas came up: specify the paradigm of the algorithm, specify
+    // the SDO and Number of the standard, etc. It was impossible in particular
+    // to distinguish SHA-3 hash functions and the 2 SHAKE XOF instances.
+    //
+    // A goal, nonetheless must be achieved, is to let the user of this library
+    // to obtain usable PKC algorithm instance, in a way agnostic to the
+    // requirement of the parameters as expected by the algorithm.
+    //
+    int secbits;
+    tCryptoObj_t algo;
+    CryptoParam_t *param;
+} PKC_Algo_Inst_t;
+
+typedef struct {
     union {
         size_t  len;
         IntPtr  info;
@@ -176,6 +203,11 @@ enum {
     // may be processed in parallel.
     //
     chunkBytes = 8,
+
+    // Added 2023-08-07:
+    // Most PKC algorithm expect hash function of fixed output length.
+    // This query parameter fits that need when a XOF is provided.
+    outTruncBytes = 9,
     
     // Block Cipher Interfaces //
     EncFunc = 21, DecFunc = 22, KschdFunc = 23,
@@ -249,7 +281,14 @@ enum {
     isParamDetermByKey = 103,
 
     // Obtains a set of parameter presets.
-    PKParamsFunc = 121,
+    //
+    // [2023-08-09-SepParams]:
+    // It has been noted, that the implementation of this function required
+    // PKC code objects to include references to interfaces of algorithms'
+    // parameters. For the benefit of allowing PKC codes to combine more
+    // freely with the parameters users may choose, this query is obsoleted.
+    //
+    //- PKParamsFunc = 121,
 
     PKKeygenFunc = 122,
     PKEncFunc = 123, PKDecFunc = 124, // Key Encapsulation Mechanism
@@ -360,6 +399,8 @@ typedef void (*Read4Func_t)(void *restrict x,
                             void *restrict data,
                             size_t len, int flags);
 
+// [2023-08-09-SepParams]: This type is obsoleted.
+//
 // ``index'' starts at 0,
 // at which the function returns the length of parameter vector.
 //
@@ -369,7 +410,7 @@ typedef void (*Read4Func_t)(void *restrict x,
 //
 // The function returns 0 to indicate end of list.
 //
-typedef int (*PKParamsFunc_t)(int index, CryptoParam_t *out);
+//- typedef int (*PKParamsFunc_t)(int index, CryptoParam_t *out);
 
 typedef IntPtr (*PKKeygenFunc_t)(void *restrict x,
                                  CryptoParam_t *restrict param,
@@ -429,13 +470,19 @@ typedef void *(*XctrlFunc_t)(void *restrict x,
 // make sure that `obj' is not parenthesized so that
 // macro expansion won't be suppressed.
 
-#define OUT_BYTES(obj)      ((IntPtr)(obj(outBytes)))
+#define OUT_NOMINAL(obj)    ((IntPtr)(obj(outBytes)))
 #define BLOCK_BYTES(obj)    ((IntPtr)(obj(blockBytes)))
 #define KEY_BYTES(obj)      ((IntPtr)(obj(keyBytes)))
 #define KSCHD_BYTES(obj)    ((IntPtr)(obj(keyschedBytes)))
 #define CTX_BYTES(obj)      ((IntPtr)(obj(contextBytes)))
 #define IV_BYTES(obj)       ((IntPtr)(obj(ivBytes)))
 #define TAG_BYTES(obj)      ((IntPtr)(obj(tagBytes)))
+#define CHUNK_BYTES(obj)    ((IntPtr)(obj(chunkBytes)))
+#define OTRUNC_BYTES(obj)   ((IntPtr)(obj(outTruncBytes)))
+
+// Helper macro
+#define OUT_BYTES(obj)                                                  \
+    (OUT_NOMINAL(obj) > 4 ? OUT_NOMINAL(obj) : OTRUNC_BYTES(obj))
 
 // In case C doesn't expand nested macro.
 #define BLOCK_BYTES_1(obj)  ((IntPtr)(obj(blockBytes)))

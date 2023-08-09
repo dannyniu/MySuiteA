@@ -26,7 +26,7 @@ static void NI_SM4Feistel(
         if( rev )
         {
             rk = vld1q_u32(kschd + 28 - i * 4);
-            Q = &rk;
+            Q = (uint64x2_t *)&rk;
             *Q = vtrn1q_u64(vtrn2q_u64(*Q, *Q), *Q);
             rk = vtrn1q_u32(vtrn2q_u32(rk, rk), rk);
         }
@@ -38,7 +38,7 @@ static void NI_SM4Feistel(
         X = vsm4eq_u32(X, rk);
     }
 
-    Q = &X;
+    Q = (uint64x2_t *)&X;
     *Q = vtrn1q_u64(vtrn2q_u64(*Q, *Q), *Q);
     X  = vtrn1q_u32(vtrn2q_u32(X,  X),  X);
 

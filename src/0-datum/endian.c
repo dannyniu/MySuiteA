@@ -23,7 +23,7 @@
     {                                                   \
         int i;                                          \
         union { uint8_t o[b/8]; uint##b##_t h; } v;     \
-        for(i=0; i<b/8; i++) {                      \
+        for(i=0; i<b/8; i++) {                          \
             v.o[i] = (uint8_t)(x >> (b-i*8-8));         \
         }                                               \
         return v.h;                                     \

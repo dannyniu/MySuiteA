@@ -28,33 +28,32 @@ typedef struct {
 // in both public key and private key operations.
 //
 
-// ${ [0...2].* } are that for the padding scheme.
-// ${ [3...4].* } are that for the rsa algorithm.
-typedef CryptoParam_t PKCS1_RSA_Param_t[5];
+// ${ [0...1].* } are that for the padding scheme.
+// ${ [2...3].* } are that for the rsa algorithm.
+typedef CryptoParam_t PKCS1_RSA_Param_t[4];
 
-#define PKCS1_PRIV_CTX_PAYLOAD_SIZE_X(hmsg,hmgf,slen,bits,primes) (     \
-        PKCS1_HASH_CTX_SIZE(hmsg,hmgf) +                                \
+#define PKCS1_PRIV_CTX_PAYLOAD_SIZE_X(hmsg,hmgf,bits,primes) (  \
+        PKCS1_HASH_CTX_SIZE(hmsg,hmgf) +                        \
         RSA_PRIV_CTX_SIZE(bits,primes) )
 
 #define PKCS1_PRIV_CTX_PAYLOAD_SIZE(...)        \
     PKCS1_PRIV_CTX_PAYLOAD_SIZE_X(__VA_ARGS__)
 
-#define PKCS1_PRIV_CTX_SIZE_X(hmsg,hmgf,slen,bits,primes) (     \
-        PKCS1_PRIV_CTX_PAYLOAD_SIZE(                            \
-            hmsg,hmgf,slen,                                     \
-            bits,primes) +                                      \
+#define PKCS1_PRIV_CTX_SIZE_X(hmsg,hmgf,bits,primes) (  \
+        PKCS1_PRIV_CTX_PAYLOAD_SIZE(                    \
+            hmsg,hmgf,bits,primes) +                    \
         sizeof(PKCS1_Priv_Ctx_Hdr_t) )
 
 #define PKCS1_PRIV_CTX_SIZE(...)                \
     PKCS1_PRIV_CTX_SIZE_X(__VA_ARGS__)
 
-#define PKCS1_PRIV_CTX_INIT_X(hmsg,hmgf,slen,bits,primes)       \
-    ((PKCS1_Priv_Ctx_Hdr_t){                                    \
-        .offset_rsa_privctx =                                   \
-        sizeof(PKCS1_Priv_Ctx_Hdr_t) +                          \
-        PKCS1_HASH_CTX_SIZE(hmsg,hmgf),                         \
-        .po_base =                                              \
-        PKCS1_PADDING_ORACLES_BASE_INIT(hmsg,hmgf,slen),        \
+#define PKCS1_PRIV_CTX_INIT_X(hmsg,hmgf,bits,primes)    \
+    ((PKCS1_Priv_Ctx_Hdr_t){                            \
+        .offset_rsa_privctx =                           \
+        sizeof(PKCS1_Priv_Ctx_Hdr_t) +                  \
+        PKCS1_HASH_CTX_SIZE(hmsg,hmgf),                 \
+        .po_base =                                      \
+        PKCS1_PADDING_ORACLES_BASE_INIT(hmsg,hmgf),     \
     })
 
 #define PKCS1_PRIV_CTX_INIT(...)                \
@@ -76,27 +75,27 @@ typedef struct {
 
 // primes is ignored in public contexts' macros,
 // as it's only applicable to private contexts.
-#define PKCS1_PUB_CTX_PAYLOAD_SIZE_X(hmsg,hmgf,slen,bits,primes) (    \
-        PKCS1_HASH_CTX_SIZE(hmsg,hmgf) +                              \
+#define PKCS1_PUB_CTX_PAYLOAD_SIZE_X(hmsg,hmgf,bits,primes) (   \
+        PKCS1_HASH_CTX_SIZE(hmsg,hmgf) +                        \
         RSA_PUB_CTX_SIZE(bits) )
 
 #define PKCS1_PUB_CTX_PAYLOAD_SIZE(...)         \
     PKCS1_PUB_CTX_PAYLOAD_SIZE_X(__VA_ARGS__)
 
-#define PKCS1_PUB_CTX_SIZE_X(hmsg,hmgf,slen,bits,primes) (      \
-        PKCS1_PUB_CTX_PAYLOAD_SIZE(                             \
-            hmsg,hmgf,slen,bits,primes) +                       \
+#define PKCS1_PUB_CTX_SIZE_X(hmsg,hmgf,bits,primes) (   \
+        PKCS1_PUB_CTX_PAYLOAD_SIZE(                     \
+            hmsg,hmgf,bits,primes) +                    \
         sizeof(PKCS1_Pub_Ctx_Hdr_t) )
 
 #define PKCS1_PUB_CTX_SIZE(...) PKCS1_PUB_CTX_SIZE_X(__VA_ARGS__)
 
-#define PKCS1_PUB_CTX_INIT(hmsg,hmgf,slen,bits,primes)          \
-    ((PKCS1_Pub_Ctx_Hdr_t){                                     \
-        .offset_rsa_pubctx =                                    \
-        sizeof(ptrdiff_t) +                                     \
-        PKCS1_PADDING_ORACLES_CTX_SIZE(hmsg,hmgf,slen),         \
-        .po_base =                                              \
-        PKCS1_PADDING_ORACLES_BASE_INIT(hmsg,hmgf,slen),        \
+#define PKCS1_PUB_CTX_INIT(hmsg,hmgf,bits,primes)       \
+    ((PKCS1_Pub_Ctx_Hdr_t){                             \
+        .offset_rsa_pubctx =                            \
+        sizeof(ptrdiff_t) +                             \
+        PKCS1_PADDING_ORACLES_CTX_SIZE(hmsg,hmgf),      \
+        .po_base =                                      \
+        PKCS1_PADDING_ORACLES_BASE_INIT(hmsg,hmgf),     \
     })
 
 #define PKCS1_PUB_CTX_T(...)                                            \
@@ -147,12 +146,12 @@ int PKCS1_PKParams(int index, CryptoParam_t *out);
 
 IntPtr iPKCS1_KeyCodec(int q);
 
-#define cRSA_PKCS1(hmsg,hmgf,slen,bits,primes,q) (      \
-        q==bytesCtxPriv ? PKCS1_PRIV_CTX_SIZE(          \
-            hmsg,hmgf,slen,bits,primes) :               \
-        q==bytesCtxPub ? PKCS1_PUB_CTX_SIZE(            \
-            hmsg,hmgf,slen,bits,primes) :               \
-        q==isParamDetermByKey ? true :                  \
+#define cRSA_PKCS1(hmsg,hmgf,bits,primes,q) (   \
+        q==bytesCtxPriv ? PKCS1_PRIV_CTX_SIZE(  \
+            hmsg,hmgf,bits,primes) :            \
+        q==bytesCtxPub ? PKCS1_PUB_CTX_SIZE(    \
+            hmsg,hmgf,bits,primes) :            \
+        q==isParamDetermByKey ? true :          \
         0)
 
 #endif /* MySuiteA_pkcs1_h */

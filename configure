@@ -54,16 +54,32 @@ opt_includedir_flag='--includedir=path'
 opt_includedir_help='Specify install directory for include header files.'
 opt_includedir_do='install_includedir="${arg#--includedir=}"'
 
-for arg ; do
-    for opt in cc ld file_ext dllflags with \
-               prefix exec_prefix libdir includedir ; do
-        eval 'flag="${opt_'$opt'_flag}"'
-        eval 'do="${opt_'$opt'_do}"'
-        if [ X"${arg%%=*}=" = X"${flag%=*}=" ] ; then
-            eval "$do"
-        fi
-    done
-done
+opts="\
+cc ld file_ext dllflags with
+prefix exec_prefix libdir includedir
+"
+
+case "$1" in
+    -h|--help)
+        echo Available Options:
+        for opt in $opts ; do
+            eval 'printf "  %-26s%-46s\n"' \
+                 '"$opt_'$opt'_flag" "$opt_'$opt'_help"'
+        done
+        ;;
+
+    *)
+        for arg ; do
+            for opt in $opts ; do
+                eval 'flag="${opt_'$opt'_flag}"'
+                eval 'do="${opt_'$opt'_do}"'
+                if [ X"${arg%%=*}=" = X"${flag%=*}=" ] ; then
+                    eval "$do"
+                fi
+            done
+        done
+        ;;
+esac
 
 if ! [ "$cc" ] ; then cc='${CC}' ; fi
 if ! [ "$ld" ] ; then ld='${CC}' ; fi

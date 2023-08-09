@@ -2,7 +2,6 @@
 
 #include "ecdh-kem.h"
 #include "../2-ec/ecp-pubkey-codec.h"
-#include "../2-ec/curves-secp.h"
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
@@ -287,31 +286,6 @@ void *ECDH_KEM_Decode_Ciphertext(
 }
 
 #endif /* ! PKC_OMIT_PRIV_OPS */
-
-int ECDH_KEM_PKParams(int index, CryptoParam_t *out)
-{
-    switch( index )
-    {
-    case 0:
-        return 1;
-        break;
-
-    case 1:
-        out[0].info = i_secp256r1;
-        out[0].param = NULL;
-        return 128;
-        break;
-
-    case 2:
-        out[0].info = i_secp384r1;
-        out[0].param = NULL;
-        return 192;
-        break;
-
-    default:
-        return 0;
-    }
-}
 
 #if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
 

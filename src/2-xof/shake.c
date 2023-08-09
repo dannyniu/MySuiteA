@@ -144,6 +144,3 @@ void *SHAKE_Xctrl(
 
 IntPtr iSHAKE128(int q){ return xSHAKE128(q); }
 IntPtr iSHAKE256(int q){ return xSHAKE256(q); }
-
-IntPtr iSHAKE128o32(int q){ return xSHAKE128o32(q); }
-IntPtr iSHAKE256o64(int q){ return xSHAKE256o64(q); }

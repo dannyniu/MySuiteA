@@ -85,7 +85,6 @@ int ECDH_KEM_PKParams(int index, CryptoParam_t *out);
         0)
 
 #define xECDH_KEM(crv,q) (                              \
-        q==PKParamsFunc ? (IntPtr)ECDH_KEM_PKParams :   \
         q==PKKeygenFunc ? (IntPtr)ECDH_KEM_Keygen :     \
         q==PKEncFunc ? (IntPtr)ECDH_KEM_Enc :           \
         q==PKDecFunc ? (IntPtr)ECDH_KEM_Dec :           \

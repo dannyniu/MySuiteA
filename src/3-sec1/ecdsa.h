@@ -77,7 +77,6 @@ int ECDSA_PKParams(int index, CryptoParam_t *out);
         0)
 
 #define xECDSA(crv,hash,q) (                            \
-        q==PKParamsFunc ? (IntPtr)ECDSA_PKParams :      \
         q==PKKeygenFunc ? (IntPtr)ECDSA_Keygen :        \
         q==PKSignFunc ? (IntPtr)ECDSA_Sign :            \
         q==PKVerifyFunc ? (IntPtr)ECDSA_Verify :        \
