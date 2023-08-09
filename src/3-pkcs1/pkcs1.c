@@ -20,13 +20,13 @@ IntPtr PKCS1_Keygen(
     if( x )
     {
         *x = PKCS1_PRIV_CTX_INIT(
-            param[0].info, param[1].info, param[2].aux,
-            param[3].aux, param[4].aux);
+            param[0].info, param[1].info,
+            param[2].aux, param[3].aux);
     }
 
     ret = rsa_keygen(
         DeltaTo(x, offset_rsa_privctx),
-        param + 3, prng_gen, prng);
+        param + 2, prng_gen, prng);
 
     if( !ret ) return 0;
     else if( x ) return (IntPtr)x;
@@ -59,8 +59,8 @@ IntPtr PKCS1_Decode_RSAPrivateKey(
     if( x )
     {
         *x = PKCS1_PRIV_CTX_INIT(
-            param[0].info, param[1].info, param[2].aux,
-            param[3].aux, param[4].aux); // 2 ignored parameters.
+            param[0].info, param[1].info,
+            param[2].aux, param[3].aux); // 2 ignored parameters.
     }
 
     ret = ber_tlv_decode_RSAPrivateKey(
@@ -117,8 +117,8 @@ IntPtr PKCS1_Decode_RSAPublicKey(
     if( x )
     {
         *x = PKCS1_PUB_CTX_INIT(
-            param[0].info, param[1].info, param[2].aux,
-            param[3].aux, param[4].aux); // 2 ignored parameters.
+            param[0].info, param[1].info,
+            param[2].aux, param[3].aux); // 2 ignored parameters.
     }
 
     ret = ber_tlv_decode_RSAPublicKey(
@@ -133,35 +133,6 @@ IntPtr PKCS1_Decode_RSAPublicKey(
 }
 
 #endif /* ! PKC_OMIT_PUB_OPS */
-
-#include "../2-hash/sha.h"
-
-int PKCS1_PKParams(int index, CryptoParam_t *out)
-{
-    switch( index )
-    {
-    case 0:
-        return 5;
-        break;
-
-    case 1:
-        out[0].info = iSHA256;
-        out[1].info = iSHA256;
-        out[2].info = NULL;
-        out[3].info = NULL;
-        out[4].info = NULL;
-        out[0].param = NULL;
-        out[1].param = NULL;
-        out[2].aux = 32;
-        out[3].aux = 2048;
-        out[4].aux = 2;
-        return 112;
-        break;
-
-    default:
-        return 0;
-    }
-}
 
 #if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
 IntPtr iPKCS1_KeyCodec(int q) { return xPKCS1_KeyCodec(q); }

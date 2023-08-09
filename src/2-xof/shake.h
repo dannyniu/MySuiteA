@@ -48,6 +48,8 @@ enum {
 };
 
 #define cSHAKE(bits,q) (                                        \
+        q==outBytes ? -1 :                                      \
+        q==outTruncBytes ? ((bits * 2) / 8) :                   \
         q==blockBytes ? (1600-bits*2)/8 :                       \
         q==contextBytes ? sizeof(struct shake_context) :        \
         0)
@@ -68,27 +70,5 @@ enum {
 
 IntPtr iSHAKE128(int q);
 IntPtr iSHAKE256(int q);
-
-#define cSHAKEoN(bits,N,q) (                                    \
-        q==outBytes ? N :                                       \
-        q==blockBytes ? (1600-bits*2)/8 :                       \
-        q==contextBytes ? sizeof(struct shake_context) :        \
-        0)
-
-#define xSHAKEoN(bits,N,q) (                                    \
-        q==InitFunc ? (IntPtr)SHAKE##bits##_Init :              \
-        q==WriteFunc ? (IntPtr)SHAKE_Write :                    \
-        q==XofFinalFunc ? (IntPtr)SHAKE_Final :                 \
-        q==ReadFunc ? (IntPtr)SHAKE_Read :                      \
-        cSHAKEoN(bits,N,q) )
-
-#define cSHAKE128o32(q) cSHAKEoN(128,32,q)
-#define cSHAKE256o64(q) cSHAKEoN(256,64,q)
-
-#define xSHAKE128o32(q) xSHAKEoN(128,32,q)
-#define xSHAKE256o64(q) xSHAKEoN(256,64,q)
-
-IntPtr iSHAKE128o32(int q);
-IntPtr iSHAKE256o64(int q);
 
 #endif /* MySuiteA_shake_h */

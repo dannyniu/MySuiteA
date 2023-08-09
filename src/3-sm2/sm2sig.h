@@ -96,7 +96,6 @@ int SM2SIG_PKParams(int index, CryptoParam_t *out);
         0)
 
 #define xSM2SIG(crv,hash,q) (                           \
-        q==PKParamsFunc ? (IntPtr)SM2SIG_PKParams :     \
         q==PKKeygenFunc ? (IntPtr)SM2SIG_Keygen :       \
         q==PKSignFunc ? (IntPtr)SM2SIG_Sign :           \
         q==PKVerifyFunc ? (IntPtr)SM2SIG_Verify :       \

@@ -133,3 +133,27 @@ begin:
     po->status = 1;
     goto finish;
 }
+
+void *RSASSA_PSS_Sign_Xctrl(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags)
+{
+    (void)bufvec;
+    (void)veclen;
+
+    switch( cmd )
+    {
+    case RSASSA_PSS_set_slen:
+        x->po_base.slen = flags;
+        return x;
+
+    case RSASSA_PSS_get_slen:
+        return (void *)(IntPtr)x->po_base.slen;
+
+    default:
+        return NULL;
+    }
+}

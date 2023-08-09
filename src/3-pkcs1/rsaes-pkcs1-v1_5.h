@@ -33,12 +33,11 @@ void *RSAEncryption_Enc(
 
 #define cRSAEncryption cRSA_PKCS1
 
-#define xRSAEncryption(hmsg,hmgf,slen,bits,primes,q) (             \
-        q==PKParamsFunc ? (IntPtr)PKCS1_PKParams :              \
-        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                \
-        q==PKEncFunc ? (IntPtr)RSAEncryption_Enc :                 \
-        q==PKDecFunc ? (IntPtr)RSAEncryption_Dec :                 \
-        cRSAEncryption(hmsg,hmgf,slen,bits,primes,q) )
+#define xRSAEncryption(hmsg,hmgf,bits,primes,q) (       \
+        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :        \
+        q==PKEncFunc ? (IntPtr)RSAEncryption_Enc :      \
+        q==PKDecFunc ? (IntPtr)RSAEncryption_Dec :      \
+        cRSAEncryption(hmsg,hmgf,bits,primes,q) )
 
 #define xRSAEncryption_CtCodec(q) (                                \
         q==PKEncFunc ? (IntPtr)RSAEncryption_Enc :                 \

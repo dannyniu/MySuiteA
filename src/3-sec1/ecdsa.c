@@ -2,8 +2,6 @@
 
 #include "ecdsa.h"
 #include "../2-ec/ecp-pubkey-codec.h"
-#include "../2-ec/curves-secp.h"
-#include "../2-hash/sha.h"
 #include "../0-exec/struct-delta.c.h"
 
 #if ! PKC_OMIT_PRIV_OPS
@@ -399,35 +397,6 @@ void *ECDSA_Decode_Signature(
 }
 
 #endif /* ! PKC_OMIT_PUB_OPS */
-
-int ECDSA_PKParams(int index, CryptoParam_t *out)
-{
-    switch( index )
-    {
-    case 0:
-        return 2;
-        break;
-
-    case 1:
-        out[0].info = i_secp256r1;
-        out[1].info = iSHA256;
-        out[0].param = NULL;
-        out[1].param = NULL;
-        return 128;
-        break;
-
-    case 2:
-        out[0].info = i_secp384r1;
-        out[1].info = iSHA384;
-        out[0].param = NULL;
-        out[1].param = NULL;
-        return 192;
-        break;
-
-    default:
-        return 0;
-    }
-}
 
 #if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
 

@@ -9,8 +9,7 @@ IntPtr tRSASSA_PSS(const CryptoParam_t *P, int q)
         (P ? P[0].info : PKCS1_NullHash),
         (P ? P[1].info : PKCS1_NullHash),
         (P ? P[2].aux : 0),
-        (P ? P[3].aux : 0),
-        (P ? P[4].aux : 1),
+        (P ? P[3].aux : 1),
         q);
 }
 

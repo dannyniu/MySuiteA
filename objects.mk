@@ -155,30 +155,40 @@ OBJ_ECC_COMMON = \
     src/3-ecc-common/ecc-common.o
 
 OBJ_PKCS1 = \
+    src/3-pkcs1/pkcs1-paramset-common.o \
     src/3-pkcs1/pkcs1.o \
     src/3-pkcs1/rsaes-oaep-dec.o \
     src/3-pkcs1/rsaes-oaep-enc.o \
+    src/3-pkcs1/rsaes-oaep-paramset.o \
     src/3-pkcs1/rsaes-oaep.o \
     src/3-pkcs1/rsaes-pkcs1-v1_5-dec.o \
     src/3-pkcs1/rsaes-pkcs1-v1_5-enc.o \
+    src/3-pkcs1/rsaes-pkcs1-v1_5-paramset.o \
     src/3-pkcs1/rsaes-pkcs1-v1_5.o \
+    src/3-pkcs1/rsassa-pkcs1-v1_5-paramset.o \
     src/3-pkcs1/rsassa-pkcs1-v1_5-sign.o \
     src/3-pkcs1/rsassa-pkcs1-v1_5-verify.o \
     src/3-pkcs1/rsassa-pkcs1-v1_5.o \
+    src/3-pkcs1/rsassa-pss-paramset.o \
     src/3-pkcs1/rsassa-pss-sign.o \
     src/3-pkcs1/rsassa-pss-verify.o \
     src/3-pkcs1/rsassa-pss.o
 
 OBJ_ECPKC_CFRG = \
+    src/3-rfc-7748,8032/eddsa-paramset.o \
     src/3-rfc-7748,8032/eddsa-misc.o \
     src/3-rfc-7748,8032/eddsa.o \
+    src/3-rfc-7748,8032/rfc-7748-paramset.o \
     src/3-rfc-7748,8032/rfc-7748.o
 
 OBJ_ECPKC_SECG = \
+    src/3-sec1/ecdh-kem-paramset.o \
     src/3-sec1/ecdh-kem.o \
+    src/3-sec1/ecdsa-paramset.o \
     src/3-sec1/ecdsa.o
 
 OBJ_ECPKC_ShangMi = \
+    src/3-sm2/sm2sig-paramset.o \
     src/3-sm2/sm2sig.o
 
 OBJS_GROUP_ALL = \

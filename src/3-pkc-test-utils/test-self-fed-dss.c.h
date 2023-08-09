@@ -38,6 +38,10 @@ int main(int argc, char *argv[])
         printf("\t""test %d of %d\r", i+1, testcount);
         fflush(NULL);
 
+#ifdef PKC_Prologue
+        PKC_Prologue();
+#endif /* PKC_Epilogue */
+
         PKC_PRNG_Gen(prng, &dword, sizeof(dword));
         msglen = dword % MSGMAX;
 
@@ -63,6 +67,10 @@ int main(int argc, char *argv[])
             failures ++;
             break;
         }
+
+#ifdef PKC_Epilogue
+        PKC_Epilogue();
+#endif /* PKC_Epilogue */
     }
 
     printf("\n%d of %d tests failed\n", failures, testcount);

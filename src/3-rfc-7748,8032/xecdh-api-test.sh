@@ -14,7 +14,6 @@ src="\
 xecdh-api-test.c
 rfc-7748.c
 2-ec/ec-common.c
-
 2-ec/ecMt.c
 2-ec/curve25519.c
 2-ec/curve448.c

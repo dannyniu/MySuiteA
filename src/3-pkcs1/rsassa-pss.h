@@ -17,6 +17,13 @@ void *RSASSA_PSS_Sign(
     void const *restrict msg, size_t msglen,
     GenFunc_t prng_gen, void *restrict prng);
 
+void *RSASSA_PSS_Sign_Xctrl(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
 // returns x on success and NULL on failure.
 void *RSASSA_PSS_Decode_Signature(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
@@ -27,14 +34,22 @@ void const *RSASSA_PSS_Verify(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
+void *RSASSA_PSS_Verify_Xctrl(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
 #define cRSASSA_PSS cRSA_PKCS1
 
-#define xRSASSA_PSS(hmsg,hmgf,slen,bits,primes,q) (     \
-        q==PKParamsFunc ? (IntPtr)PKCS1_PKParams :      \
-        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :        \
-        q==PKSignFunc ? (IntPtr)RSASSA_PSS_Sign :       \
-        q==PKVerifyFunc ? (IntPtr)RSASSA_PSS_Verify :   \
-        cRSASSA_PSS(hmsg,hmgf,slen,bits,primes,q) )
+#define xRSASSA_PSS(hmsg,hmgf,bits,primes,q) (                  \
+        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                \
+        q==PKSignFunc ? (IntPtr)RSASSA_PSS_Sign :               \
+        q==PKVerifyFunc ? (IntPtr)RSASSA_PSS_Verify :           \
+        q==PubXctrlFunc ? (IntPtr)RSASSA_PSS_Verify_Xctrl :     \
+        q==PrivXctrlFunc ? (IntPtr)RSASSA_PSS_Sign_Xctrl :      \
+        cRSASSA_PSS(hmsg,hmgf,bits,primes,q) )
 
 #define xRSASSA_PSS_CtCodec(q) (                                \
         q==PKSignFunc ? (IntPtr)RSASSA_PSS_Sign :               \
@@ -45,5 +60,20 @@ void const *RSASSA_PSS_Verify(
 
 IntPtr tRSASSA_PSS(const CryptoParam_t *P, int q);
 IntPtr iRSASSA_PSS_CtCodec(int q);
+
+enum {
+    RSASSA_PSS_cmd_null     = 0,
+
+    // For the following 2 commands, No check is done,
+    // and any occurrence of error will be delayed until
+    // actual signing/verifying.
+
+    // The salt length is specified through the ``flags'' parameter.
+    RSASSA_PSS_set_slen     = 1,
+
+    // The salt length is returned after casting to pointer, which can be
+    // casted back to integer.
+    RSASSA_PSS_get_slen     = 2,
+};
 
 #endif /* MySuiteA_RSASSA_PSS_h */

@@ -78,6 +78,7 @@ void BLAKE3_Read4(
 
 #define cBLAKE3(q) (                            \
         q==outBytes ? -1 :                      \
+        q==outTruncBytes ? 32 :                 \
         q==blockBytes ? 64:                     \
         q==chunkBytes ? 1024 :                  \
         q==contextBytes ? sizeof(blake3_t) :    \

@@ -47,14 +47,13 @@ void *RSAES_OAEP_Enc_Xctrl(
 
 #define cRSAES_OAEP cRSA_PKCS1
 
-#define xRSAES_OAEP(hmsg,hmgf,slen,bits,primes,q) (             \
-        q==PKParamsFunc ? (IntPtr)PKCS1_PKParams :              \
+#define xRSAES_OAEP(hmsg,hmgf,bits,primes,q) (                  \
         q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                \
         q==PKEncFunc ? (IntPtr)RSAES_OAEP_Enc :                 \
         q==PKDecFunc ? (IntPtr)RSAES_OAEP_Dec :                 \
         q==PubXctrlFunc ? (IntPtr)RSAES_OAEP_Enc_Xctrl :        \
         q==PrivXctrlFunc ? (IntPtr)RSAES_OAEP_Dec_Xctrl :       \
-        cRSAES_OAEP(hmsg,hmgf,slen,bits,primes,q) )
+        cRSAES_OAEP(hmsg,hmgf,bits,primes,q) )
 
 #define xRSAES_OAEP_CtCodec(q) (                                \
         q==PKEncFunc ? (IntPtr)RSAES_OAEP_Enc :                 \

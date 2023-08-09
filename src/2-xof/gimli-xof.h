@@ -28,6 +28,8 @@ void Gimli_XOF_Final(gimli_xof_t *restrict x);
 void Gimli_XOF_Read(gimli_xof_t *restrict x, void *restrict data, size_t len);
 
 #define cGimli_XOF(q) (                                         \
+        q==outBytes ? -1 :                                      \
+        q==outTruncBytes ? 32 :                                 \
         q==blockBytes ? 16 :                                    \
         q==contextBytes ? sizeof(struct gimli_xof_context) :    \
         0)

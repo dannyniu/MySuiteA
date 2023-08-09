@@ -76,6 +76,7 @@ enum {
 
 #define cKangarooTwelve(q) (                    \
         q==outBytes ? -1 :                      \
+        q==outTruncBytes ? 32 :                 \
         q==blockBytes ? 200-32 :                \
         q==chunkBytes ? 8192 :                  \
         q==contextBytes ? sizeof(K12_Ctx_t) :   \
@@ -91,6 +92,7 @@ enum {
 
 #define cMarsupilamiFourteen(q) (               \
         q==outBytes ? -1 :                      \
+        q==outTruncBytes ? 64 :                 \
         q==blockBytes ? 200-64 :                \
         q==chunkBytes ? 8192 :                  \
         q==contextBytes ? sizeof(K12_Ctx_t) :   \

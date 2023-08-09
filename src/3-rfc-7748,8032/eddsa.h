@@ -168,7 +168,6 @@ int EdDSA_PKParams(int index, CryptoParam_t *out);
         0)
 
 #define xEdDSA(crv,hash,q) (                            \
-        q==PKParamsFunc ? (IntPtr)EdDSA_PKParams :      \
         q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :        \
         q==PKSignFunc ? (IntPtr)EdDSA_Sign :            \
         q==PKVerifyFunc ? (IntPtr)EdDSA_Verify :        \

@@ -114,7 +114,6 @@ int XECDH_PKParams(int index, CryptoParam_t *out);
         0)
 
 #define xXECDH(bits,q) (                                \
-        q==PKParamsFunc ? (IntPtr)XECDH_PKParams :      \
         q==PKKeygenFunc ? (IntPtr)XECDH_Keygen :        \
         q==PKEncFunc ? (IntPtr)XECDH_Enc :              \
         q==PKDecFunc ? (IntPtr)XECDH_Dec :              \

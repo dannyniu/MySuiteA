@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2022-04-27. Public Domain. */
 
 #include "rfc-7748.h"
-#include "../2-ec/curves-Mt.h"
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
@@ -279,38 +278,12 @@ void *XECDH_Decode_Ciphertext(
 
 #endif /* ! PKC_OMIT_PRIV_OPS */
 
-int XECDH_PKParams(int index, CryptoParam_t *out)
-{
-    switch( index )
-    {
-    case 0:
-        return 0;
-        break;
-
-    case 1:
-        out[0].info = iX25519;
-        out[0].param = NULL;
-        return 128;
-        break;
-
-    case 2:
-        out[0].info = iX448;
-        out[0].param = NULL;
-        return 224;
-        break;
-
-    default:
-        return 0;
-    }
-}
-
 #if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
 
 IntPtr iXECDH_KeyCodec(int q) { return xXECDH_KeyCodec(q); }
 
 IntPtr tXECDH(const CryptoParam_t *P, int q)
 {
-    (void)P;
     return xXECDH(P->info, q);
 }
 

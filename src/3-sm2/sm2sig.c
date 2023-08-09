@@ -552,27 +552,6 @@ void *SM2SIG_Verify_Xctrl(
 
 #endif /* ! PKC_OMIT_PUB_OPS */
 
-int SM2SIG_PKParams(int index, CryptoParam_t *out)
-{
-    switch( index )
-    {
-    case 0:
-        return 2;
-        break;
-
-    case 1: // The ONLY parameter set.
-        out[0].info = i_curveSM2;
-        out[1].info = iSM3;
-        out[0].param = NULL;
-        out[1].param = NULL;
-        return 128;
-        break;
-
-    default:
-        return 0;
-    }
-}
-
 #if ! (PKC_OMIT_KEYGEN || PKC_OMIT_PRIV_OPS || PKC_OMIT_PUB_OPS)
 
 IntPtr iSM2SIG_KeyCodec(int q) { return xSM2SIG_KeyCodec(q); }

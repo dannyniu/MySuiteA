@@ -206,6 +206,42 @@
       construction is said to be parameterized by multiple elements.
     </p>
 
+    <h2>Consideration for Public-Key Algorithms</h2>
+
+    <p>
+      Previously (before v0.2) there was a <code>PKParamsFunc</code> query for
+      obtaining instantiation parameters for use in PKC algorithms. The way
+      it's implemented caused inflexibility with re-combining PKC Algorithms
+      with other instantiation parameters.
+    </p>
+
+    <p>
+      The approach taken in v0.2 is to have a <code>PKC_Algo_Inst_t</code>
+      data structure, representing an PKC algorithm instance, defined as:
+    </p>
+
+    <pre>
+      typedef struct {
+      <span class="tab"></span>int secbits;
+      <span class="tab"></span>tCryptoObj_t algo;
+      <span class="tab"></span>CryptoParam_t *param;
+      } PKC_Algo_Inst_t;
+    </pre>
+
+    <p>
+      Initial set of instantiation parameters for the algorithms are declared
+      in the header files named <code>${algorithm-name}-paramset.h</code>, and
+      defined in the corresponding C source code file. Algorithm instances are
+      generally named as <code>${Algorithm-Name}_${Parameter}</code>
+    </p>
+
+    <p>
+      To use an algorithm instance, after checking it provides the desired
+      security level, query <code>algo</code> with <code>param</code>
+      as instantiation parameter, and obtain relevant algorithm
+      characteristics and interfaces.
+    </p>
+
     <h2>Facilities for Supporting Multi-Threaded Algorithms</h2>
 
     <p>
@@ -543,6 +579,14 @@
     <h2>XOF (Extendable-Output Function)</h2>
 
     <dl>
+      <dt><code>outTruncBytes</code></dt>
+      <dd>
+        The recommended output length if this XOF is to be used as a
+        regular hash function. This generally matches the length needed
+        to achieve collision-resistance at the security level advertised
+        by the algorithm.
+      </dd>
+
       <dt><code>blockBytes</code> (hash-specific)</dt>
       <dd>
         The amount of data in bytes, which when accumulated, will cause the
@@ -611,6 +655,18 @@
       identical prototype, and that they serve very similar purpose,
       these 2 symbolic constants are aliased together by having
       identical numerical value.
+    </p>
+
+    <p>
+      Some algorithms (e.g. KMAC) can operate in both XOF and regular
+      fixed-length mode, and may support domain separation between different
+      usage. These algorithms usually support all three of
+      <code>FinalFunc</code>,
+      <code>XofFinalFunc</code>, and
+      <code>ReadFunc</code>.
+      And, their <code>FinalFunc</code> behave similar to
+      <code>XofFinalFunc</code> and <code>ReadFunc</code> called in
+      adjacent sequence.
     </p>
 
     <h2>Encryption</h2>
@@ -986,32 +1042,32 @@
       <dt><code>bytesCtxPub</code></dt>
       <dd>The size of the public-key working context</dd>
 
-      <dt><p><code>PKParamsFunc</code></p></dt>
-      <dd>
-        <p>
-          The parameter sets used for instantiating PKC algorithms are
-          more complex than that for symmetric-key algorithms. This is why
-          a function that can be queried of default, or recommended set of
-          parameters is needed.
-        </p>
-        <p>
-          Such function is of prototype:
-          <code>int (*PKParamsFunc_t)(int index, CryptoParam_t *out);</code>.
-        </p>
-        <p>
-          When <code>index</code> is 0, the vector length of <code>out</code>
-          is returned. This is the number of <code>CryptoParam_t</code> objects
-          that needs to be allocated for <code>out</code>.
-        </p>
-        <p>
-          Each successive values of <code>index</code> returns a parameter set
-          in the parameter vector pointed to by <code>out</code> and the
-          estimated strength of security in bits in the return value.
-          The actual linking structure of <code>out</code> written by the
-          function may not necessarily be linear. When there's no more
-          parameter presets available, 0 is returned.
-        </p>
-      </dd>
+      <!-- dt><p><code>PKParamsFunc</code></p></dt>
+           <dd>
+           <p>
+           The parameter sets used for instantiating PKC algorithms are
+           more complex than that for symmetric-key algorithms. This is why
+           a function that can be queried of default, or recommended set of
+           parameters is needed.
+           </p>
+           <p>
+           Such function is of prototype:
+           <code>int (*PKParamsFunc_t)(int index, CryptoParam_t *out);</code>.
+           </p>
+           <p>
+           When <code>index</code> is 0, the vector length of <code>out</code>
+           is returned. This is the number of <code>CryptoParam_t</code>
+           objects that needs to be allocated for <code>out</code>.
+           </p>
+           <p>
+           Each successive values of <code>index</code> returns a parameter set
+           in the parameter vector pointed to by <code>out</code> and the
+           estimated strength of security in bits in the return value.
+           The actual linking structure of <code>out</code> written by the
+           function may not necessarily be linear. When there's no more
+           parameter presets available, 0 is returned.
+           </p>
+           </dd -->
 
       <dt><p><code>PKKeygenFunc</code></p></dt>
       <dd>
@@ -1118,7 +1174,7 @@
       <dt><code>isParamDetermByKey</code></dt>
       <dt><code>bytesCtxPriv</code></dt>
       <dt><code>bytesCtxPub</code></dt>
-      <dt><code>PKParamsFunc</code></dt>
+      <!-- dt><code>PKParamsFunc</code></dt -->
       <dt><code>PKKeygenFunc</code></dt>
       <dd><p>Same as that for KEMs'.</p></dd>
 
