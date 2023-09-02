@@ -160,7 +160,7 @@ static void *RSAES_OAEP_TestLabel(
     RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
 
     vlong_size_t t;
-    void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
+    void *hctx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
 
     uint8_t *ptr;
 
@@ -191,14 +191,14 @@ static void *RSAES_OAEP_TestLabel(
 
     // label.
 
-    po->hfuncs_msg.initfunc(hx);
+    po->hfuncs_msg.initfunc(hctx);
 
     if( label )
-        po->hfuncs_msg.updatefunc(hx, label, len);
+        po->hfuncs_msg.updatefunc(hctx, label, len);
 
     if( po->hfuncs_msg.xfinalfunc )
-        po->hfuncs_msg.xfinalfunc(hx);
-    po->hfuncs_msg.hfinalfunc(hx, digest, po->hlen_msg);
+        po->hfuncs_msg.xfinalfunc(hctx);
+    po->hfuncs_msg.hfinalfunc(hctx, digest, po->hlen_msg);
 
     // compare label.
 

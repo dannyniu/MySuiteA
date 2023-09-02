@@ -18,17 +18,17 @@ static void sm2sig_setZ(
     ecp_xyz_t *pubkey = DeltaTo(x, offset_Q);
 
     uint8_t buf[128];
-    void *restrict hashctx = DeltaTo(x, offset_hashctx);
-    hash_funcs_set_t *hx = &x->hfuncs;
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
 
     vlong_t *vl;
     vlong_size_t t;
 
-    hx->initfunc(hashctx);
+    hfnx->initfunc(hctx);
     buf[0] = (idlen * 8) >> 8;
     buf[1] = (idlen * 8);
-    hx->updatefunc(hashctx, buf, 2);
-    hx->updatefunc(hashctx, ID_A, idlen);
+    hfnx->updatefunc(hctx, buf, 2);
+    hfnx->updatefunc(hctx, ID_A, idlen);
 
     vl = DeltaTo(opctx, offset_u);
     if( x->curve->a >= 0 )
@@ -37,29 +37,29 @@ static void sm2sig_setZ(
     vlong_adds(vl, vl, x->curve->a, 0);
 
     vlong_I2OSP(vl, buf, x->curve->plen);
-    hx->updatefunc(hashctx, buf, x->curve->plen);
+    hfnx->updatefunc(hctx, buf, x->curve->plen);
 
     vlong_I2OSP(x->curve->b, buf, x->curve->plen);
-    hx->updatefunc(hashctx, buf, x->curve->plen);
+    hfnx->updatefunc(hctx, buf, x->curve->plen);
 
     vlong_I2OSP(DeltaTo(x->curve->G, offset_x), buf, x->curve->plen);
-    hx->updatefunc(hashctx, buf, x->curve->plen);
+    hfnx->updatefunc(hctx, buf, x->curve->plen);
 
     vlong_I2OSP(DeltaTo(x->curve->G, offset_y), buf, x->curve->plen);
-    hx->updatefunc(hashctx, buf, x->curve->plen);
+    hfnx->updatefunc(hctx, buf, x->curve->plen);
 
     // Assume that the public key had been canonicalized
 
     vlong_I2OSP(DeltaTo(pubkey, offset_x), buf, x->curve->plen);
-    hx->updatefunc(hashctx, buf, x->curve->plen);
+    hfnx->updatefunc(hctx, buf, x->curve->plen);
 
     vlong_I2OSP(DeltaTo(pubkey, offset_y), buf, x->curve->plen);
-    hx->updatefunc(hashctx, buf, x->curve->plen);
+    hfnx->updatefunc(hctx, buf, x->curve->plen);
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(hashctx);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
 
-    hx->hfinalfunc(hashctx, x->uinfo, x->hlen);
+    hfnx->hfinalfunc(hctx, x->uinfo, x->hlen);
 }
 
 static_assert(
@@ -75,7 +75,7 @@ IntPtr SM2SIG_Keygen(
 
     if( x )
     {
-        x->hlen = param[1].info(outBytes);
+        x->hlen = OUT_BYTES(param[1].info);
         x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
         x->context_type = 2;
         x->offset_hashctx = sizeof(SM2SIG_Ctx_Hdr_t);
@@ -104,7 +104,7 @@ IntPtr SM2SIG_Decode_PrivateKey(
     {
         SM2SIG_Ctx_Hdr_t *x = any;
 
-        x->hlen = param[1].info(outBytes);
+        x->hlen = OUT_BYTES(param[1].info);
         x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
         x->context_type = 2;
         x->offset_hashctx = sizeof(SM2SIG_Ctx_Hdr_t);
@@ -141,7 +141,7 @@ IntPtr SM2SIG_Decode_PublicKey(
     {
         SM2SIG_Ctx_Hdr_t *x = any;
 
-        x->hlen = param[1].info(outBytes);
+        x->hlen = OUT_BYTES(param[1].info);
         x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
         x->context_type = 2;
         x->offset_hashctx = sizeof(SM2SIG_Ctx_Hdr_t);
@@ -165,8 +165,8 @@ void *SM2SIG_Sign(
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
 
-    void *restrict hashctx = DeltaTo(x, offset_hashctx);
-    hash_funcs_set_t *hx = &x->hfuncs;
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
 
     vlong_size_t t;
     vlong_t *vl;
@@ -224,14 +224,14 @@ start:
 
     // hash the message.
 
-    hx->initfunc(hashctx);
-    hx->updatefunc(hashctx, x->uinfo, x->hlen);
-    hx->updatefunc(hashctx, msg, msglen);
+    hfnx->initfunc(hctx);
+    hfnx->updatefunc(hctx, x->uinfo, x->hlen);
+    hfnx->updatefunc(hctx, msg, msglen);
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(hashctx);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
 
-    hx->hfinalfunc(hashctx, H, slen);
+    hfnx->hfinalfunc(hctx, H, slen);
 
     // compute r = (e + x_R) mod n
 
@@ -336,8 +336,8 @@ void const *SM2SIG_Verify(
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
 
-    void *restrict hashctx = DeltaTo(x, offset_hashctx);
-    hash_funcs_set_t *hx = &x->hfuncs;
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
 
     vlong_size_t t;
     vlong_t *vl;
@@ -372,15 +372,15 @@ void const *SM2SIG_Verify(
     if( x->status != 3 )
     {
         x->status = 3;
-        hx->initfunc(hashctx);
-        hx->updatefunc(hashctx, x->uinfo, x->hlen);
-        hx->updatefunc(hashctx, msg, msglen);
+        hfnx->initfunc(hctx);
+        hfnx->updatefunc(hctx, x->uinfo, x->hlen);
+        hfnx->updatefunc(hctx, msg, msglen);
     }
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(hashctx);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
 
-    hx->hfinalfunc(hashctx, H, slen);
+    hfnx->hfinalfunc(hctx, H, slen);
 
     // {d} = s
     vlong_cpy(

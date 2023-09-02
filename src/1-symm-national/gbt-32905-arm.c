@@ -48,10 +48,10 @@ void compressfunc_sm3_ni(uint32_t V[8], uint32_t const *restrict M)
     abcd = vld1q_u32(V + 0);
     efgh = vld1q_u32(V + 4);
 
-    Q = &abcd;
+    Q = (uint64x2_t *)&abcd;
     *Q = vtrn1q_u64(vtrn2q_u64(*Q, *Q), *Q);
 
-    Q = &efgh;
+    Q = (uint64x2_t *)&efgh;
     *Q = vtrn1q_u64(vtrn2q_u64(*Q, *Q), *Q);
     
     abcd = vtrn1q_u32(vtrn2q_u32(abcd, abcd), abcd);

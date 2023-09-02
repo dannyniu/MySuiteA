@@ -13,9 +13,9 @@ static_assert(
         curve->d_over == -121665 &&             \
         curve->d_under == 121666
 
-#define Cond_p448                             \
+#define Cond_p448                               \
     pbits == 448 &&                             \
-        curve->d_over == -39081 &&             \
+        curve->d_over == -39081 &&              \
         curve->d_under == 1
 
 void eddsa_ctxinit_basic(
@@ -24,7 +24,7 @@ void eddsa_ctxinit_basic(
 {
     ecEd_curve_t const *curve = (void const *)param[0].info(ecEd_PtrCurveDef);
     unsigned pbits = curve->pbits;
-    void *hashctx;
+    void *hctx;
 
     *x = EDDSA_CTX_INIT(
         param[0].info,
@@ -44,8 +44,8 @@ void eddsa_ctxinit_basic(
 
     x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
     x->hashctx_size = param[1].info(contextBytes);
-    hashctx = DeltaTo(x, offset_hashctx_init);
-    x->hfuncs.initfunc(hashctx);
+    hctx = DeltaTo(x, offset_hashctx_init);
+    x->hfuncs.initfunc(hctx);
 
     if( Cond_p25519 )
     {
@@ -53,7 +53,7 @@ void eddsa_ctxinit_basic(
     }
     else if( Cond_p448 )
     {
-        x->hfuncs.updatefunc(hashctx, "SigEd448\0\0", 10);
+        x->hfuncs.updatefunc(hctx, "SigEd448\0\0", 10);
     }
 }
 
@@ -68,14 +68,14 @@ void eddsa_privkey_reload(EdDSA_Ctx_Hdr_t *x)
     size_t plen = (pbits + 8) / 8;
     size_t t;
 
-    void *hashctx = DeltaTo(x, offset_hashctx);
-    hash_funcs_set_t *hx = &x->hfuncs;
+    void *hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
 
-    hx->initfunc(hashctx);
-    hx->updatefunc(hashctx, x->sk, plen);
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(hashctx);
-    hx->hfinalfunc(hashctx, buf, plen * 2);
+    hfnx->initfunc(hctx);
+    hfnx->updatefunc(hctx, x->sk, plen);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
+    hfnx->hfinalfunc(hctx, buf, plen * 2);
 
     if( Cond_p25519 )
     {

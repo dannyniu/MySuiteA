@@ -15,7 +15,7 @@ typedef ECC_Hash_Ctx_Hdr_t ECDSA_Ctx_Hdr_t;
 #define ECDSA_CTX_INIT_X(crv,hash) ECC_CTX_INIT_X(      \
         ECDSA_Ctx_Hdr_t,                                \
         crv, hash,                                      \
-        .hlen = hash(outBytes),                         \
+        .hlen = OUT_BYTES(hash),                        \
         .hfuncs = HASH_FUNCS_SET_INIT(hash),            \
         .context_type = 2,                              \
         .offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t))

@@ -23,7 +23,7 @@ void const *RSAEncryptionWithHash_Verify(
     void const *restrict msg, size_t msglen)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    void *hashctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
     RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
 
     const RSAEnc_HashOID *hoid;
@@ -121,13 +121,12 @@ void const *RSAEncryptionWithHash_Verify(
         ptr[t + emLen - hoid->Digest_Len - hoid->DER_Prefix_Len] =
             ((uint8_t const *)hoid->DER_Prefix)[t];
 
-    po->hfuncs_msg.initfunc(hashctx);
-    po->hfuncs_msg.updatefunc(hashctx, msg, msglen);
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
     if( po->hfuncs_msg.xfinalfunc ) // this should never happen.
-        po->hfuncs_msg.xfinalfunc(hashctx);
+        po->hfuncs_msg.xfinalfunc(hctx);
     po->hfuncs_msg.hfinalfunc(
-        hashctx,
-        ptr + emLen - hoid->Digest_Len, hoid->Digest_Len);
+        hctx, ptr + emLen - hoid->Digest_Len, hoid->Digest_Len);
 
     // -- end - identical to that in *-sign.c --
 

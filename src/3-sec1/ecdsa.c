@@ -17,7 +17,7 @@ IntPtr ECDSA_Keygen(
 
     if( x )
     {
-        x->hlen = param[1].info(outBytes);
+        x->hlen = OUT_BYTES(param[1].info);
         x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
         x->context_type = 2;
         x->offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t);
@@ -43,7 +43,7 @@ IntPtr ECDSA_Decode_PrivateKey(
     {
         ECDSA_Ctx_Hdr_t *x = any;
 
-        x->hlen = param[1].info(outBytes);
+        x->hlen = OUT_BYTES(param[1].info);
         x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
         x->context_type = 2;
         x->offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t);
@@ -77,7 +77,7 @@ IntPtr ECDSA_Decode_PublicKey(
     {
         ECDSA_Ctx_Hdr_t *x = any;
 
-        x->hlen = param[1].info(outBytes);
+        x->hlen = OUT_BYTES(param[1].info);
         x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
         x->context_type = 2;
         x->offset_hashctx = sizeof(ECDSA_Ctx_Hdr_t);
@@ -98,8 +98,8 @@ void *ECDSA_Sign(
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
 
-    void *restrict hashctx = DeltaTo(x, offset_hashctx);
-    hash_funcs_set_t *hx = &x->hfuncs;
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
 
     vlong_size_t t;
     vlong_t *vl;
@@ -148,14 +148,14 @@ start:
     if( x->status != 2 )
     {
         x->status = 2;
-        hx->initfunc(hashctx);
-        hx->updatefunc(hashctx, msg, msglen);
+        hfnx->initfunc(hctx);
+        hfnx->updatefunc(hctx, msg, msglen);
     }
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(hashctx);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
 
-    hx->hfinalfunc(hashctx, H, slen);
+    hfnx->hfinalfunc(hctx, H, slen);
 
     // compute s = k^{-1} * (e + r * d) mod n
 
@@ -184,6 +184,8 @@ start:
         (vlong_modfunc_t)vlong_remv_inplace,
         x->curve->n);
 
+    // There's only P-521 curve, SHA-512, and SHA3-512.
+    // There's no SHA-521 or SHA3-521.
     vlong_OS2IP(
         DeltaTo(opctx, offset_v), // v == e
         H, slen);
@@ -237,8 +239,8 @@ void const *ECDSA_Verify(
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
 
-    void *restrict hashctx = DeltaTo(x, offset_hashctx);
-    hash_funcs_set_t *hx = &x->hfuncs;
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
 
     vlong_size_t t;
     vlong_t *vl;
@@ -270,13 +272,13 @@ void const *ECDSA_Verify(
 
     // hash the message.
 
-    hx->initfunc(hashctx);
-    hx->updatefunc(hashctx, msg, msglen);
+    hfnx->initfunc(hctx);
+    hfnx->updatefunc(hctx, msg, msglen);
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(hashctx);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
 
-    hx->hfinalfunc(hashctx, H, slen);
+    hfnx->hfinalfunc(hctx, H, slen);
 
     // u1 = e * s^{-1} mod n , u2 = r * s^{-1} mod n .
 

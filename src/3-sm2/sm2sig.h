@@ -15,7 +15,7 @@ typedef ECC_Hash_Ctx_Hdr_t SM2SIG_Ctx_Hdr_t;
 #define SM2SIG_CTX_INIT_X(crv,hash) ECC_CTX_INIT_X(     \
         SM2SIG_Ctx_Hdr_t,                               \
         crv, hash,                                      \
-        .hlen = hash(outBytes),                         \
+        .hlen = OUT_BYTES(hash),                        \
         .hfuncs = HASH_FUNCS_SET_INIT(hash),            \
         .context_type = 2,                              \
         .offset_hashctx = sizeof(SM2SIG_Ctx_Hdr_t))
