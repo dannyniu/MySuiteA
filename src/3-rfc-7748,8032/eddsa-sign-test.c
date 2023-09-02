@@ -774,50 +774,52 @@ void *EdDSA_Static_Sign(
     void const *restrict msg, size_t msglen)
 {
     void *hx;
+    void *hctx;
+    hash_funcs_set_t *hfnx = &x->hfuncs;
     unsigned plen = (x->curve->pbits + 8) / 8;
-    unsigned i;
+    unsigned i;[5~
 
     uint8_t buf[256] = {0};
 
     assert( signer == (PKSignFunc_t)EdDSA_Sign );
 
-    assert( x->hfuncs.initfunc == (InitFunc_t)SHA512_Init ||
-            x->hfuncs.initfunc == (InitFunc_t)SHAKE256_Init );
+    assert( hfnx->initfunc == (InitFunc_t)SHA512_Init ||
+            hfnx->initfunc == (InitFunc_t)SHAKE256_Init );
 
     // DOM String.
 
-    hx = DeltaTo(x, offset_hashctx_init);
+    hctx = DeltaTo(x, offset_hashctx_init);
 
     for(i=0; i<x->hashctx_size; i++)
-        ((uint8_t *)hash)[i] = ((uint8_t *)hx)[i];
+        ((uint8_t *)hash)[i] = ((uint8_t *)hctx)[i];
 
     // 'prefix'.
 
-    x->hfuncs.updatefunc(hash, x->prefix, plen);
+    hfnx->updatefunc(hash, x->prefix, plen);
 
     // PH(M).
 
-    hx = DeltaTo(x, offset_hashctx);
+    hctx = DeltaTo(x, offset_hashctx);
 
     if( x->flags & EdDSA_Flags_PH )
     {
         x->status = 2;
-        x->hfuncs.initfunc(hx);
-        x->hfuncs.updatefunc(hx, msg, msglen);
+        hfnx->initfunc(hctx);
+        hfnx->updatefunc(hctx, msg, msglen);
 
-        if( x->hfuncs.xfinalfunc )
-            x->hfuncs.xfinalfunc(hx);
+        if( hfnx->xfinalfunc )
+            hfnx->xfinalfunc(hctx);
 
         // consult [2023-05-19:outlen-64] in "eddsa.c".
-        x->hfuncs.hfinalfunc(hx, buf, 64);
-        x->hfuncs.updatefunc(hash, buf, 64);
+        hfnx->hfinalfunc(hctx, buf, 64);
+        hfnx->updatefunc(hash, buf, 64);
     }
-    else x->hfuncs.updatefunc(hash, msg, msglen);
+    else hfnx->updatefunc(hash, msg, msglen);
 
-    if( x->hfuncs.xfinalfunc )
-        x->hfuncs.xfinalfunc(hash);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hash);
 
-    return signer(x, msg, msglen, x->hfuncs.hfinalfunc, hash);
+    return signer(x, msg, msglen, hfnx->hfinalfunc, hash);
 }
 
 int main(void) // (int argc, char *argv[])

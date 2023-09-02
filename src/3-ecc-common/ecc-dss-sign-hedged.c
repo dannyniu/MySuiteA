@@ -21,8 +21,8 @@ void *ECC_Hedged_Sign(
     uint8_t str[512] = {0};
     unsigned i = 0, t = 0;
 
-    void *restrict hashctx = DeltaTo(x, offset_hashctx);
-    hash_funcs_set_t *hx = &x->hfuncs;
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
 
     vlong_t *vl;
 
@@ -32,13 +32,13 @@ void *ECC_Hedged_Sign(
 
     if( nlen > x->curve->plen )
     {
-        hx->initfunc(hashctx);
-        hx->updatefunc(hashctx, nonce, nlen);
+        hfnx->initfunc(hctx);
+        hfnx->updatefunc(hctx, nonce, nlen);
 
-        if( hx->xfinalfunc )
-            hx->xfinalfunc(hashctx);
+        if( hfnx->xfinalfunc )
+            hfnx->xfinalfunc(hctx);
 
-        hx->hfinalfunc(hashctx, str+t, x->hlen);
+        hfnx->hfinalfunc(hctx, str+t, x->hlen);
         t += x->hlen;
     }
     else
@@ -68,21 +68,21 @@ void *ECC_Hedged_Sign(
 
     // bits2octets(h1).
 
-    hx->initfunc(hashctx);
+    hfnx->initfunc(hctx);
 
     if( IsSM2 )
     {
         x->status = 3;
-        hx->updatefunc(hashctx, x->uinfo, x->hlen);
+        hfnx->updatefunc(hctx, x->uinfo, x->hlen);
     }
     else x->status = 2;
 
-    hx->updatefunc(hashctx, msg, msglen);
+    hfnx->updatefunc(hctx, msg, msglen);
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(hashctx);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
 
-    hx->hfinalfunc(hashctx, str+t, x->hlen);
+    hfnx->hfinalfunc(hctx, str+t, x->hlen);
     t += x->hlen;
 
     // Seeding & Signing.
