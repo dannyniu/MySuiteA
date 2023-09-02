@@ -166,7 +166,7 @@ void *EdDSA_Sign(
     size_t plen = (x->curve->pbits + 8) / 8;
     size_t t;
 
-    hash_funcs_set_t *hx = &x->hfuncs;
+    hash_funcs_set_t *hfnx = &x->hfuncs;
     ecEd_opctx_t *opctx = DeltaTo(x, offset_opctx);
 
     VLONG_T(16) e = { .c = 16 };
@@ -185,16 +185,16 @@ void *EdDSA_Sign(
     {
         // pre-hash flag is set.
 
-        x->hfuncs.initfunc(dst);
-        x->hfuncs.updatefunc(dst, msg, msglen);
-        if( hx->xfinalfunc )
-            hx->xfinalfunc(dst);
-        hx->hfinalfunc(dst, hmsg, 64);
+        hfnx->initfunc(dst);
+        hfnx->updatefunc(dst, msg, msglen);
+        if( hfnx->xfinalfunc )
+            hfnx->xfinalfunc(dst);
+        hfnx->hfinalfunc(dst, hmsg, 64);
 
         for(t=0; t<x->hashctx_size; t++)
             dst[t] = src[t];
-        x->hfuncs.updatefunc(dst, x->prefix, plen);
-        x->hfuncs.updatefunc(dst, hmsg, 64);
+        hfnx->updatefunc(dst, x->prefix, plen);
+        hfnx->updatefunc(dst, hmsg, 64);
     }
     else
     {
@@ -202,13 +202,13 @@ void *EdDSA_Sign(
 
         for(t=0; t<x->hashctx_size; t++)
             dst[t] = src[t];
-        x->hfuncs.updatefunc(dst, x->prefix, plen);
-        x->hfuncs.updatefunc(dst, msg, msglen);
+        hfnx->updatefunc(dst, x->prefix, plen);
+        hfnx->updatefunc(dst, msg, msglen);
     }
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(dst);
-    hx->hfinalfunc(dst, buf, plen * 2);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(dst);
+    hfnx->hfinalfunc(dst, buf, plen * 2);
 
     // R = [r]B
 
@@ -232,25 +232,25 @@ void *EdDSA_Sign(
 
     eddsa_canon_pubkey(x, DeltaTo(x, offset_R));
     eddsa_point_enc(x, buf, DeltaTo(x, offset_R));
-    x->hfuncs.updatefunc(dst, buf, plen);
+    hfnx->updatefunc(dst, buf, plen);
 
     eddsa_point_enc(x, buf, DeltaTo(x, offset_A));
-    x->hfuncs.updatefunc(dst, buf, plen);
+    hfnx->updatefunc(dst, buf, plen);
 
     if( x->flags & EdDSA_Flags_PH )
     {
         // pre-hash flag is set.
-        x->hfuncs.updatefunc(dst, hmsg, 64);
+        hfnx->updatefunc(dst, hmsg, 64);
     }
     else
     {
         // pre-hash flag is clear.
-        x->hfuncs.updatefunc(dst, msg, msglen);
+        hfnx->updatefunc(dst, msg, msglen);
     }
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(dst);
-    hx->hfinalfunc(dst, buf, plen * 2);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(dst);
+    hfnx->hfinalfunc(dst, buf, plen * 2);
 
     // {ctx.r} := S = (r + k * s)
 
@@ -291,7 +291,7 @@ void const *EdDSA_Verify(
     size_t plen = (x->curve->pbits + 8) / 8;
     size_t t;
 
-    hash_funcs_set_t *hx = &x->hfuncs;
+    hash_funcs_set_t *hfnx = &x->hfuncs;
     ecEd_opctx_t *opctx = DeltaTo(x, offset_opctx);
 
     VLONG_T(16) e = { .c = 16 };
@@ -314,33 +314,33 @@ void const *EdDSA_Verify(
     // here in verification, this is the decoded one, already canon.
     // eddsa_canon_pubkey(x, DeltaTo(x, offset_R));
     eddsa_point_enc(x, buf, DeltaTo(x, offset_R));
-    x->hfuncs.updatefunc(dst, buf, plen);
+    hfnx->updatefunc(dst, buf, plen);
 
     // also already canon.
     eddsa_point_enc(x, buf, DeltaTo(x, offset_A));
-    x->hfuncs.updatefunc(dst, buf, plen);
+    hfnx->updatefunc(dst, buf, plen);
 
     if( x->flags & EdDSA_Flags_PH )
     {
         // pre-hash flag is set.
 
-        x->hfuncs.initfunc(dst);
-        x->hfuncs.updatefunc(dst, msg, msglen);
-        if( hx->xfinalfunc )
-            hx->xfinalfunc(dst);
-        hx->hfinalfunc(dst, hmsg, 64);
+        hfnx->initfunc(dst);
+        hfnx->updatefunc(dst, msg, msglen);
+        if( hfnx->xfinalfunc )
+            hfnx->xfinalfunc(dst);
+        hfnx->hfinalfunc(dst, hmsg, 64);
 
-        x->hfuncs.updatefunc(dst, hmsg, 64);
+        hfnx->updatefunc(dst, hmsg, 64);
     }
     else
     {
         // pre-hash flag is clear.
-        x->hfuncs.updatefunc(dst, msg, msglen);
+        hfnx->updatefunc(dst, msg, msglen);
     }
 
-    if( hx->xfinalfunc )
-        hx->xfinalfunc(dst);
-    hx->hfinalfunc(dst, buf, plen * 2);
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(dst);
+    hfnx->hfinalfunc(dst, buf, plen * 2);
 
     // {ctx.s} := k
     vlong_DecLSB((vlong_t *)&e, buf, plen * 2);

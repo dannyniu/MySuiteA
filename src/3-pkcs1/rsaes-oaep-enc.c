@@ -32,7 +32,7 @@ static void *RSAES_OAEP_SetLabel(
     RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
 
     vlong_size_t t;
-    void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
+    void *hctx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
 
     vlong_size_t k = (ex->modulus_bits + 0) / 8; // UD if mod_bits % 7 != 0.
     uint8_t *ptr;
@@ -48,11 +48,11 @@ static void *RSAES_OAEP_SetLabel(
     for(t=0; t<k; t++) ptr[t] = 0;
 
     // label.
-    po->hfuncs_msg.initfunc(hx);
-    po->hfuncs_msg.updatefunc(hx, label, len);
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, label, len);
     if( po->hfuncs_msg.xfinalfunc )
-        po->hfuncs_msg.xfinalfunc(hx);
-    po->hfuncs_msg.hfinalfunc(hx, ptr + 1 + po->hlen_msg, po->hlen_msg);
+        po->hfuncs_msg.xfinalfunc(hctx);
+    po->hfuncs_msg.hfinalfunc(hctx, ptr + 1 + po->hlen_msg, po->hlen_msg);
 
     po->status = 2;
     return x;
@@ -67,7 +67,7 @@ void *RSAES_OAEP_Enc(
     RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
 
     vlong_size_t t;
-    void *hx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
+    void *hctx = DeltaAdd(po, sizeof(pkcs1_padding_oracles_base_t));
 
     vlong_size_t k = (ex->modulus_bits + 0) / 8; // UD if mod_bits % 7 != 0.
     uint8_t *ptr;
@@ -92,10 +92,10 @@ void *RSAES_OAEP_Enc(
     for(t=0; t<k; t++) ptr[t] = 0;
 
     // empty label.
-    po->hfuncs_msg.initfunc(hx);
+    po->hfuncs_msg.initfunc(hctx);
     if( po->hfuncs_msg.xfinalfunc )
-        po->hfuncs_msg.xfinalfunc(hx);
-    po->hfuncs_msg.hfinalfunc(hx, ptr + 1 + po->hlen_msg, po->hlen_msg);
+        po->hfuncs_msg.xfinalfunc(hctx);
+    po->hfuncs_msg.hfinalfunc(hctx, ptr + 1 + po->hlen_msg, po->hlen_msg);
 
 postlabel:
     // 0x01 byte.

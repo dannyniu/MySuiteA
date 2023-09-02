@@ -17,16 +17,16 @@ void mgf1_pkcs1(
     uint8_t *dst = out;
     uint8_t buf[64]; // assume hash functions are 512-bit maximum.
     uint32_t c = htobe32(0);
-    hash_funcs_set_t *hx = &x->base.hfuncs_mgf;
+    hash_funcs_set_t *hfnx = &x->base.hfuncs_mgf;
 
     while( outlen )
     {
         t = x->base.hlen_mgf < outlen ? x->base.hlen_mgf : outlen;
 
-        hx->initfunc(x->hashctx);
-        hx->updatefunc(x->hashctx, in, inlen);
-        hx->updatefunc(x->hashctx, &c, sizeof(c));
-        hx->hfinalfunc(x->hashctx, buf, t);
+        hfnx->initfunc(x->hashctx);
+        hfnx->updatefunc(x->hashctx, in, inlen);
+        hfnx->updatefunc(x->hashctx, &c, sizeof(c));
+        hfnx->hfinalfunc(x->hashctx, buf, t);
 
         if( xor )
             for(i=0; i<t; i++) dst[i] ^= buf[i];
@@ -47,16 +47,16 @@ void mgf_xof(
     size_t t, i;
     uint8_t *dst = out;
     uint8_t buf[16];
-    hash_funcs_set_t *hx = &x->base.hfuncs_mgf;
+    hash_funcs_set_t *hfnx = &x->base.hfuncs_mgf;
 
-    hx->initfunc(x->hashctx);
-    hx->updatefunc(x->hashctx, in, inlen);
-    hx->xfinalfunc(x->hashctx);
+    hfnx->initfunc(x->hashctx);
+    hfnx->updatefunc(x->hashctx, in, inlen);
+    hfnx->xfinalfunc(x->hashctx);
 
     while( outlen )
     {
         t = sizeof(buf) < outlen ? sizeof(buf) : outlen;
-        hx->hfinalfunc(x->hashctx, buf, t);
+        hfnx->hfinalfunc(x->hashctx, buf, t);
 
         if( xor )
             for(i=0; i<t; i++) dst[i] ^= buf[i];

@@ -40,7 +40,7 @@ void *RSAEncryptionWithHash_Sign(
     GenFunc_t prng_gen, void *restrict prng)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    void *hashctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
     RSA_Priv_Base_Ctx_t *dx = DeltaTo(x, offset_rsa_privctx);
 
     const RSAEnc_HashOID *hoid;
@@ -114,13 +114,12 @@ begin:
         ptr[t + emLen - hoid->Digest_Len - hoid->DER_Prefix_Len] =
             ((uint8_t const *)hoid->DER_Prefix)[t];
 
-    po->hfuncs_msg.initfunc(hashctx);
-    po->hfuncs_msg.updatefunc(hashctx, msg, msglen);
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
     if( po->hfuncs_msg.xfinalfunc ) // this should never happen.
-        po->hfuncs_msg.xfinalfunc(hashctx);
+        po->hfuncs_msg.xfinalfunc(hctx);
     po->hfuncs_msg.hfinalfunc(
-        hashctx,
-        ptr + emLen - hoid->Digest_Len, hoid->Digest_Len);
+        hctx, ptr + emLen - hoid->Digest_Len, hoid->Digest_Len);
 
     // EM to Integer.
     vp1 = DeltaTo(dx, offset_w1);

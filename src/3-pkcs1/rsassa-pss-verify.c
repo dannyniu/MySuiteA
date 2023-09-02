@@ -23,7 +23,7 @@ void const *RSASSA_PSS_Verify(
     void const *restrict msg, size_t msglen)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
-    void *hashctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
     RSA_Pub_Ctx_Hdr_t *ex = DeltaTo(x, offset_rsa_pubctx);
 
     vlong_size_t t;
@@ -119,22 +119,21 @@ void const *RSASSA_PSS_Verify(
 
     // Computing H' prerequisite: mHash.
     vp2 = DeltaTo(ex, offset_w3);
-    po->hfuncs_msg.initfunc(hashctx);
-    po->hfuncs_msg.updatefunc(hashctx, msg, msglen);
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
     if( po->hfuncs_msg.xfinalfunc )
-        po->hfuncs_msg.xfinalfunc(hashctx);
-    po->hfuncs_msg.hfinalfunc(hashctx, vp2->v, po->hlen_msg);
+        po->hfuncs_msg.xfinalfunc(hctx);
+    po->hfuncs_msg.hfinalfunc(hctx, vp2->v, po->hlen_msg);
 
     // Compute H'.
-    po->hfuncs_msg.initfunc(hashctx);
-    po->hfuncs_msg.updatefunc(hashctx, nul, 8);
-    po->hfuncs_msg.updatefunc(hashctx, vp2->v, po->hlen_msg);
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, nul, 8);
+    po->hfuncs_msg.updatefunc(hctx, vp2->v, po->hlen_msg);
     po->hfuncs_msg.updatefunc(
-        hashctx,
-        ptr + emLen - po->hlen_msg - po->slen - 1, po->slen);
+        hctx, ptr + emLen - po->hlen_msg - po->slen - 1, po->slen);
     if( po->hfuncs_msg.xfinalfunc )
-        po->hfuncs_msg.xfinalfunc(hashctx);
-    po->hfuncs_msg.hfinalfunc(hashctx, vp2->v, po->hlen_msg);
+        po->hfuncs_msg.xfinalfunc(hctx);
+    po->hfuncs_msg.hfinalfunc(hctx, vp2->v, po->hlen_msg);
 
     // H == H'?
     for(t=0; t<po->hlen_msg; t++)
