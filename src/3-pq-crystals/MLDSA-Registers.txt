@@ -1,0 +1,49 @@
+func MLDSA-Sign-loop
+key lattice s1hat, s2hat, t0hat, Ahat
+ret void
+begin
+stack lattice yz, w, ck, cl, c
+stack bytes ch[64]
+# y := ExpandMask(...)
+Gen             yz := y
+# w = InvNTT(Ahat o NTT(y))
+NTT             w := @(yz)
+Scl             w *= Ahat
+InvNTT          w := @(w)
+# c := H(mu+w1Encode(w1))
+HighBits        ck := @(w)
+Hash            ch := H(H(pk+msg)+ck/*w1*/)
+# chat := NTT(SampleInBal(substr(c, 0, 32)))
+SampleInBall    c := @(ch[0..32])
+NTT             c := @(c)
+# <<cs1>> & <<cs2>>
+Scl             cl/*cs1*/ := c * s1hat
+Scl             ck/*cs2*/ := c * s2hat
+InvNTT          cl := @(cl)
+InvNTT          ck := @(ck)
+# z := y + <<cs1>>
+Add             yz += <<cs1>>
+# r0 := w - <<cs2>> # LowBits deferred
+Sub             w -= ck
+# if max(z) >= gamma1 - beta or max(LowBits(r0)) >= gamma2 - beta
+# then (z,h) := null
+__IF__
+max(abs(yz[*])) >= gamma1 - beta __OR__
+max(abs(LowBits(w[*]))) >= gamma2 - beta
+__THEN__ (z,h) := null
+__ELSE__
+# <<ct0>> := InvNTT(chat o t0hat)
+Scl             ck := c * t0hat
+InvNTT          ck/*ct0*/ := @(ck)
+# h := MakeHint(...)
+Add             w += ck/*ct0*/
+MakeHint        w := @(ck/*ct0*/, w)
+__IF__
+max(abs(ck/*ct0*/[*])) >= gamma2 __OR__
+WeightOf(h/*w*/) > omega
+__THEN__ (z,h) := null
+__FI__
+__FI__
+inc             Kappa += 1
+return
+end
