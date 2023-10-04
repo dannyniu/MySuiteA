@@ -5,15 +5,11 @@
 
 IntPtr ber_tlv_export_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
 {
-    int pass = enc ? 2 : 1;
     IntPtr ret = 0, subret;
 
-    uint8_t *stack = NULL;
-    uint8_t *ptr = enc;
-    size_t remain = enclen;
-    //- not used -// uint32_t i;
-
-    size_t taglen;
+    uint8_t tlbuf[TAGLEN_MAX];
+    uint8_t *ptr = tlbuf;
+    IntPtr t;
 
     const RSA_Priv_Base_Ctx_t *ctx = any;
 
@@ -22,51 +18,36 @@ IntPtr ber_tlv_export_RSAPublicKey(BER_TLV_ENCODING_FUNC_PARAMS)
 
     //
     // modulus INTEGER, -- n
-    subret = ber_tlv_encode_integer(DeltaTo(ctx, offset_n), ptr, remain);
+    subret = ber_tlv_put_integer(
+        DeltaTo(ctx, offset_n), DeltaAdd(enc, ret), enclen-ret);
+    if( subret < 0 ) return -1;
     ret += subret;
-
-    if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
-    taglen = 0;
-    taglen += ber_push_len(&stack, subret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-
-    if( pass == 2 )
-    {
-        ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
-    }
-    ret += taglen;
-    if( enc ) ptr += subret + taglen; remain -= subret + taglen;
 
     //
     // publicExponent INTEGER, -- e
-    subret = ber_tlv_encode_integer(DeltaTo(ctx, offset_e), ptr, remain);
+    subret = ber_tlv_put_integer(
+        DeltaTo(ctx, offset_e), DeltaAdd(enc, ret), enclen-ret);
+    if( subret < 0 ) return -1;
     ret += subret;
-
-    if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
-    taglen = 0;
-    taglen += ber_push_len(&stack, subret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-
-    if( pass == 2 )
-    {
-        ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
-    }
-    ret += taglen;
-    if( enc ) ptr += subret + taglen; remain -= subret + taglen;
 
     //
     // } -- End of "RSAPublicKey ::= SEQUENCE".
 
-    if( pass == 2 ) stack = enc + enclen;
-    taglen = 0;
-    taglen += ber_push_len(&stack, ret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(16), 1);
+    ptr += ber_put_tag(ptr, BER_TLV_TAG_UNI(16), 1);
+    ptr += ber_put_len(ptr, ret);
+    subret = ptr - tlbuf;
 
-    if( pass == 2 )
+    if( enc )
     {
-        ber_util_splice_insert(enc, ret, (stack - enc), taglen);
-    }
-    ret += taglen;
+        if( ret + subret > (IntPtr)enclen )
+            return -1;
 
-    return ret;
+        for(t=ret+subret; t-->subret; )
+            enc[t] = enc[t - subret];
+
+        for(t=subret; t-->0; )
+            enc[t] = tlbuf[t];
+    }
+
+    return ret + subret;
 }

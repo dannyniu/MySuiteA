@@ -227,15 +227,11 @@ IntPtr ECC_Encode_PublicKey(
 
 IntPtr ber_tlv_ecc_encode_dss_signature(BER_TLV_ENCODING_FUNC_PARAMS)
 {
-    int pass = enc ? 2 : 1;
     IntPtr ret = 0, subret;
 
-    uint8_t *stack = NULL;
-    uint8_t *ptr = enc;
-    size_t remain = enclen;
-    //- not used -// uint32_t i;
-
-    size_t taglen;
+    uint8_t tlbuf[TAGLEN_MAX];
+    uint8_t *ptr = tlbuf;
+    IntPtr t;
 
     const ECC_Hash_Ctx_Hdr_t *ctx = any;
     const ecp_opctx_t *opctx = DeltaTo(ctx, offset_opctx);
@@ -245,53 +241,38 @@ IntPtr ber_tlv_ecc_encode_dss_signature(BER_TLV_ENCODING_FUNC_PARAMS)
 
     //
     // r INTEGER,
-    subret = ber_tlv_encode_integer(DeltaTo(opctx, offset_r), ptr, remain);
+    subret = ber_tlv_put_integer(
+        DeltaTo(opctx, offset_r), DeltaAdd(enc, ret), enclen-ret);
+    if( subret < 0 ) return -1;
     ret += subret;
-
-    if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
-    taglen = 0;
-    taglen += ber_push_len(&stack, subret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-
-    if( pass == 2 )
-    {
-        ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
-    }
-    ret += taglen;
-    if( enc ) ptr += subret + taglen; remain -= subret + taglen;
 
     //
     // s INTEGER,
-    subret = ber_tlv_encode_integer(DeltaTo(opctx, offset_s), ptr, remain);
+    subret = ber_tlv_put_integer(
+        DeltaTo(opctx, offset_s), DeltaAdd(enc, ret), enclen-ret);
+    if( subret < 0 ) return -1;
     ret += subret;
-
-    if( pass == 2 ) stack = enc + enclen; // [NULL-stack-in-pass-1].
-    taglen = 0;
-    taglen += ber_push_len(&stack, subret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(2), 0);
-
-    if( pass == 2 )
-    {
-        ber_util_splice_insert(ptr, subret, (stack - ptr), taglen);
-    }
-    ret += taglen;
-    if( enc ) ptr += subret + taglen; remain -= subret + taglen;
 
     //
     // } -- End of "Ecdsa-Sig-Value ::= SEQUENCE".
 
-    if( pass == 2 ) stack = enc + enclen;
-    taglen = 0;
-    taglen += ber_push_len(&stack, ret);
-    taglen += ber_push_tag(&stack, BER_TLV_TAG_UNI(16), 1);
+    ptr += ber_put_tag(ptr, BER_TLV_TAG_UNI(16), 1);
+    ptr += ber_put_len(ptr, ret);
+    subret = ptr - tlbuf;
 
-    if( pass == 2 )
+    if( enc )
     {
-        ber_util_splice_insert(enc, ret, (stack - enc), taglen);
-    }
-    ret += taglen;
+        if( ret + subret > (IntPtr)enclen )
+            return -1;
 
-    return ret;
+        for(t=ret+subret; t-->subret; )
+            enc[t] = enc[t - subret];
+
+        for(t=subret; t-->0; )
+            enc[t] = tlbuf[t];
+    }
+
+    return ret + subret;
 }
 
 #endif /* ! PKC_OMIT_PRIV_OPS */

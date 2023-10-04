@@ -182,6 +182,95 @@ size_t ber_push_tag(uint8_t **stack, uint32_t val, int pc)
     else return 0;
 }
 
+size_t ber_put_tag(uint8_t *buf, uint32_t val, int pc)
+{
+    uint8_t tagflags = ((6 & (val >> 28)) | (pc & 1)) << 5;
+    val &= BER_TLV_TAG_MAX;
+
+    if( val < (uint32_t)1 << 5 )
+    {
+        if( buf ) *buf++ = tagflags | val;
+        return 1;
+    }
+
+    else if( val < (uint32_t)1 << (7 * 1) )
+    {
+        if( buf )
+        {
+            *buf++ = tagflags | 31;
+            *buf++ = val;
+        }
+        return 2;
+    }
+
+    else if( val < (uint32_t)1 << (7 * 2) )
+    {
+        if( buf )
+        {
+            *buf++ = tagflags | 31;
+            *buf++ = (0x7f & (val >>  7)) | 0x80;
+            *buf++ = 0x7f & val;
+        }
+        return 3;
+    }
+
+    else if( val < (uint32_t)1 << (7 * 3) )
+    {
+        if( buf )
+        {
+            *buf++ = tagflags | 31;
+            *buf++ = (0x7f & (val >> 14)) | 0x80;
+            *buf++ = (0x7f & (val >>  7)) | 0x80;
+            *buf++ = 0x7f & val;
+        }
+        return 4;
+    }
+
+    else if( val < (uint32_t)1 << (7 * 4) )
+    {
+        if( buf )
+        {
+            *buf++ = tagflags | 31;
+            *buf++ = (0x7f & (val >> 21)) | 0x80;
+            *buf++ = (0x7f & (val >> 14)) | 0x80;
+            *buf++ = (0x7f & (val >>  7)) | 0x80;
+            *buf++ = 0x7f & val;
+        }
+        return 5;
+    }
+
+    else return 0;
+}
+
+size_t ber_put_len(uint8_t *buf, size_t val)
+{
+    if( val < 0x80 )
+    {
+        if( buf )
+        {
+            *buf++ = val;
+        }
+        return 1;
+    }
+
+    else
+    {
+        size_t ret = 0, i;
+        while( (val >> (8*ret)) > 0 ) ret++;
+
+        if( buf )
+        {
+            *buf++ = 0x80 | ret;
+            for(i=ret; i-->0; )
+            {
+                *buf++ = val >> (8 * i);
+            }
+        }
+
+        return ret + 1;
+    }
+}
+
 void *ber_util_splice_insert(
     void *buf,        size_t len1,
     ptrdiff_t offset, size_t len2)
@@ -323,4 +412,46 @@ IntPtr ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS)
     }
 
     return ret;
+}
+
+IntPtr ber_tlv_put_integer(BER_TLV_ENCODING_FUNC_PARAMS)
+{
+    size_t ret = 0, hdr;
+    size_t i;
+    const vlong_t *w = any;
+
+    // 2023-10-05:
+    // this function has error return values,
+    // so the [ber-int-err-chk:2021-02-13] note
+    // doesn't apply to it.
+
+    // This function handles only unsigned integers.
+    ret = w->c * sizeof(uint32_t) + 1;
+    for(i=w->c; --i < w->c; )
+    {
+        if( w->v[i] < UINT32_C(1) << 31 ) ret--;
+        if( w->v[i] < UINT32_C(1) << 23 ) ret--;
+        if( w->v[i] < UINT32_C(1) << 15 ) ret--;
+        if( w->v[i] < UINT32_C(1) <<  7 ) ret--;
+        if( w->v[i] ) break;
+    }
+
+    hdr = ber_put_tag(NULL, BER_TLV_TAG_UNI(2), 0) + ber_put_len(NULL, ret);
+
+    if( !enc ) return ret + hdr;
+    if( enclen < ret + hdr ) return -1;
+
+    enc += ber_put_tag(enc, BER_TLV_TAG_UNI(2), 0);
+    enc += ber_put_len(enc, ret);
+
+    for(i=0; i<ret; i++) // i is the byte position in enc,
+    {
+        uint32_t u, v; // v is the shift amount,
+        u = ret - i - 1;
+        v = (u % sizeof(uint32_t)) * 8;
+        u /= sizeof(uint32_t); // u is the position in vlong.
+        enc[i] = u < w->c ? (w->v[u] >> v) : 0;
+    }
+
+    return ret + hdr;
 }
