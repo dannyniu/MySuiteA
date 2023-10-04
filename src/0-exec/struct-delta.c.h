@@ -7,6 +7,7 @@
 
 static inline void *DeltaAdd(void *base, ptrdiff_t offset)
 {
+    if( !base ) return NULL;
     return (uint8_t *)base + offset;
 }
 

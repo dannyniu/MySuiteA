@@ -20,6 +20,8 @@ void dump_ctx_words(const uint32_t *ctx, size_t size)
 #define dump_ctx_words(...) ((void)0)
 #endif /* DUMP_CONTEXT_WORDS */
 
+#include "../test-utils.c.h"
+
 int main(int argc, char *argv[])
 {
     FILE *fp;
@@ -46,7 +48,7 @@ int main(int argc, char *argv[])
 
     // decoding test.
 
-    size = ber_tlv_decode_RSAPrivateKey(NULL, buf, len);
+    size = ber_tlv_decode_RSAPrivateKey(NULL, buf, len); //dumphex(buf,len);
     printf("1st pass decoding returned: %ld\n", size);
 
     ctx = malloc(size);
@@ -62,7 +64,7 @@ int main(int argc, char *argv[])
     size = ber_tlv_encode_RSAPrivateKey(ctx, NULL, 0);
     printf("1st pass encoding returned: %ld\n", size);
 
-    size = ber_tlv_encode_RSAPrivateKey(ctx, buf2, len);
+    size = ber_tlv_encode_RSAPrivateKey(ctx, buf2, len); //dumphex(buf2,len);
 
     if( memcmp(buf, buf2, len) )
     {

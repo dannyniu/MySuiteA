@@ -1,8 +1,9 @@
 #!/bin/sh
 
-optimize=true
+optimize=debug
 testfunc() {
-    $exec ../tests/rsa-1440-3primes.der
+    #lldb --\
+        $exec ../tests/rsa-1440-3primes.der
 }
 
 cd "$(dirname "$0")"
