@@ -43,6 +43,14 @@ void *ber_util_splice_insert(
     void *buf,        size_t len1,
     ptrdiff_t offset, size_t len2);
 
+// 2023-10-05:
+// New (supposedly) more efficient way to encode DER.
+// The following 2 functions assume the initial value
+// of ``buf'' can hold both of their maximum output.
+#define TAGLEN_MAX 16
+size_t ber_put_tag(uint8_t *buf, uint32_t val, int pc);
+size_t ber_put_len(uint8_t *buf, size_t val);
+
 //
 // A ``ber_tlv_{de,en}coding_func'' have 2 passes,
 //
@@ -86,5 +94,7 @@ typedef IntPtr (*ber_tlv_encoding_func)(BER_TLV_ENCODING_FUNC_PARAMS);
 // [ber-int-err-chk:2021-02-13].
 IntPtr ber_tlv_decode_integer(BER_TLV_DECODING_FUNC_PARAMS);
 IntPtr ber_tlv_encode_integer(BER_TLV_ENCODING_FUNC_PARAMS);
+
+IntPtr ber_tlv_put_integer(BER_TLV_ENCODING_FUNC_PARAMS);
 
 #endif /* MySuiteA_der_parse_h */

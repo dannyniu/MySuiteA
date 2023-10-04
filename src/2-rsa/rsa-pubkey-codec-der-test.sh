@@ -2,6 +2,7 @@
 
 optimize=true
 testfunc() {
+    #lldb --\
     $exec ../tests/rsa-1440-3primes.der ../tests/rsa-1440-pub.der
 }
 
