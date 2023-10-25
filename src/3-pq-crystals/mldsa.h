@@ -36,7 +36,7 @@ typedef struct {
     uint32_t offset_Ahat; // k x l
     uint32_t offset_s1hat; // l
     uint32_t offset_s2hat; // k
-    uint32_t offset_t1, offset_t0hat; // k
+    uint32_t offset_t1, offset_t0hat; // k each
 
     // signature variables.
     uint32_t offset_yz; // l

@@ -62,6 +62,4 @@ int32_t MLDSA_UseHint(int32_t r, int h, int32_t gamma2);
 void MLDSA_NTT(module256_t *restrict melem);
 void MLDSA_InvNTT(module256_t *restrict melem);
 
-int32_t MLDSA_Decompose_Logging(int32_t r, int32_t *r0_out, int32_t gamma2);
-bool MLDSA_HasOverflow_Logging(module256_t *m, int32_t bound);
 #endif /* MySuiteA_Dilithium_Aux_H */

@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2021-09-11. Public Domain. */
+/* DannyNiu/NJF, 2023-10-04. Public Domain. */
 
 #include "mldsa.h"
 #include "../2-ec/curves-secp.h"

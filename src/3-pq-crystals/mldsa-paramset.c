@@ -1,4 +1,4 @@
-/* DannyNiu/NJF, 2023-08-09. Public Domain. */
+/* DannyNiu/NJF, 2023-10-04. Public Domain. */
 
 #include "mldsa-paramset.h"
 
