@@ -7,6 +7,9 @@
 
 typedef CryptoParam_t MLKEM_Param_t[1];
 
+// data model: SIP16 | ILP32 | LP64
+// ----------+-------+-------+------
+// align spec:  4 * (32+16+10+256)
 typedef struct {
     // data blobs.
     uint8_t z[32]; // For use in implicit rejection.
