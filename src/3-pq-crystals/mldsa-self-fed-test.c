@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2023-10-04. Public Domain. */
 
 #include "mldsa.h"
-#include "../2-ec/curves-secp.h"
 #include "../2-hash/sha.h"
 
 #define PKC_Algo_Prefix MLDSA
