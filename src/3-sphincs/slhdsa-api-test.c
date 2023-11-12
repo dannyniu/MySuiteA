@@ -3,29 +3,25 @@
 #include "slhdsa.h"
 #include "sphincs-hash-params-family-sha256.h"
 #include "sphincs-hash-params-family-sha512.h"
+#include "sphincs-hash-params-family-shake.h"
 
 #define PKC_CtAlgo iSLHDSA_CtCodec
 #define MSGMAX 96
 
 #define PKC_KeyAlgo iSLHDSA_KeyCodec
 
+#define HashSubX(name,algo) SPHINCS_HashParam_##name##_##algo
+#define HashSub(name,algo) (IntPtr)HashSubX(name,algo)
+
 SLHDSA_Param_t params = {
     [0] = { .info = NULL, .aux = HashN, },
     [1] = { .info = NULL, .aux = HashH, },
-    [2] = { .info = NULL, .aux = HashN == 16 ?
-            (IntPtr)SPHINCS_HashParam_Hmsg_SHA256 :
-            (IntPtr)SPHINCS_HashParam_Hmsg_SHA512, },
-    [3] = { .info = NULL, .aux = (IntPtr)SPHINCS_HashParam_PRF_SHA2, },
-    [4] = { .info = NULL, .aux = HashH == 16 ?
-            (IntPtr)SPHINCS_HashParam_PRFmsg_SHA256 :
-            (IntPtr)SPHINCS_HashParam_PRFmsg_SHA512, },
-    [5] = { .info = NULL, .aux = (IntPtr)SPHINCS_HashParam_F_SHA2, },
-    [6] = { .info = NULL, .aux = HashH == 16 ?
-            (IntPtr)SPHINCS_HashParam_H_SHA256 :
-            (IntPtr)SPHINCS_HashParam_H_SHA512, },
-    [7] = { .info = NULL, .aux = HashH == 16 ?
-            (IntPtr)SPHINCS_HashParam_T_SHA256 :
-            (IntPtr)SPHINCS_HashParam_T_SHA512, },
+    [2] = { .info = NULL, .aux = HashSub(Hmsg, LongHash), },
+    [3] = { .info = NULL, .aux = HashSub(PRF, ShortHash), },
+    [4] = { .info = NULL, .aux = HashSub(PRFmsg, LongHash), },
+    [5] = { .info = NULL, .aux = HashSub(F, ShortHash), },
+    [6] = { .info = NULL, .aux = HashSub(H, LongHash), },
+    [7] = { .info = NULL, .aux = HashSub(T, LongHash), },
 };
 
 #include "../3-pkc-test-utils/test-api-dss.c.h"
