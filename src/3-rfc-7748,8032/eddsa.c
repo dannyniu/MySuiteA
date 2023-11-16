@@ -170,27 +170,31 @@ void *EdDSA_Sign(
     uint8_t *dst;
     uint8_t const *src;
     uint8_t hmsg[64];
-    uint8_t buf[128];
+    uint8_t buf[256];
     size_t plen = (x->curve->pbits + 8) / 8;
-    size_t t;
+    size_t t, b;
 
     hash_funcs_set_t *hfnx = &x->hfuncs;
     ecEd_opctx_t *opctx = DeltaTo(x, offset_opctx);
 
-    VLONG_T(16) e = { .c = 16 };
+    assert( plen == 32 || plen == 57 );
 
-#if false
-    (void)prng_gen;
-    (void)prng;
-#endif // implementing randomized+hedged EdDSA, currently.
+    VLONG_T(16) e = { .c = 16 };
 
     dst = DeltaTo(x, offset_hashctx);
     src = DeltaTo(x, offset_hashctx_init);
 
+    // Step 2.
     // 2023-05-19: was: H(dom(F,C) + prefix + PH(M), plen)
+    // 2023-11-16: changed to: H(dom(F,C) + Z + prefix + 000... + PH(M), plen)
+
+    // Updated Step 2: PH(M). // brought here to avoid schedule conflict.
 
     if( x->flags & EdDSA_Flags_PH )
     {
+        hfnx->initfunc(dst);
+        hfnx->updatefunc(dst, msg, msglen);
+
         if( hfnx->xfinalfunc )
             hfnx->xfinalfunc(dst);
 
@@ -201,7 +205,45 @@ void *EdDSA_Sign(
         hfnx->hfinalfunc(dst, hmsg, 64);
     }
 
-    prng_gen(prng, buf, plen * 2);
+    // Updated Step 2: DOM String.
+    for(t=0; t<x->hashctx_size; t++)
+        dst[t] = src[t];
+
+    for(t=0; t<sizeof(buf); t++)
+        buf[t] = 0;
+
+    t = x->domlen;
+
+    // Updated Step 2: 'Z' and 'prefix'.
+
+    if( prng_gen && prng )
+        prng_gen(prng, buf, plen);
+
+    hfnx->updatefunc(dst, buf, plen);
+    hfnx->updatefunc(dst, x->prefix, plen);
+
+    // Updated Step 2: 000...
+
+    b = plen == 32 ? 128 : plen == 57 ? 136 : 1;
+    t += plen * 2;
+    t %= b;
+    t = b - t;
+
+    for(b=0; b<t; b++) buf[b] = 0;
+    hfnx->updatefunc(dst, buf, t);
+
+    // Updated Step 2: PH(M)
+
+    if( x->flags & EdDSA_Flags_PH )
+    {
+        hfnx->updatefunc(dst, hmsg, 64);
+    }
+    else hfnx->updatefunc(dst, msg, msglen);
+
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(dst);
+
+    hfnx->hfinalfunc(dst, buf, plen * 2);
 
     // R = [r]B
 
