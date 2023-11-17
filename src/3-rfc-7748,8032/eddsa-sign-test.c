@@ -777,7 +777,7 @@ void *EdDSA_Static_Sign(
     void *hctx;
     hash_funcs_set_t *hfnx = &x->hfuncs;
     unsigned plen = (x->curve->pbits + 8) / 8;
-    unsigned i;[5~
+    unsigned i;
 
     uint8_t buf[256] = {0};
 
