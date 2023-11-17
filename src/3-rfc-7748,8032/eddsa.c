@@ -12,14 +12,16 @@ static void *Ed25519_Set_DomainParams(
     void *dst = DeltaTo(x, offset_hashctx_init);
     uint8_t bi[2];
 
-    if( bufvec[0].info & EdDSA_Flags_PH || bufvec[1].len )
+    x->flags = bufvec[0].info;
+
+    if( x->flags & EdDSA_Flags_PH || bufvec[1].len )
     {
         if( bufvec[1].len > 255 ) return NULL;
         x->hfuncs.initfunc(dst);
         x->hfuncs.updatefunc(
             dst, "SigEd25519 no Ed25519 collisions", 32);
 
-        bi[0] = bufvec[0].info & EdDSA_Flags_PH;
+        bi[0] = x->flags & EdDSA_Flags_PH;
         bi[1] = bufvec[1].len;
         x->hfuncs.updatefunc(dst, bi, 2);
         x->hfuncs.updatefunc(dst, bufvec[1].dat, bufvec[1].len);
@@ -42,11 +44,13 @@ static void *Ed448_Set_DomainParams(
     void *dst = DeltaTo(x, offset_hashctx_init);
     uint8_t bi[2];
 
+    x->flags = bufvec[0].info;
+
     if( bufvec[1].len > 255 ) return NULL;
     x->hfuncs.initfunc(dst);
     x->hfuncs.updatefunc(dst, "SigEd448", 8);
 
-    bi[0] = bufvec[0].info & EdDSA_Flags_PH;
+    bi[0] = x->flags & EdDSA_Flags_PH;
     bi[1] = bufvec[1].len;
     x->hfuncs.updatefunc(dst, bi, 2);
     x->hfuncs.updatefunc(dst, bufvec[1].dat, bufvec[1].len);
@@ -179,7 +183,9 @@ void *EdDSA_Sign(
 
     assert( plen == 32 || plen == 57 );
 
-    VLONG_T(16) e = { .c = 16 };
+    // was 16 before 2023-11-17, which is so small that
+    // it caused error/bug.
+    VLONG_T(32) e = { .c = 32 };
 
     dst = DeltaTo(x, offset_hashctx);
     src = DeltaTo(x, offset_hashctx_init);
@@ -260,7 +266,7 @@ void *EdDSA_Sign(
         DeltaTo(x, offset_r),
         opctx, x->curve);
 
-    // H(dom(F,C) + R + A + PH(M), plen)
+    // H(dom(F,C) + R + A + PH(M), plen * 2)
 
     for(t=0; t<x->hashctx_size; t++)
         dst[t] = src[t];
@@ -336,7 +342,9 @@ void const *EdDSA_Verify(
     hash_funcs_set_t *hfnx = &x->hfuncs;
     ecEd_opctx_t *opctx = DeltaTo(x, offset_opctx);
 
-    VLONG_T(16) e = { .c = 16 };
+    // was 16 before 2023-11-17, which is so small that
+    // it caused error/bug.
+    VLONG_T(32) e = { .c = 32 };
     vlong_size_t i;
 
     if( x->status )
@@ -348,7 +356,21 @@ void const *EdDSA_Verify(
     dst = DeltaTo(x, offset_hashctx);
     src = DeltaTo(x, offset_hashctx_init);
 
-    // H(dom(F,C) + R + A + PH(M), plen)
+    // H(dom(F,C) + R + A + PH(M), plen * 2)
+
+    // 2023-11-16:
+    // moved here to fix the conflict schedule bug/error.
+
+    if( x->flags & EdDSA_Flags_PH )
+    {
+        // pre-hash flag is set.
+
+        hfnx->initfunc(dst);
+        hfnx->updatefunc(dst, msg, msglen);
+        if( hfnx->xfinalfunc )
+            hfnx->xfinalfunc(dst);
+        hfnx->hfinalfunc(dst, hmsg, 64);
+    }
 
     for(t=0; t<x->hashctx_size; t++)
         dst[t] = src[t];
@@ -365,13 +387,6 @@ void const *EdDSA_Verify(
     if( x->flags & EdDSA_Flags_PH )
     {
         // pre-hash flag is set.
-
-        hfnx->initfunc(dst);
-        hfnx->updatefunc(dst, msg, msglen);
-        if( hfnx->xfinalfunc )
-            hfnx->xfinalfunc(dst);
-        hfnx->hfinalfunc(dst, hmsg, 64);
-
         hfnx->updatefunc(dst, hmsg, 64);
     }
     else

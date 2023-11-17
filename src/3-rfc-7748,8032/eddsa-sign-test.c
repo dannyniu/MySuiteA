@@ -456,7 +456,7 @@ EdDSA_Test_Vector_t testvecs[] =
         "0e00",
 
         .msg =
-        "030c3e544074ec63b0265e0c",
+        "0c3e544074ec63b0265e0c",
 
         .params[0].info = iCurveEd448,
         .params[1].info = iSHAKE256,
@@ -833,6 +833,7 @@ int main(void) // (int argc, char *argv[])
 
     while( testvec->msg )
     {
+        // printf("test %ld\n", testvec - testvecs);
         pbits = ((ecEd_curve_t *)
                  testvec->params[0].info
                  (ecEd_PtrCurveDef))->pbits;
@@ -842,6 +843,10 @@ int main(void) // (int argc, char *argv[])
         EdDSA_Keygen(
             &eddsaCtx.x_hdr, testvec->params,
             (GenFunc_t)FixedPRNG, testvec->d);
+
+        EdDSA_Verify_Xctrl(
+            &eddsaCtx.x_hdr, EdDSA_set_domain_params,
+            testvec->bvec, 2, 0);
 
         msglen = strlen(testvec->msg) / 2;
         scanhex(msgbuf, msglen, testvec->msg);
@@ -857,7 +862,8 @@ int main(void) // (int argc, char *argv[])
             msgbuf, msglen);
 
         len = plen * 2;
-        EdDSA_Encode_Signature(&eddsaCtx.x_hdr, H, &len);
+        scanhex(H, len, testvec->sig);
+        //EdDSA_Encode_Signature(&eddsaCtx.x_hdr, H, &len);
         EdDSA_Decode_Signature(&eddsaCtx.x_hdr, H, len);
 
         eddsaCtx.x_hdr.status = 0;
