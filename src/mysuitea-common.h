@@ -280,6 +280,22 @@ enum {
     // parameter, or the key generating function.
     isParamDetermByKey = 103,
 
+    // Added 2023-11-16:
+    // Some DSS needs a nonce during signing. This and the following queries
+    // describe caracteristics of implementation of nonce generation.
+    dssNonceNeeded = 104,
+
+    // Added 2023-11-16:
+    // It is increasingly the case where DSS incorporate deterministic signing
+    // as part of signing algorithm, to avoid defects from RNGs; additionally,
+    // to avoid fault side-channels, additional entropy are incorporated as
+    // part of the deterministic nonce generation. However, when existing
+    // algorithm cannot achieve such capability without incorporating external
+    // codes for PRNG implementations, agility is favoured to allow maximum
+    // possibility of freedom of combination; in which case, an additional
+    // "signing driver" function is provided, with this query returning true.
+    dssExternRngNeededForNonce = 105,
+
     // Obtains a set of parameter presets.
     //
     // [2023-08-09-SepParams]:

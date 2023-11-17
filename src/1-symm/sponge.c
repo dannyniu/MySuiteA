@@ -95,4 +95,5 @@ void Sponge_Restore(sponge_t *restrict s)
 
     for(t=0; t<s->blksize; t++)
         state[t] = saved[t];
+    s->filled = 0; // fixed. missing before 2023-11-16.
 }

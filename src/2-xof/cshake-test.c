@@ -83,6 +83,16 @@ int main()
             printf("test %ld failed!\n", (long)(testptr - testvecs));
         }
 
+        XFINAL_FUNC(testptr->xof)(&sh);
+        READ_FUNC(testptr->xof)(&sh, bin, testptr->DigestLen);
+
+        scanhex(ref, testptr->DigestLen, testptr->ref);
+        if( memcmp(bin, ref, testptr->DigestLen) )
+        {
+            fails++;
+            printf("re-test %ld failed!\n", (long)(testptr - testvecs));
+        }
+
         testptr++;
     }
 
