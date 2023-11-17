@@ -181,7 +181,10 @@ void eddsa_point_enc(
     buf[pbits / 8] &= (1 << bitpos) - 1;
 
     par = ((vlong_t const *)DeltaTo(Q, offset_x))->v[0] & 1;
-    buf[pbits / 8] |= par << bitpos;
+
+    // buf[pbits / 8] |= par << bitpos;
+    // The above error was found and corrected on 2023-11-16 as follow:
+    buf[pbits / 8] |= par << 7;
 }
 
 static VLONG_T(8) po2_25519 = {
@@ -355,7 +358,7 @@ void *eddsa_point_dec(
     ecp_imod_aux_t const *aux = curve->imod_aux;
     size_t pbits = curve->pbits;
     size_t pbytes = (pbits + 7) / 8;
-    size_t bitpos =  pbits % 8;
+    // size_t bitpos =  pbits % 8; // unused after the 2023-11-16 fix.
     int par;
 
     vlong_t *x;
@@ -365,7 +368,9 @@ void *eddsa_point_dec(
     vlong_size_t i;
     uint32_t w;
 
-    par = (buf[pbits / 8] >> bitpos) & 1;
+    // par = (buf[pbits / 8] >> bitpos) & 1;
+    // The above error was found and corrected on 2023-11-16 as follow:
+    par = (buf[pbits / 8] >> 7) & 1;
 
     vlong_DecLSB(y, buf, pbytes);
     y->v[pbits / 32] &= (1 << (pbits % 32)) - 1;
