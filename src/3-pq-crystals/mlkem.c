@@ -28,7 +28,7 @@ static void KPKE_Enc(MLKEM_Ctx_Hdr_t *restrict x, uint8_t m[32], uint8_t r[32])
 
         for(i=0; i<k; i++)
         {
-            MLKEM_NttScl(u+i, Ahat+j*k+i, &tmp1, j); // row-major, transposed.
+            MLKEM_NttScl(u+i, Ahat+j*k+i, &tmp1, j); // row-major.
         }
 
         MLKEM_NttScl(vw, that+j, &tmp1, j);
@@ -120,7 +120,7 @@ static void KPKE_Keygen(
     {
         for(i=0; i<k; i++)
         {
-            MLKEM_SampleNTT(Ahat+i*k+j, rho, i, j); // row-major.
+            MLKEM_SampleNTT(Ahat+i*k+j, rho, j, i); // row-major, transposed.
         }
     }
 
@@ -287,7 +287,7 @@ IntPtr MLKEM_Decode_PrivateKey(
     {
         for(i=0; i<k; i++)
         {
-            MLKEM_SampleNTT(Ahat+i*k+j, x->rho, i, j); // row-major.
+            MLKEM_SampleNTT(Ahat+i*k+j, x->rho, j, i); // row-major transposed.
         }
     }
 
@@ -510,7 +510,7 @@ IntPtr MLKEM_Decode_PublicKey(
     {
         for(i=0; i<k; i++)
         {
-            MLKEM_SampleNTT(Ahat+i*k+j, x->rho, i, j); // row-major.
+            MLKEM_SampleNTT(Ahat+i*k+j, x->rho, j, i); // row-major transposed.
         }
     }
 
@@ -533,7 +533,7 @@ void *MLKEM_Enc(
         shake_t xof;
     } hctx;
     sha3_512_t *hctx_G = &hctx.hash;
-    shake256_t *hctx_preproc = &hctx.xof;
+    //- shake256_t *hctx_preproc = &hctx.xof; // see 2023-11-19 note.
     int i;
 
     if( !ss )
@@ -546,12 +546,19 @@ void *MLKEM_Enc(
     // the initial message 'm' and thus hashing in unnecessary, we take
     // operative liberty to insist on hashing a longer RNG output into the
     // initial message 'm', as it ultimately does not hurt interoperability.
-    prng_gen(prng, x->tup, 64);
-
-    SHAKE256_Init(hctx_preproc);
-    SHAKE_Write(hctx_preproc, x->tup, 64);
-    SHAKE_Final(hctx_preproc);
-    SHAKE_Read(hctx_preproc, x->ss, 32);
+    //- prng_gen(prng, x->tup, 64);
+    //- SHAKE256_Init(hctx_preproc);
+    //- SHAKE_Write(hctx_preproc, x->tup, 64);
+    //- SHAKE_Final(hctx_preproc);
+    //- SHAKE_Read(hctx_preproc, x->ss, 32);
+    //
+    // 2023-11-19:
+    // Second thought. The RNG is most likely not able to provide true 512-bit
+    // entropy, i.e. it's most likely an expansion of something with at most
+    // 256-bit entropy, and hashing may not provide what was expected.
+    // Additionally, hashing the output of RNG makes it difficult to test the
+    // implementation against the example values provided by NIST.
+    prng_gen(prng, x->ss, 32);
 
     SHA3_512_Init(hctx_G);
     SHA3_512_Update(hctx_G, x->ss, 32);

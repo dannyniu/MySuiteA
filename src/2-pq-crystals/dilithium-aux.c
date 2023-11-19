@@ -113,6 +113,11 @@ void MLDSA_ExpandMask_1Poly(
     // specified sub-optimally. This prevents
     // any further testing beyond the basic
     // self-consistency check.
+    //
+    // The README file from the test vectors
+    // provided by NIST on Oct 2023 says that
+    // the output should be read off the front,
+    // thus serving as an errata for the draft.
     uint8_t v[2];
     uint16_t n = r + kappa;
     shake256_t hctx;

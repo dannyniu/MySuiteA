@@ -169,7 +169,7 @@ IntPtr MLDSA_Encode_PrivateKey(
     int k = x->k, l = x->l;
 
     assert( x->eta == 2 || x->eta == 4);
-    r = x->eta / 2 + 3;
+    r = x->eta / 2 + 2; // 2023-11-18: should be ``+ 2'', was ``+ 3''.
     encsz = 32 * (4 + (k + l) * r + k * MLDSA_D);
 
     (void)param;
@@ -251,7 +251,7 @@ IntPtr MLDSA_Decode_PrivateKey(
     k = x->k, l = x->l;
 
     assert( x->eta == 2 || x->eta == 4);
-    r = x->eta / 2 + 3;
+    r = x->eta / 2 + 2; // 2023-11-18: should be ``+ 2'', was ``+ 3''.
     encsz = 32 * (4 + (k + l) * r + k * MLDSA_D);
     if( (IntPtr)enclen < encsz ) return -1;
 
@@ -273,7 +273,7 @@ IntPtr MLDSA_Decode_PrivateKey(
     }
 
     // re-computed.
-    r = x->eta / 2 + 3;
+    r = x->eta / 2 + 2; // 2023-11-18: should be ``+ 2'', was ``+ 3''.
 
     // s1/s2 order reversed to avoid 1 offset re-calculation.
     m = DeltaTo(x, offset_s2hat);
@@ -374,6 +374,8 @@ void *MLDSA_Sign(
     GenFunc_t prng_gen, void *restrict prng)
 {
     uint8_t mu[64];
+    uint8_t rho_apos[64];
+    uint8_t rnd[32];
     shake_t hctx;
     module256_t *Ahat  = DeltaTo(x, offset_Ahat);
     module256_t *s1hat = DeltaTo(x, offset_s1hat);
@@ -385,30 +387,43 @@ void *MLDSA_Sign(
     module256_t *cl    = DeltaTo(x, offset_cl);
 
     int32_t t;
+    int kappa;
     int r, s;
     int k = x->k, l = x->l;
 
-    if( x->status == 2 )
+    SHAKE256_Init(&hctx);
+    SHAKE_Write(&hctx, x->tr, 64);
+    SHAKE_Write(&hctx, msg, msglen);
+    SHAKE_Final(&hctx);
+    SHAKE_Read(&hctx, mu, 64);
+
+    if( prng_gen && prng )
     {
-        for(r=0; r<64; r++) mu[r] = x->challenge[r];
+        prng_gen(prng, rnd, 32);
     }
     else
     {
-        SHAKE256_Init(&hctx);
-        SHAKE_Write(&hctx, x->tr, 64);
-        SHAKE_Write(&hctx, msg, msglen);
-        SHAKE_Final(&hctx);
-        SHAKE_Read(&hctx, mu, 64);
+        for(t=0; t<32; t++) rnd[t] = 0;
     }
 
+    SHAKE256_Init(&hctx);
+    SHAKE_Write(&hctx, x->K, 32);
+    SHAKE_Write(&hctx, rnd, 32);
+    SHAKE_Write(&hctx, mu, 64);
+    SHAKE_Final(&hctx);
+    SHAKE_Read(&hctx, rho_apos, 64);
+
+    kappa = -1;
+
 start:
+    if( kappa == -1 ) kappa = 0;
+    else kappa += l;
 
     // sample y.
 
     for(s=0; s<l; s++)
     {
-        MLDSA_ExpandMask_1Poly_TRNG(
-            yz+s, prng_gen, prng, x->log2_gamma1);
+        MLDSA_ExpandMask_1Poly(yz+s, rho_apos, s, x->log2_gamma1, kappa);
         MLDSA_NTT(yz+s);
     }
 

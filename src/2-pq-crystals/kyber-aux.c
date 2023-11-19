@@ -203,9 +203,14 @@ static int32_t iCompress(int32_t x, int d)
     return x;
 }
 
-static int32_t iDecmpress(int32_t x, int d)
+static int32_t iDecompress(int32_t x, int d)
 {
     x *= MLKEM_Q;
+
+    // 2023-11-19:
+    // This was added when testing against the example values provided by NIST.
+    x += 1 << (d - 1);
+
     x >>= d;
 
     return x;
@@ -222,7 +227,7 @@ void MLKEM_Decompress(module256_t *m, int d)
 {
     int i;
 
-    for(i=0; i<256; i++) m->r[i] = iDecmpress(m->r[i], d);
+    for(i=0; i<256; i++) m->r[i] = iDecompress(m->r[i], d);
 }
 
 static const int32_t zetas[256] = {
