@@ -65,7 +65,7 @@ void wots_PKgen(
     skADRS.t3 = 0; // 0 is an endianness-neutral value.
 
     // NIST.FIPS-205-ipd says setting type automatically clears
-    // t1-t3. DannyNiu had taken operative liberty to do so lazily:
+    // t1-t3. @dannyniu had taken operative liberty to do so lazily:
     //- skADRS.setKeyPairAddress(ADRS.getKeyPairAddress())
 
     for(i=0; i<x->wots.len; i++)

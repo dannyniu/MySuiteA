@@ -15,7 +15,7 @@ void xmss_auth_path_and_root_node(
     // [1]: PK.seed
     // [2]: ADRS
 
-    // DannyNiu had taken operative liberty to implement the recursion
+    // @dannyniu had taken operative liberty to implement the recursion
     // as "tree loop" to lessen the likelynood of stack overflow.
 
     uint8_t node[32]; // 32 is the max of n of all standardized parameters.
