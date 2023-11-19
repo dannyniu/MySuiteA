@@ -1,4 +1,3 @@
-
 /* DannyNiu/NJF, 2022-05-05. Public Domain. */
 
 #include "curves-Ed.h"
