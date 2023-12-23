@@ -36,6 +36,7 @@ module256_t *MLKEM_NttScl(
     module256_t *b,
     int accum);
 
+void MLKEM_CompressToM(module256_t *m); // see comments in implementation.
 void MLKEM_Compress(module256_t *m, int d);
 void MLKEM_Decompress(module256_t *m, int d);
 

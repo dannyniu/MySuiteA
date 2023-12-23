@@ -332,7 +332,7 @@ static void KPKE_Dec(MLKEM_Ctx_Hdr_t *restrict x)
 
     MLKEM_Decompress(vw, x->dv);
     MLKEM_Sub(vw, vw, &tmp1);
-    MLKEM_Compress(vw, 1);
+    MLKEM_CompressToM(vw);
 }
 
 void *MLKEM_Dec(

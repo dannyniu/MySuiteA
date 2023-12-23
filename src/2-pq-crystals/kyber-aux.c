@@ -190,6 +190,23 @@ module256_t *MLKEM_NttScl(
     return c;
 }
 
+static int32_t iCompressToM(int32_t x)
+{
+    // 2023-12-23:
+    // There's a thread on the NIST PQC forum started by DJB
+    // showing some of the divisions by Q is not safe from
+    // a side channel perspective. The way ``Compress'' used
+    // is side-channel-safe in K-PKE.Encrypt, but not so
+    // in K-PKE.Decrypt, when applied to 'm'.
+    // This function is the fix for it.
+
+    // 2023-12-23: Assume 0 <= x < MLKEM_Q
+    x <<= 1;
+    x += MLKEM_Q / 2;
+    x = ((MLKEM_Q - x) >> 31) & ((x - 2*MLKEM_Q) >> 31);
+    return x & 1;
+}
+
 static int32_t iCompress(int32_t x, int d)
 {
     x <<= d;
@@ -214,6 +231,13 @@ static int32_t iDecompress(int32_t x, int d)
     x >>= d;
 
     return x;
+}
+
+void MLKEM_CompressToM(module256_t *m)
+{
+    int i;
+
+    for(i=0; i<256; i++) m->r[i] = iCompressToM(m->r[i]);
 }
 
 void MLKEM_Compress(module256_t *m, int d)
