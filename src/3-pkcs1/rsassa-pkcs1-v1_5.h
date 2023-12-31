@@ -42,6 +42,8 @@ void const *RSAEncryptionWithHash_Verify(
         q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                        \
         q==PKSignFunc ? (IntPtr)RSAEncryptionWithHash_Sign :            \
         q==PKVerifyFunc ? (IntPtr)RSAEncryptionWithHash_Verify :        \
+        q==dssNonceNeeded ? false : \
+        q==dssExternRngNeededForNonce ? false : \
         cRSAEncryptionWithHash(hmsg,hmgf,bits,primes,q) )
 
 #define xRSAEncryptionWithHash_CtCodec(q) (                             \

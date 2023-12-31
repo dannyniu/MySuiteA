@@ -49,6 +49,8 @@ void *RSASSA_PSS_Verify_Xctrl(
         q==PKVerifyFunc ? (IntPtr)RSASSA_PSS_Verify :           \
         q==PubXctrlFunc ? (IntPtr)RSASSA_PSS_Verify_Xctrl :     \
         q==PrivXctrlFunc ? (IntPtr)RSASSA_PSS_Sign_Xctrl :      \
+        q==dssNonceNeeded ? true : \
+        q==dssExternRngNeededForNonce ? true : \
         cRSASSA_PSS(hmsg,hmgf,bits,primes,q) )
 
 #define xRSASSA_PSS_CtCodec(q) (                                \
