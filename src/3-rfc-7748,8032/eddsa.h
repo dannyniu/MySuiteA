@@ -163,17 +163,19 @@ int EdDSA_PKParams(int index, CryptoParam_t *out);
         0)
 
 #define cEdDSA(crv,hash,q) (                            \
-        q==bytesCtxPriv ? EDDSA_CTX_SIZE(crv,hash) :      \
-        q==bytesCtxPub ? EDDSA_CTX_SIZE(crv,hash) :       \
+        q==bytesCtxPriv ? EDDSA_CTX_SIZE(crv,hash) :    \
+        q==bytesCtxPub ? EDDSA_CTX_SIZE(crv,hash) :     \
         q==isParamDetermByKey ? false :                 \
+        q==dssNonceNeeded ? true :                      \
+        q==dssExternRngNeededForNonce ? false :         \
         0)
 
 #define xEdDSA(crv,hash,q) (                            \
         q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :        \
         q==PKSignFunc ? (IntPtr)EdDSA_Sign :            \
         q==PKVerifyFunc ? (IntPtr)EdDSA_Verify :        \
-        q==PubXctrlFunc ? (IntPtr)EdDSA_Verify_Xctrl : \
-        q==PrivXctrlFunc ? (IntPtr)EdDSA_Sign_Xctrl :  \
+        q==PubXctrlFunc ? (IntPtr)EdDSA_Verify_Xctrl :  \
+        q==PrivXctrlFunc ? (IntPtr)EdDSA_Sign_Xctrl :   \
         cEdDSA(crv,hash,q) )
 
 #define xEdDSA_CtCodec(q) (                                     \
