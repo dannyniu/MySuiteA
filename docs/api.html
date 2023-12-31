@@ -1178,6 +1178,14 @@
       <dt><code>PKKeygenFunc</code></dt>
       <dd><p>Same as that for KEMs'.</p></dd>
 
+      <dt><code>dssNonceNeeded</code></dt>
+      <dd>A boolean indicating whether the scheme uses nonce</dd>
+
+      <dt><code>dssExternRngNeededForNonce</code></dt>
+      <dd>If the <em>implementation</em> of the algorithm is capable of
+        generating nonce independently of the RNG parameters, then
+        this is <code>false</code>, otherwise <code>true</code>.</dd>
+
       <dt><p><code>PKSignFunc</code></p></dt>
       <dd>
         <p>The digital signature signing function of prototype:</p>
