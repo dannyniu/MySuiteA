@@ -137,11 +137,9 @@ case "$file_ext" in
     *) echo ERROR: Unknown filename extension: "$file_ext"! >&2; exit 1 ;;
 esac
 
-{   printf '%s\n' \
-           "FILE_EXT = $file_ext" \
-           "DLLFLAGS = $dllflags" \
-           "LD = $ld"
+{   printf '%s\n' "FILE_EXT = $file_ext" "DLLFLAGS = $dllflags"
 
+    if [ "$ld" != '${LD}' ] ; then printf '%s\n' "LD = $ld" ; fi
     if [ "$cc" != '${CC}' ] ; then printf '%s\n' "CC = $cc" ; fi
 
     if [ "$with" ] ; then
@@ -158,6 +156,3 @@ esac
         if [ "$val" ] ; then printf '%s\n' "$p = $val" ; fi
     done
 } > inc-config.mk
-
-# 2023-03-19: not working as intended, disabled.
-# utils/gen-inc-dep.sh src > inc-dep.mk

@@ -13,7 +13,7 @@ FILE_EXT_MACHO = ${ProductVer}.dylib
 FILE_EXT = ${FILE_EXT_MACHO}
 
 CFLAGS = -Wall -Wextra -fPIC # If I guessed wrong, specify on command line.
-LD=${CC}
+LD = ${CC} # 2024-03-09: direct linker invocation lacks some default flags.
 
 # ``-G'' is the System V and XPG-8/SUSv5 option for producing
 # dynamic-linking library. Will need adaptation for pre-existing linkers.
@@ -39,7 +39,7 @@ include objects.mk
 # MySuiteA is best used from source code directly; not everyone use
 # every algorithm implemented in the suite
 
-.PHONY: all clean distclean
+.PHONY: all install uninstall clean distclean
 
 all: build/${ProductName}.${FILE_EXT} build/include build/${ProductName}.pc
 
@@ -88,4 +88,19 @@ build/${ProductName}.pc:
 		"URL: https://gitee.com/dannyniu/MySuiteA" \
 		'Cflags: -I$${includedir} '"${CFLAGS_GROUP_WITH}" \
 		'Libs: -L$${libdir} -lMySuiteA' \
-		> build/libMySuiteA.pc
+		> $@
+
+# 2024-03-08:
+# This file is created whenever "inc-dep.mk" ought to be re-made for
+# inclusion, and is asynchronously removed after about 3 seconds.
+auto/meta-phony.tmp:
+	date -u "+%Y-%m-%d T %T %Z" > auto/meta-phony.tmp
+
+inc-dep.mk: auto/meta-phony.tmp
+	utils/gen-inc-dep.sh src > inc-dep.mk
+	{ sleep 3 ; rm auto/meta-phony.tmp ; } &
+
+# 2024-03-08:
+# the include file contains target rules, so it
+# must not come before the first rule of this file.
+include inc-dep.mk
