@@ -41,7 +41,7 @@ case "$cmd" in
             done
         done
 
-        echo "${srcfile}: $includes"
+        echo "${srcfile}: $includes; @touch \$@"
         ;;
 
     *)
