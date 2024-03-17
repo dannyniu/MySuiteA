@@ -18,7 +18,12 @@ void *ECC_Hedged_Sign(
     void const *restrict msg, size_t msglen,
     void const *restrict nonce, size_t nlen)
 {
-    uint8_t str[512] = {0};
+    // 168 is the rate of SHAKE-128,
+    // 136 is the rate of SHAKE-256,
+    // 128 is the block size of SHA-512,
+    // 64 is the block size of SHA-256.
+    // 640 > 168 * 2 + 64.
+    uint8_t str[640] = {0};
     unsigned i = 0, t = 0;
 
     void *restrict hctx = DeltaTo(x, offset_hashctx);
@@ -26,7 +31,7 @@ void *ECC_Hedged_Sign(
 
     vlong_t *vl;
 
-    assert( ((x->curve->plen * 2 + 255) & ~255) + x->hlen < sizeof(str) );
+    assert( ((x->curve->plen + 255) & ~255) * 2 + x->hlen < sizeof(str) );
 
     // Z.
 
@@ -49,6 +54,17 @@ void *ECC_Hedged_Sign(
         }
     }
 
+    // 000...
+
+    if( prng->prf_blklen > 1 )
+    {
+        t += prng->prf_outlen + 1; // V and 1 pad byte.
+        t += prng->prf_blklen - 1; // 00h x (blklen - 1).
+        t -= t % prng->prf_blklen; // mod arith.
+        t -= prng->prf_outlen + 1; // V and 1 pad byte.
+    }
+    else t += 1;
+
     // int2octets(x).
 
     vl = DeltaTo(x, offset_d);
@@ -59,10 +75,8 @@ void *ECC_Hedged_Sign(
 
     if( prng->prf_blklen > 1 )
     {
-        t += prng->prf_outlen + 1;
-        t += prng->prf_blklen - 1;
-        t -= t % prng->prf_blklen;
-        t -= prng->prf_outlen + 1;
+        t += prng->prf_blklen - 1; // 00h x (blklen - 1).
+        t -= t % prng->prf_blklen; // mod arith.
     }
     else t += 1;
 

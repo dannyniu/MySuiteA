@@ -5,33 +5,61 @@
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
+static void HashDom(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    hash_funcs_set_t *restrict hfnx,
+    void *dst, size_t *t, size_t plen)
+{
+    uint8_t cc[1];
+
+    if( plen == 32 )
+    {
+        if( x->flags & EdDSA_Flags_PH || x->ctxstr[0] > 0 )
+        {
+            hfnx->updatefunc(
+                dst, "SigEd25519 no Ed25519 collisions", 32);
+
+            cc[0] = x->flags & EdDSA_Flags_PH;
+            hfnx->updatefunc(dst, cc, 1);
+            hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0] + 1);
+
+            if( t ) *t += 32 + 2 + x->ctxstr[0];
+        }
+        // else t += 0; // 2024-03-17: nop, commented out.
+    }
+    else // plen must be 57.
+    {
+        x->hfuncs.updatefunc(dst, "SigEd448", 8);
+
+        cc[0] = x->flags & EdDSA_Flags_PH;
+        hfnx->updatefunc(dst, cc, 1);
+        hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0] + 1);
+
+        if( t ) *t += 8 + 2 + x->ctxstr[0];
+    }
+}
+
 static void *Ed25519_Set_DomainParams(
     EdDSA_Ctx_Hdr_t *restrict x,
     const bufvec_t *restrict bufvec)
 {
-    void *dst = DeltaTo(x, offset_hashctx_init);
-    uint8_t bi[2];
+    // void *dst = DeltaTo(x, offset_hashctx_init);
+    // uint8_t bi[2];
+    size_t t;
 
     x->flags = bufvec[0].info;
 
     if( x->flags & EdDSA_Flags_PH || bufvec[1].len )
     {
         if( bufvec[1].len > 255 ) return NULL;
-        x->hfuncs.initfunc(dst);
-        x->hfuncs.updatefunc(
-            dst, "SigEd25519 no Ed25519 collisions", 32);
+        x->ctxstr[0] = bufvec[1].len;
 
-        bi[0] = x->flags & EdDSA_Flags_PH;
-        bi[1] = bufvec[1].len;
-        x->hfuncs.updatefunc(dst, bi, 2);
-        x->hfuncs.updatefunc(dst, bufvec[1].dat, bufvec[1].len);
-
-        x->domlen = 32 + 2 + bufvec[1].len;
+        for(t=0; t<bufvec[1].len; t++)
+            x->ctxstr[t+1] = ((const uint8_t *)bufvec[1].dat)[t];
     }
     else
     {
-        x->hfuncs.initfunc(dst);
-        x->domlen = 0; // missing before 2023-05-23.
+        x->ctxstr[0] = 0;
     }
 
     return x;
@@ -41,22 +69,17 @@ static void *Ed448_Set_DomainParams(
     EdDSA_Ctx_Hdr_t *restrict x,
     const bufvec_t *restrict bufvec)
 {
-    void *dst = DeltaTo(x, offset_hashctx_init);
-    uint8_t bi[2];
+    // void *dst = DeltaTo(x, offset_hashctx_init);
+    // uint8_t bi[2];
+    size_t t;
 
     x->flags = bufvec[0].info;
 
     if( bufvec[1].len > 255 ) return NULL;
-    x->hfuncs.initfunc(dst);
-    x->hfuncs.updatefunc(dst, "SigEd448", 8);
+    x->ctxstr[0] = bufvec[1].len;
 
-    bi[0] = x->flags & EdDSA_Flags_PH;
-    bi[1] = bufvec[1].len;
-    x->hfuncs.updatefunc(dst, bi, 2);
-    x->hfuncs.updatefunc(dst, bufvec[1].dat, bufvec[1].len);
-
-    x->domlen = 8 + 2 + bufvec[1].len;
-
+    for(t=0; t<bufvec[1].len; t++)
+        x->ctxstr[t+1] = ((const uint8_t *)bufvec[1].dat)[t];
     return x;
 }
 
@@ -172,7 +195,7 @@ void *EdDSA_Sign(
     GenFunc_t prng_gen, void *restrict prng)
 {
     uint8_t *dst;
-    uint8_t const *src;
+    // uint8_t const *src;
     uint8_t hmsg[64];
     uint8_t buf[256];
     size_t plen = (x->curve->pbits + 8) / 8;
@@ -188,11 +211,13 @@ void *EdDSA_Sign(
     VLONG_T(32) e = { .c = 32 };
 
     dst = DeltaTo(x, offset_hashctx);
-    src = DeltaTo(x, offset_hashctx_init);
+    // src = DeltaTo(x, offset_hashctx_init);
 
     // Step 2.
     // 2023-05-19: was: H(dom(F,C) + prefix + PH(M), plen)
     // 2023-11-16: changed to: H(dom(F,C) + Z + prefix + 000... + PH(M), plen)
+    // 2024-03-17: changed to:
+    // H(00h + Z + dom(F,C) + 000... + prefix + 000... + PH(M), plen)
 
     // Updated Step 2: PH(M). // brought here to avoid schedule conflict.
 
@@ -211,27 +236,66 @@ void *EdDSA_Sign(
         hfnx->hfinalfunc(dst, hmsg, 64);
     }
 
-    // Updated Step 2: DOM String.
-    for(t=0; t<x->hashctx_size; t++)
-        dst[t] = src[t];
+    // Updated Step 2: 00h and then 'Z'.
 
     for(t=0; t<sizeof(buf); t++)
         buf[t] = 0;
 
-    t = x->domlen;
-
-    // Updated Step 2: 'Z' and 'prefix'.
-
     if( prng_gen && prng )
-        prng_gen(prng, buf, plen);
+        prng_gen(prng, buf+1, plen);
 
-    hfnx->updatefunc(dst, buf, plen);
-    hfnx->updatefunc(dst, x->prefix, plen);
+    hfnx->updatefunc(dst, buf, plen+1);
+    t = plen+1;
+
+    // Updated Step 2: DOM String.
+
+    /* if( plen == 32 )
+    {
+        if( x->flags & EdDSA_Flags_PH || x->ctxstr[0] > 0 )
+        {
+            uint8_t cc[1];
+            hfnx->updatefunc(
+                dst, "SigEd25519 no Ed25519 collisions", 32);
+
+            cc[0] = x->flags & EdDSA_Flags_PH;
+            hfnx->updatefunc(dst, cc, 1);
+            hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0] + 1);
+
+            t += 32 + 2 + x->ctxstr[0];
+        }
+        // else t += 0; // 2024-03-17: nop, commented out.
+    }
+    else
+    {
+        uint8_t cc[1];
+        x->hfuncs.updatefunc(dst, "SigEd448", 8);
+
+        cc[0] = x->flags & EdDSA_Flags_PH;
+        hfnx->updatefunc(dst, cc, 1);
+        hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0] + 1);
+
+        t += 8 + 2 + x->ctxstr[0];
+    } */
+
+    HashDom(x, hfnx, dst, &t, plen);
 
     // Updated Step 2: 000...
 
     b = plen == 32 ? 128 : plen == 57 ? 136 : 1;
-    t += plen * 2;
+    t %= b;
+    t = b - t;
+
+    for(b=0; b<t; b++) buf[b] = 0;
+    hfnx->updatefunc(dst, buf, t);
+
+    // Updated Step 2: 'prefix'.
+
+    hfnx->updatefunc(dst, x->prefix, plen);
+    t = plen;
+
+    // Updated Step 2: 000...
+
+    b = plen == 32 ? 128 : plen == 57 ? 136 : 1;
     t %= b;
     t = b - t;
 
@@ -268,8 +332,10 @@ void *EdDSA_Sign(
 
     // H(dom(F,C) + R + A + PH(M), plen * 2)
 
-    for(t=0; t<x->hashctx_size; t++)
-        dst[t] = src[t];
+    /* for(t=0; t<x->hashctx_size; t++)
+       dst[t] = src[t]; */
+    hfnx->initfunc(dst);
+    HashDom(x, hfnx, dst, NULL, plen);
 
     eddsa_canon_pubkey(x, DeltaTo(x, offset_R));
     eddsa_point_enc(x, buf, DeltaTo(x, offset_R));
@@ -333,11 +399,11 @@ void const *EdDSA_Verify(
     void const *restrict msg, size_t msglen)
 {
     uint8_t *dst;
-    uint8_t const *src;
+    //uint8_t const *src;
     uint8_t hmsg[64];
     uint8_t buf[128];
     size_t plen = (x->curve->pbits + 8) / 8;
-    size_t t;
+    //size_t t;
 
     hash_funcs_set_t *hfnx = &x->hfuncs;
     ecEd_opctx_t *opctx = DeltaTo(x, offset_opctx);
@@ -354,7 +420,7 @@ void const *EdDSA_Verify(
     }
 
     dst = DeltaTo(x, offset_hashctx);
-    src = DeltaTo(x, offset_hashctx_init);
+    // src = DeltaTo(x, offset_hashctx_init);
 
     // H(dom(F,C) + R + A + PH(M), plen * 2)
 
@@ -372,8 +438,10 @@ void const *EdDSA_Verify(
         hfnx->hfinalfunc(dst, hmsg, 64);
     }
 
-    for(t=0; t<x->hashctx_size; t++)
-        dst[t] = src[t];
+    /* for(t=0; t<x->hashctx_size; t++)
+       dst[t] = src[t]; */
+    hfnx->initfunc(dst);
+    HashDom(x, hfnx, dst, NULL, plen);
 
     // here in verification, this is the decoded one, already canon.
     // eddsa_canon_pubkey(x, DeltaTo(x, offset_R));

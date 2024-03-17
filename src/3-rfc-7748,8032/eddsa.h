@@ -9,7 +9,11 @@
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
 // align spec: 4 *47 | 4 *50 | 8 *28
-typedef struct {
+typedef struct
+{
+    // ctxstr[0] is len, ctxstr+1 is pointer to context string.
+    uint8_t ctxstr[256];
+
     uint8_t sk[64];
     uint8_t prefix[64];
 
@@ -19,10 +23,10 @@ typedef struct {
     uint32_t offset_Tmp1, offset_Tmp2;
     uint32_t offset_opctx;
     int32_t status, flags;
-    uint32_t domlen;
+    //uint32_t domlen;
 
     uint32_t offset_hashctx;
-    uint32_t offset_hashctx_init;
+    //uint32_t offset_hashctx_init;
     size_t hashctx_size;
     ecEd_curve_t const *curve;
 
@@ -49,33 +53,33 @@ typedef CryptoParam_t EdDSA_Param_t[2];
         .flags = 0,                                             \
         .offset_hashctx = sizeof(EdDSA_Ctx_Hdr_t) +             \
         hash(contextBytes) * 0,                                 \
-        .offset_hashctx_init = sizeof(EdDSA_Ctx_Hdr_t) +        \
-        hash(contextBytes) * 1,                                 \
+            /* .offset_hashctx_init = sizeof(EdDSA_Ctx_Hdr_t) + \
+               hash(contextBytes) * 1, */                       \
         .offset_opctx = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2,                                 \
+        hash(contextBytes) * 1,                                 \
         .offset_A     = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 0,                                \
         .offset_R     = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 1,                                \
         .offset_Tmp1  = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 2,                                \
         .offset_Tmp2  = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 3,                                \
         .offset_s     = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 4 +                               \
         crv(ecEd_BytesVLong) * 0,                               \
         .offset_r     = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 4 +                               \
         crv(ecEd_BytesVLong) * 1,                               \
