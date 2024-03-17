@@ -7,6 +7,15 @@
 #include "../1-symm/keccak.h"
 #include "../1-symm/sponge.h"
 
+// [2024-03-17-turboshake-omission]:
+// The construction of TurboSHAKE is simple enough that a straightforward
+// combination of KeccakP1600nr12 with the publicly exposed sponge
+// interfaces are sufficient for instantiation.
+//
+// If one were to provide a full implementation of TurboSHAKE, then
+// domain separation byte will have to be implemented with a
+// full-blown context control function, which may be inflexible.
+
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
 // align spec: 2*4100| 4*2050| 8*1025
@@ -39,10 +48,12 @@ typedef struct {
     uint64_t clen;
     uint64_t inodes_filled;
     uint64_t finalized;
-} K12_Ctx_t, KangarooTwelve_t, MarsupilamiFourteen_t;
+} K12_Ctx_t, KT128_t, KT256_t, KangarooTwelve_t, MarsupilamiFourteen_t;
 
-void KangarooTwelve_Init(KangarooTwelve_t *x);
-void MarsupilamiFourteen_Init(KangarooTwelve_t *x); // untested (2022-09-09).
+void KT128_Init(KT128_t *x);
+void KT256_Init(KT256_t *x);
+#define KangarooTwelve_Init KT128_Init
+void MarsupilamiFourteen_Init(KangarooTwelve_t *x);
 
 void K12_Update4(
     K12_Ctx_t *restrict x,
@@ -74,7 +85,7 @@ enum {
     K12_cmd_Feed_CStr   = 1,
 };
 
-#define cKangarooTwelve(q) (                    \
+#define cKT128(q) (                             \
         q==outBytes ? -1 :                      \
         q==outTruncBytes ? 32 :                 \
         q==blockBytes ? 200-32 :                \
@@ -82,13 +93,32 @@ enum {
         q==contextBytes ? sizeof(K12_Ctx_t) :   \
         0)
 
-#define xKangarooTwelve(q) (                            \
-        q==InitFunc    ? (IntPtr)KangarooTwelve_Init :  \
-        q==Update4Func ? (IntPtr)K12_Update4 :          \
-        q==Final2Func  ? (IntPtr)K12_Final2 :           \
-        q==Read4Func   ? (IntPtr)K12_Read4 :            \
-        q==XctrlFunc   ? (IntPtr)K12_Xctrl :            \
-        cKangarooTwelve(q) )
+#define xKT128(q) (                             \
+        q==InitFunc    ? (IntPtr)KT128_Init :   \
+        q==Update4Func ? (IntPtr)K12_Update4 :  \
+        q==Final2Func  ? (IntPtr)K12_Final2 :   \
+        q==Read4Func   ? (IntPtr)K12_Read4 :    \
+        q==XctrlFunc   ? (IntPtr)K12_Xctrl :    \
+        cKT128(q) )
+
+#define cKT256(q) (                             \
+        q==outBytes ? -1 :                      \
+        q==outTruncBytes ? 64 :                 \
+        q==blockBytes ? 200-64 :                \
+        q==chunkBytes ? 8192 :                  \
+        q==contextBytes ? sizeof(K12_Ctx_t) :   \
+        0)
+
+#define xKT256(q) (                             \
+        q==InitFunc    ? (IntPtr)KT256_Init :   \
+        q==Update4Func ? (IntPtr)K12_Update4 :  \
+        q==Final2Func  ? (IntPtr)K12_Final2 :   \
+        q==Read4Func   ? (IntPtr)K12_Read4 :    \
+        q==XctrlFunc   ? (IntPtr)K12_Xctrl :    \
+        cKT256(q) )
+
+#define cKangarooTwelve(q) cKT128(q)
+#define xKangarooTwelve(q) xKT128(q)
 
 #define cMarsupilamiFourteen(q) (               \
         q==outBytes ? -1 :                      \
@@ -106,7 +136,10 @@ enum {
         q==XctrlFunc   ? (IntPtr)K12_Xctrl :                    \
         cMarsupilamiFourteen(q) )
 
-IntPtr iKangarooTwelve(int q);
+IntPtr iKT128(int q);
+IntPtr iKT256(int q);
 IntPtr iMarsupilamiFourteen(int q);
+
+#define iKangarooTwelve(q) iKT128(q)
 
 #endif /* MySuiteA_KangarooTwelve_h */
