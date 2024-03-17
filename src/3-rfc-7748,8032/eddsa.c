@@ -249,34 +249,6 @@ void *EdDSA_Sign(
 
     // Updated Step 2: DOM String.
 
-    /* if( plen == 32 )
-    {
-        if( x->flags & EdDSA_Flags_PH || x->ctxstr[0] > 0 )
-        {
-            uint8_t cc[1];
-            hfnx->updatefunc(
-                dst, "SigEd25519 no Ed25519 collisions", 32);
-
-            cc[0] = x->flags & EdDSA_Flags_PH;
-            hfnx->updatefunc(dst, cc, 1);
-            hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0] + 1);
-
-            t += 32 + 2 + x->ctxstr[0];
-        }
-        // else t += 0; // 2024-03-17: nop, commented out.
-    }
-    else
-    {
-        uint8_t cc[1];
-        x->hfuncs.updatefunc(dst, "SigEd448", 8);
-
-        cc[0] = x->flags & EdDSA_Flags_PH;
-        hfnx->updatefunc(dst, cc, 1);
-        hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0] + 1);
-
-        t += 8 + 2 + x->ctxstr[0];
-    } */
-
     HashDom(x, hfnx, dst, &t, plen);
 
     // Updated Step 2: 000...
