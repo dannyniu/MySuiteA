@@ -210,6 +210,18 @@ void glue(KeccakF_InstName,_Permute)(void const *in, void *out)
 #endif /* w == 64 */
 }
 
+void KeccakP1600nr12_Permute(void const *in, void *out)
+{
+    KeccakP1600_Permute(in, out, 12);
+}
+
+void KeccakP1600nr14_Permute(void const *in, void *out)
+{
+    KeccakP1600_Permute(in, out, 14);
+}
+
 IntPtr glue(i,KeccakF_InstName)(int q){ return glue(x,KeccakF_InstName)(q); }
+IntPtr iKeccakP1600nr12(int q){ return xKeccakP1600nr12(q); }
+IntPtr iKeccakP1600nr14(int q){ return xKeccakP1600nr14(q); }
 
 #endif /* defined(Keccak_StateSize) && defined(keccak_word_t) */

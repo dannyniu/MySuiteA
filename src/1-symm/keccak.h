@@ -19,6 +19,17 @@ void KeccakF1600_Permute(void const *in, void *out);
 #define xKeccakF1600(q) xKeccakF(1600,q)
 IntPtr iKeccakF1600(int q);
 
+void KeccakP1600nr12_Permute(void const *in, void *out);
+void KeccakP1600nr14_Permute(void const *in, void *out);
+
+#define xKeccakP1600nr12(q) (                                   \
+        q==PermuteFunc ? (IntPtr)KeccakP1600nr12_Permute :      \
+        cKeccakF(1600,q) )
+
+#define xKeccakP1600nr14(q) (                                   \
+        q==PermuteFunc ? (IntPtr)KeccakP1600nr14_Permute :      \
+        cKeccakF(1600,q) )
+
 #if !defined(NI_KECCAK) || NI_KECCAK == NI_NEVER
 #define KeccakP1600_Permute KeccakP1600_Permute_ci
 

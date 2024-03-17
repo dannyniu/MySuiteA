@@ -1,28 +1,9 @@
+
 /* DannyNiu/NJF, 2022-09-06. Public Domain. */
 
 #include "KangarooTwelve.h"
 
 #define KP12_BlkBytes 200
-
-static void KeccakP1600nr12_Permute(void const *in, void *out)
-{
-    KeccakP1600_Permute(in, out, 12);
-}
-
-#define xKeccakP1600nr12(q) (                                   \
-        q==blockBytes ? KP12_BlkBytes :                         \
-        q==PermuteFunc ? (IntPtr)KeccakP1600nr12_Permute :      \
-        0)
-
-static void KeccakP1600nr14_Permute(void const *in, void *out)
-{
-    KeccakP1600_Permute(in, out, 14);
-}
-
-#define xKeccakP1600nr14(q) (                                   \
-        q==blockBytes ? KP12_BlkBytes :                         \
-        q==PermuteFunc ? (IntPtr)KeccakP1600nr14_Permute :      \
-        0)
 
 typedef struct {
     sponge_t sponge;
@@ -32,12 +13,10 @@ typedef struct {
     } state;
 } sponge_proc_t;
 
-#define KP12or14(q) ( rate == 168 ? xKeccakP1600nr12(q) : xKeccakP1600nr14(q) )
-
-static void hash1inode(k12_inner_node_t *node, unsigned rate)
+static inline void hash1inode_nr12(k12_inner_node_t *node, unsigned rate)
 {
     sponge_proc_t proc = {
-        .sponge = SPONGE_INIT(rate, 0x0B, 0x80, KP12or14),
+        .sponge = SPONGE_INIT(rate, 0x0B, 0x80, xKeccakP1600nr12),
         .state.u8 = {0},
     };
 
@@ -53,7 +32,26 @@ static void hash1inode(k12_inner_node_t *node, unsigned rate)
     node->hashed = true;
 }
 
-static void init1inode(k12_inner_node_t *node, unsigned id)
+static inline void hash1inode_nr14(k12_inner_node_t *node, unsigned rate)
+{
+    sponge_proc_t proc = {
+        .sponge = SPONGE_INIT(rate, 0x0B, 0x80, xKeccakP1600nr14),
+        .state.u8 = {0},
+    };
+
+    // would've been ``size_t'', but not for any practical usefulness.
+    // ``uint32_t'' is that of ``k12_inner_node_t::filled''.
+    uint32_t cvsize = KP12_BlkBytes - rate;
+
+    Sponge_Update(&proc.sponge, node->buf, node->filled);
+    Sponge_Final(&proc.sponge);
+    Sponge_Read(&proc.sponge, node->buf, cvsize);
+
+    node->filled = cvsize;
+    node->hashed = true;
+}
+
+static inline void init1inode(k12_inner_node_t *node, unsigned id)
 {
     size_t t;
     node->me = id;
@@ -62,7 +60,7 @@ static void init1inode(k12_inner_node_t *node, unsigned id)
     for(t=0; t<sizeof(node->buf); t++) node->buf[t] = 0;
 }
 
-static void K12_Init(K12_Ctx_t *x, unsigned rate)
+static inline void KT_Init(K12_Ctx_t *x, unsigned rate)
 {
     unsigned t;
 
@@ -71,7 +69,7 @@ static void K12_Init(K12_Ctx_t *x, unsigned rate)
 
     // the lo-pad will be altered by internal routine
     // when the size of the input message exceeds 8192 bytes.
-    x->finalnode.sponge = SPONGE_INIT(rate, 0x07, 0x80, KP12or14);
+    x->finalnode.sponge = SPONGE_INIT(rate, 0x07, 0x80, xKeccakP1600nr12);
 
     for(t=0; t<sizeof(x->finalnode.buf.u8); t++)
         x->finalnode.buf.u8[t] = 0;
@@ -82,14 +80,34 @@ static void K12_Init(K12_Ctx_t *x, unsigned rate)
     x->finalized = false;
 }
 
-void KangarooTwelve_Init(KangarooTwelve_t *x)
+void KT128_Init(KT128_t *x)
 {
-    K12_Init(x, KP12_BlkBytes-32);
+    KT_Init(x, 168);
+}
+
+void KT256_Init(KT256_t *x)
+{
+    KT_Init(x, 136);
 }
 
 void MarsupilamiFourteen_Init(KangarooTwelve_t *x)
 {
-    K12_Init(x, KP12_BlkBytes-64);
+    unsigned t;
+
+    for(t=0; t<K12_NODES_COUNT; t++)
+        init1inode(x->inodes+t, t);
+
+    // the lo-pad will be altered by internal routine
+    // when the size of the input message exceeds 8192 bytes.
+    x->finalnode.sponge = SPONGE_INIT(136, 0x07, 0x80, xKeccakP1600nr14);
+
+    for(t=0; t<sizeof(x->finalnode.buf.u8); t++)
+        x->finalnode.buf.u8[t] = 0;
+
+    x->total = 0;
+    x->clen = 0;
+    x->inodes_filled = 0;
+    x->finalized = false;
 }
 
 static void job_leaf2cv(k12_inner_node_t *node)
@@ -99,7 +117,9 @@ static void job_leaf2cv(k12_inner_node_t *node)
     ptr -= offsetof(K12_Ctx_t, inodes[node->me]);
     x = (void *)ptr;
 
-    hash1inode(node, x->finalnode.sponge.rate);
+    if( x->finalnode.sponge.permute == PERMUTE_FUNC(xKeccakP1600nr12) )
+        hash1inode_nr12(node, x->finalnode.sponge.rate);
+    else hash1inode_nr14(node, x->finalnode.sponge.rate);
 }
 
 static void cv2final(K12_Ctx_t *x)
@@ -136,7 +156,7 @@ void K12_Update4(
 
     if( len && x->total == 8192 )
     {
-        static const uint8_t octabyte[8] = { 003, 0, 0, 0,  0, 0, 0, 0 };
+        static const uint8_t octabyte[8] = { 0x03, 0, 0, 0,  0, 0, 0, 0 };
         x->finalnode.sponge.lopad = 0x06;
         Sponge_Update(&x->finalnode.sponge, octabyte, 8);
     }
@@ -287,5 +307,6 @@ void *K12_Xctrl(
     }
 }
 
-IntPtr iKangarooTwelve(int q){ return xKangarooTwelve(q); }
+IntPtr iKT128(int q){ return xKT128(q); }
+IntPtr iKT256(int q){ return xKT256(q); }
 IntPtr iMarsupilamiFourteen(int q){ return xMarsupilamiFourteen(q); }
