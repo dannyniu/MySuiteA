@@ -81,14 +81,32 @@ void HMAC_DRBG_Generate(
     size_t tmplen = 0;
     size_t t;
 
-    while( tmplen < len )
+    if( x->prf_outlen + x->prf_blklen == 200 &&
+        (x->prf_blklen == 136 || x->prf_blklen == 168) )
     {
+        // 2024-03-18:
+        // This condition is added to support higher RNG efficiency when
+        // instantiated with KMAC. KMAC is a XOF, so iterated concatenation
+        // generation isn't necessary.
+        // When the block size matches the rate of either of the KMAC
+        // instances, and when the calculated state size matches that of
+        // Keccak-1600, then the PRF is assumed to be KMAC.
+
         PRF_INIT(H, K, outlen);
         x->prf_update(H, V, outlen);
-        x->prf_final(H, V, outlen);
+        x->prf_final(H, out, len);
+    }
+    else
+    {
+        while( tmplen < len )
+        {
+            PRF_INIT(H, K, outlen);
+            x->prf_update(H, V, outlen);
+            x->prf_final(H, V, outlen);
 
-        for(t = 0; t < outlen && tmplen < len; t++, tmplen++)
-            buf[tmplen] = ((uint8_t *)V)[t];
+            for(t = 0; t < outlen && tmplen < len; t++, tmplen++)
+                buf[tmplen] = ((uint8_t *)V)[t];
+        }
     }
 
     HMAC_DRBG_Update(x, NULL, 0); // This was missing before 2023-05-17.
