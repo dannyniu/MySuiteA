@@ -299,8 +299,10 @@ tests_run()
               fi )
             if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
 
-            ( if { : ; arch=aarch64 ; test_arch_canrun ; } ||
-                     { arch=x86_64  ; test_arch_canrun ; }
+            ( if { : ; arch=aarch64 ; [ X"$sysarch" = X"$arch" ] &&
+                                          test_arch_canrun ; } ||
+                     { arch=x86_64  ; test_arch_canrun ; } ||
+                     { arch=aarch64 ; test_arch_canrun ; }
               then test_run_1arch
               fi )
             if [ $? -ne 0 ] || [ $ret -ne 0 ] ; then ret=1 ; fi
