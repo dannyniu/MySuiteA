@@ -224,9 +224,13 @@ start:
 
     // hash the message.
 
-    hfnx->initfunc(hctx);
-    hfnx->updatefunc(hctx, x->uinfo, x->hlen);
-    hfnx->updatefunc(hctx, msg, msglen);
+    if( x->status != 3 )
+    {
+        x->status = 3;
+        hfnx->initfunc(hctx);
+        hfnx->updatefunc(hctx, x->uinfo, x->hlen);
+        hfnx->updatefunc(hctx, msg, msglen);
+    }
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(hctx);
@@ -369,13 +373,9 @@ void const *SM2SIG_Verify(
 
     // hash the message.
 
-    if( x->status != 3 )
-    {
-        x->status = 3;
-        hfnx->initfunc(hctx);
-        hfnx->updatefunc(hctx, x->uinfo, x->hlen);
-        hfnx->updatefunc(hctx, msg, msglen);
-    }
+    hfnx->initfunc(hctx);
+    hfnx->updatefunc(hctx, x->uinfo, x->hlen);
+    hfnx->updatefunc(hctx, msg, msglen);
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(hctx);
