@@ -1,6 +1,7 @@
 # DannyNiu/NJF, 2024-07-27. Public Domain.
 
 include common.mk
+include objects.mk
 
 .PHONY: all install uninstall clean distclean
 

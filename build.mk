@@ -1,9 +1,9 @@
 # DannyNiu/NJF, 2024-07-27. Public Domain.
 
 include common.mk
+include objects.mk
 
 include inc-config.mk
-include objects.mk
 
 .PHONY: all
 
