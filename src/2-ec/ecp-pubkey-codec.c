@@ -64,7 +64,9 @@ start:
     }
     else if( (*os == 0x02 || *os == 0x03) && enclen == 1 + curve->plen )
     {
-        vlong_sqrt_c3m4(y, u, s, t, curve->imod_aux);
+        if( !vlong_sqrt_c3m4(y, u, s, t, curve->imod_aux) )
+            return NULL;
+
         if( (*os & 1) != (y->v[0] & 1) )
         {
             vlong_subv(y, curve->p, y);
