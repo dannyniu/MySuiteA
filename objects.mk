@@ -1,5 +1,8 @@
 # DannyNiu/NJF, 2023-03-17. Public Domain.
 
+OBJ_COMMON = \
+    src/mysuitea-common.o
+
 OBJ_ENDIAN = \
     src/0-datum/endian.o
 
@@ -192,7 +195,7 @@ OBJ_ECPKC_ShangMi = \
     src/3-sm2/sm2sig.o
 
 OBJS_GROUP_ALL = \
-    ${OBJ_ENDIAN} ${OBJ_INTEGERS} ${OBJ_OSLIB} \
+    ${OBJ_COMMON} ${OBJ_ENDIAN} ${OBJ_INTEGERS} ${OBJ_OSLIB} \
     ${OBJ_SYMM} ${OBJ_SYMM_ShangMi} ${OBJ_SYMM_KoreaJapan} \
     ${OBJ_ASN1} \
     ${OBJ_ECC_SECG_IMPL} ${OBJ_ECC_SECG_CRV} \
