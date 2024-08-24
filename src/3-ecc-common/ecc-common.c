@@ -5,8 +5,6 @@
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
-IntPtr iECDH_Hash_Null(int q) { (void)q; return ECDH_HASH_NULL(q); }
-
 void topword_modmask(uint32_t *x, uint32_t const *m)
 {
     uint32_t w = *m;

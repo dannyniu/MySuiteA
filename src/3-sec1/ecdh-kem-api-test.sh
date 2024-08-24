@@ -26,6 +26,7 @@ ecdh-kem.c
 1-symm/gimli.c
 1-symm/sponge.c
 0-datum/endian.c
+./mysuitea-common.c
 "
 
 arch_family=defaults
