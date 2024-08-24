@@ -88,6 +88,22 @@ struct CryptoParam {
     };
 };
 
+// 2024-08-24:
+//
+// This macro was called ``ECDH_HASH_NULL'', and was for use
+// in *_SIZE and *_INIT macros indicating that the elliptic-curve
+// working context was an ``ECC_Base_Ctx_Hdr_t'' rather than
+// an ``ECC_Hash_Ctx_Hdr_t'' in ecc-common.
+//
+// Now that ML-DSA need a way to specify the use and non-use of
+// pre-hashing, a ``NULL'' hashing algorithm crypto object is
+// needed. Futher considering there may be other places needing
+// a way to specify a crypto object that's not used, a generic
+// "Null" crypto object is defined for this purpose.
+//
+#define CRYPTO_OBJ_NULL(q) (0)
+IntPtr iCryptoObj_Null(int q);
+
 typedef struct {
     // [2023-08-09-SepParams]:
     // ----------

@@ -16,7 +16,7 @@ IntPtr ECDH_KEM_Keygen(
 {
     CryptoParam_t kgparams[2] = {
         [0] = param[0],
-        [1] = { .info = iECDH_Hash_Null, .param = NULL, },
+        [1] = { .info = iCryptoObj_Null, .param = NULL, },
     };
 
     return ECC_Keygen((ECC_Base_Ctx_Hdr_t *)x, kgparams, prng_gen, prng);
@@ -35,7 +35,7 @@ IntPtr ECDH_KEM_Decode_PrivateKey(
 {
     CryptoParam_t kgparams[2] = {
         [0] = param[0],
-        [1] = { .info = iECDH_Hash_Null, .param = NULL, },
+        [1] = { .info = iCryptoObj_Null, .param = NULL, },
     };
 
     return ECC_Decode_PrivateKey(any, enc, enclen, kgparams);
@@ -62,7 +62,7 @@ IntPtr ECDH_KEM_Decode_PublicKey(
 {
     CryptoParam_t kgparams[2] = {
         [0] = param[0],
-        [1] = { .info = iECDH_Hash_Null, .param = NULL, },
+        [1] = { .info = iCryptoObj_Null, .param = NULL, },
     };
 
     return ECC_Decode_PublicKey(any, enc, enclen, kgparams);
