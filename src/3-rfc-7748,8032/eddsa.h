@@ -150,8 +150,6 @@ enum {
     EdDSA_set_domain_params = 1, // pre-hash flag and context.
 };
 
-int EdDSA_PKParams(int index, CryptoParam_t *out);
-
 #define xEdDSA_KeyCodec(q) (                                    \
         q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :                \
         q==PKPrivkeyEncoder ? (IntPtr)EdDSA_Encode_PrivateKey : \

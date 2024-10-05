@@ -78,8 +78,6 @@ enum {
     SM2SIG_set_signer_id    = 1,
 };
 
-int SM2SIG_PKParams(int index, CryptoParam_t *out);
-
 #define xSM2SIG_KeyCodec(q) (                                           \
         q==PKKeygenFunc ? (IntPtr)SM2SIG_Keygen :                       \
         q==PKPrivkeyEncoder ? (IntPtr)SM2SIG_Encode_PrivateKey :        \

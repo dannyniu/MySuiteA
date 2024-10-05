@@ -133,8 +133,6 @@ IntPtr PKCS1_Encode_RSAPublicKey(
 IntPtr PKCS1_Decode_RSAPublicKey(
     void *any, const void *enc, size_t enclen, CryptoParam_t *restrict param);
 
-int PKCS1_PKParams(int index, CryptoParam_t *out);
-
 #define xPKCS1_KeyCodec(q) (                                            \
         q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                        \
         q==PKPrivkeyEncoder ? (IntPtr)PKCS1_Encode_RSAPrivateKey :      \

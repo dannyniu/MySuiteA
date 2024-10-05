@@ -59,8 +59,6 @@ void *ECDSA_Decode_Signature(
     ECDSA_Ctx_Hdr_t *restrict x,
     void const *restrict sig, size_t siglen);
 
-int ECDSA_PKParams(int index, CryptoParam_t *out);
-
 #define xECDSA_KeyCodec(q) (                                    \
         q==PKKeygenFunc ? (IntPtr)ECDSA_Keygen :                \
         q==PKPrivkeyEncoder ? (IntPtr)ECDSA_Encode_PrivateKey : \
