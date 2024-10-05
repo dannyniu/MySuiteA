@@ -6,6 +6,6 @@
 #include "rfc-7748.h"
 #include "../2-ec/curves-Mt.h"
 
-PKC_Algo_Inst_t RFC_7748_X25519, RFC_7748_X448;
+extern PKC_Algo_Inst_t RFC_7748_X25519, RFC_7748_X448;
 
 #endif /* MySuiteA_rfc_7748_paramset_h */
