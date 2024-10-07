@@ -25,7 +25,7 @@ lret = PKC_Encode_PrivateKey(&kgx.header, NULL, 0, NULL);
 copy = malloc(lret);
 PKC_Encode_PrivateKey(&kgx.header, copy, lret, NULL);
 
-FILE *fp = fopen("./privkey", "wb"); // in "bin/"
+FILE *fp = fopen("./privkey", "wb"); // in "auto/"
 fwrite(copy, 1, lret, fp);
 fclose(fp);
 free(copy); copy = NULL;

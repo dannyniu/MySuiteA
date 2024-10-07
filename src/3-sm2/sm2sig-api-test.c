@@ -4,10 +4,10 @@
 #include "../2-ec/curveSM2.h"
 #include "../2-hash/sm3.h"
 
+#define PKC_InstAlgo tSM2SIG
 #define PKC_CtAlgo iSM2SIG_CtCodec
-#define MSGMAX 96
-
 #define PKC_KeyAlgo iSM2SIG_KeyCodec
+#define MSGMAX 96
 
 #include "test-param-defs.c.h"
 

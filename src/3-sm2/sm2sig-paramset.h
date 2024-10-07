@@ -8,6 +8,6 @@
 #include "../2-hash/sm3.h"
 
 // The ONLY parameter set.
-PKC_Algo_Inst_t SM2SIG_P256;
+extern PKC_Algo_Inst_t SM2SIG_P256;
 
 #endif /* MySuiteA_sm2sig_paramset_h */

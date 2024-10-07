@@ -51,6 +51,22 @@ void const *ECDSA_Verify(
     ECDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
+void *ECDSA_IncSign_Init(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *ECDSA_IncSign_Final(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng);
+
+void *ECDSA_IncVerify_Init(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *ECDSA_IncVerify_Final(
+    ECDSA_Ctx_Hdr_t *restrict x);
+
 void *ECDSA_Encode_Signature(
     ECDSA_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen);
@@ -58,8 +74,6 @@ void *ECDSA_Encode_Signature(
 void *ECDSA_Decode_Signature(
     ECDSA_Ctx_Hdr_t *restrict x,
     void const *restrict sig, size_t siglen);
-
-int ECDSA_PKParams(int index, CryptoParam_t *out);
 
 #define xECDSA_KeyCodec(q) (                                    \
         q==PKKeygenFunc ? (IntPtr)ECDSA_Keygen :                \
@@ -70,18 +84,23 @@ int ECDSA_PKParams(int index, CryptoParam_t *out);
         q==PKPubkeyDecoder ? (IntPtr)ECDSA_Decode_PublicKey :   \
         0)
 
-#define cECDSA(crv,hash,q) (                            \
-        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :      \
-        q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :       \
-        q==isParamDetermByKey ? false :                 \
-        q==dssNonceNeeded ? true :                      \
-        q==dssExternRngNeededForNonce ? true :          \
+#define cECDSA(crv,hash,q) (                                    \
+        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :              \
+        q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :               \
+        q==isParamDetermByKey ? false :                         \
+        q==dssNonceNeeded ? true :                              \
+        q==dssExternRngNeededForNonce ? true :                  \
+        q==dssPreHashingType ? dssPreHashing_Interface :        \
         0)
 
-#define xECDSA(crv,hash,q) (                            \
-        q==PKKeygenFunc ? (IntPtr)ECDSA_Keygen :        \
-        q==PKSignFunc ? (IntPtr)ECDSA_Sign :            \
-        q==PKVerifyFunc ? (IntPtr)ECDSA_Verify :        \
+#define xECDSA(crv,hash,q) (                                            \
+        q==PKKeygenFunc ? (IntPtr)ECDSA_Keygen :                        \
+        q==PKSignFunc ? (IntPtr)ECDSA_Sign :                            \
+        q==PKVerifyFunc ? (IntPtr)ECDSA_Verify :                        \
+        q==PKIncSignInitFunc ? (IntPtr)ECDSA_IncSign_Init :             \
+        q==PKIncSignFinalFunc ? (IntPtr)ECDSA_IncSign_Final :           \
+        q==PKIncVerifyInitFunc ? (IntPtr)ECDSA_IncVerify_Init :         \
+        q==PKIncVerifyFinalFunc ? (IntPtr)ECDSA_IncVerify_Final :       \
         cECDSA(crv,hash,q) )
 
 #define xECDSA_CtCodec(q) (                                     \

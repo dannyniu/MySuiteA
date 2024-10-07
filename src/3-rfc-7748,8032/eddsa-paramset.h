@@ -8,6 +8,6 @@
 #include "../2-hash/sha.h"
 #include "../2-xof/shake.h"
 
-PKC_Algo_Inst_t EdDSA_Ed25519, EdDSA_Ed448;
+extern PKC_Algo_Inst_t EdDSA_Ed25519, EdDSA_Ed448;
 
 #endif /* MySuiteA_eddsa_paramset_h */

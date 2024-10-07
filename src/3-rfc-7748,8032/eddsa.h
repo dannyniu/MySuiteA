@@ -8,7 +8,7 @@
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 4 *47 | 4 *50 | 8 *28
+// align spec: 4*109 | 4*112 | 8 *59
 typedef struct
 {
     // ctxstr[0] is len, ctxstr+1 is pointer to context string.
@@ -22,8 +22,8 @@ typedef struct
 
     uint32_t offset_Tmp1, offset_Tmp2;
     uint32_t offset_opctx;
-    int32_t status, flags;
-    //uint32_t domlen;
+    int32_t status;
+    int32_t flags; // unused padding as of 2024-10-06.
 
     uint32_t offset_hashctx;
     //uint32_t offset_hashctx_init;
@@ -122,6 +122,22 @@ void const *EdDSA_Verify(
     EdDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
+void *EdDSA_IncSign_Init(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *EdDSA_IncSign_Final(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng);
+
+void *EdDSA_IncVerify_Init(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *EdDSA_IncVerify_Final(
+    EdDSA_Ctx_Hdr_t *restrict x);
+
 void *EdDSA_Encode_Signature(
     EdDSA_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen);
@@ -152,7 +168,16 @@ enum {
     // bufvec[0].info is the bitwise-or of EdDSA_Flags_* macro constants.
     // bufvec[1].dat is the pointer to context string,
     // bufvec[1].len is its length, and should be no greater than 255.
-    EdDSA_set_domain_params = 1, // pre-hash flag and context.
+    //
+    // 2024-10-06:
+    // As pre-hashing interface is being as incremental signing,
+    // this command is now unused and invalid. And it's commented-out
+    // to prevent potential mis-use.
+    //- EdDSA_set_domain_params = 1, // pre-hash flag and context.
+
+    // ``bufvec[0].dat'' points to the context string data.
+    // ``bufvec[0].len'' must be less or equal to 255.
+    EdDSA_set_ctxstr = 2,
 };
 
 int EdDSA_PKParams(int index, CryptoParam_t *out);
@@ -172,14 +197,19 @@ int EdDSA_PKParams(int index, CryptoParam_t *out);
         q==isParamDetermByKey ? false :                 \
         q==dssNonceNeeded ? true :                      \
         q==dssExternRngNeededForNonce ? false :         \
+        q==dssPreHashingType ? dssPreHashing_Variant :  \
         0)
 
-#define xEdDSA(crv,hash,q) (                            \
-        q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :        \
-        q==PKSignFunc ? (IntPtr)EdDSA_Sign :            \
-        q==PKVerifyFunc ? (IntPtr)EdDSA_Verify :        \
-        q==PubXctrlFunc ? (IntPtr)EdDSA_Verify_Xctrl :  \
-        q==PrivXctrlFunc ? (IntPtr)EdDSA_Sign_Xctrl :   \
+#define xEdDSA(crv,hash,q) (                                            \
+        q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :                        \
+        q==PKSignFunc ? (IntPtr)EdDSA_Sign :                            \
+        q==PKVerifyFunc ? (IntPtr)EdDSA_Verify :                        \
+        q==PKIncSignInitFunc ? (IntPtr)EdDSA_IncSign_Init :             \
+        q==PKIncSignFinalFunc ? (IntPtr)EdDSA_IncSign_Final :           \
+        q==PKIncVerifyInitFunc ? (IntPtr)EdDSA_IncVerify_Init :         \
+        q==PKIncVerifyFinalFunc ? (IntPtr)EdDSA_IncVerify_Final :       \
+        q==PubXctrlFunc ? (IntPtr)EdDSA_Verify_Xctrl :                  \
+        q==PrivXctrlFunc ? (IntPtr)EdDSA_Sign_Xctrl :                   \
         cEdDSA(crv,hash,q) )
 
 #define xEdDSA_CtCodec(q) (                                     \

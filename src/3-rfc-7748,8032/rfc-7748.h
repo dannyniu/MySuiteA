@@ -68,8 +68,6 @@ void *XECDH_Decode_Ciphertext(
     XECDH_Ctx_Hdr_t *restrict x,
     void const *restrict ct, size_t ctlen);
 
-int XECDH_PKParams(int index, CryptoParam_t *out);
-
 #define XECDH_CTX_SIZE(ecMt) (                          \
         sizeof(XECDH_Ctx_Hdr_t) +                       \
         ECMT_OPCTX_SIZE(ecMt(ecMt_BitsModulus)) +       \

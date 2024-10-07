@@ -24,7 +24,6 @@ void eddsa_ctxinit_basic(
 {
     ecEd_curve_t const *curve = (void const *)param[0].info(ecEd_PtrCurveDef);
     unsigned pbits = curve->pbits;
-    // void *hctx;
 
     *x = EDDSA_CTX_INIT(
         param[0].info,
@@ -44,17 +43,6 @@ void eddsa_ctxinit_basic(
 
     x->hfuncs = HASH_FUNCS_SET_INIT(param[1].info);
     x->hashctx_size = param[1].info(contextBytes);
-    /* hctx = DeltaTo(x, offset_hashctx_init);
-    x->hfuncs.initfunc(hctx);
-
-    if( Cond_p25519 )
-    {
-        // dom2(x,y) is by default empty.
-    }
-    else if( Cond_p448 )
-    {
-        x->hfuncs.updatefunc(hctx, "SigEd448\0\0", 10);
-        } */
 }
 
 void eddsa_privkey_reload(EdDSA_Ctx_Hdr_t *x)

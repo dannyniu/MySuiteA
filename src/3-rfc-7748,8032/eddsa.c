@@ -5,83 +5,8 @@
 #include "../1-integers/vlong-dat.h"
 #include "../0-exec/struct-delta.c.h"
 
-static void HashDom(
-    EdDSA_Ctx_Hdr_t *restrict x,
-    hash_funcs_set_t *restrict hfnx,
-    void *dst, size_t *t, size_t plen)
-{
-    uint8_t cc[1];
-
-    if( plen == 32 )
-    {
-        if( x->flags & EdDSA_Flags_PH || x->ctxstr[0] > 0 )
-        {
-            hfnx->updatefunc(
-                dst, "SigEd25519 no Ed25519 collisions", 32);
-
-            cc[0] = x->flags & EdDSA_Flags_PH;
-            hfnx->updatefunc(dst, cc, 1);
-            hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0] + 1);
-
-            if( t ) *t += 32 + 2 + x->ctxstr[0];
-        }
-        // else t += 0; // 2024-03-17: nop, commented out.
-    }
-    else // plen must be 57.
-    {
-        x->hfuncs.updatefunc(dst, "SigEd448", 8);
-
-        cc[0] = x->flags & EdDSA_Flags_PH;
-        hfnx->updatefunc(dst, cc, 1);
-        hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0] + 1);
-
-        if( t ) *t += 8 + 2 + x->ctxstr[0];
-    }
-}
-
-static void *Ed25519_Set_DomainParams(
-    EdDSA_Ctx_Hdr_t *restrict x,
-    const bufvec_t *restrict bufvec)
-{
-    // void *dst = DeltaTo(x, offset_hashctx_init);
-    // uint8_t bi[2];
-    size_t t;
-
-    x->flags = bufvec[0].info;
-
-    if( x->flags & EdDSA_Flags_PH || bufvec[1].len )
-    {
-        if( bufvec[1].len > 255 ) return NULL;
-        x->ctxstr[0] = bufvec[1].len;
-
-        for(t=0; t<bufvec[1].len; t++)
-            x->ctxstr[t+1] = ((const uint8_t *)bufvec[1].dat)[t];
-    }
-    else
-    {
-        x->ctxstr[0] = 0;
-    }
-
-    return x;
-}
-
-static void *Ed448_Set_DomainParams(
-    EdDSA_Ctx_Hdr_t *restrict x,
-    const bufvec_t *restrict bufvec)
-{
-    // void *dst = DeltaTo(x, offset_hashctx_init);
-    // uint8_t bi[2];
-    size_t t;
-
-    x->flags = bufvec[0].info;
-
-    if( bufvec[1].len > 255 ) return NULL;
-    x->ctxstr[0] = bufvec[1].len;
-
-    for(t=0; t<bufvec[1].len; t++)
-        x->ctxstr[t+1] = ((const uint8_t *)bufvec[1].dat)[t];
-    return x;
-}
+static const char *DomStr25519 = "SigEd25519 no Ed25519 collisions";
+static const char *DomStr448 = "SigEd448";
 
 #if ! PKC_OMIT_PRIV_OPS
 
@@ -189,15 +114,56 @@ IntPtr EdDSA_Decode_PublicKey(
 
 #if ! PKC_OMIT_PRIV_OPS
 
+static void *RFC8032_Sign(
+    EdDSA_Ctx_Hdr_t *restrict x, uint8_t flags,
+    void const *restrict em, size_t emlen,
+    GenFunc_t prng_gen, void *restrict prng);
+
 void *EdDSA_Sign(
     EdDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen,
     GenFunc_t prng_gen, void *restrict prng)
 {
-    uint8_t *dst;
-    // uint8_t const *src;
-    uint8_t hmsg[64];
-    uint8_t buf[256];
+    x->status = 0;
+    return RFC8032_Sign(x, 0, msg, msglen, prng_gen, prng);
+}
+
+void *EdDSA_IncSign_Init(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    x->status = 0;
+    hfnx->initfunc(hctx);
+    *placeback = hfnx->updatefunc;
+    return hctx;
+}
+
+void *EdDSA_IncSign_Final(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng)
+{
+    uint8_t em[64];
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
+
+    hfnx->hfinalfunc(hctx, em, 64);
+    return RFC8032_Sign(x, 1, em, 64, prng_gen, prng);
+}
+
+static void *RFC8032_Sign(
+    EdDSA_Ctx_Hdr_t *restrict x, uint8_t flags,
+    void const *restrict em, size_t emlen,
+    GenFunc_t prng_gen, void *restrict prng)
+{
+    uint8_t *dst; // was initialized by copying from a "src", hence the name.
+    uint8_t buf[128];
     size_t plen = (x->curve->pbits + 8) / 8;
     size_t t, b;
 
@@ -211,7 +177,6 @@ void *EdDSA_Sign(
     VLONG_T(32) e = { .c = 32 };
 
     dst = DeltaTo(x, offset_hashctx);
-    // src = DeltaTo(x, offset_hashctx_init);
 
     // Step 2.
     // 2023-05-19: was: H(dom(F,C) + prefix + PH(M), plen)
@@ -221,20 +186,7 @@ void *EdDSA_Sign(
 
     // Updated Step 2: PH(M). // brought here to avoid schedule conflict.
 
-    if( x->flags & EdDSA_Flags_PH )
-    {
-        hfnx->initfunc(dst);
-        hfnx->updatefunc(dst, msg, msglen);
-
-        if( hfnx->xfinalfunc )
-            hfnx->xfinalfunc(dst);
-
-        // [2023-05-19:outlen-64]:
-        // ``64'' isn't mistaken. RFC-8032 says
-        // "PH is SHA512" for Ed25519ph, and
-        // "PH being SHAKE256(x, 64)" for Ed448ph.
-        hfnx->hfinalfunc(dst, hmsg, 64);
-    }
+    hfnx->initfunc(dst);
 
     // Updated Step 2: 00h and then 'Z'.
 
@@ -249,7 +201,19 @@ void *EdDSA_Sign(
 
     // Updated Step 2: DOM String.
 
-    HashDom(x, hfnx, dst, &t, plen);
+    if( plen != 32 || x->ctxstr[0] > 0 || flags )
+    {
+        // Added 2024-10-06 as part of the
+        // new domain separation string initialization routine.
+
+        if( plen == 32 )
+            hfnx->updatefunc(dst, DomStr25519, 32), t += 32;
+        else hfnx->updatefunc(dst, DomStr448, 8), t += 8;
+
+        hfnx->updatefunc(dst, &flags, 1);
+        hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0]+1);
+        t += x->ctxstr[0] + 2;
+    }
 
     // Updated Step 2: 000...
 
@@ -276,11 +240,7 @@ void *EdDSA_Sign(
 
     // Updated Step 2: PH(M)
 
-    if( x->flags & EdDSA_Flags_PH )
-    {
-        hfnx->updatefunc(dst, hmsg, 64);
-    }
-    else hfnx->updatefunc(dst, msg, msglen);
+    hfnx->updatefunc(dst, em, emlen);
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(dst);
@@ -304,10 +264,20 @@ void *EdDSA_Sign(
 
     // H(dom(F,C) + R + A + PH(M), plen * 2)
 
-    /* for(t=0; t<x->hashctx_size; t++)
-       dst[t] = src[t]; */
     hfnx->initfunc(dst);
-    HashDom(x, hfnx, dst, NULL, plen);
+
+    if( plen != 32 || x->ctxstr[0] > 0 || flags )
+    {
+        // Added 2024-10-06 as part of the
+        // new domain separation string initialization routine.
+
+        if( plen == 32 )
+            hfnx->updatefunc(dst, DomStr25519, 32);
+        else hfnx->updatefunc(dst, DomStr448, 8);
+
+        hfnx->updatefunc(dst, &flags, 1);
+        hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0]+1);
+    }
 
     eddsa_canon_pubkey(x, DeltaTo(x, offset_R));
     eddsa_point_enc(x, buf, DeltaTo(x, offset_R));
@@ -316,16 +286,7 @@ void *EdDSA_Sign(
     eddsa_point_enc(x, buf, DeltaTo(x, offset_A));
     hfnx->updatefunc(dst, buf, plen);
 
-    if( x->flags & EdDSA_Flags_PH )
-    {
-        // pre-hash flag is set.
-        hfnx->updatefunc(dst, hmsg, 64);
-    }
-    else
-    {
-        // pre-hash flag is clear.
-        hfnx->updatefunc(dst, msg, msglen);
-    }
+    hfnx->updatefunc(dst, em, emlen);
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(dst);
@@ -366,16 +327,67 @@ void *EdDSA_Sign(
 
 #if ! PKC_OMIT_PUB_OPS
 
+static bool RFC8032_Verify(
+    EdDSA_Ctx_Hdr_t *restrict x, uint8_t flags,
+    void const *restrict em, size_t emlen);
+
 void const *EdDSA_Verify(
     EdDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen)
 {
-    uint8_t *dst;
-    //uint8_t const *src;
-    uint8_t hmsg[64];
+    if( x->status == 1 ) return msg;
+    if( x->status == -1 ) return NULL;
+
+    if( RFC8032_Verify(x, 0, msg, msglen) )
+        return msg;
+    else return NULL;
+}
+
+void *EdDSA_IncVerify_Init(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    x->status = 0;
+    hfnx->initfunc(hctx);
+    *placeback = hfnx->updatefunc;
+    return hctx;
+}
+
+void *EdDSA_IncVerify_Final(
+    EdDSA_Ctx_Hdr_t *restrict x)
+{
+    uint8_t em[64];
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    if( x->status == 1 ) return x;
+    if( x->status == -1 ) return NULL;
+
+    if( x->status )
+    {
+        if( x->status == 1 ) return x;
+        else return NULL;
+    }
+
+    if( hfnx->xfinalfunc )
+        hfnx->xfinalfunc(hctx);
+
+    hfnx->hfinalfunc(hctx, em, 64);
+    if( RFC8032_Verify(x, 1, em, 64) )
+        return x;
+    else return NULL;
+}
+
+static bool RFC8032_Verify(
+    EdDSA_Ctx_Hdr_t *restrict x, uint8_t flags,
+    void const *restrict em, size_t emlen)
+{
+    uint8_t *dst; // was initialized by copying from a "src", hence the name.
     uint8_t buf[128];
     size_t plen = (x->curve->pbits + 8) / 8;
-    //size_t t;
 
     hash_funcs_set_t *hfnx = &x->hfuncs;
     ecEd_opctx_t *opctx = DeltaTo(x, offset_opctx);
@@ -385,35 +397,24 @@ void const *EdDSA_Verify(
     VLONG_T(32) e = { .c = 32 };
     vlong_size_t i;
 
-    if( x->status )
-    {
-        if( x->status > 0 ) return msg;
-        else return NULL;
-    }
-
     dst = DeltaTo(x, offset_hashctx);
-    // src = DeltaTo(x, offset_hashctx_init);
 
     // H(dom(F,C) + R + A + PH(M), plen * 2)
 
-    // 2023-11-16:
-    // moved here to fix the conflict schedule bug/error.
-
-    if( x->flags & EdDSA_Flags_PH )
-    {
-        // pre-hash flag is set.
-
-        hfnx->initfunc(dst);
-        hfnx->updatefunc(dst, msg, msglen);
-        if( hfnx->xfinalfunc )
-            hfnx->xfinalfunc(dst);
-        hfnx->hfinalfunc(dst, hmsg, 64);
-    }
-
-    /* for(t=0; t<x->hashctx_size; t++)
-       dst[t] = src[t]; */
     hfnx->initfunc(dst);
-    HashDom(x, hfnx, dst, NULL, plen);
+
+    if( plen != 32 || x->ctxstr[0] > 0 || flags )
+    {
+        // Added 2024-10-06 as part of the
+        // new domain separation string initialization routine.
+
+        if( plen == 32 )
+            hfnx->updatefunc(dst, DomStr25519, 32);
+        else hfnx->updatefunc(dst, DomStr448, 8);
+
+        hfnx->updatefunc(dst, &flags, 1);
+        hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0]+1);
+    }
 
     // here in verification, this is the decoded one, already canon.
     // eddsa_canon_pubkey(x, DeltaTo(x, offset_R));
@@ -424,16 +425,7 @@ void const *EdDSA_Verify(
     eddsa_point_enc(x, buf, DeltaTo(x, offset_A));
     hfnx->updatefunc(dst, buf, plen);
 
-    if( x->flags & EdDSA_Flags_PH )
-    {
-        // pre-hash flag is set.
-        hfnx->updatefunc(dst, hmsg, 64);
-    }
-    else
-    {
-        // pre-hash flag is clear.
-        hfnx->updatefunc(dst, msg, msglen);
-    }
+    hfnx->updatefunc(dst, em, emlen);
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(dst);
@@ -478,11 +470,11 @@ void const *EdDSA_Verify(
     if( buf[0] )
     {
         x->status = -1;
-        return NULL;
+        return false;
     }
 
     x->status = 1;
-    return msg;
+    return true;
 }
 
 #endif /* ! PKC_OMIT_PUB_OPS */
@@ -520,19 +512,18 @@ void *EdDSA_Sign_Xctrl(
     int veclen,
     int flags)
 {
+    size_t t;
     (void)flags;
 
     switch( cmd )
     {
-    case EdDSA_set_domain_params:
-        if( !bufvec || veclen < 2 ) return NULL;
+    case EdDSA_set_ctxstr:
+        if( !bufvec || veclen < 1 ) return NULL;
+        if( bufvec[0].len > 255 ) return NULL;
 
-        if( x->curve == CurveEd25519 )
-            return Ed25519_Set_DomainParams(x, bufvec);
-
-        if( x->curve == CurveEd448 )
-            return Ed448_Set_DomainParams(x, bufvec);
-
+        x->ctxstr[0] = bufvec[0].len;
+        for(t=0; t<bufvec[0].len; t++)
+            x->ctxstr[t+1] = ((uint8_t *)bufvec[0].dat)[t];
         return x;
         break;
 
@@ -594,19 +585,18 @@ void *EdDSA_Verify_Xctrl(
     int veclen,
     int flags)
 {
+    size_t t;
     (void)flags;
 
     switch( cmd )
     {
-    case EdDSA_set_domain_params:
-        if( !bufvec || veclen < 2 ) return NULL;
+    case EdDSA_set_ctxstr:
+        if( !bufvec || veclen < 1 ) return NULL;
+        if( bufvec[0].len > 255 ) return NULL;
 
-        if( x->curve == CurveEd25519 )
-            return Ed25519_Set_DomainParams(x, bufvec);
-
-        if( x->curve == CurveEd448 )
-            return Ed448_Set_DomainParams(x, bufvec);
-
+        x->ctxstr[0] = bufvec[0].len;
+        for(t=0; t<bufvec[0].len; t++)
+            x->ctxstr[t+1] = ((uint8_t *)bufvec[0].dat)[t];
         return x;
         break;
 

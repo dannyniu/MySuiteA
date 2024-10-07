@@ -53,7 +53,7 @@ lret = PKC_Encode_PrivateKey(kgx, NULL, 0, params);
 copy = my_alloc("dex", lret);
 PKC_Encode_PrivateKey(kgx, copy, lret, params);
 
-FILE *fp = fopen("./privkey", "wb"); // in "bin/"
+FILE *fp = fopen("./privkey", "wb"); // in "auto/"
 fwrite(copy, 1, lret, fp);
 fclose(fp);
 

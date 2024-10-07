@@ -67,8 +67,6 @@ void *ECDH_KEM_Decode_Ciphertext(
     ECDH_KEM_Ctx_Hdr_t *restrict x,
     void const *restrict ct, size_t ctlen);
 
-int ECDH_KEM_PKParams(int index, CryptoParam_t *out);
-
 #define xECDH_KEM_KeyCodec(q) (                                         \
         q==PKKeygenFunc ? (IntPtr)ECDH_KEM_Keygen :                     \
         q==PKPrivkeyEncoder ? (IntPtr)ECDH_KEM_Encode_PrivateKey :      \

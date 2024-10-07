@@ -90,9 +90,52 @@ IntPtr ECDSA_Decode_PublicKey(
 
 #if ! PKC_OMIT_PRIV_OPS
 
+static void *HMP1994_Sign(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen, void *restrict prng);
+
 void *ECDSA_Sign(
     ECDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen,
+    GenFunc_t prng_gen, void *restrict prng)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    if( x->status != 2 )
+    {
+        hfnx->initfunc(hctx);
+        hfnx->updatefunc(hctx, msg, msglen);
+        x->status = 2;
+    }
+
+    return HMP1994_Sign(x, prng_gen, prng);
+}
+
+void *ECDSA_IncSign_Init(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    x->status = 0;
+    hfnx->initfunc(hctx);
+    *placeback = hfnx->updatefunc;
+    return hctx;
+}
+
+void *ECDSA_IncSign_Final(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng)
+{
+    x->status = 2;
+    return HMP1994_Sign(x, prng_gen, prng);
+}
+
+static void *HMP1994_Sign( // See RFC-6090 for the name.
+    ECDSA_Ctx_Hdr_t *restrict x,
     GenFunc_t prng_gen, void *restrict prng)
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
@@ -122,6 +165,10 @@ start:
     {
         prng_gen(prng, H, x->curve->plen);
         vlong_OS2IP(k, H, x->curve->plen);
+
+        // 2024-10-05:
+        // This will only be needed for P-521,
+        // which @dannyniu see little reason to support.
         topword_modmask(
             (x->curve->plen - 1) / 4 + k->v,
             (x->curve->plen - 1) / 4 + x->curve->p->v);
@@ -145,12 +192,7 @@ start:
 
     // hash the message.
 
-    if( x->status != 2 )
-    {
-        x->status = 2;
-        hfnx->initfunc(hctx);
-        hfnx->updatefunc(hctx, msg, msglen);
-    }
+    assert( x->status == 2 ); // 3 is not supported by ECDSA.
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(hctx);
@@ -232,9 +274,53 @@ start:
 
 #if ! PKC_OMIT_PUB_OPS
 
+static bool HMP1994_Verify(ECDSA_Ctx_Hdr_t *restrict x);
+
 void const *ECDSA_Verify(
     ECDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    if( x->status == 1 ) return msg;
+    if( x->status == -1 ) return NULL;
+
+    hfnx->initfunc(hctx);
+    hfnx->updatefunc(hctx, msg, msglen);
+    x->status = 2;
+
+    if( HMP1994_Verify(x) )
+        return msg;
+    else return NULL;
+}
+
+void *ECDSA_IncVerify_Init(
+    ECDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    x->status = 0;
+    hfnx->initfunc(hctx);
+    *placeback = hfnx->updatefunc;
+    return hctx;
+}
+
+void *ECDSA_IncVerify_Final(
+    ECDSA_Ctx_Hdr_t *restrict x)
+{
+    if( x->status == 1 ) return x;
+    if( x->status == -1 ) return NULL;
+
+    x->status = 2;
+    if( HMP1994_Verify(x) )
+        return x;
+    else return NULL;
+}
+
+static bool HMP1994_Verify(ECDSA_Ctx_Hdr_t *restrict x)
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
@@ -253,9 +339,6 @@ void const *ECDSA_Verify(
 
     ecp_xyz_t *R = DeltaTo(x, offset_R);
 
-    if( x->status == 1 ) return msg;
-    if( x->status == -1 ) return NULL;
-
     // range check for r and s.
 
     if( vlong_cmpv_shifted(DeltaTo(opctx, offset_r), x->curve->n, 0) != 2 )
@@ -272,8 +355,7 @@ void const *ECDSA_Verify(
 
     // hash the message.
 
-    hfnx->initfunc(hctx);
-    hfnx->updatefunc(hctx, msg, msglen);
+    assert( x->status == 2 ); // 3 is not supported by ECDSA.
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(hctx);
@@ -358,11 +440,11 @@ void const *ECDSA_Verify(
         goto reject;
 
     x->status = 1;
-    return msg;
+    return true;
 
 reject:
     x->status = -1;
-    return NULL;
+    return false;
 }
 
 #endif /* ! PKC_OMIT_PUB_OPS */
