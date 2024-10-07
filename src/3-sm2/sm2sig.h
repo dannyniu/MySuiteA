@@ -51,6 +51,22 @@ void const *SM2SIG_Verify(
     SM2SIG_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
+void *SM2SIG_IncSign_Init(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *SM2SIG_IncSign_Final(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng);
+
+void *SM2SIG_IncVerify_Init(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *SM2SIG_IncVerify_Final(
+    SM2SIG_Ctx_Hdr_t *restrict x);
+
 void *SM2SIG_Encode_Signature(
     SM2SIG_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen);
@@ -87,18 +103,23 @@ enum {
         q==PKPubkeyDecoder ? (IntPtr)SM2SIG_Decode_PublicKey :          \
         0)
 
-#define cSM2SIG(crv,hash,q) (                           \
-        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :      \
-        q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :       \
-        q==isParamDetermByKey ? false :                 \
+#define cSM2SIG(crv,hash,q) (                                   \
+        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :              \
+        q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :               \
+        q==isParamDetermByKey ? false :                         \
+        q==dssPreHashingType ? dssPreHashing_Interface :        \
         0)
 
-#define xSM2SIG(crv,hash,q) (                           \
-        q==PKKeygenFunc ? (IntPtr)SM2SIG_Keygen :       \
-        q==PKSignFunc ? (IntPtr)SM2SIG_Sign :           \
-        q==PKVerifyFunc ? (IntPtr)SM2SIG_Verify :       \
-        q==PubXctrlFunc ? (IntPtr)SM2SIG_Verify_Xctrl : \
-        q==PrivXctrlFunc ? (IntPtr)SM2SIG_Sign_Xctrl :  \
+#define xSM2SIG(crv,hash,q) (                                           \
+        q==PKKeygenFunc ? (IntPtr)SM2SIG_Keygen :                       \
+        q==PKSignFunc ? (IntPtr)SM2SIG_Sign :                           \
+        q==PKVerifyFunc ? (IntPtr)SM2SIG_Verify :                       \
+        q==PKIncSignInitFunc ? (IntPtr)SM2SIG_IncSign_Init :            \
+        q==PKIncSignFinalFunc ? (IntPtr)SM2SIG_IncSign_Final :          \
+        q==PKIncVerifyInitFunc ? (IntPtr)SM2SIG_IncVerify_Init :        \
+        q==PKIncVerifyFinalFunc ? (IntPtr)SM2SIG_IncVerify_Final :      \
+        q==PrivXctrlFunc ? (IntPtr)SM2SIG_Sign_Xctrl :                  \
+        q==PubXctrlFunc ? (IntPtr)SM2SIG_Verify_Xctrl :                 \
         cSM2SIG(crv,hash,q) )
 
 #define xSM2SIG_CtCodec(q) (                                    \

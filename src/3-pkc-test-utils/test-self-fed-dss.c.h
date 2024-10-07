@@ -89,6 +89,8 @@ int main(int argc, char *argv[])
         goto test_done;
     }
 
+#if !PKC_DSS_No_Incremental_Tests
+
     printf("incremental tests.\n");
 
     for(int i=0; i<testcount; i++)
@@ -161,6 +163,8 @@ int main(int argc, char *argv[])
         PKC_Epilogue();
 #endif /* PKC_Epilogue */
     }
+
+#endif /* !PKC_DSS_No_Incremental_Tests */
 
 test_done:
     printf("\n%d of %d tests failed\n", failures, testcount*2);

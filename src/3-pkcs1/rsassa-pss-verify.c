@@ -18,9 +18,69 @@ void *RSASSA_PSS_Decode_Signature(
     return x;
 }
 
+static bool PKCS1v2_SSA_PSS_Verify(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    void const *restrict mHash);
+
 void const *RSASSA_PSS_Verify(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+    uint8_t mHash[64];
+
+    if( po->status == 1 ) return msg;
+    if( po->status == -1 ) return NULL;
+
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
+    if( po->hfuncs_msg.xfinalfunc )
+        po->hfuncs_msg.xfinalfunc(hctx);
+    po->hfuncs_msg.hfinalfunc(hctx, mHash, po->hlen_msg);
+    po->status = 2;
+
+    if( PKCS1v2_SSA_PSS_Verify(x, mHash) )
+        return msg;
+    else return NULL;
+}
+
+void *RSASSA_PSS_IncVerify_Init(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+
+    po->status = 0;
+    po->hfuncs_msg.initfunc(hctx);
+    *placeback = po->hfuncs_msg.updatefunc;
+    return hctx;
+}
+
+void *RSASSA_PSS_IncVerify_Final(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+    uint8_t mHash[64];
+
+    if( po->status == 1 ) return x;
+    if( po->status == -1 ) return NULL;
+
+    if( po->hfuncs_msg.xfinalfunc )
+        po->hfuncs_msg.xfinalfunc(hctx);
+    po->hfuncs_msg.hfinalfunc(hctx, mHash, po->hlen_msg);
+    po->status = 2;
+
+    if( PKCS1v2_SSA_PSS_Verify(x, mHash) )
+        return x;
+    else return NULL;
+}
+
+static bool PKCS1v2_SSA_PSS_Verify(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    void const *restrict mHash) // len(mHash) is known in ``po''.
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
@@ -34,13 +94,11 @@ void const *RSASSA_PSS_Verify(
     uint8_t *ptr;
     static const uint8_t nul[8] = {0};
 
-    // int32_t err = 0; // 2021-10-10: unused variable consider removing.
-
     if( po->status )
     {
     finish:
-        if( po->status < 0 ) return NULL;
-        else return msg;
+        if( po->status < 0 ) return false;
+        else return true;
     }
 
     if( emLen < po->hlen_msg + po->slen + 2 )
@@ -118,17 +176,17 @@ void const *RSASSA_PSS_Verify(
     }
 
     // Computing H' prerequisite: mHash.
+    //
+    // 2024-10-07:
+    // Previously, vp2 needed to hold the digest.
+    // This role is now fulfilled by the mHash argument.
     vp2 = DeltaTo(ex, offset_w3);
-    po->hfuncs_msg.initfunc(hctx);
-    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
-    if( po->hfuncs_msg.xfinalfunc )
-        po->hfuncs_msg.xfinalfunc(hctx);
-    po->hfuncs_msg.hfinalfunc(hctx, vp2->v, po->hlen_msg);
+    assert( po->status == 2 );
 
     // Compute H'.
     po->hfuncs_msg.initfunc(hctx);
     po->hfuncs_msg.updatefunc(hctx, nul, 8);
-    po->hfuncs_msg.updatefunc(hctx, vp2->v, po->hlen_msg);
+    po->hfuncs_msg.updatefunc(hctx, mHash, po->hlen_msg);
     po->hfuncs_msg.updatefunc(
         hctx, ptr + emLen - po->hlen_msg - po->slen - 1, po->slen);
     if( po->hfuncs_msg.xfinalfunc )

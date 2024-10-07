@@ -12,6 +12,7 @@ unitest_sh=../unitest.sh
 
 src="\
 rsassa-pss-self-fed-test.c
+rsassa-pss.c
 rsassa-pss-sign.c
 rsassa-pss-verify.c
 pkcs1.c

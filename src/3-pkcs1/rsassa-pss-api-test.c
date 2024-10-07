@@ -3,8 +3,9 @@
 #include "rsassa-pss.h"
 #include "../2-hash/sha.h"
 
-#define PKC_CtAlgo iRSASSA_PSS_CtCodec
 #define MSGMAX 96
+#define PKC_CtAlgo iRSASSA_PSS_CtCodec
+#define PKC_InstAlgo tRSASSA_PSS
 #include "test-api-defs.c.h"
 
 #define PKC_Prologue() do {                                     \

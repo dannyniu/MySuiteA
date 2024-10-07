@@ -8,8 +8,12 @@
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 4 *47 | 4 *48 | 8 *27
-typedef struct {
+// align spec: 4*109 | 4*112 | 8 *59
+typedef struct
+{
+    // ctxstr[0] is len, ctxstr+1 is pointer to context string.
+    uint8_t ctxstr[256];
+
     uint8_t sk[64];
     uint8_t prefix[64];
 
@@ -18,12 +22,13 @@ typedef struct {
 
     uint32_t offset_Tmp1, offset_Tmp2;
     uint32_t offset_opctx;
-    int16_t status, flags;
+    int32_t status;
+    int32_t flags; // unused padding as of 2024-10-06.
 
-    ecEd_curve_t const *curve;
-    size_t hashctx_size;
     uint32_t offset_hashctx;
-    uint32_t offset_hashctx_init;
+    //uint32_t offset_hashctx_init;
+    size_t hashctx_size;
+    ecEd_curve_t const *curve;
 
     hash_funcs_set_t hfuncs;
 } EdDSA_Ctx_Hdr_t;
@@ -48,33 +53,33 @@ typedef CryptoParam_t EdDSA_Param_t[2];
         .flags = 0,                                             \
         .offset_hashctx = sizeof(EdDSA_Ctx_Hdr_t) +             \
         hash(contextBytes) * 0,                                 \
-        .offset_hashctx_init = sizeof(EdDSA_Ctx_Hdr_t) +        \
-        hash(contextBytes) * 1,                                 \
+            /* .offset_hashctx_init = sizeof(EdDSA_Ctx_Hdr_t) + \
+               hash(contextBytes) * 1, */                       \
         .offset_opctx = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2,                                 \
+        hash(contextBytes) * 1,                                 \
         .offset_A     = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 0,                                \
         .offset_R     = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 1,                                \
         .offset_Tmp1  = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 2,                                \
         .offset_Tmp2  = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 3,                                \
         .offset_s     = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 4 +                               \
         crv(ecEd_BytesVLong) * 0,                               \
         .offset_r     = sizeof(EdDSA_Ctx_Hdr_t) +               \
-        hash(contextBytes) * 2 +                                \
+        hash(contextBytes) * 1 +                                \
         crv(ecEd_BytesOpCtx) +                                  \
         crv(ecEd_BytesXYTZ) * 4 +                               \
         crv(ecEd_BytesVLong) * 1,                               \
@@ -117,6 +122,22 @@ void const *EdDSA_Verify(
     EdDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
+void *EdDSA_IncSign_Init(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *EdDSA_IncSign_Final(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng);
+
+void *EdDSA_IncVerify_Init(
+    EdDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *EdDSA_IncVerify_Final(
+    EdDSA_Ctx_Hdr_t *restrict x);
+
 void *EdDSA_Encode_Signature(
     EdDSA_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen);
@@ -147,8 +168,19 @@ enum {
     // bufvec[0].info is the bitwise-or of EdDSA_Flags_* macro constants.
     // bufvec[1].dat is the pointer to context string,
     // bufvec[1].len is its length, and should be no greater than 255.
-    EdDSA_set_domain_params = 1, // pre-hash flag and context.
+    //
+    // 2024-10-06:
+    // As pre-hashing interface is being as incremental signing,
+    // this command is now unused and invalid. And it's commented-out
+    // to prevent potential mis-use.
+    //- EdDSA_set_domain_params = 1, // pre-hash flag and context.
+
+    // ``bufvec[0].dat'' points to the context string data.
+    // ``bufvec[0].len'' must be less or equal to 255.
+    EdDSA_set_ctxstr = 2,
 };
+
+int EdDSA_PKParams(int index, CryptoParam_t *out);
 
 #define xEdDSA_KeyCodec(q) (                                    \
         q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :                \
@@ -163,16 +195,21 @@ enum {
         q==bytesCtxPriv ? EDDSA_CTX_SIZE(crv,hash) :    \
         q==bytesCtxPub ? EDDSA_CTX_SIZE(crv,hash) :     \
         q==isParamDetermByKey ? false :                 \
-        q==dssNonceNeeded ? false :                     \
+        q==dssNonceNeeded ? true :                      \
         q==dssExternRngNeededForNonce ? false :         \
+        q==dssPreHashingType ? dssPreHashing_Variant :  \
         0)
 
-#define xEdDSA(crv,hash,q) (                            \
-        q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :        \
-        q==PKSignFunc ? (IntPtr)EdDSA_Sign :            \
-        q==PKVerifyFunc ? (IntPtr)EdDSA_Verify :        \
-        q==PubXctrlFunc ? (IntPtr)EdDSA_Verify_Xctrl :  \
-        q==PrivXctrlFunc ? (IntPtr)EdDSA_Sign_Xctrl :   \
+#define xEdDSA(crv,hash,q) (                                            \
+        q==PKKeygenFunc ? (IntPtr)EdDSA_Keygen :                        \
+        q==PKSignFunc ? (IntPtr)EdDSA_Sign :                            \
+        q==PKVerifyFunc ? (IntPtr)EdDSA_Verify :                        \
+        q==PKIncSignInitFunc ? (IntPtr)EdDSA_IncSign_Init :             \
+        q==PKIncSignFinalFunc ? (IntPtr)EdDSA_IncSign_Final :           \
+        q==PKIncVerifyInitFunc ? (IntPtr)EdDSA_IncVerify_Init :         \
+        q==PKIncVerifyFinalFunc ? (IntPtr)EdDSA_IncVerify_Final :       \
+        q==PubXctrlFunc ? (IntPtr)EdDSA_Verify_Xctrl :                  \
+        q==PrivXctrlFunc ? (IntPtr)EdDSA_Sign_Xctrl :                   \
         cEdDSA(crv,hash,q) )
 
 #define xEdDSA_CtCodec(q) (                                     \

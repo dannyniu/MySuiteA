@@ -26,6 +26,15 @@ void *RSAEncryptionWithHash_Sign(
     void const *restrict msg, size_t msglen,
     GenFunc_t prng_gen, void *restrict prng);
 
+void *RSAEncryptionWithHash_IncSign_Init(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *RSAEncryptionWithHash_IncSign_Final(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng);
+
 // returns x on success and NULL on failure.
 void *RSAEncryptionWithHash_Decode_Signature(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
@@ -36,14 +45,26 @@ void const *RSAEncryptionWithHash_Verify(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
+void *RSAEncryptionWithHash_IncVerify_Init(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *RSAEncryptionWithHash_IncVerify_Final(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x);
+
 #define cRSAEncryptionWithHash cRSA_PKCS1
 
 #define xRSAEncryptionWithHash(hmsg,hmgf,bits,primes,q) (               \
         q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                        \
         q==PKSignFunc ? (IntPtr)RSAEncryptionWithHash_Sign :            \
         q==PKVerifyFunc ? (IntPtr)RSAEncryptionWithHash_Verify :        \
-        q==dssNonceNeeded ? false : \
-        q==dssExternRngNeededForNonce ? false : \
+        q==PKIncSignInitFunc ? (IntPtr)RSAEncryptionWithHash_IncSign_Init : \
+        q==PKIncSignFinalFunc ? (IntPtr)RSAEncryptionWithHash_IncSign_Final : \
+        q==PKIncVerifyInitFunc ? (IntPtr)RSAEncryptionWithHash_IncVerify_Init : \
+        q==PKIncVerifyFinalFunc ? (IntPtr)RSAEncryptionWithHash_IncVerify_Final : \
+        q==dssNonceNeeded ? false :                                     \
+        q==dssExternRngNeededForNonce ? false :                         \
+        q==dssPreHashingType ? dssPreHashing_Interface :                \
         cRSAEncryptionWithHash(hmsg,hmgf,bits,primes,q) )
 
 #define xRSAEncryptionWithHash_CtCodec(q) (                             \

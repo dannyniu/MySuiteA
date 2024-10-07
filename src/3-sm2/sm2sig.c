@@ -157,9 +157,54 @@ IntPtr SM2SIG_Decode_PublicKey(
 
 #if ! PKC_OMIT_PRIV_OPS
 
+static void *GMT0003pt2_Sign(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen, void *restrict prng);
+
 void *SM2SIG_Sign(
     SM2SIG_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen,
+    GenFunc_t prng_gen, void *restrict prng)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    if( x->status != 3 )
+    {
+        hfnx->initfunc(hctx);
+        hfnx->updatefunc(hctx, x->uinfo, x->hlen);
+        hfnx->updatefunc(hctx, msg, msglen);
+        x->status = 3;
+    }
+
+    return GMT0003pt2_Sign(x, prng_gen, prng);
+}
+
+void *SM2SIG_IncSign_Init(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    x->status = 0;
+    hfnx->initfunc(hctx);
+    hfnx->updatefunc(hctx, x->uinfo, x->hlen);
+    *placeback = hfnx->updatefunc;
+    return hctx;
+}
+
+void *SM2SIG_IncSign_Final(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng)
+{
+    x->status = 3;
+    return GMT0003pt2_Sign(x, prng_gen, prng);
+}
+
+static void *GMT0003pt2_Sign( // The standard number is GM/T-0003.2
+    SM2SIG_Ctx_Hdr_t *restrict x,
     GenFunc_t prng_gen, void *restrict prng)
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
@@ -189,9 +234,13 @@ start:
     {
         prng_gen(prng, H, x->curve->plen);
         vlong_OS2IP(k, H, x->curve->plen);
-        topword_modmask(
-            (x->curve->plen - 1) / 4 + k->v,
-            (x->curve->plen - 1) / 4 + x->curve->p->v);
+
+        // 2024-10-05 (retro 2024-10-06):
+        // This will only be needed for P-521,
+        // which is never used with SM2-DSS.
+        //- topword_modmask(
+        //-     (x->curve->plen - 1) / 4 + k->v,
+        //-     (x->curve->plen - 1) / 4 + x->curve->p->v);
 
         if( vlong_cmpv_shifted(k, x->curve->n, 0) != 2 )
             continue;
@@ -224,9 +273,7 @@ start:
 
     // hash the message.
 
-    hfnx->initfunc(hctx);
-    hfnx->updatefunc(hctx, x->uinfo, x->hlen);
-    hfnx->updatefunc(hctx, msg, msglen);
+    assert( x->status == 2 || x->status == 3 );
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(hctx);
@@ -329,9 +376,55 @@ start:
 
 #if ! PKC_OMIT_PUB_OPS
 
+static bool GMT0003pt2_Verify(SM2SIG_Ctx_Hdr_t *restrict x);
+
 void const *SM2SIG_Verify(
     SM2SIG_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    if( x->status == 1 ) return msg;
+    if( x->status == -1 ) return NULL;
+
+    hfnx->initfunc(hctx);
+    hfnx->updatefunc(hctx, x->uinfo, x->hlen);
+    hfnx->updatefunc(hctx, msg, msglen);
+    x->status = 3;
+
+    if( GMT0003pt2_Verify(x) )
+        return msg;
+    else return NULL;
+}
+
+void *SM2SIG_IncVerify_Init(
+    SM2SIG_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    void *restrict hctx = DeltaTo(x, offset_hashctx);
+    hash_funcs_set_t *hfnx = &x->hfuncs;
+
+    x->status = 0;
+    hfnx->initfunc(hctx);
+    hfnx->updatefunc(hctx, x->uinfo, x->hlen);
+    *placeback = hfnx->updatefunc;
+    return hctx;
+}
+
+void *SM2SIG_IncVerify_Final(
+    SM2SIG_Ctx_Hdr_t *restrict x)
+{
+    if( x->status == 1 ) return x;
+    if( x->status == -1 ) return NULL;
+
+    x->status = 2;
+    if( GMT0003pt2_Verify(x) )
+        return x;
+    else return NULL;
+}
+
+static bool GMT0003pt2_Verify(SM2SIG_Ctx_Hdr_t *restrict x)
 {
     unsigned slen = x->curve->plen < x->hlen ? x->curve->plen : x->hlen;
     uint8_t H[128] = {0}; // increased per [crypto.SE]/q/98794.
@@ -350,9 +443,6 @@ void const *SM2SIG_Verify(
 
     ecp_xyz_t *R = DeltaTo(x, offset_R);
 
-    if( x->status == 1 ) return msg;
-    if( x->status == -1 ) return NULL;
-
     // range check for r and s.
 
     if( vlong_cmpv_shifted(DeltaTo(opctx, offset_r), x->curve->n, 0) != 2 )
@@ -369,9 +459,7 @@ void const *SM2SIG_Verify(
 
     // hash the message.
 
-    hfnx->initfunc(hctx);
-    hfnx->updatefunc(hctx, x->uinfo, x->hlen);
-    hfnx->updatefunc(hctx, msg, msglen);
+    assert( x->status == 2 || x->status == 3 );
 
     if( hfnx->xfinalfunc )
         hfnx->xfinalfunc(hctx);
@@ -462,7 +550,7 @@ void const *SM2SIG_Verify(
         goto reject;
 
     x->status = 1;
-    return msg;
+    return true;
 
 reject:
     x->status = -1;
