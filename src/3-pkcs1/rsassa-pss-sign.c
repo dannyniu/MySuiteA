@@ -34,9 +34,49 @@ void *RSASSA_PSS_Encode_Signature(
     return sig;
 }
 
+static void *PKCS1v2_SSA_PSS_Sign(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen, void *restrict prng);
+
 void *RSASSA_PSS_Sign(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen,
+    GenFunc_t prng_gen, void *restrict prng)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
+    po->status = 2;
+
+    return PKCS1v2_SSA_PSS_Sign(x, prng_gen, prng);
+}
+
+void *RSASSA_PSS_IncSign_Init(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+
+    x->po_base.status = 0;
+    po->hfuncs_msg.initfunc(hctx);
+    *placeback = po->hfuncs_msg.updatefunc;
+    return hctx;
+}
+
+void *RSASSA_PSS_IncSign_Final(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng)
+{
+    x->po_base.status = 2;
+    return PKCS1v2_SSA_PSS_Sign(x, prng_gen, prng);
+}
+
+static void *PKCS1v2_SSA_PSS_Sign(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
     GenFunc_t prng_gen, void *restrict prng)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
@@ -51,13 +91,11 @@ void *RSASSA_PSS_Sign(
     uint8_t *ptr;
     static const uint8_t nul[8] = {0};
 
-    // int32_t err = 0; // 2021-10-10: unused variabe consider removing.
-
     if( po->status )
     {
         if( po->status > 0 )
         {
-            po->status = 0;
+            // po->status = 0; // 2024-10-07: may be set by friend caller(s).
             goto begin;
         }
     finish:
@@ -81,8 +119,7 @@ begin:
     prng_gen(prng, ptr + emLen - po->hlen_msg - po->slen - 1, po->slen);
 
     // Compute mHash.
-    po->hfuncs_msg.initfunc(hctx);
-    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
+    assert( po->status == 2 );
     if( po->hfuncs_msg.xfinalfunc )
         po->hfuncs_msg.xfinalfunc(hctx);
     po->hfuncs_msg.hfinalfunc(

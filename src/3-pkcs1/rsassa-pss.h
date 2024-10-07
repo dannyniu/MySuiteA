@@ -17,6 +17,20 @@ void *RSASSA_PSS_Sign(
     void const *restrict msg, size_t msglen,
     GenFunc_t prng_gen, void *restrict prng);
 
+void *RSASSA_PSS_Sign(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    void const *restrict msg, size_t msglen,
+    GenFunc_t prng_gen, void *restrict prng);
+
+void *RSASSA_PSS_IncSign_Init(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *RSASSA_PSS_IncSign_Final(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng);
+
 void *RSASSA_PSS_Sign_Xctrl(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
     int cmd,
@@ -34,6 +48,13 @@ void const *RSASSA_PSS_Verify(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
+void *RSASSA_PSS_IncVerify_Init(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *RSASSA_PSS_IncVerify_Final(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x);
+
 void *RSASSA_PSS_Verify_Xctrl(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
     int cmd,
@@ -43,14 +64,19 @@ void *RSASSA_PSS_Verify_Xctrl(
 
 #define cRSASSA_PSS cRSA_PKCS1
 
-#define xRSASSA_PSS(hmsg,hmgf,bits,primes,q) (                  \
-        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                \
-        q==PKSignFunc ? (IntPtr)RSASSA_PSS_Sign :               \
-        q==PKVerifyFunc ? (IntPtr)RSASSA_PSS_Verify :           \
-        q==PubXctrlFunc ? (IntPtr)RSASSA_PSS_Verify_Xctrl :     \
-        q==PrivXctrlFunc ? (IntPtr)RSASSA_PSS_Sign_Xctrl :      \
-        q==dssNonceNeeded ? true : \
-        q==dssExternRngNeededForNonce ? true : \
+#define xRSASSA_PSS(hmsg,hmgf,bits,primes,q) (                          \
+        q==PKKeygenFunc ? (IntPtr)PKCS1_Keygen :                        \
+        q==PKSignFunc ? (IntPtr)RSASSA_PSS_Sign :                       \
+        q==PKVerifyFunc ? (IntPtr)RSASSA_PSS_Verify :                   \
+        q==PKIncSignInitFunc ? (IntPtr)RSASSA_PSS_IncSign_Init :        \
+        q==PKIncSignFinalFunc ? (IntPtr)RSASSA_PSS_IncSign_Final :      \
+        q==PKIncVerifyInitFunc ? (IntPtr)RSASSA_PSS_IncVerify_Init :    \
+        q==PKIncVerifyFinalFunc ? (IntPtr)RSASSA_PSS_IncVerify_Final :  \
+        q==PrivXctrlFunc ? (IntPtr)RSASSA_PSS_Sign_Xctrl :              \
+        q==PubXctrlFunc ? (IntPtr)RSASSA_PSS_Verify_Xctrl :             \
+        q==dssNonceNeeded ? true :                                      \
+        q==dssExternRngNeededForNonce ? true :                          \
+        q==dssPreHashingType ? dssPreHashing_Interface :                \
         cRSASSA_PSS(hmsg,hmgf,bits,primes,q) )
 
 #define xRSASSA_PSS_CtCodec(q) (                                \

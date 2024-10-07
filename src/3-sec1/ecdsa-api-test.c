@@ -4,10 +4,10 @@
 #include "../2-ec/curves-secp.h"
 #include "../2-hash/sha.h"
 
+#define PKC_InstAlgo tECDSA
 #define PKC_CtAlgo iECDSA_CtCodec
-#define MSGMAX 96
-
 #define PKC_KeyAlgo iECDSA_KeyCodec
+#define MSGMAX 96
 
 #include "test-param-defs.c.h"
 

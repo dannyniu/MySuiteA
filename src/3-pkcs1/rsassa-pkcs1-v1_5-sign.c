@@ -34,9 +34,49 @@ void *RSAEncryptionWithHash_Encode_Signature(
     return sig;
 }
 
+static void *PKCS1v1_SSA_PSS_Sign(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen, void *restrict prng);
+
 void *RSAEncryptionWithHash_Sign(
     PKCS1_Priv_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen,
+    GenFunc_t prng_gen, void *restrict prng)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
+    po->status = 2;
+
+    return PKCS1v1_SSA_PSS_Sign(x, prng_gen, prng);
+}
+
+void *RSAEncryptionWithHash_IncSign_Init(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+
+    x->po_base.status = 0;
+    po->hfuncs_msg.initfunc(hctx);
+    *placeback = po->hfuncs_msg.updatefunc;
+    return hctx;
+}
+
+void *RSAEncryptionWithHash_IncSign_Final(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng)
+{
+    x->po_base.status = 2;
+    return PKCS1v1_SSA_PSS_Sign(x, prng_gen, prng);
+}
+
+static void *PKCS1v1_SSA_PSS_Sign(
+    PKCS1_Priv_Ctx_Hdr_t *restrict x,
     GenFunc_t prng_gen, void *restrict prng)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
@@ -59,7 +99,7 @@ void *RSAEncryptionWithHash_Sign(
     {
         if( po->status > 0 )
         {
-            po->status = 0;
+            // po->status = 0; // 2024-10-07: may be set by friend caller(s).
             goto begin;
         }
     finish:
@@ -114,8 +154,7 @@ begin:
         ptr[t + emLen - hoid->Digest_Len - hoid->DER_Prefix_Len] =
             ((uint8_t const *)hoid->DER_Prefix)[t];
 
-    po->hfuncs_msg.initfunc(hctx);
-    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
+    assert( po->status == 2 );
     if( po->hfuncs_msg.xfinalfunc ) // this should never happen.
         po->hfuncs_msg.xfinalfunc(hctx);
     po->hfuncs_msg.hfinalfunc(

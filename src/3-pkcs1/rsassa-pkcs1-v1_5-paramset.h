@@ -6,6 +6,6 @@
 #include "pkcs1-paramset-common.h"
 #include "rsassa-pkcs1-v1_5.h"
 
-PKC_Algo_Inst_t RSAEncryption_With_SHA256;
+extern PKC_Algo_Inst_t RSAEncryption_With_SHA256;
 
 #endif /* MySuiteA_RSASSA_PKCS1_V1_5_ParamSet_h */

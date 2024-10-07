@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2022-02-25. Public Domain. */
 
 #include "../2-xof/gimli-xof.h"
-static gimli_xof_t gx;
+static gimli_xof_t gx, mx;
 
 void *prng = &gx;
 

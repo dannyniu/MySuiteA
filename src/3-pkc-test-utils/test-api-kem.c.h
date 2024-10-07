@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
 #ifdef PKC_Prologue
         PKC_Prologue();
-#endif /* PKC_Epilogue */
+#endif /* PKC_Prologue */
 
         PKC_PRNG_Gen(prng, ss1, sslen);
         PKC_PRNG_Gen(prng, ss2, sslen);

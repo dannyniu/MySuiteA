@@ -6,10 +6,10 @@
 #include "../2-hash/sha3.h"
 #include "../2-xof/shake.h"
 
+#define PKC_InstAlgo tEdDSA
 #define PKC_CtAlgo iEdDSA_CtCodec
-#define MSGMAX 96
-
 #define PKC_KeyAlgo iEdDSA_KeyCodec
+#define MSGMAX 96
 
 #include "test-param-defs.c.h"
 

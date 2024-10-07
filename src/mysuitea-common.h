@@ -312,6 +312,14 @@ enum {
     // "signing driver" function is provided, with this query returning true.
     dssExternRngNeededForNonce = 105,
 
+    // Added 2024-10-05:
+    // Determines the characteristics of pre-hashing support of the algorithm
+    // instance ITSELF - although an algorithm may support a variety of
+    // message hashing, reporting it for different instance across all
+    // algorithm instances is neither useful from usage point of view,
+    // nor viable from implementation point of view.
+    dssPreHashingType = 106,
+
     // Obtains a set of parameter presets.
     //
     // [2023-08-09-SepParams]:
@@ -325,6 +333,8 @@ enum {
     PKKeygenFunc = 122,
     PKEncFunc = 123, PKDecFunc = 124, // Key Encapsulation Mechanism
     PKSignFunc = 125, PKVerifyFunc = 126, // Digital Signature Schemes
+    PKIncSignInitFunc = 127, PKIncSignFinalFunc = 128, // Pre-Hash DSS
+    PKIncVerifyInitFunc = 129, PKIncVerifyFinalFunc = 130, // Pre-Hash DSS
 
     // Key Material Saving and Loading //
     // - Encoder and Decoder work on the working contexts of their
@@ -362,6 +372,23 @@ enum {
     InstInitFunc  = KInitFunc,
     ReseedFunc    = WriteFunc,
     GenFunc       = ReadFunc,
+};
+
+// Added 2024-10-05.
+enum {
+    // This algorithm does not support pre-hashing at all.
+    dssPreHashing_Unsupported = 0,
+
+    // Pre-hashing offered in an interface, and the algorithm behaves
+    // the same as if the message is buffered and signed all-at-once
+    dssPreHashing_Interface = 1,
+
+    // Pre-hashing offered in an interface, but algorithm will behave
+    // differently from that of buffering and signing all-at-once.
+    dssPreHashing_Variant = 2,
+
+    // Pre-hashing is supported in a separate algorithm instance.
+    dssPreHashing_ParamSet = 3,
 };
 
 typedef void (*EncFunc_t)(void const *in, void *out, void const *restrict w);
@@ -468,6 +495,23 @@ typedef void *(*PKSignFunc_t)(void *restrict x,
 typedef void const *(*PKVerifyFunc_t)(void *restrict x,
                                       void const *restrict msg,
                                       size_t msglen);
+
+// returns a incremental signing/verifying context; the pointer to its update
+// function is written to ``placeback''; the corresponding
+// ``PKIncSignFinalFunc_t'' or ``PKIncVerifyFinalFunc_t'' finalizes it.
+typedef void *(*PKIncSignInitFunc_t)(void *restrict x,
+                                     UpdateFunc_t *placeback);
+
+typedef PKIncSignInitFunc_t PKIncVerifyInitFunc_t;
+
+// finalizes the incremental signing context and produce a signature.
+typedef void *(*PKIncSignFinalFunc_t)(void *restrict x,
+                                      GenFunc_t prng_gen,
+                                      void *restrict prng);
+
+// finalizes the incremental verification context and evaluate the predicate.
+// ``x'' if verification passes, and NULL otherwise.
+typedef void *(*PKIncVerifyFinalFunc_t)(void *restrict x);
 
 // 2-pass codecs similar to that in "2-asn1/der-codec.h".
 typedef IntPtr (*PKKeyEncoder_t)(void const *restrict any,

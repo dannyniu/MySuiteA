@@ -18,9 +18,53 @@ void *RSAEncryptionWithHash_Decode_Signature(
     return x;
 }
 
+static bool PKCS1v1_SSA_Verify(PKCS1_Pub_Ctx_Hdr_t *restrict x);
+
 void const *RSAEncryptionWithHash_Verify(
     PKCS1_Pub_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+
+    if( po->status == 1 ) return msg;
+    if( po->status == -1 ) return NULL;
+
+    po->hfuncs_msg.initfunc(hctx);
+    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
+    po->status = 2;
+
+    if( PKCS1v1_SSA_Verify(x) )
+        return msg;
+    else return NULL;
+}
+
+void *RSAEncryptionWithHash_IncVerify_Init(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback)
+{
+    pkcs1_padding_oracles_base_t *po = &x->po_base;
+    void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
+
+    po->status = 0;
+    po->hfuncs_msg.initfunc(hctx);
+    *placeback = po->hfuncs_msg.updatefunc;
+    return hctx;
+}
+
+void *RSAEncryptionWithHash_IncVerify_Final(
+    PKCS1_Pub_Ctx_Hdr_t *restrict x)
+{
+    if( x->po_base.status == 1 ) return x;
+    if( x->po_base.status == -1 ) return NULL;
+
+    x->po_base.status = 2;
+    if( PKCS1v1_SSA_Verify(x) )
+        return x;
+    else return NULL;
+}
+
+static bool PKCS1v1_SSA_Verify(PKCS1_Pub_Ctx_Hdr_t *restrict x)
 {
     pkcs1_padding_oracles_base_t *po = &x->po_base;
     void *hctx = ((pkcs1_padding_oracles_t *)po)->hashctx;
@@ -39,8 +83,8 @@ void const *RSAEncryptionWithHash_Verify(
     if( po->status )
     {
     finish:
-        if( po->status < 0 ) return NULL;
-        else return msg;
+        if( po->status < 0 ) return false;
+        else return true;
     }
 
     // Conversion of signature to integer is performed by
@@ -121,8 +165,7 @@ void const *RSAEncryptionWithHash_Verify(
         ptr[t + emLen - hoid->Digest_Len - hoid->DER_Prefix_Len] =
             ((uint8_t const *)hoid->DER_Prefix)[t];
 
-    po->hfuncs_msg.initfunc(hctx);
-    po->hfuncs_msg.updatefunc(hctx, msg, msglen);
+    assert( po->status == 2 );
     if( po->hfuncs_msg.xfinalfunc ) // this should never happen.
         po->hfuncs_msg.xfinalfunc(hctx);
     po->hfuncs_msg.hfinalfunc(

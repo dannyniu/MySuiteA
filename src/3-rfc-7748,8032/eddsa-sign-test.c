@@ -765,11 +765,16 @@ void FixedPRNG(void const *restrict randstr, void *restrict out, size_t len)
 int main(void) // (int argc, char *argv[])
 {
     uint8_t H[128];
+    uint8_t G[128];
     int fails = 0;
 
     EdDSA_Test_Vector_t *testvec = testvecs;
     unsigned pbits, plen;
     size_t len, msglen;
+    bool verification;
+
+    UpdateFunc_t updatefunc;
+    void *hctx;
 
     while( testvec->msg )
     {
@@ -784,26 +789,54 @@ int main(void) // (int argc, char *argv[])
             &eddsaCtx.x_hdr, testvec->params,
             (GenFunc_t)FixedPRNG, testvec->d);
 
-        EdDSA_Verify_Xctrl(
-            &eddsaCtx.x_hdr, EdDSA_set_domain_params,
-            testvec->bvec, 2, 0);
+        if( !EdDSA_Verify_Xctrl(
+                &eddsaCtx.x_hdr, EdDSA_set_ctxstr,
+                testvec->bvec+1, 1, 0) )
+        {
+            printf("context control function failed!\n");
+            fails ++;
+        }
 
         msglen = strlen(testvec->msg) / 2;
         scanhex(msgbuf, msglen, testvec->msg);
-        EdDSA_Sign(
-            &eddsaCtx.x_hdr,
-            msgbuf, msglen,
-            NULL, NULL);
+
+        if( testvec->bvec[0].info & EdDSA_Flags_PH )
+        {
+            hctx = EdDSA_IncSign_Init(&eddsaCtx.x_hdr, &updatefunc);
+            updatefunc(hctx, msgbuf, msglen);
+            EdDSA_IncSign_Final(&eddsaCtx.x_hdr, NULL, NULL);
+        }
+        else
+        {
+            EdDSA_Sign(
+                &eddsaCtx.x_hdr,
+                msgbuf, msglen,
+                NULL, NULL);
+        }
 
         len = plen * 2;
         scanhex(H, len, testvec->sig);
-        //EdDSA_Encode_Signature(&eddsaCtx.x_hdr, H, &len);
+        EdDSA_Encode_Signature(&eddsaCtx.x_hdr, G, &len);
+        if( memcmp(G, H, len) != 0 )
+        {
+            printf("signer produced wrong signature!\n");
+            fails ++;
+        }
+
         EdDSA_Decode_Signature(&eddsaCtx.x_hdr, H, len);
 
         eddsaCtx.x_hdr.status = 0;
         memcpy(&eddsaSavedCtx, &eddsaCtx, sizeof(EdDSA_Ctx_t));
 
-        if( EdDSA_Verify(&eddsaCtx.x_hdr, "!", 1) )
+        if( testvec->bvec[0].info & EdDSA_Flags_PH )
+        {
+            hctx = EdDSA_IncVerify_Init(&eddsaCtx.x_hdr, &updatefunc);
+            updatefunc(hctx, "!", 1);
+            verification = EdDSA_IncVerify_Final(&eddsaCtx.x_hdr);
+        }
+        else verification = EdDSA_Verify(&eddsaCtx.x_hdr, "!", 1);
+
+        if( verification )
         {
             printf("forgery undetected: Ed:%u!\n", pbits);
             fails ++;
@@ -811,9 +844,15 @@ int main(void) // (int argc, char *argv[])
 
         memcpy(&eddsaCtx, &eddsaSavedCtx, sizeof(EdDSA_Ctx_t));
 
-        if( !EdDSA_Verify(
-                &eddsaCtx.x_hdr,
-                msgbuf, msglen) )
+        if( testvec->bvec[0].info & EdDSA_Flags_PH )
+        {
+            hctx = EdDSA_IncVerify_Init(&eddsaCtx.x_hdr, &updatefunc);
+            updatefunc(hctx, msgbuf, msglen);
+            verification = EdDSA_IncVerify_Final(&eddsaCtx.x_hdr);
+        }
+        else verification = EdDSA_Verify(&eddsaCtx.x_hdr, msgbuf, msglen);
+
+        if( !verification )
         {
             printf("rejected mistakenly: Ed:%u!\n", pbits);
             fails ++;

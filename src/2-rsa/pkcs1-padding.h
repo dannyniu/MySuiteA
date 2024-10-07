@@ -18,18 +18,23 @@ typedef struct {
     // - <0: decryption failure.
     //
     // For signature generation:
-    // - 1. OK.
-    // - 2. The input message had been hashed and the digest
-    //      don't need to be recomputed. This only occurs during
+    // - 1: OK.
+    // - 2: The input message had been hashed and the digest
+    //      don't need to be recomputed. This occurs during
     //      the hand-over from the hedged signing subroutine to
-    //      the internal PRNG-based signing subroutine.
-    // - 3. Same as 2, except the ``uinfo'' field is prepended to
+    //      the internal PRNG-based signing subroutine. It can
+    //      also happen when incremental signer and all-at-once
+    //      signer invokes the internal signing subroutine, as
+    //      will be the case as incremental signing are being
+    //      implemented as of 2024-10-05.
+    // - 3: Same as 2, except the ``uinfo'' field is prepended to
     //      the message when hashing. This is used by DSS schemes
     //      supporting user info such as SM2-DSS.
-    // - -1. Some signing error.
+    // - -1: Some signing error.
     // For signature verification:
     // - 0: signature decoded and ready for verification.
     // - 1: signature valid.
+    // - 2: message hashed, don't redo it.
     // - -1: signature invalid.
     int32_t             status;
 
