@@ -1234,6 +1234,90 @@
       </dd>
     </dl>
 
+    <h3>Incremental Signing / Pre-Hashing</h3>
+
+    <p>
+      Many existing digital signature schemes actually signs a hash digest
+      of the message. Those that does this including RSA (PKCS#1 v1.5 and PSS),
+      ECDSA, and some variants of EdDSA specified in RFC-8032. To realize their
+      full potential, incremental signing are devised.
+    </p>
+
+    <dl>
+      <dt><code>dssPreHashingType</code></dt>
+      <dd>
+        <p>
+          The type of pre-hashing supported by the algorithm <em>instance</em>.
+          It can be one of the following enumerations:
+        </p>
+        <ul>
+          <li><code>dssPreHashing_Unsupported</code>:
+            This algorithm does not support pre-hashing at all.</li>
+
+          <li><code>dssPreHashing_Interface</code>:
+            PrePre-hashing offered in an interface, and the algorithm behaves
+            the same as if the message is buffered and signed all-at-once.</li>
+
+          <li><code>dssPreHashing_Variant</code>:
+            Pre-hashing offered in an interface, but algorithm will behave
+            differently from that of buffering and signing all-at-once.</li>
+
+          <li><code>dssPreHashing_ParamSet</code>:
+            Pre-hashing is supported in a separate algorithm instance.</li>
+        </ul>
+        <p></p>
+      </dd>
+
+      <dt><code>PKIncSignInitFunc</code></dt>
+      <dt><code>PKIncVerifyInitFunc</code></dt>
+      <dd>
+        <p>
+          The initialization functions for incremental signing and
+          incremental verifying. They have the prototype:
+        </p>
+        <pre>void *(*PKIncSignInitFunc_t)(rbuf x, UpdateFunc_t *placeback);
+        </pre>
+        <p>This type has an alias: <code>PKIncVerifyInitFunc_t</code>.</p>
+        <p>
+          When called, it initializes a hashing context and prepare it
+          with algorithm-specific prefix data. Before returning the pointer
+          to this working context, it places a pointer to the update function
+          of this hashing function into placeback.
+        </p>
+      </dd>
+
+      <dt><code>PKIncSignFinalFunc</code></dt>
+      <dd>
+        <p>
+          The function that completes hashing of and produce a signature
+          for the hashed message, of the prototype:
+        </p>
+        <pre>void *(*PKIncSignFinalFunc_t)(
+          <span class="tab"></span>rbuf x,
+          <span class="tab"></span>GenFunc_t prng_gen, rbuf prng);</pre>
+        <p>where:</p>
+        <ul>
+          <li><code>x</code> points to the private-key working context,</li>
+          <li><code>prng_gen</code> is the PRNG
+            random bits generating function,</li>
+          <li><code>prng</code> is the working context for the PRNG.</li>
+        </ul>
+      </dd>
+
+      <dt><code>PKIncVerifyFinalFunc</code></dt>
+      <dd>
+        <p>
+          The function that completes hashing and verifies the signature
+          of the hashed message, of the prototype:
+        </p>
+        <pre>void *(*PKIncVerifyFinalFunc_t)(rbuf x);</pre>
+        <p>where:</p>
+        <ul>
+          <li><code>x</code> points to the public-key working context,</li>
+        </ul>
+      </dd>
+    </dl>
+
     <h2>Miscellaneous Context Control Function</h2>
 
     <p>
