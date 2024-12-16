@@ -95,6 +95,7 @@ void HMAC_DRBG_Generate(
         PRF_INIT(H, K, outlen);
         x->prf_update(H, V, outlen);
         x->prf_final(H, out, len);
+        x->prf_final(H, V, outlen); // This was missing before 2024-12-15.
     }
     else
     {

@@ -74,8 +74,10 @@ bool ECC_Hedged_Sign_Prelude(
 
     if( hrng->prf_blklen > 1 )
     {
+        t += hrng->prf_outlen + 1; // V and 1 pad byte.
         t += hrng->prf_blklen - 1; // 00h x (blklen - 1).
         t -= t % hrng->prf_blklen; // mod arith.
+        t -= hrng->prf_outlen + 1; // V and 1 pad byte.
     }
     else t += 1;
 

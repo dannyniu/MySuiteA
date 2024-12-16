@@ -157,13 +157,15 @@ void *EdDSA_IncSign_Final(
     return RFC8032_Sign(x, 1, em, 64, prng_gen, prng);
 }
 
+int hedged_variant = 1;
+
 static void *RFC8032_Sign(
     EdDSA_Ctx_Hdr_t *restrict x, uint8_t flags,
     void const *restrict em, size_t emlen,
     GenFunc_t prng_gen, void *restrict prng)
 {
     uint8_t *dst; // was initialized by copying from a "src", hence the name.
-    uint8_t buf[128];
+    uint8_t buf[128] = {};
     size_t plen = (x->curve->pbits + 8) / 8;
     size_t t, b;
 
@@ -183,69 +185,119 @@ static void *RFC8032_Sign(
     // 2023-11-16: changed to: H(dom(F,C) + Z + prefix + 000... + PH(M), plen)
     // 2024-03-17: changed to:
     // H(00h + Z + dom(F,C) + 000... + prefix + 000... + PH(M), plen)
+    // 2024-12-09: added a conditional branch for DJB's proposal.
 
-    // Updated Step 2: PH(M). // brought here to avoid schedule conflict.
-
-    hfnx->initfunc(dst);
-
-    // Updated Step 2: 00h and then 'Z'.
-
-    for(t=0; t<sizeof(buf); t++)
-        buf[t] = 0;
-
-    if( prng_gen && prng )
-        prng_gen(prng, buf+1, plen);
-
-    hfnx->updatefunc(dst, buf, plen+1);
-    t = plen+1;
-
-    // Updated Step 2: DOM String.
-
-    if( plen != 32 || x->ctxstr[0] > 0 || flags )
+    if( hedged_variant == 0 )
     {
-        // Added 2024-10-06 as part of the
-        // new domain separation string initialization routine.
+        // 2024-12-09:
+        // Proposal from Draft-03.
 
-        if( plen == 32 )
-            hfnx->updatefunc(dst, DomStr25519, 32), t += 32;
-        else hfnx->updatefunc(dst, DomStr448, 8), t += 8;
+        hfnx->initfunc(dst);
 
-        hfnx->updatefunc(dst, &flags, 1);
-        hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0]+1);
-        t += x->ctxstr[0] + 2;
+        // Updated Step 2: 00h and then 'Z'.
+
+        for(t=0; t<sizeof(buf); t++)
+            buf[t] = 0;
+
+        if( prng_gen && prng )
+            prng_gen(prng, buf+1, plen);
+
+        hfnx->updatefunc(dst, buf, plen+1);
+        t = plen+1;
+
+        // Updated Step 2: DOM String.
+
+        if( plen != 32 || x->ctxstr[0] > 0 || flags )
+        {
+            // Added 2024-10-06 as part of the
+            // new domain separation string initialization routine.
+
+            if( plen == 32 )
+                hfnx->updatefunc(dst, DomStr25519, 32), t += 32;
+            else hfnx->updatefunc(dst, DomStr448, 8), t += 8;
+
+            hfnx->updatefunc(dst, &flags, 1);
+            hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0]+1);
+            t += x->ctxstr[0] + 2;
+        }
+
+        // Updated Step 2: 000...
+
+        b = plen == 32 ? 128 : plen == 57 ? 136 : 1;
+        t %= b;
+        t = b - t;
+
+        for(b=0; b<t; b++) buf[b] = 0;
+        hfnx->updatefunc(dst, buf, t);
+
+        // Updated Step 2: 'prefix'.
+
+        hfnx->updatefunc(dst, x->prefix, plen);
+        t = plen;
+
+        // Updated Step 2: 000...
+
+        b = plen == 32 ? 128 : plen == 57 ? 136 : 1;
+        t %= b;
+        t = b - t;
+
+        for(b=0; b<t; b++) buf[b] = 0;
+        hfnx->updatefunc(dst, buf, t);
+
+        // Updated Step 2: PH(M)
+
+        hfnx->updatefunc(dst, em, emlen);
+
+        if( hfnx->xfinalfunc )
+            hfnx->xfinalfunc(dst);
+
+        hfnx->hfinalfunc(dst, buf, plen * 2);
     }
+    else if( hedged_variant == 1 )
+    {
+        // 2024-12-09:
+        // DJB's proposal from his mail to CFRG
+        // on 2024-03-22 07:08 UTC.
 
-    // Updated Step 2: 000...
+        if( prng_gen && prng )
+            prng_gen(prng, buf, plen);
 
-    b = plen == 32 ? 128 : plen == 57 ? 136 : 1;
-    t %= b;
-    t = b - t;
+        hfnx->initfunc(dst);
+        hfnx->updatefunc(dst, x->prefix, plen);
+        hfnx->updatefunc(dst, buf, plen);
 
-    for(b=0; b<t; b++) buf[b] = 0;
-    hfnx->updatefunc(dst, buf, t);
+        if( hfnx->xfinalfunc )
+            hfnx->xfinalfunc(dst);
+        hfnx->hfinalfunc(dst, buf, plen);
 
-    // Updated Step 2: 'prefix'.
+        hfnx->initfunc(dst);
 
-    hfnx->updatefunc(dst, x->prefix, plen);
-    t = plen;
+        if( plen != 32 || x->ctxstr[0] > 0 || flags )
+        {
+            // Added 2024-10-06 as part of the
+            // new domain separation string initialization routine.
 
-    // Updated Step 2: 000...
+            if( plen == 32 )
+                hfnx->updatefunc(dst, DomStr25519, 32);
+            else hfnx->updatefunc(dst, DomStr448, 8);
 
-    b = plen == 32 ? 128 : plen == 57 ? 136 : 1;
-    t %= b;
-    t = b - t;
+            hfnx->updatefunc(dst, &flags, 1);
+            hfnx->updatefunc(dst, x->ctxstr, x->ctxstr[0]+1);
+        }
 
-    for(b=0; b<t; b++) buf[b] = 0;
-    hfnx->updatefunc(dst, buf, t);
+        hfnx->updatefunc(dst, buf, plen);
+        hfnx->updatefunc(dst, em, emlen);
 
-    // Updated Step 2: PH(M)
-
-    hfnx->updatefunc(dst, em, emlen);
-
-    if( hfnx->xfinalfunc )
-        hfnx->xfinalfunc(dst);
-
-    hfnx->hfinalfunc(dst, buf, plen * 2);
+        if( hfnx->xfinalfunc )
+            hfnx->xfinalfunc(dst);
+        hfnx->hfinalfunc(dst, buf, plen * 2);
+    }
+    else
+    {
+        // 2024-12-09: unexpected enum val.
+        x->status = -1;
+        return NULL;
+    }
 
     // R = [r]B
 
