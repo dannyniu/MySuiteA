@@ -18,8 +18,8 @@ void MLKEM_SampleNTT(
 
     SHAKE128_Init(&hctx);
     SHAKE_Write(&hctx, rho, 32);
-    c[0] = i;
-    c[1] = j;
+    c[0] = j;
+    c[1] = i;
     SHAKE_Write(&hctx, c, 2);
     SHAKE_Final(&hctx);
 

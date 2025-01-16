@@ -13,13 +13,15 @@
 // [5]: F
 // [6]: H
 // [7]: T
-// All above are in ``[].aux''.
-typedef CryptoParam_t SLHDSA_Param_t[8];
+// [8]: hashalgo
+// 0-7 are in ``[].aux'', 8 in ``[].info''.
+typedef CryptoParam_t SLHDSA_Param_t[9];
 
 // data model: SIP16 | ILP32 | LP64
 // ----------+-------+-------+------
-// align spec: 4 *23 | 4 *26 | 8*16
+// align spec: 4 *91 | 4 *96 | 8*106
 typedef struct {
+    uint8_t ctxstr[256];
     uint32_t n, d, h, hapos;
     uint32_t a, k, lgw, m;
 
@@ -28,26 +30,33 @@ typedef struct {
     } wots;
 
     SPHINCS_HashParam_t Hmsg, PRF, PRFmsg, F, H, T;
+    hash_funcs_set_t hfuncs;
+    uint32_t hashlen;
+    uint32_t offset_hctx;
+
+    int16_t hash_oid_tab_ind;
+    int16_t status;
+
     uint32_t offset_buf_n_bytes;
-    uint32_t offset_buf_n_wotslen_bytes;
-    uint32_t offset_buf_n_hapos_p1_bytes;
-    uint32_t offset_buf_n_k_bytes;
-    uint32_t offset_buf_n_a_p1_bytes;
+    uint32_t offset_buf_n_wotslen_bytes; // n * (2n + 3) bytes for WOTS node.
+    uint32_t offset_buf_n_hapos_p1_bytes; // n * (1 + h') bytes for XMSS pubkey.
+    uint32_t offset_buf_n_k_bytes; // n * k bytes for FORS pubkey.
+    uint32_t offset_buf_n_a_p1_bytes; // n * (a + 1) bytes for FORS leaf.
     uint32_t offset_signature;
 
     // struct { uint8_t SKseed[n], SKprf[n], PKseed[n], PKroot[n]; },
     // private key working contexts has all 4,
     // public key working context ignores the previous 2.
     uint32_t offset_key_elems;
-
-    int32_t status;
 } SLHDSA_Ctx_Hdr_t;
 
 #define SLHDSA_SIG_BYTES(n, h, d, a, k)         \
     (n * (1 + k*(a + 1) + h + d*(n * 2 + 3)))
 
+// 2024-10-09:
+// hapos (h') was erroneously lacking a "+1".
 #define SLHDSA_BUF_BYTES(n, hapos, a, k)        \
-    (n * (1 + n*2+3 + hapos + a+1 + k))
+    (n * (1 + n*2+3 + hapos+1 + a+1 + k))
 
 #define SLHDSA_PRIV_KEY_BYTES(n) (n * 4)
 
@@ -56,7 +65,7 @@ typedef struct {
       SLHDSA_BUF_BYTES(n, hapos, a, k) +                \
       SLHDSA_PRIV_KEY_BYTES(n) )
 
-#define SLHDSA_CTX_SIZE_X(n, h)                                         \
+#define SLHDSA_CTX_SIZE_X(n, h, hashalgo)                               \
     (sizeof(SLHDSA_Ctx_Hdr_t) + (                                       \
         n*100+h == 1663 ? SLHDSA_MEM_DYN_BYTES(16, 63, 7, 9, 12, 14) :  \
         n*100+h == 1666 ? SLHDSA_MEM_DYN_BYTES(16, 66, 22, 3, 6, 33) :  \
@@ -64,17 +73,20 @@ typedef struct {
         n*100+h == 2466 ? SLHDSA_MEM_DYN_BYTES(24, 66, 22, 3, 8, 33) :  \
         n*100+h == 3264 ? SLHDSA_MEM_DYN_BYTES(32, 64, 8, 8, 14, 22) :  \
         n*100+h == 3268 ? SLHDSA_MEM_DYN_BYTES(32, 68, 17, 4, 9, 35) :  \
-        -1 ))
+        -1 ) + CTX_BYTES(hashalgo))
 
 #define SLHDSA_CTX_SIZE(...) SLHDSA_CTX_SIZE_X(__VA_ARGS__)
 
-#define SLHDSA_CTX_INIT_HASHES_X(argHmsg, argPRF, argPRFmsg, argF, argH, argT) \
-    .Hmsg = (SPHINCS_HashParam_t)argHmsg,                               \
-        .PRF = (SPHINCS_HashParam_t)argPRF,                             \
-        .PRFmsg = (SPHINCS_HashParam_t)argPRFmsg,                       \
-        .F = (SPHINCS_HashParam_t)argF,                                 \
-        .H = (SPHINCS_HashParam_t)argH,                                 \
-        .T = (SPHINCS_HashParam_t)argT
+#define SLHDSA_CTX_INIT_HASHES_X(                       \
+    argHmsg, argPRF, argPRFmsg, argF, argH, argT, hobj) \
+    .Hmsg = (SPHINCS_HashParam_t)argHmsg,               \
+        .PRF = (SPHINCS_HashParam_t)argPRF,             \
+        .PRFmsg = (SPHINCS_HashParam_t)argPRFmsg,       \
+        .F = (SPHINCS_HashParam_t)argF,                 \
+        .H = (SPHINCS_HashParam_t)argH,                 \
+        .T = (SPHINCS_HashParam_t)argT,                 \
+        .hashlen = OUT_BYTES(hobj),                     \
+        .hfuncs = HASH_FUNCS_SET_INIT(hobj)
 
 #define SLHDSA_CTX_INIT_HASHES(...) SLHDSA_CTX_INIT_HASHES_X(__VA_ARGS__)
 
@@ -97,6 +109,9 @@ typedef struct {
         np * (1 + 2*np+3 + (hp/dp)+1 + kp + ap+1),                      \
         .offset_key_elems            = sizeof(SLHDSA_Ctx_Hdr_t) +       \
         np * (1 + 2*np+3 + (hp/dp)+1 + kp + ap+1) +                     \
+        SLHDSA_SIG_BYTES(np, hp, dp, ap, kp),                           \
+        .offset_hctx                 = sizeof(SLHDSA_Ctx_Hdr_t) +       \
+        np * (1 + 2*np+3 + (hp/dp)+1 + kp + ap+1) + np * 4 +            \
         SLHDSA_SIG_BYTES(np, hp, dp, ap, kp),                           \
         SLHDSA_CTX_INIT_HASHES(__VA_ARGS__),                            \
     })
@@ -156,6 +171,15 @@ void *SLHDSA_Sign(
     void const *restrict msg, size_t msglen,
     GenFunc_t prng_gen, void *restrict prng);
 
+void *SLHDSA_IncSign_Init(
+    SLHDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *SLHDSA_IncSign_Final(
+    SLHDSA_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng);
+
 void *SLHDSA_Encode_Signature(
     SLHDSA_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen);
@@ -168,32 +192,71 @@ void const *SLHDSA_Verify(
     SLHDSA_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
-#define xSLHDSA_KeyCodec(q) (                                    \
-        q==PKKeygenFunc ? (IntPtr)SLHDSA_Keygen :                \
-        q==PKPrivkeyEncoder ? (IntPtr)SLHDSA_Encode_PrivateKey : \
-        q==PKPrivkeyDecoder ? (IntPtr)SLHDSA_Decode_PrivateKey : \
-        q==PKPubkeyExporter ? (IntPtr)SLHDSA_Export_PublicKey :  \
-        q==PKPubkeyEncoder ? (IntPtr)SLHDSA_Encode_PublicKey :   \
-        q==PKPubkeyDecoder ? (IntPtr)SLHDSA_Decode_PublicKey :   \
+void *SLHDSA_IncVerify_Init(
+    SLHDSA_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *SLHDSA_IncVerify_Final(
+    SLHDSA_Ctx_Hdr_t *restrict x);
+
+void *SLHDSA_Sign_Xctrl(
+    SLHDSA_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
+void *SLHDSA_Verify_Xctrl(
+    SLHDSA_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
+enum {
+    SLHDSA_cmd_null      = 0,
+
+    // ``bufvec[0].dat'' points to the context string data.
+    // ``bufvec[0].len'' must be less or equal to 255.
+    SLHDSA_set_ctxstr    = 1,
+};
+
+#define xSLHDSA_KeyCodec(q) (                                           \
+        q==PKKeygenFunc ? (IntPtr)SLHDSA_Keygen :                       \
+        q==PKPrivkeyEncoder ? (IntPtr)SLHDSA_Encode_PrivateKey :        \
+        q==PKPrivkeyDecoder ? (IntPtr)SLHDSA_Decode_PrivateKey :        \
+        q==PKPubkeyExporter ? (IntPtr)SLHDSA_Export_PublicKey :         \
+        q==PKPubkeyEncoder ? (IntPtr)SLHDSA_Encode_PublicKey :          \
+        q==PKPubkeyDecoder ? (IntPtr)SLHDSA_Decode_PublicKey :          \
         0)
 
-#define cSLHDSA(n,h,q) (                        \
+#define cSLHDSA(n,h,hash,q) (                   \
         q==bytesCtxPriv || q==bytesCtxPub ?     \
-        SLHDSA_CTX_SIZE(n,h) :                  \
+        SLHDSA_CTX_SIZE(n,h,hash) :             \
         q==isParamDetermByKey ? false :         \
+        q==dssPreHashingType ? (                \
+            hash(contextBytes) ?                \
+            dssPreHashing_Variant :             \
+            dssPreHashing_ParamSet ) :          \
         0)
 
-#define xSLHDSA(n,h,q) (                                 \
-        q==PKKeygenFunc ? (IntPtr)SLHDSA_Keygen :        \
-        q==PKSignFunc ? (IntPtr)SLHDSA_Sign :            \
-        q==PKVerifyFunc ? (IntPtr)SLHDSA_Verify :        \
-        cSLHDSA(n,h,q) )
+#define xSLHDSA(n,h,hash,q) (                                           \
+        q==PKKeygenFunc ? (IntPtr)SLHDSA_Keygen :                       \
+        q==PKSignFunc ? (IntPtr)SLHDSA_Sign :                           \
+        q==PKVerifyFunc ? (IntPtr)SLHDSA_Verify :                       \
+        q==PKIncSignInitFunc ? (IntPtr)SLHDSA_IncSign_Init :            \
+        q==PKIncSignFinalFunc ? (IntPtr)SLHDSA_IncSign_Final :          \
+        q==PKIncVerifyInitFunc ? (IntPtr)SLHDSA_IncVerify_Init :        \
+        q==PKIncVerifyFinalFunc ? (IntPtr)SLHDSA_IncVerify_Final :      \
+        q==PubXctrlFunc ? (IntPtr)SLHDSA_Verify_Xctrl :                 \
+        q==PrivXctrlFunc ? (IntPtr)SLHDSA_Sign_Xctrl :                  \
+        cSLHDSA(n,h,hash,q) )
 
-#define xSLHDSA_CtCodec(q) (                                     \
-        q==PKSignFunc ? (IntPtr)SLHDSA_Sign :                    \
-        q==PKVerifyFunc ? (IntPtr)SLHDSA_Verify :                \
-        q==PKCtEncoder ? (IntPtr)SLHDSA_Encode_Signature :       \
-        q==PKCtDecoder ? (IntPtr)SLHDSA_Decode_Signature :       \
+#define xSLHDSA_CtCodec(q) (                                    \
+        q==PKSignFunc ? (IntPtr)SLHDSA_Sign :                   \
+        q==PKVerifyFunc ? (IntPtr)SLHDSA_Verify :               \
+        q==PKCtEncoder ? (IntPtr)SLHDSA_Encode_Signature :      \
+        q==PKCtDecoder ? (IntPtr)SLHDSA_Decode_Signature :      \
         0)
 
 IntPtr iSLHDSA_KeyCodec(int q);

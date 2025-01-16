@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2023-11-04. Public Domain. */
 
 #include "sphincs-hash-params-family-sha512.h"
-#include "../2-hash/sha.h"
 #include "../2-mac/hmac-sha.h"
 #include "../0-datum/endian.h"
 
@@ -11,7 +10,9 @@ void SPHINCS_HashParam_Hmsg_SHA512(
     // [0]: R
     // [1]: PK.seed
     // [2]: PK.root
-    // [3]: M
+    // [3]: domain separation byte - 0 for pure, 1 for pre-hash
+    // [4]: context string
+    // [5]: M
     sha512_t hctx, hmgf;
     uint32_t cnt;
     uint8_t hval[OUT_BYTES(cSHA512)];
@@ -23,6 +24,8 @@ void SPHINCS_HashParam_Hmsg_SHA512(
     SHA512_Update(&hctx, in[1].dat, in[1].len);
     SHA512_Update(&hctx, in[2].dat, in[2].len);
     SHA512_Update(&hctx, in[3].dat, in[3].len);
+    SHA512_Update(&hctx, in[4].dat, in[4].len);
+    SHA512_Update(&hctx, in[5].dat, in[5].len);
     SHA512_Final(&hctx, hval, sizeof(hval));
 
     SHA512_Init(&hctx);
@@ -51,13 +54,17 @@ void SPHINCS_HashParam_PRFmsg_SHA512(
 {
     // [0]: SK.prf
     // [1]: opt_rand
-    // [2]: M
+    // [2]: domain separation byte - 0 for pure, 1 for pre-hash
+    // [3]: context string
+    // [4]: M
 
     hmac_sha512_t hctx;
 
     HMAC_SHA512_Init(&hctx, in[0].dat, in[0].len);
     HMAC_Update((hmac_t *)&hctx, in[1].dat, in[1].len);
     HMAC_Update((hmac_t *)&hctx, in[2].dat, in[2].len);
+    HMAC_Update((hmac_t *)&hctx, in[3].dat, in[3].len);
+    HMAC_Update((hmac_t *)&hctx, in[4].dat, in[4].len);
     HMAC_Final((hmac_t *)&hctx, out, outlen);
 }
 

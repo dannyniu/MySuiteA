@@ -1,7 +1,6 @@
 /* DannyNiu/NJF, 2023-11-12. Public Domain. */
 
 #include "sphincs-hash-params-family-shake.h"
-#include "../2-xof/shake.h"
 
 void SPHINCS_HashParam_Hmsg_SHAKE256(
     bufvec_t *restrict in, void *restrict out, size_t outlen)
@@ -9,13 +8,15 @@ void SPHINCS_HashParam_Hmsg_SHAKE256(
     // [0]: R
     // [1]: PK.seed
     // [2]: PK.root
-    // [3]: M
+    // [3]: domain separation byte - 0 for pure, 1 for pre-hash
+    // [4]: context string
+    // [5]: M
 
     shake_t hctx;
     int i;
 
     SHAKE256_Init(&hctx);
-    for(i=0; i<4; i++)
+    for(i=0; i<6; i++)
         SHAKE_Write(&hctx, in[i].dat, in[i].len);
 
     SHAKE_Final(&hctx);
@@ -46,13 +47,15 @@ void SPHINCS_HashParam_PRFmsg_SHAKE256(
 {
     // [0]: SK.prf
     // [1]: opt_rand
-    // [2]: M
+    // [2]: domain separation byte - 0 for pure, 1 for pre-hash
+    // [3]: context string
+    // [4]: M
 
     shake_t hctx;
     int i;
 
     SHAKE256_Init(&hctx);
-    for(i=0; i<3; i++)
+    for(i=0; i<5; i++)
         SHAKE_Write(&hctx, in[i].dat, in[i].len);
 
     SHAKE_Final(&hctx);

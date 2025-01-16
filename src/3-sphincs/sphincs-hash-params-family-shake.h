@@ -4,6 +4,7 @@
 #define MySuiteA_sphincs_hash_params_family_shake_h 1
 
 #include "sphincs-hash-params-family.h"
+#include "../2-xof/shake.h"
 
 void SPHINCS_HashParam_Hmsg_SHAKE256(
     bufvec_t *restrict in, void *restrict out, size_t outlen);

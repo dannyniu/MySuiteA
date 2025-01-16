@@ -13,71 +13,82 @@
 // of ML-DSA (a.k.a. Dilithium) is currently experimental.
 
 #include "../2-pq-crystals/dilithium-aux.h"
+#include "../2-hash/hash-funcs-set.h"
 
-typedef CryptoParam_t MLDSA_Param_t[2];
+// [0] and [1] are k and l respectively.
+// [2] is the hashing algorithm in pre-hash variants,
+// null crypto object for pure variants.
+typedef CryptoParam_t MLDSA_Param_t[3];
 
-// data model: SIP16 | ILP32 | LP64
-// ----------+-------+-------+------
-// align spec:  4 * (32+16+16+256)
+// data model:  SIP16  |  ILP32  |  LP64
+// ----------+---------+---------+--------
+// align spec: 4*(l+2) | 4*(l+4) | 4*(l+8)
+// ---------------------------------------
+// note: l = 64 + 32 + 14 + 16 + 256
 typedef struct {
+    uint8_t ctxstr[256];
+
     // seeds.
     uint8_t rho[32];
     uint8_t K[32];
     uint8_t tr[64];
 
+    // hashing context.
+    hash_funcs_set_t hfuncs;
+    uint32_t offset_hashctx;
+    uint32_t hashlen;
+    int32_t hash_oid_tab_ind;
+
     int32_t status; // refer to "2-rsa/pkcs1-padding.h".
 
     // parameters.
-    int16_t k, l; // differs only to pad structure to a multiply of 16 bytes.
-    int32_t tau, eta, omega; // derive beta from tau and eta.
-    int32_t log2_gamma1, gamma2;
+    int32_t k, l;
 
     // key components.
     uint32_t offset_Ahat; // k x l
     uint32_t offset_s1hat; // l
     uint32_t offset_s2hat; // k
-    uint32_t offset_t1, offset_t0hat; // k each
+    uint32_t offset_t1, offset_t0hat; // k x2
 
     // signature variables.
     uint32_t offset_yz; // l
     uint32_t offset_w; // k
-    uint32_t offset_ck, offset_cl; // k & l resp.
+    uint32_t offset_cs; // k + l.
 
     // scratch registers.
     uint8_t challenge[64]; // also reused as mu.
     module256_t c;
 } MLDSA_Priv_Ctx_Hdr_t;
 
-#define MLDSA_PRIV_CTX_SIZE_X(k,l) (                    \
+#define MLDSA_PRIV_CTX_SIZE_X(k,l,hash) (               \
         sizeof(MLDSA_Priv_Ctx_Hdr_t) +                  \
+        hash(contextBytes) +                            \
         sizeof(module256_t) * (k*l + k*5 + l*3) )
 
-#define SIZEOF_MLDSA_PRIV_HDR sizeof(MLDSA_Priv_Ctx_Hdr_t)
-#define OFFSET_FORMULA(expr) SIZEOF_MLDSA_PRIV_HDR + SIZEOF_M256 * (expr)
+#define SIZEOF_MLDSA_PRIV_HDR(hash)                     \
+    (sizeof(MLDSA_Priv_Ctx_Hdr_t) + hash(contextBytes))
+
+#define OFFSET_FORMULA(expr,hash)                               \
+    (SIZEOF_MLDSA_PRIV_HDR(hash) + SIZEOF_M256 * (expr))
 
 #define MLDSA_PRIV_CTX_SIZE(...) MLDSA_PRIV_CTX_SIZE_X(__VA_ARGS__)
 
-#define MLDSA_PRIV_CTX_INIT_X(kp,lp)                                    \
+#define MLDSA_PRIV_CTX_INIT_X(kp,lp,hashp)                              \
     ((MLDSA_Priv_Ctx_Hdr_t){                                            \
         .k = kp, .l = lp,                                               \
-        .tau   = (kp == 4 ? 39 : kp == 6 ? 49 : kp == 8 ? 60 : -1),     \
-        .eta   = (kp == 4 ? 2  : kp == 6 ? 4  : kp == 8 ? 2  : -1),     \
-        .omega = (kp == 4 ? 80 : kp == 6 ? 55 : kp == 8 ? 75 : -1),     \
-        .log2_gamma1 = (                                                \
-            kp == 4 ? 17 : kp == 6 ? 19 : kp == 8 ? 19 : -1),           \
-        .gamma2 = (                                                     \
-            kp == 4 ? (MLDSA_Q - 1) / 88 :                              \
-            kp == 6 ? (MLDSA_Q - 1) / 32 :                              \
-            kp == 8 ? (MLDSA_Q - 1) / 32 : -1),                         \
-        .offset_Ahat  = OFFSET_FORMULA(0),                              \
-        .offset_s1hat = OFFSET_FORMULA(kp*lp + kp*0 + lp*0),            \
-        .offset_s2hat = OFFSET_FORMULA(kp*lp + kp*0 + lp*1),            \
-        .offset_t1    = OFFSET_FORMULA(kp*lp + kp*1 + lp*1),            \
-        .offset_t0hat = OFFSET_FORMULA(kp*lp + kp*2 + lp*1),            \
-        .offset_yz    = OFFSET_FORMULA(kp*lp + kp*3 + lp*1),            \
-        .offset_w     = OFFSET_FORMULA(kp*lp + kp*3 + lp*2),            \
-        .offset_ck    = OFFSET_FORMULA(kp*lp + kp*4 + lp*2),            \
-        .offset_cl    = OFFSET_FORMULA(kp*lp + kp*5 + lp*2),            \
+        .hashlen = OUT_BYTES(hashp),                                    \
+        .offset_hashctx = (                                             \
+            CTX_BYTES(hashp) ?                                          \
+            sizeof(MLDSA_Priv_Ctx_Hdr_t) : 0),                          \
+        .hfuncs = HASH_FUNCS_SET_INIT(hashp),                           \
+        .offset_Ahat  = OFFSET_FORMULA(0, hashp),                       \
+        .offset_s1hat = OFFSET_FORMULA(kp*lp + kp*0 + lp*0, hashp),     \
+        .offset_s2hat = OFFSET_FORMULA(kp*lp + kp*0 + lp*1, hashp),     \
+        .offset_t1    = OFFSET_FORMULA(kp*lp + kp*1 + lp*1, hashp),     \
+        .offset_t0hat = OFFSET_FORMULA(kp*lp + kp*2 + lp*1, hashp),     \
+        .offset_yz    = OFFSET_FORMULA(kp*lp + kp*3 + lp*1, hashp),     \
+        .offset_w     = OFFSET_FORMULA(kp*lp + kp*3 + lp*2, hashp),     \
+        .offset_cs    = OFFSET_FORMULA(kp*lp + kp*4 + lp*2, hashp),     \
     })
 
 #define MLDSA_PRIV_CTX_INIT(...) MLDSA_PRIV_CTX_INIT_X(__VA_ARGS__)
@@ -88,21 +99,29 @@ typedef struct {
         uint8_t blob[MLDSA_PRIV_CTX_SIZE(__VA_ARGS__)]; \
     }
 
-// data model: SIP16 | ILP32 | LP64
-// ----------+-------+-------+------
-// align spec:   4 * (48+12+512)
+// data model:  SIP16  |  ILP32  |  LP64
+// ----------+---------+---------+--------
+// align spec: 4*(l+2) | 4*(l+4) | 4*(l+8)
+// ---------------------------------------
+// note: l = 64 + 96 + 10 + 512
 typedef struct {
+    uint8_t ctxstr[256];
+
     uint8_t rho[32];
     uint8_t w1app[32*7]; // scratch register. 6 is sufficent, 7 is for padding.
     uint8_t tr[64];
     uint8_t c_hash[64]; // from a component of signature actually.
 
+    // hashing context.
+    hash_funcs_set_t hfuncs;
+    uint32_t offset_hashctx;
+    uint32_t hashlen;
+    int32_t hash_oid_tab_ind;
+
     int32_t status; // refer to "2-rsa/pkcs1-padding.h".
 
     // parameters.
-    int32_t k, l; // differs only to pad structure to a multiply of 16 bytes.
-    int32_t tau, eta, omega; // derive beta from tau and eta.
-    int32_t log2_gamma1, gamma2;
+    int32_t k, l;
 
     // key components.
     uint32_t offset_Ahat; // k x l
@@ -116,31 +135,31 @@ typedef struct {
     module256_t c, w;
 } MLDSA_Pub_Ctx_Hdr_t;
 
-#define MLDSA_PUB_CTX_SIZE_X(k,l) (                     \
+#define MLDSA_PUB_CTX_SIZE_X(k,l,hash) (                \
         sizeof(MLDSA_Pub_Ctx_Hdr_t) +                   \
+        hash(contextBytes) +                            \
         sizeof(module256_t) * (k*l + k*2 + l*1) )
 
-#define SIZEOF_MLDSA_PUB_HDR sizeof(MLDSA_Pub_Ctx_Hdr_t)
-#define OFFSET_EXPR(expr) SIZEOF_MLDSA_PUB_HDR + SIZEOF_M256 * (expr)
+#define SIZEOF_MLDSA_PUB_HDR(hash)                      \
+    (sizeof(MLDSA_Pub_Ctx_Hdr_t) + hash(contextBytes))
+
+#define OFFSET_EXPR(expr,hash)                          \
+    SIZEOF_MLDSA_PUB_HDR(hash) + SIZEOF_M256 * (expr)
 
 #define MLDSA_PUB_CTX_SIZE(...) MLDSA_PUB_CTX_SIZE_X(__VA_ARGS__)
 
-#define MLDSA_PUB_CTX_INIT_X(kp,lp)                                     \
+#define MLDSA_PUB_CTX_INIT_X(kp,lp,hashp)                               \
     ((MLDSA_Pub_Ctx_Hdr_t){                                             \
         .k = kp, .l = lp,                                               \
-        .tau   = (kp == 4 ? 39 : kp == 6 ? 49 : kp == 8 ? 60 : -1),     \
-        .eta   = (kp == 4 ? 2  : kp == 6 ? 4  : kp == 8 ? 2  : -1),     \
-        .omega = (kp == 4 ? 80 : kp == 6 ? 55 : kp == 8 ? 75 : -1),     \
-        .log2_gamma1 = (                                                \
-            kp == 4 ? 17 : kp == 6 ? 19 : kp == 8 ? 19 : -1),           \
-        .gamma2 = (                                                     \
-            kp == 4 ? (MLDSA_Q - 1) / 88 :                              \
-            kp == 6 ? (MLDSA_Q - 1) / 32 :                              \
-            kp == 8 ? (MLDSA_Q - 1) / 32 : -1),                         \
-        .offset_Ahat  = OFFSET_EXPR(0),                                 \
-        .offset_t1hat = OFFSET_EXPR(kp*lp + kp*0 + lp*0),               \
-        .offset_z     = OFFSET_EXPR(kp*lp + kp*1 + lp*0),               \
-        .offset_h     = OFFSET_EXPR(kp*lp + kp*1 + lp*1),               \
+        .hashlen = OUT_BYTES(hashp),                                    \
+        .offset_hashctx = (                                             \
+            CTX_BYTES(hashp) ?                                          \
+            sizeof(MLDSA_Priv_Ctx_Hdr_t) : 0),                          \
+        .hfuncs = HASH_FUNCS_SET_INIT(hashp),                           \
+        .offset_Ahat  = OFFSET_EXPR(0, hashp),                          \
+        .offset_t1hat = OFFSET_EXPR(kp*lp + kp*0 + lp*0, hashp),        \
+        .offset_z     = OFFSET_EXPR(kp*lp + kp*1 + lp*0, hashp),        \
+        .offset_h     = OFFSET_EXPR(kp*lp + kp*1 + lp*1, hashp),        \
     })
 
 #define MLDSA_PUB_CTX_INIT(...) MLDSA_PUB_CTX_INIT_X(__VA_ARGS__)
@@ -190,6 +209,22 @@ void const *MLDSA_Verify(
     MLDSA_Pub_Ctx_Hdr_t *restrict x,
     void const *restrict msg, size_t msglen);
 
+void *MLDSA_IncSign_Init(
+    MLDSA_Priv_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *MLDSA_IncSign_Final(
+    MLDSA_Priv_Ctx_Hdr_t *restrict x,
+    GenFunc_t prng_gen,
+    void *restrict prng);
+
+void *MLDSA_IncVerify_Init(
+    MLDSA_Pub_Ctx_Hdr_t *restrict x,
+    UpdateFunc_t *placeback);
+
+void *MLDSA_IncVerify_Final(
+    MLDSA_Pub_Ctx_Hdr_t *restrict x);
+
 void *MLDSA_Encode_Signature(
     MLDSA_Priv_Ctx_Hdr_t *restrict x,
     void *restrict sig, size_t *siglen);
@@ -197,6 +232,28 @@ void *MLDSA_Encode_Signature(
 void *MLDSA_Decode_Signature(
     MLDSA_Pub_Ctx_Hdr_t *restrict x,
     void const *restrict sig, size_t siglen);
+
+void *MLDSA_Sign_Xctrl(
+    MLDSA_Priv_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
+void *MLDSA_Verify_Xctrl(
+    MLDSA_Pub_Ctx_Hdr_t *restrict x,
+    int cmd,
+    const bufvec_t *restrict bufvec,
+    int veclen,
+    int flags);
+
+enum {
+    MLDSA_cmd_null      = 0,
+
+    // ``bufvec[0].dat'' points to the context string data.
+    // ``bufvec[0].len'' must be less than or equal to 255.
+    MLDSA_set_ctxstr    = 1,
+};
 
 #define xMLDSA_KeyCodec(q) (                                    \
         q==PKKeygenFunc ? (IntPtr)MLDSA_Keygen :                \
@@ -207,17 +264,24 @@ void *MLDSA_Decode_Signature(
         q==PKPubkeyDecoder ? (IntPtr)MLDSA_Decode_PublicKey :   \
         0)
 
-#define cMLDSA(k,l,q) (                                 \
-        q==bytesCtxPriv ? MLDSA_PRIV_CTX_SIZE(k,l) :    \
-        q==bytesCtxPub ? MLDSA_PUB_CTX_SIZE(k,l) :      \
-        q==isParamDetermByKey ? false :                 \
+#define cMLDSA(k,l,h,q) (                                       \
+        q==bytesCtxPriv ? MLDSA_PRIV_CTX_SIZE(k,l,h) :          \
+        q==bytesCtxPub ? MLDSA_PUB_CTX_SIZE(k,l,h) :            \
+        q==isParamDetermByKey ? false :                         \
+        q==dssPreHashingType ? dssPreHashing_Interface :        \
         0)
 
-#define xMLDSA(k,l,q) (                                 \
-        q==PKKeygenFunc ? (IntPtr)MLDSA_Keygen :        \
-        q==PKSignFunc ? (IntPtr)MLDSA_Sign :            \
-        q==PKVerifyFunc ? (IntPtr)MLDSA_Verify :        \
-        cMLDSA(k,l,q) )
+#define xMLDSA(k,l,h,q) (                                               \
+        q==PKKeygenFunc ? (IntPtr)MLDSA_Keygen :                        \
+        q==PKSignFunc ? (IntPtr)MLDSA_Sign :                            \
+        q==PKVerifyFunc ? (IntPtr)MLDSA_Verify :                        \
+        q==PKIncSignInitFunc ? (IntPtr)MLDSA_IncSign_Init :             \
+        q==PKIncSignFinalFunc ? (IntPtr)MLDSA_IncSign_Final :           \
+        q==PKIncVerifyInitFunc ? (IntPtr)MLDSA_IncVerify_Init :         \
+        q==PKIncVerifyFinalFunc ? (IntPtr)MLDSA_IncVerify_Final :       \
+        q==PubXctrlFunc ? (IntPtr)MLDSA_Verify_Xctrl :                  \
+        q==PrivXctrlFunc ? (IntPtr)MLDSA_Sign_Xctrl :                   \
+        cMLDSA(k,l,h,q) )
 
 #define xMLDSA_CtCodec(q) (                                     \
         q==PKSignFunc ? (IntPtr)MLDSA_Sign :                    \

@@ -17,17 +17,18 @@
 MLDSA_Param_t params = {
     [0] = { .info = NULL, .aux = LatticeK, },
     [1] = { .info = NULL, .aux = LatticeL, },
+    [2] = { .info = iHash, .aux = 0, },
 };
 
-#define kgx_decl MLDSA_PRIV_CTX_T(LatticeK, LatticeL)
-#define enx_decl MLDSA_PUB_CTX_T(LatticeK, LatticeL)
+#define kgx_decl MLDSA_PRIV_CTX_T(LatticeK, LatticeL, cHash)
+#define enx_decl MLDSA_PUB_CTX_T(LatticeK, LatticeL, cHash)
 
-#define kgx_init {                              \
-        .header = MLDSA_PRIV_CTX_INIT(          \
-            LatticeK, LatticeL), }
+#define kgx_init {                                      \
+        .header = MLDSA_PRIV_CTX_INIT(                  \
+            LatticeK, LatticeL, xHash), }
 
-#define enx_init {                              \
-        .header = MLDSA_PUB_CTX_INIT(           \
-            LatticeK, LatticeL), }
+#define enx_init {                                      \
+        .header = MLDSA_PUB_CTX_INIT(                   \
+            LatticeK, LatticeL, xHash), }
 
 #include "../3-pkc-test-utils/test-self-fed-dss.c.h"

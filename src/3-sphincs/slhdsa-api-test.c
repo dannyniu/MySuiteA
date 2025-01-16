@@ -5,10 +5,10 @@
 #include "sphincs-hash-params-family-sha512.h"
 #include "sphincs-hash-params-family-shake.h"
 
+#define PKC_InstAlgo tSLHDSA
 #define PKC_CtAlgo iSLHDSA_CtCodec
-#define MSGMAX 96
-
 #define PKC_KeyAlgo iSLHDSA_KeyCodec
+#define MSGMAX 96
 
 #define HashSubX(name,algo) SPHINCS_HashParam_##name##_##algo
 #define HashSub(name,algo) (IntPtr)HashSubX(name,algo)
@@ -22,6 +22,11 @@ SLHDSA_Param_t params = {
     [5] = { .info = NULL, .aux = HashSub(F, ShortHash), },
     [6] = { .info = NULL, .aux = HashSub(H, LongHash), },
     [7] = { .info = NULL, .aux = HashSub(T, LongHash), },
+#if PKC_DSS_No_Incremental_Tests
+    [8] = { .info = iCryptoObj_Null, .aux = 0, },
+#else /* -- pre-hashing -- */
+    [8] = { .info = glue(i,LongHash), .aux = 0, },
+#endif /* PKC_DSS_No_Incremental_Tests */
 };
 
 #include "../3-pkc-test-utils/test-api-dss.c.h"

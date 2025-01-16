@@ -5,6 +5,6 @@
 
 #include "mlkem.h"
 
-PKC_Algo_Inst_t MLKEM_512, MLKEM_768, MLKEM_1024;
+extern PKC_Algo_Inst_t MLKEM_512, MLKEM_768, MLKEM_1024;
 
 #endif /* MySuiteA_mlkem_paramset_h */

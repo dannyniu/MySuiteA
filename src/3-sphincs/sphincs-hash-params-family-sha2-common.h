@@ -4,6 +4,7 @@
 #define MySuiteA_sphincs_hash_params_family_sha2_common_h 1
 
 #include "sphincs-hash-params-family.h"
+#include "../2-hash/sha.h"
 
 void SPHINCS_Hash_Comp_ADRS(
     UpdateFunc_t updatefunc, void *restrict hctx,

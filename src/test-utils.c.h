@@ -27,11 +27,11 @@ void dumphex(uint8_t const *data, size_t len)
     for(size_t i=0; i<len; i+=16)
     {
         for(size_t j=0; j<16; j++)
-            if( i+j < len ) printf("%02x ", data[i+j]);
+            if( i+j < len ) fprintf(stderr, "%02x ", data[i+j]);
 
-        printf("\n");
+        fprintf(stderr, "\n");
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 }
 
 void *frealloc(void *old, size_t len)

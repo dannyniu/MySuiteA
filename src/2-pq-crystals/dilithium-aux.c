@@ -118,6 +118,10 @@ void MLDSA_ExpandMask_1Poly(
     // provided by NIST on Oct 2023 says that
     // the output should be read off the front,
     // thus serving as an errata for the draft.
+    //
+    // 2024-08-20:
+    // According to the standard published not long ago,
+    // the current MySuiteA implementation is conformant.
     uint8_t v[2];
     uint16_t n = r + kappa;
     shake256_t hctx;
@@ -230,19 +234,16 @@ bool MLDSA_HasOverflow(module256_t *m, int32_t bound)
     return false;
 }
 
-int32_t MLDSA_Power2Round(int32_t r, int32_t *r0_out, int d)
+int32_t MLDSA_Power2Round(int32_t a, int32_t *a0, int d)
 {
-    // assumes r = MLDSA_UModQ(r);
+    // 2024-09-01:
+    // now verbatim of that of the reference implementation.
+    int32_t a1;
 
-    int32_t r0 = r;
-    uint32_t mod;
+    a1 = (a + (1 << (d-1)) - 1) >> d;
 
-    mod = 1 << d;
-    r0 &= mod - 1;
-    r0 -= (r0 << 1) & mod;
-
-    if( r0_out ) *r0_out = r0;
-    return (r - r0) >> d;
+    if( a0 ) *a0 = a - (a1 << d);
+    return a1;
 }
 
 int32_t MLDSA_Decompose(int32_t r, int32_t *r0_out, int32_t gamma2)
@@ -257,12 +258,12 @@ int32_t MLDSA_Decompose(int32_t r, int32_t *r0_out, int32_t gamma2)
     a1  = (a + 127) >> 7;
     if( gamma2 == (MLDSA_Q-1)/32 )
     {
-        a1  = (a1*1025 + (1 << 21)) >> 22;
+        a1  = (a1*1025 + ((int32_t)1 << 21)) >> 22;
         a1 &= 15;
     }
     else if( gamma2 == (MLDSA_Q-1)/88 )
     {
-        a1  = (a1*11275 + (1 << 23)) >> 24;
+        a1  = (a1*11275 + ((int32_t)1 << 23)) >> 24;
         a1 ^= ((43 - a1) >> 31) & a1;
     }
 

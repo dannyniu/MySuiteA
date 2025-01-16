@@ -28,7 +28,7 @@ static void KPKE_Enc(MLKEM_Ctx_Hdr_t *restrict x, uint8_t m[32], uint8_t r[32])
 
         for(i=0; i<k; i++)
         {
-            MLKEM_NttScl(u+i, Ahat+j*k+i, &tmp1, j); // row-major.
+            MLKEM_NttScl(u+i, Ahat+i+j*k, &tmp1, j); // as specified, transposed.
         }
 
         MLKEM_NttScl(vw, that+j, &tmp1, j);
@@ -116,11 +116,11 @@ static void KPKE_Keygen(
     module256_t *es   = &x->vw; // scalar / single polynomial.
     int n = 0, i, j, k = x->k;
 
-    for(j=0; j<k; j++)
+    for(i=0; i<k; i++)
     {
-        for(i=0; i<k; i++)
+        for(j=0; j<k; j++)
         {
-            MLKEM_SampleNTT(Ahat+i*k+j, rho, j, i); // row-major, transposed.
+            MLKEM_SampleNTT(Ahat+i*k+j, rho, i, j);
         }
     }
 
@@ -159,11 +159,12 @@ IntPtr MLKEM_Keygen(
 
     prng_gen(prng, x->z, 32);
     prng_gen(prng, seed, 32);
+    seed[32] = x->k; // last byte for parameter set domain separation.
 
     // Note from DannyNiu/NJF:
     // I'd rather prefer generating rho and sigma directly from TRNG.
     SHA3_512_Init(hctx_G);
-    SHA3_512_Update(hctx_G, seed, 32);
+    SHA3_512_Update(hctx_G, seed, 33);
     SHA3_512_Final(hctx_G, seed, 64);
 
     for(i=0; i<32; i++) x->rho[i] = seed[i];
@@ -287,7 +288,7 @@ IntPtr MLKEM_Decode_PrivateKey(
     {
         for(i=0; i<k; i++)
         {
-            MLKEM_SampleNTT(Ahat+i*k+j, x->rho, j, i); // row-major transposed.
+            MLKEM_SampleNTT(Ahat+i*k+j, x->rho, i, j);
         }
     }
 
@@ -510,7 +511,7 @@ IntPtr MLKEM_Decode_PublicKey(
     {
         for(i=0; i<k; i++)
         {
-            MLKEM_SampleNTT(Ahat+i*k+j, x->rho, j, i); // row-major transposed.
+            MLKEM_SampleNTT(Ahat+i*k+j, x->rho, i, j);
         }
     }
 
