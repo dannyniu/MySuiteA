@@ -112,6 +112,7 @@ OBJ_CIPHERS = \
     src/2-encryption/ccm-aes.o
 
 OBJ_HASH = \
+    src/2-hash/hash-dgst-oid-table.o \
     src/2-hash/sha.o \
     src/2-hash/sha3.o \
     src/2-hash/blake2.o \
