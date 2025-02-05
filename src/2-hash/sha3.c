@@ -1,6 +1,5 @@
 /* DannyNiu/NJF, 2018-02-08. Public Domain. */
 
-#include "../1-symm/sponge.h"
 #include "../1-symm/keccak.h"
 #include "sha3.h"
 
