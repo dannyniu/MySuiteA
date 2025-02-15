@@ -30,11 +30,11 @@ void Ascon_XOF128_Final(ascon_xof128_t *restrict x);
 void Ascon_XOF128_Read(
     ascon_xof128_t *restrict x, void *restrict data, size_t len);
 
-#define cAscon_XOF128(q) (                                      \
-        q==outBytes ? -1 :                                      \
-        q==outTruncBytes ? 32 :                                 \
-        q==blockBytes ? 8 :                                     \
-        q==contextBytes ? sizeof(struct ascon_xof128_t) :       \
+#define cAscon_XOF128(q) (                              \
+        q==outBytes ? -1 :                              \
+        q==outTruncBytes ? 32 :                         \
+        q==blockBytes ? 8 :                             \
+        q==contextBytes ? sizeof(ascon_xof128_t) :      \
         0)
 
 #define xAscon_XOF128(q) (                              \
@@ -43,7 +43,7 @@ void Ascon_XOF128_Read(
         q==WriteFunc ? (IntPtr)Ascon_XOF128_Write :     \
         q==XofFinalFunc ? (IntPtr)Ascon_XOF128_Final :  \
         q==ReadFunc ? (IntPtr)Ascon_XOF128_Read :       \
-        cSHAKE(bits,q) )
+        cAscon_XOF128(q) )
 
 IntPtr iAscon_XOF128(int q);
 
