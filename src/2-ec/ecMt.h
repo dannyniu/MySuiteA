@@ -76,7 +76,7 @@ vlong_t *ecMt_point_scale(
     })
 
 // 2022-12-30, there was a type: ECMT_OPCTX_ININT.
-#define ECMT_OPCTX_INIT(type,bits)             \
+#define ECMT_OPCTX_INIT(type,bits)              \
     ((type){                                    \
         .header = ECMT_OPCTX_HDR_INIT(bits),    \
         .x2.c = VLONG_BITS_WCNT(bits),          \

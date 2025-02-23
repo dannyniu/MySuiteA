@@ -83,4 +83,5 @@ void galois128_hash1block_ni(
     ((uint64_t *)Y)[1] = htole64((uint64_t)(y[0]>>64));
 }
 
+#define IntrinSelf
 #include "galois128.c"

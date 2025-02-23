@@ -1,6 +1,5 @@
 /* DannyNiu/NJF, 2018-02-08. Public Domain. */
 
-#include "../1-symm/sponge.h"
 #include "../1-symm/keccak.h"
 #include "sha3.h"
 
@@ -9,7 +8,7 @@
     {                                                                   \
         *x = (sha3_t){                                                  \
             .sponge = SPONGE_INIT(rate, 0x06, 0x80, xKeccakF1600),      \
-            .state = {0},                                           \
+            .state = {0},                                               \
         };                                                              \
     }
 

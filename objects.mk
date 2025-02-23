@@ -31,6 +31,7 @@ OBJ_SYMM_X86 = \
 
 CFLAGS_SYMM_X86 = \
     -maes -mpclmul -msha -mssse3 \
+    -DGENSRC_WILLBE_INCLUDED \
     -DNI_AES=NI_RUNTIME \
     -DNI_FIPS180=NI_RUNTIME \
     -DNI_GALOIS128=NI_RUNTIME
@@ -43,6 +44,7 @@ OBJ_SYMM_ARM = \
 
 CFLAGS_SYMM_ARM = \
     -march=armv8.2-a+crypto+sha3 \
+    -DGENSRC_WILLBE_INCLUDED \
     -DNI_AES=NI_RUNTIME \
     -DNI_FIPS180=NI_RUNTIME \
     -DNI_GALOIS128=NI_RUNTIME \
@@ -54,6 +56,7 @@ OBJ_SYMM_PPC = \
 
 CFLAGS_SYMM_PPC = \
     -mcpu=power8 \
+    -DGENSRC_WILLBE_INCLUDED \
     -DNI_AES=NI_RUNTIME \
     -DNI_FIPS180=NI_RUNTIME
 
@@ -67,6 +70,7 @@ OBJ_SYMM_ShangMi_ARM = \
 
 CFLAGS_SYMM_ShangMi_ARM = \
     -march=armv8.2-a+crypto+sm4 \
+    -DGENSRC_WILLBE_INCLUDED \
     -DNI_SM3=NI_RUNTIME \
     -DNI_SM4=NI_RUNTIME
 
@@ -112,6 +116,7 @@ OBJ_CIPHERS = \
     src/2-encryption/ccm-aes.o
 
 OBJ_HASH = \
+    src/2-hash/hash-dgst-oid-table.o \
     src/2-hash/sha.o \
     src/2-hash/sha3.o \
     src/2-hash/blake2.o \
@@ -194,6 +199,27 @@ OBJ_ECPKC_ShangMi = \
     src/3-sm2/sm2sig-paramset.o \
     src/3-sm2/sm2sig.o
 
+OBJ_PQ_CRYSTALS = \
+    src/1-pq-crystals/m256-codec.o \
+    src/2-pq-crystals/dilithium-aux.o \
+    src/2-pq-crystals/kyber-aux.o \
+    src/3-pq-crystals/mldsa-paramset.o \
+    src/3-pq-crystals/mldsa.o \
+    src/3-pq-crystals/mlkem-paramset.o \
+    src/3-pq-crystals/mlkem.o
+
+OBJ_SPHINCS = \
+    src/3-sphincs/slhdsa-paramset.o \
+    src/3-sphincs/slhdsa.o \
+    src/3-sphincs/sphincs-hash-params-family-sha2-common.o \
+    src/3-sphincs/sphincs-hash-params-family-sha256.o \
+    src/3-sphincs/sphincs-hash-params-family-sha512.o \
+    src/3-sphincs/sphincs-hash-params-family-shake.o \
+    src/3-sphincs/sphincs-subroutines-fors.o \
+    src/3-sphincs/sphincs-subroutines-hypertree.o \
+    src/3-sphincs/sphincs-subroutines-wots.o \
+    src/3-sphincs/sphincs-subroutines-xmss.o
+
 OBJS_GROUP_ALL = \
     ${OBJ_COMMON} ${OBJ_ENDIAN} ${OBJ_INTEGERS} ${OBJ_OSLIB} \
     ${OBJ_SYMM} ${OBJ_SYMM_ShangMi} ${OBJ_SYMM_KoreaJapan} \
@@ -204,7 +230,8 @@ OBJS_GROUP_ALL = \
     ${OBJ_CIPHERS} ${OBJ_HASH} ${OBJ_HASH_ShangMi} \
     ${OBJ_MAC} ${OBJ_NUMBER_THEORY} \
     ${OBJ_PRNG} ${OBJ_RSA} ${OBJ_XOF} ${OBJ_ECC_COMMON} \
-    ${OBJ_PKCS1} ${OBJ_ECPKC_CFRG} ${OBJ_ECPKC_SECG} ${OBJ_ECPKC_ShangMi}
+    ${OBJ_PKCS1} ${OBJ_ECPKC_CFRG} ${OBJ_ECPKC_SECG} ${OBJ_ECPKC_ShangMi} \
+    ${OBJ_PQ_CRYSTALS} ${OBJ_SPHINCS}
 
 OBJS_GROUP_X86_ADDITION = \
     ${OBJ_SYMM_X86}

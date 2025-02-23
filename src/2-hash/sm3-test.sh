@@ -61,7 +61,10 @@ srcset="Plain C"
 tests_run
 
 arch_family=arm
-cflags="-march=armv8.2-a+crypto+sm4 -D NI_SM3=NI_ALWAYS"
+cflags="\
+-march=armv8.2-a+crypto+sm4 \
+-D GENSRC_WILLBE_INCLUDED \
+-D NI_SM3=NI_ALWAYS"
 src="1-symm-national/gbt-32905-arm.c"
 srcset="ARMv8.4-A Crypto Extensions"
 

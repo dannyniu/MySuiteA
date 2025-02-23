@@ -1,5 +1,8 @@
 /* DannyNiu/NJF, 2018-02-05. Public Domain. */
 
+// see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
+#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
+
 #include "fips-180.h"
 #include "../0-datum/endian.h"
 
@@ -232,3 +235,9 @@ void compressfunc_sha512_ci(uint64_t H[8], uint64_t const *restrict M)
 #undef sigma0
 #undef sigma1
 }
+
+#if NI_FIPS180 == NI_RUNTIME
+int extern_ni_fips180_conf = false;
+#endif /* NI_FIPS180 */
+
+#endif /* duplicate symbol definitions guard. */

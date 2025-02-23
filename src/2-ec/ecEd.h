@@ -189,14 +189,14 @@ enum {
     ecEd_BytesVLong = qPrivateUseBegin + 4,
 };
 
-#define cCurveEd(q,bits) (\
-        q==ecEd_BytesOpCtx ? ECED_OPCTX_SIZE(bits) :\
-        q==ecEd_BytesXYTZ ? ECED_XYTZ_SIZE(bits) :\
-        q==ecEd_BytesVLong ? VLONG_BITS_SIZE(bits) :\
+#define cCurveEd(q,bits) (                              \
+        q==ecEd_BytesOpCtx ? ECED_OPCTX_SIZE(bits) :    \
+        q==ecEd_BytesXYTZ ? ECED_XYTZ_SIZE(bits) :      \
+        q==ecEd_BytesVLong ? VLONG_BITS_SIZE(bits) :    \
         0)
 
-#define xCurveEd(q,bits,pCrvDef) (\
-        q==ecEd_PtrCurveDef ? (IntPtr)pCrvDef :\
+#define xCurveEd(q,bits,pCrvDef) (              \
+        q==ecEd_PtrCurveDef ? (IntPtr)pCrvDef : \
         cCurveEd(q,bits) )
 
 #endif /* MySuiteA_ecc_ecEd_h */

@@ -23,6 +23,7 @@ void SHAKE_Write(shake_t *restrict x, const void *restrict data, size_t len);
 void SHAKE_Final(shake_t *restrict x);
 void SHAKE_Read(shake_t *restrict x, void *restrict data, size_t len);
 
+// 2025-01-27: retro note: exposed for "kmac.c".
 void cshake_left_encode(cshake_t *restrict x, uint64_t v);
 void cshake_right_encode(cshake_t *restrict x, uint64_t v);
 void cshake_encode_string(

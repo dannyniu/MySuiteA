@@ -173,6 +173,7 @@ void glue(KeccakP_InstName,_Permute_ni)(void const *in, void *out, int rounds)
     for(i=0; i<25; i++) ptr[i] = htole(ptr[i]);
 }
 
+#define IntrinSelf
 #include "keccak.c.h"
 
 #endif /* defined(Keccak_StateSize) && defined(keccak_word_t) */

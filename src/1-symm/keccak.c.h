@@ -1,5 +1,8 @@
 /* DannyNiu/NJF, 2018-02-06. Public Domain. */
 
+// see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
+#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
+
 #if defined(Keccak_StateSize) && defined(keccak_word_t)
 
 #define KeccakF_InstName glue(KeccakF,Keccak_StateSize)
@@ -225,3 +228,5 @@ IntPtr iKeccakP1600nr12(int q){ return xKeccakP1600nr12(q); }
 IntPtr iKeccakP1600nr14(int q){ return xKeccakP1600nr14(q); }
 
 #endif /* defined(Keccak_StateSize) && defined(keccak_word_t) */
+
+#endif /* duplicate symbol definitions guard. */

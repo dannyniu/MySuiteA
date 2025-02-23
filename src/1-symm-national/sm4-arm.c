@@ -86,4 +86,5 @@ void NI_SM4KeySched(void const *restrict key, void *restrict w)
     }
 }
 
+#define IntrinSelf
 #include "sm4.c"

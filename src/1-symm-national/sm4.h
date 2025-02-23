@@ -34,7 +34,7 @@ void NI_SM4KeySched(void const *restrict key, void *restrict w);
         cSM4(q) )
 
 #elif NI_SM4 == NI_RUNTIME
-extern int extern_ni_sm4_conf
+extern int extern_ni_sm4_conf;
 #define ni_sm4_conf extern_ni_sm4_conf
 
 #define xSM4(q) (                                  \
