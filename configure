@@ -144,11 +144,11 @@ esac
 
     if [ "$with" ] ; then
         with="$(echo "$with" | tr [a-z] [A-Z])"
-        printf '%s\n' \
-               "OBJ_GROUP_WITH_ADDITIONAL = \\" \
-               "OBJ_GROUP_${with}_ADDITIONAL" \
-               "CFLAGS_GROUP_WITH = \\" \
-               "CFLAGS_GROUP_${with}"
+        printf '%s = %s\n' \
+               "OBJS_GROUP_WITH_ADDITION" \
+               "\${OBJS_GROUP_${with}_ADDITION}" \
+               "CFLAGS_GROUP_WITH" \
+               "\${CFLAGS_GROUP_${with}}"
     fi
 
     for p in prefix exec_prefix libdir includedir ; do

@@ -5,11 +5,11 @@
 #include "../0-datum/endian.h"
 #include <arm_neon.h>
 
-#define NI_Define_AES_Cipher(name,Nr)              \
+#define NI_Define_AES_Cipher(name,Nr)           \
     void name(void const *in, void *out,        \
               void const *restrict w)           \
     {                                           \
-        NI_Rijndael_Nb4_Cipher(in, out, w, Nr);    \
+        NI_Rijndael_Nb4_Cipher(in, out, w, Nr); \
     }
 static void NI_Rijndael_Nb4_Cipher(
     uint8_t const in[16], uint8_t out[16],
@@ -34,11 +34,11 @@ static void NI_Rijndael_Nb4_Cipher(
     return;
 }
 
-#define NI_Define_AES_InvCipher(name,Nr)           \
-    void name(void const *in, void *out,        \
-              void const *restrict w)           \
-    {                                           \
-        NI_Rijndael_Nb4_InvCipher(in, out, w, Nr); \
+#define NI_Define_AES_InvCipher(name,Nr)                \
+    void name(void const *in, void *out,                \
+              void const *restrict w)                   \
+    {                                                   \
+        NI_Rijndael_Nb4_InvCipher(in, out, w, Nr);      \
     }
 static void NI_Rijndael_Nb4_InvCipher(
     uint8_t const in[16], uint8_t out[16],
@@ -64,4 +64,5 @@ static void NI_Rijndael_Nb4_InvCipher(
     return;
 }
 
+#define IntrinSelf
 #include "rijndael.c"

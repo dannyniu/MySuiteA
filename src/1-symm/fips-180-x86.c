@@ -284,4 +284,5 @@ void compressfunc_sha512_ni(uint64_t H[8], uint64_t const *restrict M)
     compressfunc_sha512_ci(H, M);
 }
 
+#define IntrinSelf
 #include "fips-180.c"

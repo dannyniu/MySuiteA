@@ -1,5 +1,10 @@
 /* DannyNiu/NJF, 2018-01-31. Public Domain. */
 
+// 2025-02-23:
+// When building a variant with run-time native intrinsics switch,
+// this preprocessing directive guards against duplicate symbol definitions.
+#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
+
 #include "rijndael.h"
 #include "../0-datum/endian.h"
 #include "../0-datum/sbox.c.h"
@@ -30,8 +35,6 @@ static inline uint8_t xtime(uint16_t x)
     x = ((x << 1) & 0x00ff) - ((x << 1) & 0x0100);
     return (uint8_t)(x ^ ((x >> 8) & 0x1b));
 }
-
-// #ifndef Define_AES_Cipher // 2022-06-27: AES Dual-Implementation.
 
 static inline uint8_t gmul(uint8_t a, uint8_t b)
 {
@@ -213,8 +216,6 @@ static void Rijndael_Nb4_InvCipher(
     AddRoundKey(out, w);
 }
 
-// #endif /* Define_AES_Cipher */ // AES Dual-Implementation
-
 #define Define_AES_KeyExpansion(name,Nk,Nr)             \
     void name(void const *restrict key,                 \
               void *restrict w)                         \
@@ -265,7 +266,8 @@ Define_AES_InvCipher(AES128_InvCipher,10);
 Define_AES_InvCipher(AES192_InvCipher,12);
 Define_AES_InvCipher(AES256_InvCipher,14);
 
-#if NI_AES == NI_ALWAYS || NI_AES == NI_RUNTIME
+#if (NI_AES == NI_ALWAYS || NI_AES == NI_RUNTIME) && \
+    defined(NI_Define_AES_Cipher)
 NI_Define_AES_Cipher(NI_AES128_Cipher,10);
 NI_Define_AES_Cipher(NI_AES192_Cipher,12);
 NI_Define_AES_Cipher(NI_AES256_Cipher,14);
@@ -282,3 +284,5 @@ Define_AES_KeyExpansion(AES256_KeyExpansion,8,14);
 IntPtr iAES128(int q) { return xAES128(q); }
 IntPtr iAES192(int q) { return xAES192(q); }
 IntPtr iAES256(int q) { return xAES256(q); }
+
+#endif /* duplicate symbol definitions guard. */

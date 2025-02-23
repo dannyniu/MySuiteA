@@ -71,4 +71,5 @@ static void NI_Rijndael_Nb4_InvCipher(
  * so I dropped it in favor of C-based version.
  */
 
+#define IntrinSelf
 #include "rijndael.c"

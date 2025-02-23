@@ -63,4 +63,5 @@ static void NI_Rijndael_Nb4_InvCipher(
     return;
 }
 
+#define IntrinSelf
 #include "rijndael.c"

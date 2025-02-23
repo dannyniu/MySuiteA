@@ -46,4 +46,4 @@ inc-dep.mk: auto/meta-phony.tmp
 # 2024-03-08:
 # the include file contains target rules, so it
 # must not come before the first rule of this file.
-include inc-dep.mk
+inc-dep.mk

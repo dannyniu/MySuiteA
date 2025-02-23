@@ -38,7 +38,7 @@ void KeccakP1600nr14_Permute(void const *in, void *out);
 
 #elif NI_KECCAK == NI_RUNTIME
 extern int extern_ni_keccak_conf;
-#define ni_keccak_conf extern_ni_keccak_conf;
+#define ni_keccak_conf extern_ni_keccak_conf
 
 #define KeccakP1600_Permute                  \
     ( ni_keccak_conf ?                       \

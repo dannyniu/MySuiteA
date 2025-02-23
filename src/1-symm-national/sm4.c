@@ -1,5 +1,8 @@
 /* DannyNiu/NJF, 2021-06-21. Public Domain. */
 
+// see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
+#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
+
 #include "sm4.h"
 #include "../0-datum/endian.h"
 #include "../0-datum/sbox.c.h"
@@ -157,3 +160,5 @@ void SM4KeySched(void const *restrict key, void *restrict w)
 }
 
 IntPtr iSM4(int q) { return cSM4(q); }
+
+#endif /* duplicate symbol definitions guard. */

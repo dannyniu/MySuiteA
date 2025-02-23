@@ -21,7 +21,7 @@ void galois128_hash1block_ni(
 
 #elif NI_GALOIS128 == NI_RUNTIME
 extern int extern_ni_galois128_conf;
-#define ni_galois128_conf extern_ni_galois128_conf;
+#define ni_galois128_conf extern_ni_galois128_conf
 
 #define galois128_hash1block                    \
     ( ni_galois128_conf ?                       \
