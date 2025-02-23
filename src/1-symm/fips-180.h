@@ -27,7 +27,7 @@ void compressfunc_sha512_ni(uint64_t H[8], uint64_t const *restrict M);
 
 #elif NI_FIPS180 == NI_RUNTIME
 extern int extern_ni_fips180_conf;
-#define ni_fips180_conf extern_ni_fips180_conf;
+#define ni_fips180_conf extern_ni_fips180_conf
 
 #define compressfunc_sha1                       \
     ( ni_fips180_conf ?                         \

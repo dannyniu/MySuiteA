@@ -1,5 +1,8 @@
 /* DannyNiu/NJF, 2021-07-20. Public Domain. */
 
+// see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
+#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
+
 #include "gbt-32905.h"
 #include "../0-datum/endian.h"
 
@@ -125,3 +128,9 @@ void compressfunc_sm3_ci(uint32_t V[8], uint32_t const *restrict M)
     V[6] ^= G;
     V[7] ^= H;
 }
+
+#if NI_SM3 == NI_RUNTIME
+int extern_ni_sm3_conf = false;
+#endif /* NI_SM3 */
+
+#endif /* duplicate symbol definitions guard. */

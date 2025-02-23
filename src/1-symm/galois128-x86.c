@@ -51,4 +51,5 @@ void galois128_hash1block_ni(
     _mm_storeu_si128(Y, galois128_mul_x86(y, h));
 }
 
+#define IntrinSelf
 #include "galois128.c"

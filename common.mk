@@ -12,17 +12,18 @@ FILE_EXT_MACHO = ${ProductVer}.dylib
 
 FILE_EXT = ${FILE_EXT_MACHO}
 
-CFLAGS = -Wall -Wextra -fPIC # If I guessed wrong, specify on command line.
+ccOpts = -Wall -Wextra -fPIC # If I guessed wrong, specify on command line.
 LD = ${CC} # 2024-03-09: direct linker invocation lacks some default flags.
 
 # ``-G'' is the System V and XPG-8/SUSv5 option for producing
 # dynamic-linking library. Will need adaptation for pre-existing linkers.
 DLLFLAGS = -G
 
-OBJS_GROUP_WITH_ADDITIONAL =
+OBJS_GROUP_WITH_ADDITION =
 CFLAGS_GROUP_WITH =
 
-INPUT_OBJECTS = ${OBJS_GROUP_ALL} ${OBJS_GROUP_WITH_ADDITIONAL}
+INPUT_OBJECTS = ${OBJS_GROUP_ALL} ${OBJS_GROUP_WITH_ADDITION}
+CFLAGS = ${ccOpts} ${CFLAGS_GROUP_WITH}
 
 prefix = /usr/local
 exec_prefix = ${prefix}

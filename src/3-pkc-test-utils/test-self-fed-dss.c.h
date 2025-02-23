@@ -5,7 +5,7 @@
 
 // Expects: PKC_Algo_Prefix, MSGMAX, params, {kgx,enx}_{decl,init}.
 
-#define PKC_PreHash_Type \
+#define PKC_PreHash_Type                                \
     glue(t,PKC_Algo_Prefix)(params, dssPreHashingType)
 
 #define PKC_Sign                glue(PKC_Algo_Prefix,_Sign)

@@ -8,7 +8,7 @@
     {                                                                   \
         *x = (sha3_t){                                                  \
             .sponge = SPONGE_INIT(rate, 0x06, 0x80, xKeccakF1600),      \
-            .state = {0},                                           \
+            .state = {0},                                               \
         };                                                              \
     }
 

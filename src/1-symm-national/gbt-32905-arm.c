@@ -108,4 +108,5 @@ void compressfunc_sm3_ni(uint32_t V[8], uint32_t const *restrict M)
     for(i=0; i<4; i++) V[i + 4] ^= buf[3 - i];
 }
 
+#define IntrinSelf
 #include "gbt-32905.c"
