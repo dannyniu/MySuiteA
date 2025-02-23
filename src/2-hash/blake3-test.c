@@ -13,10 +13,10 @@ void BLAKE3_Final(
     void *restrict out,
     size_t t);
 
-#define xBLAKE3_ForTest(q) (\
-        q==outBytes ? 131 :\
-        q==UpdateFunc ? (IntPtr)BLAKE3_Update :\
-        q==FinalFunc ? (IntPtr)BLAKE3_Final :\
+#define xBLAKE3_ForTest(q) (                    \
+        q==outBytes ? 131 :                     \
+        q==UpdateFunc ? (IntPtr)BLAKE3_Update : \
+        q==FinalFunc ? (IntPtr)BLAKE3_Final :   \
         xBLAKE3(q) )
 
 #undef h
