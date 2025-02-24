@@ -216,10 +216,10 @@ enum {
     bytesVLong = qPrivateUseBegin + 4,
 };
 
-#define c_Curve(q,bits) (                       \
-        q==bytesOpCtx ? ECP_OPCTX_SIZE(bits) :  \
-        q==bytesECXYZ ? ECP_XYZ_SIZE(bits) :    \
-        q==bytesVLong ? VLONG_BITS_SIZE(bits) : \
+#define c_Curve(q,bits) (                               \
+        q==bytesOpCtx ? (IntPtr)ECP_OPCTX_SIZE(bits) :  \
+        q==bytesECXYZ ? (IntPtr)ECP_XYZ_SIZE(bits) :    \
+        q==bytesVLong ? (IntPtr)VLONG_BITS_SIZE(bits) : \
         0)
 
 #define x_Curve(q,bits,name_factory) (                  \

@@ -144,12 +144,12 @@ IntPtr PKCS1_Decode_RSAPublicKey(
 
 IntPtr iPKCS1_KeyCodec(int q);
 
-#define cRSA_PKCS1(hmsg,hmgf,bits,primes,q) (   \
-        q==bytesCtxPriv ? PKCS1_PRIV_CTX_SIZE(  \
-            hmsg,hmgf,bits,primes) :            \
-        q==bytesCtxPub ? PKCS1_PUB_CTX_SIZE(    \
-            hmsg,hmgf,bits,primes) :            \
-        q==isParamDetermByKey ? true :          \
+#define cRSA_PKCS1(hmsg,hmgf,bits,primes,q) (           \
+        q==bytesCtxPriv ? (IntPtr)PKCS1_PRIV_CTX_SIZE(  \
+            hmsg,hmgf,bits,primes) :                    \
+        q==bytesCtxPub ? (IntPtr)PKCS1_PUB_CTX_SIZE(    \
+            hmsg,hmgf,bits,primes) :                    \
+        q==isParamDetermByKey ? true :                  \
         0)
 
 #endif /* MySuiteA_pkcs1_h */

@@ -87,10 +87,10 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out, size_t t);
 #define BLAKE2s224_Final blake2s_final
 #define BLAKE2s256_Final blake2s_final
 
-#define cBLAKE2b(bits,q) (                                      \
-        q==outBytes ? bits/8 :                                  \
-        q==blockBytes ? 128 :                                   \
-        q==contextBytes ? sizeof(struct blake2b_context) :      \
+#define cBLAKE2b(bits,q) (                                              \
+        q==outBytes ? bits/8 :                                          \
+        q==blockBytes ? 128 :                                           \
+        q==contextBytes ? (IntPtr)sizeof(struct blake2b_context) :      \
         0)
 
 #define xBLAKE2b(bits,q) (                                      \
@@ -99,10 +99,10 @@ void blake2s_final(blake2s_t *restrict x, void *restrict out, size_t t);
         q==FinalFunc  ? (IntPtr)BLAKE2b##bits##_Final :         \
         cBLAKE2b(bits,q) )
 
-#define cBLAKE2s(bits,q) (                                      \
-        q==outBytes ? bits/8 :                                  \
-        q==blockBytes ? 64 :                                    \
-        q==contextBytes ? sizeof(struct blake2s_context) :      \
+#define cBLAKE2s(bits,q) (                                              \
+        q==outBytes ? bits/8 :                                          \
+        q==blockBytes ? 64 :                                            \
+        q==contextBytes ? (IntPtr)sizeof(struct blake2s_context) :      \
         0)
 
 #define xBLAKE2s(bits,q) (                                      \

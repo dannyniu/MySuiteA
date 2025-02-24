@@ -34,10 +34,10 @@ void *ChaCha_AEAD_Decrypt(
     size_t len, void const *in, void *out,
     size_t tlen, void const *T);
 
-#define cChaCha_AEAD(q) (                               \
-        q==keyBytes ? 32 :                              \
-        q==contextBytes ? sizeof(chacha_aead_t) :       \
-        q==ivBytes ? 12 : q==tagBytes ? 16 :            \
+#define cChaCha_AEAD(q) (                                       \
+        q==keyBytes ? 32 :                                      \
+        q==contextBytes ? (IntPtr)sizeof(chacha_aead_t) :       \
+        q==ivBytes ? 12 : q==tagBytes ? 16 :                    \
         0)
 
 #define xChaCha_AEAD(q) (                               \

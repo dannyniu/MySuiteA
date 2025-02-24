@@ -104,8 +104,8 @@ enum {
         0)
 
 #define cSM2SIG(crv,hash,q) (                                   \
-        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :              \
-        q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :               \
+        q==bytesCtxPriv ? (IntPtr)ECC_CTX_SIZE(crv,hash) :      \
+        q==bytesCtxPub ? (IntPtr)ECC_CTX_SIZE(crv,hash) :       \
         q==isParamDetermByKey ? false :                         \
         q==dssPreHashingType ? dssPreHashing_Interface :        \
         0)

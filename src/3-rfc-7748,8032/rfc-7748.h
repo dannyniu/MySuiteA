@@ -105,10 +105,10 @@ void *XECDH_Decode_Ciphertext(
         q==PKPubkeyDecoder ? (IntPtr)XECDH_Decode_PublicKey :   \
         0)
 
-#define cXECDH(bits,q) (                                \
-        q==bytesCtxPriv ? XECDH_CTX_SIZE(bits) :        \
-        q==bytesCtxPub ? XECDH_CTX_SIZE(bits) :         \
-        q==isParamDetermByKey ? false :                 \
+#define cXECDH(bits,q) (                                        \
+        q==bytesCtxPriv ? (IntPtr)XECDH_CTX_SIZE(bits) :        \
+        q==bytesCtxPub ? (IntPtr)XECDH_CTX_SIZE(bits) :         \
+        q==isParamDetermByKey ? false :                         \
         0)
 
 #define xXECDH(bits,q) (                                \

@@ -70,7 +70,7 @@ void HMAC_DRBG_Generate(
     IntPtr iHMAC_DRBG_##algo(int q);
 
 #define cHMAC_DRBG(prf,q) (                                     \
-        q==contextBytes ? HMAC_DRBG_CTX_LEN(c##prf) :           \
+        q==contextBytes ? (IntPtr)HMAC_DRBG_CTX_LEN(c##prf) :   \
         q==seedBytes ? ((IntPtr)-1) :                           \
         0)
 

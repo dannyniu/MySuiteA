@@ -143,10 +143,10 @@ void *MLKEM_Enc(
         q==PKPubkeyDecoder ? (IntPtr)MLKEM_Decode_PublicKey :        \
         0)
 
-#define cMLKEM(kp,q) (                          \
-        q==bytesCtxPriv ? MLKEM_CTX_SIZE(kp) :  \
-        q==bytesCtxPub ? MLKEM_CTX_SIZE(kp) :   \
-        q==isParamDetermByKey ? false :         \
+#define cMLKEM(kp,q) (                                  \
+        q==bytesCtxPriv ? (IntPtr)MLKEM_CTX_SIZE(kp) :  \
+        q==bytesCtxPub ? (IntPtr)MLKEM_CTX_SIZE(kp) :   \
+        q==isParamDetermByKey ? false :                 \
         0)
 
 #define xMLKEM(kp,q) (                                  \

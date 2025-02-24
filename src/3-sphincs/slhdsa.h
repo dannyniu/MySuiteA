@@ -232,7 +232,7 @@ enum {
 
 #define cSLHDSA(n,h,hash,q) (                   \
         q==bytesCtxPriv || q==bytesCtxPub ?     \
-        SLHDSA_CTX_SIZE(n,h,hash) :             \
+        (IntPtr)SLHDSA_CTX_SIZE(n,h,hash) :     \
         q==isParamDetermByKey ? false :         \
         q==dssPreHashingType ? (                \
             hash(contextBytes) ?                \

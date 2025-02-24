@@ -74,10 +74,10 @@ void SHA512t256_Init(sha512t_t *restrict sha);
 void SHA512t224_Final(sha512t_t *restrict sha, void *restrict out, size_t t);
 void SHA512t256_Final(sha512t_t *restrict sha, void *restrict out, size_t t);
 
-#define cSHA1(q) (                              \
-        q==outBytes ? 20 :                      \
-        q==blockBytes ? 64 :                    \
-        q==contextBytes ? sizeof(sha1_t) :      \
+#define cSHA1(q) (                                      \
+        q==outBytes ? 20 :                              \
+        q==blockBytes ? 64 :                            \
+        q==contextBytes ? (IntPtr)sizeof(sha1_t) :      \
         0)
 
 #define xSHA1(q) (                              \
@@ -86,10 +86,10 @@ void SHA512t256_Final(sha512t_t *restrict sha, void *restrict out, size_t t);
         q==FinalFunc  ? (IntPtr)SHA1_Final :    \
         cSHA1(q) )
 
-#define cSHAoN(bits,blk,q) (                            \
-        q==outBytes ? bits/8 :                          \
-        q==blockBytes ? blk :                           \
-        q==contextBytes ? sizeof(sha##bits##_t) :       \
+#define cSHAoN(bits,blk,q) (                                    \
+        q==outBytes ? bits/8 :                                  \
+        q==blockBytes ? blk :                                   \
+        q==contextBytes ? (IntPtr)sizeof(sha##bits##_t) :       \
         0)
 
 #define xSHAoN(bits,blk,q) (                            \
@@ -98,10 +98,10 @@ void SHA512t256_Final(sha512t_t *restrict sha, void *restrict out, size_t t);
         q==FinalFunc  ? (IntPtr)SHA##bits##_Final :     \
         cSHAoN(bits,blk,q) )
 
-#define cSHA512tN(bits,q) (                     \
-        q==outBytes ? bits/8 :                  \
-        q==blockBytes ? 128 :                   \
-        q==contextBytes ? sizeof(sha512t_t) :   \
+#define cSHA512tN(bits,q) (                             \
+        q==outBytes ? bits/8 :                          \
+        q==blockBytes ? 128 :                           \
+        q==contextBytes ? (IntPtr)sizeof(sha512t_t) :   \
         0)
 
 #define xSHA512tN(bits,q) (                                     \

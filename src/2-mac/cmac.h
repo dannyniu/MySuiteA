@@ -68,10 +68,10 @@ void CMAC_Final(
     IntPtr iCMAC_##algo(int q);
 
 
-#define cCMAC(bc,q) (                                           \
-        q==outBytes || q==blockBytes ? BLOCK_BYTES(c##bc) :     \
-        q==keyBytes ? KEY_BYTES(c##bc) :                        \
-        q==contextBytes ? sizeof(cmac_t) + KSCHD_BYTES(c##bc) : \
+#define cCMAC(bc,q) (                                                   \
+        q==outBytes || q==blockBytes ? BLOCK_BYTES(c##bc) :             \
+        q==keyBytes ? KEY_BYTES(c##bc) :                                \
+        q==contextBytes ? (IntPtr)(sizeof(cmac_t) + KSCHD_BYTES(c##bc)) : \
         0)
 
 #define xCMAC(bc,q) (                                           \
