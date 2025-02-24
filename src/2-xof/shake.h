@@ -48,19 +48,19 @@ enum {
     SHAKE_cSHAKE_customize  = 1,
 };
 
-#define cSHAKE(bits,q) (                                        \
-        q==outBytes ? -1 :                                      \
-        q==outTruncBytes ? ((bits * 2) / 8) :                   \
-        q==blockBytes ? (1600-bits*2)/8 :                       \
-        q==contextBytes ? sizeof(struct shake_context) :        \
+#define cSHAKE(bits,q) (                                                \
+        q==outBytes ? -1 :                                              \
+        q==outTruncBytes ? ((bits * 2) / 8) :                           \
+        q==blockBytes ? (1600-bits*2)/8 :                               \
+        q==contextBytes ? (IntPtr)sizeof(struct shake_context) :        \
         0)
 
-#define xSHAKE(bits,q) (                                        \
-        q==InitFunc ? (IntPtr)SHAKE##bits##_Init :              \
-        q==WriteFunc ? (IntPtr)SHAKE_Write :                    \
-        q==XofFinalFunc ? (IntPtr)SHAKE_Final :                 \
-        q==ReadFunc ? (IntPtr)SHAKE_Read :                      \
-        q==XctrlFunc ? (IntPtr)SHAKE_Xctrl :                    \
+#define xSHAKE(bits,q) (                                \
+        q==InitFunc ? (IntPtr)SHAKE##bits##_Init :      \
+        q==WriteFunc ? (IntPtr)SHAKE_Write :            \
+        q==XofFinalFunc ? (IntPtr)SHAKE_Final :         \
+        q==ReadFunc ? (IntPtr)SHAKE_Read :              \
+        q==XctrlFunc ? (IntPtr)SHAKE_Xctrl :            \
         cSHAKE(bits,q) )
 
 #define cSHAKE128(q) cSHAKE(128,q)

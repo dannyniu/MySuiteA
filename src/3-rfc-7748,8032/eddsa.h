@@ -53,8 +53,8 @@ typedef CryptoParam_t EdDSA_Param_t[2];
         .flags = 0,                                             \
         .offset_hashctx = sizeof(EdDSA_Ctx_Hdr_t) +             \
         hash(contextBytes) * 0,                                 \
-            /* .offset_hashctx_init = sizeof(EdDSA_Ctx_Hdr_t) + \
-               hash(contextBytes) * 1, */                       \
+        /* .offset_hashctx_init = sizeof(EdDSA_Ctx_Hdr_t) +     \
+           hash(contextBytes) * 1, */                           \
         .offset_opctx = sizeof(EdDSA_Ctx_Hdr_t) +               \
         hash(contextBytes) * 1,                                 \
         .offset_A     = sizeof(EdDSA_Ctx_Hdr_t) +               \
@@ -191,13 +191,13 @@ int EdDSA_PKParams(int index, CryptoParam_t *out);
         q==PKPubkeyDecoder ? (IntPtr)EdDSA_Decode_PublicKey :   \
         0)
 
-#define cEdDSA(crv,hash,q) (                            \
-        q==bytesCtxPriv ? EDDSA_CTX_SIZE(crv,hash) :    \
-        q==bytesCtxPub ? EDDSA_CTX_SIZE(crv,hash) :     \
-        q==isParamDetermByKey ? false :                 \
-        q==dssNonceNeeded ? true :                      \
-        q==dssExternRngNeededForNonce ? false :         \
-        q==dssPreHashingType ? dssPreHashing_Variant :  \
+#define cEdDSA(crv,hash,q) (                                    \
+        q==bytesCtxPriv ? (IntPtr)EDDSA_CTX_SIZE(crv,hash) :    \
+        q==bytesCtxPub ? (IntPtr)EDDSA_CTX_SIZE(crv,hash) :     \
+        q==isParamDetermByKey ? false :                         \
+        q==dssNonceNeeded ? true :                              \
+        q==dssExternRngNeededForNonce ? false :                 \
+        q==dssPreHashingType ? dssPreHashing_Variant :          \
         0)
 
 #define xEdDSA(crv,hash,q) (                                            \

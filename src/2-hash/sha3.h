@@ -35,10 +35,10 @@ void SHA3_Final(sha3_t *restrict x, void *restrict out, size_t t);
 #define SHA3_384_Final SHA3_Final
 #define SHA3_512_Final SHA3_Final
 
-#define cSHA3(bits,q) (                                 \
-        q==outBytes ? bits/8 :                          \
-        q==blockBytes ? (1600-bits*2)/8 :               \
-        q==contextBytes ? sizeof(struct sha3_context) : \
+#define cSHA3(bits,q) (                                         \
+        q==outBytes ? bits/8 :                                  \
+        q==blockBytes ? (1600-bits*2)/8 :                       \
+        q==contextBytes ? (IntPtr)sizeof(struct sha3_context) : \
         0)
 
 #define xSHA3(bits,q) (                                 \

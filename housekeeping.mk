@@ -3,6 +3,8 @@
 include common.mk
 include objects.mk
 
+include inc-config.mk
+
 .PHONY: all install uninstall clean distclean
 
 all:;:
@@ -25,7 +27,7 @@ clean:
 	rm -f build/"${ProductName}.${FILE_EXT}"
 	rm -f build/"${ProductName}.pc"
 	rm -Rf build/include
-	rm -f ${OBJS_GROUP_ALL} ${OBJS_GROUP_WITH_ADDITIONAL}
+	rm -f ${OBJS_GROUP_ALL} ${OBJS_GROUP_WITH_ADDITION}
 
 distclean: clean
 	rm -f inc-*.mk auto/configure[-.]*

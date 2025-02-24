@@ -52,7 +52,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
 
 #define cGCM(bc,q) (                                                    \
         q==keyBytes ? c##bc(q) :                                        \
-        q==contextBytes ? sizeof(gcm_t) + c##bc(keyschedBytes) :        \
+        q==contextBytes ? (IntPtr)(sizeof(gcm_t) + c##bc(keyschedBytes)) : \
         q==ivBytes ? 12 : q==tagBytes ? 16 :                            \
         0)
 

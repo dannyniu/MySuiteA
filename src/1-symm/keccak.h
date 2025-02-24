@@ -34,9 +34,11 @@ void KeccakP1600nr14_Permute(void const *in, void *out);
 #define KeccakP1600_Permute KeccakP1600_Permute_ci
 
 #elif NI_KECCAK == NI_ALWAYS
+#define DEF_INC_FROM_NI
 #define KeccakP1600_Permute KeccakP1600_Permute_ni
 
 #elif NI_KECCAK == NI_RUNTIME
+#define DEF_INC_FROM_NI
 extern int extern_ni_keccak_conf;
 #define ni_keccak_conf extern_ni_keccak_conf
 

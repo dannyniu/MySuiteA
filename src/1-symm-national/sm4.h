@@ -27,6 +27,7 @@ void NI_SM4KeySched(void const *restrict key, void *restrict w);
         cSM4(q) )
 
 #elif NI_SM4 == NI_ALWAYS
+#define DEF_INC_FROM_NI
 #define xSM4(q) (                                  \
         q==EncFunc ? (IntPtr)NI_SM4Encrypt :       \
         q==DecFunc ? (IntPtr)NI_SM4Decrypt :       \
@@ -34,6 +35,7 @@ void NI_SM4KeySched(void const *restrict key, void *restrict w);
         cSM4(q) )
 
 #elif NI_SM4 == NI_RUNTIME
+#define DEF_INC_FROM_NI
 extern int extern_ni_sm4_conf;
 #define ni_sm4_conf extern_ni_sm4_conf
 

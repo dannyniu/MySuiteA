@@ -21,11 +21,13 @@ void compressfunc_sha512_ni(uint64_t H[8], uint64_t const *restrict M);
 #define compressfunc_sha512 compressfunc_sha512_ci
 
 #elif NI_FIPS180 == NI_ALWAYS
+#define DEF_INC_FROM_NI
 #define compressfunc_sha1 compressfunc_sha1_ni
 #define compressfunc_sha256 compressfunc_sha256_ni
 #define compressfunc_sha512 compressfunc_sha512_ni
 
 #elif NI_FIPS180 == NI_RUNTIME
+#define DEF_INC_FROM_NI
 extern int extern_ni_fips180_conf;
 #define ni_fips180_conf extern_ni_fips180_conf
 
