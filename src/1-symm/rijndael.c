@@ -1,11 +1,12 @@
 /* DannyNiu/NJF, 2018-01-31. Public Domain. */
 
+#include "rijndael.h"
+
 // 2025-02-23:
 // When building a variant with run-time native intrinsics switch,
 // this preprocessing directive guards against duplicate symbol definitions.
-#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
+#if defined(DEF_INC_FROM_NI) == defined(IntrinSelf)
 
-#include "rijndael.h"
 #include "../0-datum/endian.h"
 #include "../0-datum/sbox.c.h"
 

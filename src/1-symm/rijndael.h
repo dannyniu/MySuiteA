@@ -40,6 +40,7 @@ void AES256_KeyExpansion(void const *restrict key, void *restrict w);
         cAES(bits,q) )
 
 #elif NI_AES == NI_ALWAYS
+#define DEF_INC_FROM_NI
 #define xAES(bits,q) (                                          \
         q==EncFunc ? (IntPtr)NI_AES##bits##_Cipher :            \
         q==DecFunc ? (IntPtr)NI_AES##bits##_InvCipher :         \
@@ -47,6 +48,7 @@ void AES256_KeyExpansion(void const *restrict key, void *restrict w);
         cAES(bits,q) )
 
 #elif NI_AES == NI_RUNTIME
+#define DEF_INC_FROM_NI
 extern int extern_ni_aes_conf;
 #define ni_aes_conf extern_ni_aes_conf
 

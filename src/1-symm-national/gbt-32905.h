@@ -14,9 +14,11 @@ void compressfunc_sm3_ni(uint32_t V[8], uint32_t const *restrict M);
 #define compressfunc_sm3 compressfunc_sm3_ci
 
 #elif NI_SM3 == NI_ALWAYS
+#define DEF_INC_FROM_NI
 #define compressfunc_sm3 compressfunc_sm3_ni
 
 #elif NI_SM3 == NI_RUNTIME
+#define DEF_INC_FROM_NI
 extern int extern_ni_sm3_conf;
 #define ni_sm3_conf extern_ni_sm3_conf
 
