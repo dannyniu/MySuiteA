@@ -1,9 +1,10 @@
 /* DannyNiu/NJF, 2021-07-20. Public Domain. */
 
-// see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
-#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
-
 #include "gbt-32905.h"
+
+// see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
+#if defined(DEF_INC_FROM_NI) == defined(IntrinSelf)
+
 #include "../0-datum/endian.h"
 
 static inline uint32_t T(int j)

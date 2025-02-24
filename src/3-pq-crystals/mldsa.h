@@ -265,8 +265,8 @@ enum {
         0)
 
 #define cMLDSA(k,l,h,q) (                                       \
-        q==bytesCtxPriv ? MLDSA_PRIV_CTX_SIZE(k,l,h) :          \
-        q==bytesCtxPub ? MLDSA_PUB_CTX_SIZE(k,l,h) :            \
+        q==bytesCtxPriv ? (IntPtr)MLDSA_PRIV_CTX_SIZE(k,l,h) :  \
+        q==bytesCtxPub ? (IntPtr)MLDSA_PUB_CTX_SIZE(k,l,h) :    \
         q==isParamDetermByKey ? false :                         \
         q==dssPreHashingType ? dssPreHashing_Interface :        \
         0)

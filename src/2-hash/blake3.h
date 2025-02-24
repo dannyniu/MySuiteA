@@ -76,12 +76,12 @@ void BLAKE3_Read4(
     void *restrict out,
     size_t len, int flags);
 
-#define cBLAKE3(q) (                            \
-        q==outBytes ? -1 :                      \
-        q==outTruncBytes ? 32 :                 \
-        q==blockBytes ? 64:                     \
-        q==chunkBytes ? 1024 :                  \
-        q==contextBytes ? sizeof(blake3_t) :    \
+#define cBLAKE3(q) (                                    \
+        q==outBytes ? -1 :                              \
+        q==outTruncBytes ? 32 :                         \
+        q==blockBytes ? 64:                             \
+        q==chunkBytes ? 1024 :                          \
+        q==contextBytes ? (IntPtr)sizeof(blake3_t) :    \
         0)
 
 #define xBLAKE3(q) (                                    \

@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2018-02-06. Public Domain. */
 
 // see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
-#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
+#if defined(DEF_INC_FROM_NI) == defined(IntrinSelf)
 
 #if defined(Keccak_StateSize) && defined(keccak_word_t)
 

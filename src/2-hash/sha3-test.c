@@ -42,7 +42,7 @@ IntPtr iSHA3_128000(int q){
     return (
         q==outBytes ? 256 :
         q==blockBytes ? 168 :
-        q==contextBytes ? sizeof(struct shake_context) :
+        q==contextBytes ? (IntPtr)sizeof(struct shake_context) :
         q==InitFunc   ? (IntPtr)SHAKE128_Init :
         q==UpdateFunc ? (IntPtr)SHAKE_Write :
         q==FinalFunc  ? (IntPtr)SHA3_128000_Final :

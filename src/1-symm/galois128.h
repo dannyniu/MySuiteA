@@ -17,9 +17,11 @@ void galois128_hash1block_ni(
 #define galois128_hash1block galois128_hash1block_ci
 
 #elif NI_GALOIS128 == NI_ALWAYS
+#define DEF_INC_FROM_NI
 #define galois128_hash1block galois128_hash1block_ni
 
 #elif NI_GALOIS128 == NI_RUNTIME
+#define DEF_INC_FROM_NI
 extern int extern_ni_galois128_conf;
 #define ni_galois128_conf extern_ni_galois128_conf
 

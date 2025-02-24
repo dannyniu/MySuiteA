@@ -49,7 +49,7 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
 
 #define cCCM(bc,q) (                                                    \
         q==keyBytes ? c##bc(q) :                                        \
-        q==contextBytes ? sizeof(ccm_t) + c##bc(keyschedBytes) :        \
+        q==contextBytes ? (IntPtr)(sizeof(ccm_t) + c##bc(keyschedBytes)) : \
         q==ivBytes ? -13 : q==tagBytes ? -16 :                          \
         0)
 

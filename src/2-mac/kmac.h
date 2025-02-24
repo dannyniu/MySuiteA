@@ -60,12 +60,12 @@ void KMAC_Final(
 void KMAC_XofFinal(kmac_t *restrict kmac);
 void KMAC_XofRead(kmac_t *restrict kmac, void *restrict out, size_t t);
 
-#define cKMAC(bits,q) (                                 \
-        q==outBytes ? -1 :                              \
-        q==outTruncBytes ? ((bits * 2) / 8) :           \
-        q==blockBytes ? (200 - (bits / 8) * 2) :        \
-        q==keyBytes ? -((bits / 8) * 2) :               \
-        q==contextBytes ? sizeof(kmac##bits##_t) :      \
+#define cKMAC(bits,q) (                                         \
+        q==outBytes ? -1 :                                      \
+        q==outTruncBytes ? ((bits * 2) / 8) :                   \
+        q==blockBytes ? (200 - (bits / 8) * 2) :                \
+        q==keyBytes ? -((bits / 8) * 2) :                       \
+        q==contextBytes ? (IntPtr)sizeof(kmac##bits##_t) :      \
         0)
 
 #define xKMAC(bits,q) (                                 \

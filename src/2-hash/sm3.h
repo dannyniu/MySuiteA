@@ -23,10 +23,10 @@ void SM3_Init(sm3_t *restrict sm3);
 void SM3_Update(sm3_t *restrict sm3, void const *restrict data, size_t len);
 void SM3_Final(sm3_t *restrict sm3, void *restrict out, size_t t);
 
-#define cSM3(q) (                                      \
-        q==outBytes ? 32 :                             \
-        q==blockBytes ? 64 :                           \
-        q==contextBytes ? sizeof(struct sm3_context) : \
+#define cSM3(q) (                                               \
+        q==outBytes ? 32 :                                      \
+        q==blockBytes ? 64 :                                    \
+        q==contextBytes ? (IntPtr)sizeof(struct sm3_context) :  \
         0)
 
 #define xSM3(q) (                                      \

@@ -85,12 +85,12 @@ enum {
     K12_cmd_Feed_CStr   = 1,
 };
 
-#define cKT128(q) (                             \
-        q==outBytes ? -1 :                      \
-        q==outTruncBytes ? 32 :                 \
-        q==blockBytes ? 200-32 :                \
-        q==chunkBytes ? 8192 :                  \
-        q==contextBytes ? sizeof(K12_Ctx_t) :   \
+#define cKT128(q) (                                     \
+        q==outBytes ? -1 :                              \
+        q==outTruncBytes ? 32 :                         \
+        q==blockBytes ? 200-32 :                        \
+        q==chunkBytes ? 8192 :                          \
+        q==contextBytes ? (IntPtr)sizeof(K12_Ctx_t) :   \
         0)
 
 #define xKT128(q) (                             \
@@ -101,12 +101,12 @@ enum {
         q==XctrlFunc   ? (IntPtr)K12_Xctrl :    \
         cKT128(q) )
 
-#define cKT256(q) (                             \
-        q==outBytes ? -1 :                      \
-        q==outTruncBytes ? 64 :                 \
-        q==blockBytes ? 200-64 :                \
-        q==chunkBytes ? 8192 :                  \
-        q==contextBytes ? sizeof(K12_Ctx_t) :   \
+#define cKT256(q) (                                     \
+        q==outBytes ? -1 :                              \
+        q==outTruncBytes ? 64 :                         \
+        q==blockBytes ? 200-64 :                        \
+        q==chunkBytes ? 8192 :                          \
+        q==contextBytes ? (IntPtr)sizeof(K12_Ctx_t) :   \
         0)
 
 #define xKT256(q) (                             \
@@ -120,12 +120,12 @@ enum {
 #define cKangarooTwelve(q) cKT128(q)
 #define xKangarooTwelve(q) xKT128(q)
 
-#define cMarsupilamiFourteen(q) (               \
-        q==outBytes ? -1 :                      \
-        q==outTruncBytes ? 64 :                 \
-        q==blockBytes ? 200-64 :                \
-        q==chunkBytes ? 8192 :                  \
-        q==contextBytes ? sizeof(K12_Ctx_t) :   \
+#define cMarsupilamiFourteen(q) (                       \
+        q==outBytes ? -1 :                              \
+        q==outTruncBytes ? 64 :                         \
+        q==blockBytes ? 200-64 :                        \
+        q==chunkBytes ? 8192 :                          \
+        q==contextBytes ? (IntPtr)sizeof(K12_Ctx_t) :   \
         0)
 
 #define xMarsupilamiFourteen(q) (                               \

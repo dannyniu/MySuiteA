@@ -29,10 +29,10 @@ void Camellia256_Decrypt(void const *in, void *out, void const *restrict w);
 #define Camellia192_Encrypt Camellia256_Encrypt
 #define Camellia192_Decrypt Camellia256_Decrypt
 
-#define cCamellia(bits,q) (                                     \
-        q==blockBytes ? 16 :                                    \
-        q==keyBytes ? (bits)/8 :                                \
-        q==keyschedBytes ? sizeof(camellia##bits##_kschd_t) :   \
+#define cCamellia(bits,q) (                                             \
+        q==blockBytes ? 16 :                                            \
+        q==keyBytes ? (bits)/8 :                                        \
+        q==keyschedBytes ? (IntPtr)sizeof(camellia##bits##_kschd_t) :   \
         0)
 
 #define xCamellia(bits,q) (                                     \

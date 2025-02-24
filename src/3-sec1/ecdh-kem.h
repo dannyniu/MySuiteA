@@ -76,10 +76,10 @@ void *ECDH_KEM_Decode_Ciphertext(
         q==PKPubkeyDecoder ? (IntPtr)ECDH_KEM_Decode_PublicKey :        \
         0)
 
-#define cECDH_KEM(crv,q) (                                      \
-        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,CRYPTO_OBJ_NULL) :   \
-        q==bytesCtxPub ? ECC_CTX_SIZE(crv,CRYPTO_OBJ_NULL) :    \
-        q==isParamDetermByKey ? false :                         \
+#define cECDH_KEM(crv,q) (                                              \
+        q==bytesCtxPriv ? (IntPtr)ECC_CTX_SIZE(crv,CRYPTO_OBJ_NULL) :   \
+        q==bytesCtxPub ? (IntPtr)ECC_CTX_SIZE(crv,CRYPTO_OBJ_NULL) :    \
+        q==isParamDetermByKey ? false :                                 \
         0)
 
 #define xECDH_KEM(crv,q) (                              \

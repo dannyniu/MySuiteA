@@ -31,7 +31,6 @@ OBJ_SYMM_X86 = \
 
 CFLAGS_SYMM_X86 = \
     -maes -mpclmul -msha -mssse3 \
-    -DGENSRC_WILLBE_INCLUDED \
     -DNI_AES=NI_RUNTIME \
     -DNI_FIPS180=NI_RUNTIME \
     -DNI_GALOIS128=NI_RUNTIME
@@ -44,7 +43,6 @@ OBJ_SYMM_ARM = \
 
 CFLAGS_SYMM_ARM = \
     -march=armv8.2-a+crypto+sha3 \
-    -DGENSRC_WILLBE_INCLUDED \
     -DNI_AES=NI_RUNTIME \
     -DNI_FIPS180=NI_RUNTIME \
     -DNI_GALOIS128=NI_RUNTIME \
@@ -56,7 +54,6 @@ OBJ_SYMM_PPC = \
 
 CFLAGS_SYMM_PPC = \
     -mcpu=power8 \
-    -DGENSRC_WILLBE_INCLUDED \
     -DNI_AES=NI_RUNTIME \
     -DNI_FIPS180=NI_RUNTIME
 
@@ -70,7 +67,6 @@ OBJ_SYMM_ShangMi_ARM = \
 
 CFLAGS_SYMM_ShangMi_ARM = \
     -march=armv8.2-a+crypto+sm4 \
-    -DGENSRC_WILLBE_INCLUDED \
     -DNI_SM3=NI_RUNTIME \
     -DNI_SM4=NI_RUNTIME
 

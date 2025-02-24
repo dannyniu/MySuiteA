@@ -1,9 +1,10 @@
 /* DannyNiu/NJF, 2018-02-10. Public Domain. */
 
-// see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
-#if defined(GENSRC_WILLBE_INCLUDED) == defined(IntrinSelf)
-
 #include "galois128.h"
+
+// see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
+#if defined(DEF_INC_FROM_NI) == defined(IntrinSelf)
+
 #include "../0-datum/endian.h"
 
 typedef struct {

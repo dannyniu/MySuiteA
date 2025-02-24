@@ -65,16 +65,16 @@ void HMAC_Final(
     IntPtr iHMAC_##algo(int q);
 
 
-#define cHMAC(hash,q) (                                         \
-        q==outBytes || q==blockBytes ? c##hash(q) :             \
-        q==keyBytes ? (IntPtr)-BLOCK_BYTES(c##hash) :           \
-        q==contextBytes ? sizeof(hmac_t) + CTX_BYTES(c##hash) : \
+#define cHMAC(hash,q) (                                                 \
+        q==outBytes || q==blockBytes ? c##hash(q) :                     \
+        q==keyBytes ? (IntPtr)-BLOCK_BYTES(c##hash) :                   \
+        q==contextBytes ? (IntPtr)sizeof(hmac_t) + CTX_BYTES(c##hash) : \
         0)
 
-#define xHMAC(hash,q) (                                         \
-        q==KInitFunc ? (IntPtr)HMAC_##hash##_Init :             \
-        q==UpdateFunc ? (IntPtr)HMAC_Update :                   \
-        q==FinalFunc ? (IntPtr)HMAC_Final :                     \
+#define xHMAC(hash,q) (                                 \
+        q==KInitFunc ? (IntPtr)HMAC_##hash##_Init :     \
+        q==UpdateFunc ? (IntPtr)HMAC_Update :           \
+        q==FinalFunc ? (IntPtr)HMAC_Final :             \
         cHMAC(hash,q) )
 
 IntPtr tHMAC(const CryptoParam_t *P, int q);

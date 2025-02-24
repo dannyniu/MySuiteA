@@ -85,8 +85,8 @@ void *ECDSA_Decode_Signature(
         0)
 
 #define cECDSA(crv,hash,q) (                                    \
-        q==bytesCtxPriv ? ECC_CTX_SIZE(crv,hash) :              \
-        q==bytesCtxPub ? ECC_CTX_SIZE(crv,hash) :               \
+        q==bytesCtxPriv ? (IntPtr)ECC_CTX_SIZE(crv,hash) :      \
+        q==bytesCtxPub ? (IntPtr)ECC_CTX_SIZE(crv,hash) :       \
         q==isParamDetermByKey ? false :                         \
         q==dssNonceNeeded ? true :                              \
         q==dssExternRngNeededForNonce ? true :                  \

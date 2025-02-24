@@ -97,7 +97,7 @@ void CTR_DRBG_Reseed_WithDF(
     size_t len);
 
 #define cCTR_DRBG(bc,q) (                                       \
-        q==contextBytes ? CTR_DRBG_CTX_LEN(c##bc) :             \
+        q==contextBytes ? (IntPtr)CTR_DRBG_CTX_LEN(c##bc) :     \
         q==seedBytes ? ((IntPtr)-1) :                           \
         0)
 
@@ -109,9 +109,9 @@ void CTR_DRBG_Reseed_WithDF(
 
 #else
 
-#define cCTR_DRBG(bc,q) (                                       \
-        q==contextBytes ? CTR_DRBG_CTX_LEN(c##bc) :             \
-        q==seedBytes ? BLOCK_BYTES(c##bc) + KEY_BYTES(c##bc) :  \
+#define cCTR_DRBG(bc,q) (                                               \
+        q==contextBytes ? (IntPtr)CTR_DRBG_CTX_LEN(c##bc) :             \
+        q==seedBytes ? (IntPtr)(BLOCK_BYTES(c##bc) + KEY_BYTES(c##bc)) : \
         0)
 
 #define xCTR_DRBG(bc,q) (                                       \
