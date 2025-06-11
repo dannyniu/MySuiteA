@@ -1,7 +1,7 @@
 /* DannyNiu/NJF, 2018-02-06. Public Domain. */
 
 // see 2025-02-23 note towards the beginning of "1-symm/rijndael.c".
-#if defined(DEF_INC_FROM_NI) == defined(IntrinSelf)
+//#if defined(DEF_INC_FROM_NI) == defined(IntrinSelf)
 
 #if defined(Keccak_StateSize) && defined(keccak_word_t)
 
@@ -213,6 +213,9 @@ void glue(KeccakF_InstName,_Permute)(void const *in, void *out)
 #endif /* w == 64 */
 }
 
+IntPtr glue(i,KeccakF_InstName)(int q){ return glue(x,KeccakF_InstName)(q); }
+
+#if Keccak_StateSize == 1600
 void KeccakP1600nr12_Permute(void const *in, void *out)
 {
     KeccakP1600_Permute(in, out, 12);
@@ -223,10 +226,10 @@ void KeccakP1600nr14_Permute(void const *in, void *out)
     KeccakP1600_Permute(in, out, 14);
 }
 
-IntPtr glue(i,KeccakF_InstName)(int q){ return glue(x,KeccakF_InstName)(q); }
 IntPtr iKeccakP1600nr12(int q){ return xKeccakP1600nr12(q); }
 IntPtr iKeccakP1600nr14(int q){ return xKeccakP1600nr14(q); }
+#endif /* Keccak_StateSize == 1600 */
 
 #endif /* defined(Keccak_StateSize) && defined(keccak_word_t) */
 
-#endif /* duplicate symbol definitions guard. */
+//#endif /* duplicate symbol definitions guard. */

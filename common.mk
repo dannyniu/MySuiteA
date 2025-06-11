@@ -5,7 +5,7 @@ ProductName = lib${LibraryName}
 MajorVer = 0
 MinorVer = 3
 ProductVer = ${MajorVer}.${MinorVer}
-ProductRev = ${ProductVer}.0
+ProductRev = ${ProductVer}.1
 
 FILE_EXT_ELF = so.${ProductVer}
 FILE_EXT_MACHO = ${ProductVer}.dylib
