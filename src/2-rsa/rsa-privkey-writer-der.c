@@ -213,7 +213,9 @@ encode_1more_prime:
             enc[t] = enc[t - subret];
 
         for(t=ret+subret; t-->ret; )
-            enc[t] = tlbuf[t];
+            // 2025-07-01:
+            // Caused encoding to fail after the 3rd prime.
+            enc[t] = tlbuf[t-ret];
     }
 
     ret += accum + subret;
