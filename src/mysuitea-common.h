@@ -559,6 +559,7 @@ typedef void *(*XctrlFunc_t)(void *restrict x,
 // Helper macro
 #define OUT_BYTES(obj)                                                  \
     (OUT_NOMINAL(obj) > 4 ? OUT_NOMINAL(obj) : OTRUNC_BYTES(obj))
+#define IS_XOF(obj) (READ_FUNC(obj) != NULL)
 
 // In case C doesn't expand nested macro.
 #define BLOCK_BYTES_1(obj)  ((IntPtr)(obj(blockBytes)))

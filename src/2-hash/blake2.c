@@ -167,6 +167,13 @@ void blake2b_update(blake2b_t *restrict x, const void *restrict data, size_t len
             x->filled = 0;
         }
 
+        if( len && !data )
+        {
+            while( x->filled < sizeof(x->b) )
+                x->b[x->filled++] = 0;
+            return;
+        }
+
         x->b[x->filled++] = ((const uint8_t *)data)[i];
     }
 }
@@ -253,6 +260,13 @@ void blake2s_update(blake2s_t *restrict x, const void *restrict data, size_t len
             x->t += x->filled;
             blake2s_compress(x->h, x->b, x->t, 0);
             x->filled = 0;
+        }
+
+        if( len && !data )
+        {
+            while( x->filled < sizeof(x->b) )
+                x->b[x->filled++] = 0;
+            return;
         }
 
         x->b[x->filled++] = ((const uint8_t *)data)[i];

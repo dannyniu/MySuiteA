@@ -432,7 +432,7 @@
       <dt><code>outBytes</code></dt>
       <dd>The length of the hash digest / MAC tag output in bytes</dd>
 
-      <dt><code>blockBytes</code> (hash-specific)</dt>
+      <dt><code>blockBytes</code></dt>
       <dd>
         The amount of data in bytes, which when accumulated, will cause the
         state transformation function, (be it a compression function,
@@ -494,6 +494,16 @@
           <li><code>data</code> the data to feed into the working context,</li>
           <li><code>len</code> the length of the data. </li>
         </ul>
+        [2025-07-05,upd-zero-pad]: When <code>data</code> is <code>NULL</code>
+        while <code>len</code> is non-zero, the remaining bytes in the block
+        (whose size is defined by <code>blockBytes</code>) are padded and
+        1 invocation of the state transformation function is executed.
+        This functionality is provided for the some schemes that make use
+        of "alternative initialization vector", either for accelerated
+        processing from cached state(s) (e.g. an optimization option
+        for SLH-DSA), or for de-correlation between secret and public data
+        as a side-channel mitigation (e.g. recommended by
+        <a href="https://ia.cr/2017/985">[SBBDS17]</a>).
       </dd>
 
       <dt><code>FinalFunc</code></dt>
@@ -526,6 +536,12 @@
     <p>Additionally, for parallel and tree hashing algorithms, there are:</p>
 
     <dl>
+      <dt><code>chunkBytes</code></dt>
+      <dd>
+        The size of data chunk processed serially (i.e. in a single thread).
+        Multiple chunks may be processed in parallel, and are finally combined.
+      </dd>
+
       <dt><code>Update4Func</code></dt>
       <dd>
         The multi-threaded update function. In addition to the arguments taken
@@ -540,6 +556,13 @@
           <li><code>tc</code>
             the thread crew that will receive the dispatched workload.</li>
         </ul>
+        The [2025-07-05,upd-zero-pad] note does not apply to this interface.
+        For cached-state processing acceleration, multi-threaded hashing
+        don't often resume mid-processing; for secret-public data side-channel
+        de-correlation, there would be multiple threads that need such
+        mitigation, and little reason to intermix secret and public data
+        in the same data stream. Finally, there are 2 blocks in multi-threaded
+        hash - that of the compression function, and that of the chunk.
       </dd>
 
       <dt><code>Final2Func</code></dt>
@@ -587,7 +610,7 @@
         by the algorithm.
       </dd>
 
-      <dt><code>blockBytes</code> (hash-specific)</dt>
+      <dt><code>blockBytes</code></dt>
       <dd>
         The amount of data in bytes, which when accumulated, will cause the
         state transformation function, (be it a compression function,
@@ -622,6 +645,7 @@
           <li><code>data</code> the data to feed into the working context,</li>
           <li><code>len</code> the length of the data. </li>
         </ul>
+        The [2025-07-05,upd-zero-pad] note apply to this interface.
       </dd>
 
       <dt><code>XofFinalFunc</code></dt>

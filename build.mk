@@ -12,13 +12,15 @@ all: build/${ProductName}.${FILE_EXT} build/include build/${ProductName}.pc
 build/${ProductName}.${FILE_EXT}: ${INPUT_OBJECTS}
 	${LD} ${DLLFLAGS} ${LDFLAGS} ${INPUT_OBJECTS} -o $@
 
+headers_select_expr='case "$$1" in *.h) echo "$$1";; *.c.h) [ "$$1" != $${1%.c.h} ] && '
 build/include:
 	mkdir -p build/include
-	cd src ; find . -name \*.h ! -name \*.c.h ! -name \*largeint\* | \
-		while read e ; do \
-                mkdir -p "../build/include/$$(dirname "$$e")" ; \
-                cp "$$PWD/$$e" "../build/include/$$e" ; \
-                done
+	cd src ; { find . -name \*.h ! -name \*.c.h ; \
+		find . -name \*.c.h -exec sh -c \
+		'[ "$$1" != "$${1%.c.h}" ] && [ -e "$${1%.c.h}.h" ] && \
+		echo "$$1"' foo {} \; ; } | while read e ; do \
+		mkdir -p "../build/include/$$(dirname "$$e")" ; \
+		cp "$$PWD/$$e" "../build/include/$$e" ; done
 
 build/${ProductName}.pc:
 	printf '%s\n' \

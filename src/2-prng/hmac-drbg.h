@@ -12,7 +12,7 @@ typedef struct hmac_drbg_context {
     int                 offset_k;
     int                 offset_v;
     unsigned short      prf_outlen;
-    unsigned short      prf_blklen;
+    unsigned short      prf_isxof;
 
     int                 prf_ctx_offset;
     const CryptoParam_t *parameterization;
@@ -34,12 +34,17 @@ typedef struct hmac_drbg_context {
         .offset_k = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 0,           \
         .offset_v = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 1,           \
         .prf_outlen = OUT_BYTES(prf),                                   \
-        .prf_blklen = BLOCK_BYTES_1(prf),                               \
+        .prf_isxof = IS_XOF(prf),                                       \
         .prf_ctx_offset = sizeof(hmac_drbg_t) + OUT_BYTES(prf) * 2,     \
         .prf_init = KINIT_FUNC(prf),                                    \
         .prf_update = UPDATE_FUNC(prf),                                 \
         .prf_final = FINAL_FUNC(prf),                                   \
     })
+
+void HMAC_DRBG_VecSeed(
+    hmac_drbg_t *restrict x,
+    bufvec_t const *restrict bv,
+    size_t bc);
 
 void HMAC_DRBG_Seed( // NIST calls this "instantiate".
     hmac_drbg_t *restrict x,

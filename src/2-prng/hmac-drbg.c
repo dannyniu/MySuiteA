@@ -8,12 +8,13 @@
       x->prf_pinit(x->parameterization, __VA_ARGS__) :  \
       x->prf_init(__VA_ARGS__) )
 
-static void HMAC_DRBG_Update(
+static void HMAC_DRBG_VecUpdate(
     hmac_drbg_t *restrict x,
-    void const *restrict str,
-    size_t len)
+    bufvec_t const *restrict bv,
+    size_t bc)
 {
     size_t outlen = x->prf_outlen;
+    size_t t, len;
     void *K = DeltaTo(x, offset_k);
     void *V = DeltaTo(x, offset_v);
     void *H = DeltaTo(x, prf_ctx_offset);
@@ -24,7 +25,19 @@ static void HMAC_DRBG_Update(
     PRF_INIT(H, K, outlen);
     x->prf_update(H, V, outlen);
     x->prf_update(H, &c, 1);
-    x->prf_update(H, str, len);
+
+    len = 0;
+    for(t=0; t<bc; t++)
+    {
+        x->prf_update(H, bv[t].dat, bv[t].len);
+
+        // Even if it's a NULL-dat block-padding request with
+        // incorrectly specified block length, all it need is
+        // that len is non-zero by the end if any data is fed
+        // into the update subroutine.
+        len += bv[t].len;
+    }
+
     x->prf_final(H, K, outlen);
 
     PRF_INIT(H, K, outlen);
@@ -38,7 +51,8 @@ static void HMAC_DRBG_Update(
     PRF_INIT(H, K, outlen);
     x->prf_update(H, V, outlen);
     x->prf_update(H, &c, 1);
-    x->prf_update(H, str, len);
+    for(t=0; t<bc; t++)
+        x->prf_update(H, bv[t].dat, bv[t].len);
     x->prf_final(H, K, outlen);
 
     PRF_INIT(H, K, outlen);
@@ -46,17 +60,26 @@ static void HMAC_DRBG_Update(
     x->prf_final(H, V, outlen);
 }
 
-void HMAC_DRBG_Seed(
+void HMAC_DRBG_VecSeed(
     hmac_drbg_t *restrict x,
-    void const *restrict seedstr,
-    size_t len)
+    bufvec_t const *restrict bv,
+    size_t bc)
 {
     size_t outlen = x->prf_outlen;
     uint8_t *K = (uint8_t *)x + x->offset_k;
     uint8_t *V = (uint8_t *)x + x->offset_v;
 
     while( outlen-- ) K[outlen] = 0, V[outlen] = 1;
-    HMAC_DRBG_Update(x, seedstr, len);
+    HMAC_DRBG_VecUpdate(x, bv, bc);
+}
+
+void HMAC_DRBG_Seed(
+    hmac_drbg_t *restrict x,
+    void const *restrict seedstr,
+    size_t len)
+{
+    bufvec_t bv = { .len = len, .dat = seedstr };
+    HMAC_DRBG_VecSeed(x, &bv, 1);
 }
 
 void HMAC_DRBG_Reseed(
@@ -64,7 +87,8 @@ void HMAC_DRBG_Reseed(
     void const *restrict seedstr,
     size_t len)
 {
-    HMAC_DRBG_Update(x, seedstr, len);
+    bufvec_t bv = { .len = len, .dat = seedstr };
+    HMAC_DRBG_VecUpdate(x, &bv, 1);
 }
 
 void HMAC_DRBG_Generate(
@@ -81,16 +105,12 @@ void HMAC_DRBG_Generate(
     size_t tmplen = 0;
     size_t t;
 
-    if( x->prf_outlen + x->prf_blklen == 200 &&
-        (x->prf_blklen == 136 || x->prf_blklen == 168) )
+    if( x->prf_isxof )
     {
         // 2024-03-18:
         // This condition is added to support higher RNG efficiency when
         // instantiated with KMAC. KMAC is a XOF, so iterated concatenation
         // generation isn't necessary.
-        // When the block size matches the rate of either of the KMAC
-        // instances, and when the calculated state size matches that of
-        // Keccak-1600, then the PRF is assumed to be KMAC.
 
         PRF_INIT(H, K, outlen);
         x->prf_update(H, V, outlen);
@@ -110,7 +130,7 @@ void HMAC_DRBG_Generate(
         }
     }
 
-    HMAC_DRBG_Update(x, NULL, 0); // This was missing before 2023-05-17.
+    HMAC_DRBG_VecUpdate(x, NULL, 0); // This was missing before 2023-05-17.
 }
 
 #define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
