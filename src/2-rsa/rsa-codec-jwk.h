@@ -11,4 +11,10 @@ json_io_t *RSAPrivateKey_ToJWK(
 IntPtr RSAPrivateKey_FromJWK(
     json_io_t jstr, uint8_t *enc, size_t enclen);
 
+json_io_t *RSAPublicKey_ToJWK(
+    json_io_t *jctx, const uint8_t *enc, size_t enclen);
+
+IntPtr RSAPublicKey_FromJWK(
+    json_io_t jstr, uint8_t *enc, size_t enclen);
+
 #endif /* MySuiteA_rsa_codec_kwt_h */

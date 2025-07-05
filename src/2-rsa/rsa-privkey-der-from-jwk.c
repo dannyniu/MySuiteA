@@ -1,6 +1,6 @@
 /* DannyNiu/NJF, 2025-06-22. Public Domain. */
 
-#include "../2-pkc-xfmt/pkc-xfmt.h"
+#include "rsa-codec-jwk.h"
 #include "../2-asn1/der-codec.h"
 #include "../0-exec/struct-delta.c.h"
 

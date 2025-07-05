@@ -58,10 +58,6 @@ int main(int argc, char *argv[])
     der1 = malloc(len);
     ber_tlv_encode_RSAPrivateKey(ctx, der1, len);
 
-    FILE *r8p = fopen("/tmp/rsa-8p.der", "wb");
-    fwrite(der1, 1, len, r8p);
-    fclose(r8p);
-
     // Experiment 3: Decode and Encode and Compare.
 
     json_io_t jctx = {};
@@ -73,6 +69,8 @@ int main(int argc, char *argv[])
     jctx.json = calloc(1, (jctx.limit = jctx.offset) + 1);
     jctx.offset = 0;
     RSAPrivateKey_ToJWK(&jctx, der1, len);
+
+    // printf("JWK: %s\n", jctx.json);
 
     json_io_t jstr = jctx;
     jstr.offset = 0;

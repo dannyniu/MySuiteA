@@ -1,6 +1,6 @@
 /* DannyNiu/NJF, 2025-06-30. Public Domain. */
 
-#include "../2-pkc-xfmt/pkc-xfmt.h"
+#include "rsa-codec-jwk.h"
 #include "../2-asn1/der-codec.h"
 #include "../0-exec/struct-delta.c.h"
 
@@ -129,6 +129,8 @@ json_io_t *RSAPrivateKey_ToJWK(
     if( -1 == BER_HDR ) return NULL;
     if( tag != BER_TLV_TAG_UNI(16) ) return NULL;
     ret = json_putc(jctx, '{');
+
+    for(t=0; t<12; t++) ret = json_putc(jctx, ("\"kty\":\"RSA\",")[t]);
 
     //
     // version Version, -- Version ::= INTEGER ( two-prime(0), multi(1) ) --
