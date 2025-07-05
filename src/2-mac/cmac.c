@@ -50,6 +50,12 @@ void CMAC_Update(cmac_t *restrict cmac, const void *restrict data, size_t len)
         cmac->filled = 0;
     }
 
+    if( len && !data )
+    {
+        cmac->enc(cmac->T, cmac->T, aux);
+        cmac->filled = 0;
+    }
+
     while( len )
     {
         cmac->T[cmac->filled++] ^= *(buffer++);

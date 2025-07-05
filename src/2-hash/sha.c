@@ -27,6 +27,16 @@ void SHA1_Update(sha1_t *restrict sha, void const *restrict data, size_t len)
         uint32_t const *restrict M) =
         compressfunc_sha1;
 
+    if( len && !data )
+    {
+        sha->len += (sizeof(sha->Msg8) - sha->filled) * 8;
+        while( sha->filled < sizeof(sha->Msg8) )
+            sha->Msg8[sha->filled++] = 0;
+        compressfunc(sha->H, sha->Msg32);
+        sha->filled = 0;
+        return;
+    }
+
     // Msg must not be full when this loop enters.
     while(len)
     {
@@ -99,6 +109,16 @@ void sha256_update(sha256_t *restrict sha, void const *restrict data, size_t len
         uint32_t H[8],
         uint32_t const *restrict M) =
         compressfunc_sha256;
+
+    if( len && !data )
+    {
+        sha->len += (sizeof(sha->Msg8) - sha->filled) * 8;
+        while( sha->filled < sizeof(sha->Msg8) )
+            sha->Msg8[sha->filled++] = 0;
+        compressfunc(sha->H, sha->Msg32);
+        sha->filled = 0;
+        return;
+    }
 
     // Msg must not be full when this loop enters.
     while(len)
@@ -222,6 +242,16 @@ void sha512_update(sha512_t *restrict sha, void const *restrict data, size_t len
         uint64_t H[8],
         uint64_t const *restrict M) =
         compressfunc_sha512;
+
+    if( len && !data )
+    {
+        sha->len += (sizeof(sha->Msg8) - sha->filled) * 8;
+        while( sha->filled < sizeof(sha->Msg8) )
+            sha->Msg8[sha->filled++] = 0;
+        compressfunc(sha->H, sha->Msg64);
+        sha->filled = 0;
+        return;
+    }
 
     // Msg must not be full when this loop enters.
     while(len)

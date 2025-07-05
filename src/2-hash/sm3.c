@@ -13,6 +13,16 @@ void SM3_Update(sm3_t *restrict x, void const *restrict data, size_t len)
         uint32_t const *restrict M) =
         compressfunc_sm3;
 
+    if( len && !data )
+    {
+        x->len += (sizeof(x->Msg8) - x->filled) * 8;
+        while( x->filled < sizeof(x->Msg8) )
+            x->Msg8[x->filled++] = 0;
+        compressfunc(x->H, x->Msg32);
+        x->filled = 0;
+        return;
+    }
+
     // Msg must not be full when this loop enters.
     while( len )
     {

@@ -31,16 +31,29 @@ static TCrew_t tcrew_shared;
 
 void glue(hash_test_,h)(void)
 {
+    uint64_t dgst1, dgst2;
     size_t in_len = 0;
     void *x = NULL;
-
-    mysrand((unsigned long)time(NULL));
 
 #ifdef THREADS_CREW_H
     TCrew_Init(&tcrew_shared);
 #endif /* THREADS_CREW_H */
 
     x = malloc(CTX_BYTES(h));
+
+    // [2025-07-05,upd-zero-pad]: zero-padding test for update function.
+
+    INIT_FUNC(h)(x);
+    UPDATE_FUNC(h)(x, buf, BLOCK_BYTES(h));
+    FINAL_FUNC(h)(x, &dgst1, 8);
+
+    INIT_FUNC(h)(x);
+    UPDATE_FUNC(h)(x, NULL, 1);
+    FINAL_FUNC(h)(x, &dgst2, 8);
+
+    if( dgst1 != dgst2 ) printf("!.");//*/
+
+    mysrand((unsigned long)time(NULL));
     INIT_FUNC(h)(x);
 
     while( (in_len = fread(buf, 1, myrand()+1, stdin)) > 0 )
