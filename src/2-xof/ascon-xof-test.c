@@ -4,11 +4,11 @@
 
 #include "../test-utils.c.h"
 
-char line[8192], word[64];
-uint8_t msg[4096];
-uint8_t out[512], ref[512];
-uint8_t z[256];
-size_t zlen, msglen, mdlen;
+static char line[65536], word[64];
+static uint8_t msg[65536];
+static uint8_t out[65536], ref[65536];
+static uint8_t z[256];
+static size_t zlen, msglen, mdlen;
 
 void Ascon_Xof_Feed(ascon_xof128_t *hctx, size_t outlen)
 {

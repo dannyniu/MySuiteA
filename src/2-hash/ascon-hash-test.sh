@@ -3,6 +3,9 @@
 optimize=debug
 testfunc() {
     $exec xof < ../tests/Ascon/LWC_HASH_KAT_128_256.txt
+    ../src/2-hash/ascon-hash-test-json-conv.py \
+        < ../tests/Ascon/Ascon-Hash256-SP800-232.json |
+        $exec xof || return $?
 }
 
 cd "$(dirname "$0")"

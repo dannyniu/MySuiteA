@@ -4,10 +4,10 @@
 
 #include "../test-utils.c.h"
 
-char line[8192], word[64];
-uint8_t msg[4096];
-uint8_t out[128], ref[128];
-size_t msglen, mdlen;
+static char line[65536], word[64];
+static uint8_t msg[65536];
+static uint8_t out[128], ref[128];
+static size_t msglen, mdlen;
 
 void Ascon_Hash_Feed(ascon_hash256_t *hctx, size_t outlen)
 {

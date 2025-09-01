@@ -2,7 +2,8 @@
 
 testfunc() {
     e=0
-    $exec ../tests/Ascon/LWC_AEAD_KAT_128_128.txt || e=$((e+1))
+    ../src/2-encryption/ascon-aead-test.py $exec < \
+          ../tests/Ascon/Ascon-AEAD128-SP800-232.json || e=$((e+1))
     echo "$e test(s) failed."
 
     if [ $e -gt 0 ]
