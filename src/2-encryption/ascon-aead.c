@@ -147,7 +147,7 @@ IntPtr iAscon_AEAD128(int q)
     return xAscon_AEAD128(q);
 }
 
-IntPtr iAscon_AEAD256(int q)
+IntPtr iAscon_AEAD128nm(int q)
 {
-    return xAscon_AEAD256(q);
+    return xAscon_AEAD128nm(q);
 }

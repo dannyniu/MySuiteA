@@ -49,18 +49,18 @@ void *Ascon_AEAD_Decrypt(
 
 IntPtr iAscon_AEAD128(int q);
 
-#define cAscon_AEAD256(q) (                             \
+#define cAscon_AEAD128nm(q) (                             \
         q==keyBytes ? 32 :                              \
         q==contextBytes ? sizeof(ascon_aead_t) :        \
         q==ivBytes ? 16 : q==tagBytes ? 16 :            \
         0)
 
-#define xAscon_AEAD256(q) (                             \
+#define xAscon_AEAD128nm(q) (                             \
         q==KInitFunc ? (IntPtr)Ascon_AEAD_Init :        \
         q==AEncFunc ? (IntPtr)Ascon_AEAD_Encrypt :      \
         q==ADecFunc ? (IntPtr)Ascon_AEAD_Decrypt :      \
-        cAscon_AEAD256(q) )
+        cAscon_AEAD128nm(q) )
 
-IntPtr iAscon_AEAD256(int q);
+IntPtr iAscon_AEAD128nm(int q);
 
 #endif /* MySuiteA_ascon_aead_h */

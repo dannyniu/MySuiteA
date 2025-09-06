@@ -101,7 +101,7 @@ finalized:
         ((uint8_t *)out)[i] = 0;
 }
 
-#define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
+#define cT(q) (P->param ? P->proto(P->param, q) : P->info(q))
 
 IntPtr tCMAC(const CryptoParam_t *P, int q) { return xCMAC(T,q); }
 

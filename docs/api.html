@@ -173,29 +173,32 @@
       algorithm instance.
     </p>
 
-    <p><code>tCryptoObj_t template;</code>
+    <p><code>tCryptoObj_t proto;</code>
       This member is used if <code>param</code> or <code>aux</code> is
       non-<code>NULL</code>, which indicates this parameter is an
       algorithm construction that takes further instantiation parameter(s).
+      Previously, this member <em>was</em> named
+      <s><code>template</code></s>,
+      however due to conflict with the C++ keyword, it was renamed.
     </p>
 
     <p>
-      The members <code>info</code> and <code>template</code> are aliased
+      The members <code>info</code> and <code>proto</code> are aliased
       together in a <code>union</code> data structure.
     </p>
 
     <p><code>const CryptoParam_t *param;</code>
-      If used, this is passed as the first argument to <code>template</code>.
+      If used, this is passed as the first argument to <code>proto</code>.
       This allows an algorithm construction to be recursively instantiated
       by other algorithm constructions and instances.
     </p>
 
     <p><code>IntPtr aux</code>
-      If used, this is passed as the first argument to <code>template</code>.
+      If used, this is passed as the first argument to <code>proto</code>.
       This member allow certain algorithm constructions to be instantiated with
       miscellaneous objects and values and in ways not defined in MySuiteA.
       This member is aliased to <code>param</code> in a <code>union</code>
-      data structure, so that caller of <code>template</code> doesn't have to
+      data structure, so that caller of <code>proto</code> doesn't have to
       be aware of its argument semantics.
     </p>
 

@@ -66,7 +66,7 @@ finalized:
     hmac->hFinal(aux, out, t);
 }
 
-#define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
+#define cT(q) (P->param ? P->proto(P->param, q) : P->info(q))
 
 IntPtr tHMAC(const CryptoParam_t *P, int q) { return xHMAC(T,q); }
 

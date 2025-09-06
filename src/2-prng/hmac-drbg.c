@@ -94,7 +94,7 @@ void HMAC_DRBG_Generate(
     HMAC_DRBG_Update(x, NULL, 0); // This was missing before 2023-05-17.
 }
 
-#define cT(q) (P->param ? P->template(P->param, q) : P->info(q))
+#define cT(q) (P->param ? P->proto(P->param, q) : P->info(q))
 
 IntPtr tHMAC_DRBG(const CryptoParam_t *P, int q)
 {

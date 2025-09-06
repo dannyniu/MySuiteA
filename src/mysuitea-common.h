@@ -80,7 +80,8 @@ typedef IntPtr (*tCryptoObj_t)(const CryptoParam_t *P, int q);
 struct CryptoParam {
     union {
         iCryptoObj_t info; // if param/aux is NULL,
-        tCryptoObj_t template; // otherwise.
+        tCryptoObj_t template; // otherwise (this field is obsolescent).
+        tCryptoObj_t proto; // `template` is a keyword in C++.
     };
     union {
         const CryptoParam_t *param;
@@ -233,12 +234,12 @@ enum {
 
     // Keyed Context Initialization Function (AEAD, HMAC, etc.) //
     // 2021-03-20 addition for ``KInitFunc'':
-    // applicable to both instances and parameterized instance templates.
+    // applicable to both instances and parameterized instance prototypes.
     KInitFunc = 25,
 
     // Hash & XOF Functions //
     // 2021-03-20 addition for ``InitFunc'':
-    // applicable to both instances and parameterized instance templates.
+    // applicable to both instances and parameterized instance prototypes.
     //
     // - [2022-04-14]: For random oracles that supports domain separation
     //   for fixed-length and arbitrary-length output, the FinalFunc

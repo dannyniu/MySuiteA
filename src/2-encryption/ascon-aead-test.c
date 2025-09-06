@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     AsconAEAD = iAscon_AEAD128;
     if( strlen((argv+1)[3]) == 64 )
-        AsconAEAD = iAscon_AEAD256;
+        AsconAEAD = iAscon_AEAD128nm;
 
     if( strcmp(argv[1], "enc") == 0 )
         return Encrypt(argc-1, argv+1);
