@@ -159,7 +159,7 @@ void *GCM_Decrypt(gcm_t *restrict gcm,
     return out;
 }
 
-#define cT(q) (P->param ? P->protoX(P->param, q) : P->info(q))
+#define cT(q) (P->param ? P->factory(P->param, q) : P->info(q))
 
 IntPtr tGCM(const CryptoParam_t *P, int q) { return xGCM(T,q); }
 

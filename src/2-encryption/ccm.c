@@ -364,7 +364,7 @@ void *CCM_Decrypt(ccm_t *restrict ccm,
     return out;
 }
 
-#define cT(q) (P->param ? P->proto(P->param, q) : P->info(q))
+#define cT(q) (P->param ? P->factory(P->param, q) : P->info(q))
 
 IntPtr tCCM(const CryptoParam_t *P, int q) { return xCCM(T,q); }
 

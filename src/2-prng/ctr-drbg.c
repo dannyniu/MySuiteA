@@ -292,7 +292,7 @@ void CTR_DRBG_Reseed_WithDF(
 #include "ctr-drbg.c.h" // Included only to use ``__CTR_DRBG_Seed''
 #endif
 
-#define cT(q) (P->param ? P->proto(P->param, q) : P->info(q))
+#define cT(q) (P->param ? P->factory(P->param, q) : P->info(q))
 
 IntPtr tCTR_DRBG(const CryptoParam_t *P, int q) { return xCTR_DRBG(T,q); }
 

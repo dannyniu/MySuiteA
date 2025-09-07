@@ -99,7 +99,7 @@ added to:
 
 1. ease the implementation of some higher level primitives (e.g. CTR-DRBG
    relies on block ciphers, and is built without provision for nested
-   prototype instantiation; the same can be said for HMAC);
+   factory instantiation; the same can be said for HMAC);
 
 2. limit the nesting levels of information macros (e.g. PKCS#1 paddings of
    MySuiteA RSA implementations require 2 hash functions - 1 for message,

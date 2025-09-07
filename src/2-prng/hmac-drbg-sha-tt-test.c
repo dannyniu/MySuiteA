@@ -52,7 +52,7 @@ void test_run1(
     int fails = 0;
     size_t kvlen;
 
-    P[0].proto = tHMAC;
+    P[0].factory = tHMAC;
     P[0].param = P+1;
     P[1].info = hash;
     P[1].param = NULL;
