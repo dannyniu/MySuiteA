@@ -1,9 +1,4 @@
-# DannyNiu/NJF, 2024-07-27. Public Domain.
-
-include common.mk
-include objects.mk
-
-include inc-config.mk
+# DannyNiu/NJF, 2025-12-25. Public Domain.
 
 .PHONY: all
 
@@ -12,7 +7,6 @@ all: build/${ProductName}.${FILE_EXT} build/include build/${ProductName}.pc
 build/${ProductName}.${FILE_EXT}: ${INPUT_OBJECTS}
 	${LD} ${DLLFLAGS} ${LDFLAGS} ${INPUT_OBJECTS} -o $@
 
-headers_select_expr='case "$$1" in *.h) echo "$$1";; *.c.h) [ "$$1" != $${1%.c.h} ] && '
 build/include:
 	mkdir -p build/include
 	cd src ; { find . -name \*.h ! -name \*.c.h ; \
@@ -23,17 +17,15 @@ build/include:
 		cp "$$PWD/$$e" "../build/include/$$e" ; done
 
 build/${ProductName}.pc:
-	printf '%s\n' \
-		"prefix=${prefix}" "exec_prefix=${exec_prefix}" \
-		"libdir=${libdir}" "includedir=${includedir}" \
-		"Name: MySuiteA Dynamic Library" \
-		"Version: ${ProductRev}" \
-		"Description: The MySuiteA Cryptography Library." \
-		"URL: https://github.com/dannyniu/MySuiteA" \
-		"URL: https://gitee.com/dannyniu/MySuiteA" \
-		'Cflags: -I$${includedir} '"${CFLAGS_GROUP_WITH}" \
-		'Libs: -L$${libdir} -lMySuiteA' \
-		> $@
+	{ printf '%s\n' \
+	  "prefix=${prefix}" "exec_prefix=${exec_prefix}" \
+	  "libdir=${libdir}" "includedir=${includedir}" \
+	  'Cflags: -I$${includedir} '"${CFLAGS_GROUP_WITH}" \
+	  'Libs: -L$${libdir} -l${LibraryName}' \
+	  "Name: ${PkgConfigName}" \
+	  "Version: ${ProductRev}" \
+	  "Description: ${PkgConfigDesc}" ; \
+	  printf 'URL: %s\n' ${PkgConfigURLs} ; } > $@
 
 # 2024-03-08:
 # This file is created whenever "inc-dep.mk" ought to be re-made for

@@ -230,24 +230,33 @@ test_run_1arch()
     basedir=$srcdir/$(basename "$PWD")
     srcfiles=""
     objfiles=""
+    sep=""
+    cd "$(dirname $unitest_sh)"/../auto ; pwd
     for s in $src_common $src ; do
         b=$(basename $s)
         if [ $s = $b ]
-        then srcfiles="$srcfiles $basedir/$s"
-        else srcfiles="$srcfiles $srcdir/$s"
-        fi ; objfiles="$objfiles ${b%.*}.o"
+        then srcfiles="$srcfiles$sep$(realpath $basedir/$s)"
+        else srcfiles="$srcfiles$sep$(realpath $srcdir/$s)"
+        fi ; objfiles="$objfiles$sep${b%.*}.o"
+        sep=:
     done
 
-    cd "$(dirname $unitest_sh)"/../auto
     rm -f *.o *-test
     set -e
 
+    SavedIFS="$IFS"
+    IFS="$sep"
+    set $srcfiles
+    IFS="$SavedIFS"
     ${CC:-$target_cc} -c $cflags_proj $cflags0 $cflags1 \
-              $cflags_common $cflags $srcfiles
+              $cflags_common $cflags "$@"
 
-    ${LD:-$target_ld} $ld_opts $ldflags_common $ldflags $objfiles -o $bin
+    IFS="$sep"
+    set $objfiles
+    IFS="$SavedIFS"
+    ${LD:-$target_ld} $ld_opts $ldflags_common $ldflags "$@" -o $bin
+
     set +e
-
     if [ X"$build_only" != Xyes ] ; then
         if testfunc
         then printf '\033[42;33m%s\033[0m\n' passing ; true

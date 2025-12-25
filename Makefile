@@ -2,6 +2,13 @@
 
 .PHONY: all install uninstall clean distclean
 
-all:; ${MAKE} -f build.mk ${MAKEFLAGS} $@
-install uninstall clean distclean:
-	${MAKE} -f housekeeping.mk ${MAKEFLAGS} $@
+all:
+	${MAKE} -f common.mk -f inc-config.mk \
+	-f target-dylib-MySuiteA.mk -f build-dylib.mk ${MAKEFLAGS} $@
+
+install uninstall clean:
+	${MAKE} -f common.mk -f inc-config.mk \
+	-f target-dylib-MySuiteA.mk -f housekeeping.mk ${MAKEFLAGS} $@
+
+distclean: clean
+	rm -f inc-*.mk auto/configure[-.]*
