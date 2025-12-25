@@ -8,15 +8,15 @@ install:
 	mkdir -p ${libdir}/pkgconfig ${includedir}
 	cp build/"${ProductName}".pc ${libdir}/pkgconfig
 	cp build/"${ProductName}.${FILE_EXT}" ${libdir}
-	@ if [ -e ${includedir}/MySuiteA ] ; then \
+	@ if [ -e ${includedir}/${LibraryName} ] ; then \
 		echo include headers director exists! ; \
 		false ; \
-	else cp -R -L build/include ${includedir}/MySuiteA ; fi
+	else cp -R -L build/include ${includedir}/${LibraryName} ; fi
 
 uninstall:
 	rm ${libdir}/pkgconfig/"${ProductName}".pc
 	rm ${libdir}/"${ProductName}.${FILE_EXT}"
-	rm -R ${includedir}/MySuiteA
+	rm -R ${includedir}/${LibraryName}
 
 clean:
 	rm -f build/"${ProductName}.${FILE_EXT}"
